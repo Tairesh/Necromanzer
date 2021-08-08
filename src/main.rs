@@ -1,6 +1,6 @@
 extern crate sdl2;
 
-use sdl2::event::Event;
+use sdl2::event::{Event, WindowEvent};
 use sdl2::image::{LoadSurface, LoadTexture};
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -10,6 +10,7 @@ use sdl2::surface::Surface;
 use std::time::Duration;
 
 const VERSION: &str = "v0.1.0";
+const TITLE: &str = "Necromanzer";
 
 fn render(
     canvas: &mut WindowCanvas,
@@ -59,11 +60,17 @@ pub fn main() {
     // let mut window = video_subsystem.window("Necromanzer", display_mode.w as u32, display_mode.h as u32)
     // .fullscreen_desktop()
     let mut window = video_subsystem
-        .window("Necromanzer", 1024, 768)
+        .window(&*(TITLE.to_owned() + " " + VERSION), 1024, 768)
+        .hidden()
+        .allow_highdpi()
+        .position_centered()
+        .resizable()
         .build()
         .unwrap();
-    let icon: Surface = LoadSurface::from_file("res/img/zombie.png").unwrap();
+    let icon: Surface =
+        LoadSurface::from_file("res/img/zombie.png").expect("Can't load resources!");
     window.set_icon(icon);
+    window.show();
 
     let mut canvas = window.into_canvas().build().unwrap();
 
@@ -96,6 +103,13 @@ pub fn main() {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
+                Event::Window {
+                    win_event: WindowEvent::Resized { .. },
+                    ..
+                } => {
+                    let (w, h) = canvas.window().size();
+                    println!("Window resized to {}x{}", w, h)
+                }
                 _ => {}
             }
         }
