@@ -1,0 +1,9 @@
+[package]
+name = "necromanzer"
+version = "0.1.0"
+authors = ["Ilya Agafonov <tairesh.rus@gmail.com>"]
+
+[dependencies.sdl2]
+version = "0.32"
+default-features = false
+features = ["ttf","image","gfx","mixer"]
