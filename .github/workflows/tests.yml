@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    paths:
+      - '**/*.rs'
+  pull_request:
+    paths:
+      - '**/*.rs'
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: "Install dependencies"
+        run: |
+          sudo apt install -y libsdl2-dev libsdl2-gfx-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev
+      - name: "Build"
+        run: |
+          rustc --version
+          cargo build
+      - name: "Test"
+        run: |
+          cargo fmt -- --check
+          cargo clippy -- -Dwarnings
+          cargo test
