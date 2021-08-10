@@ -1,5 +1,6 @@
 mod engine;
 mod fps;
+mod scene;
 mod settings;
 
 extern crate sdl2;
