@@ -4,4 +4,4 @@
 [![Commit activity](https://img.shields.io/github/commit-activity/m/Tairesh/Necromanzer)](https://github.com/Tairesh/Necromanzer/commits/main)
 [![Lines of code](https://tokei.rs/b1/github/Tairesh/Necromanzer)](https://tokei.rs)
 
-Roguelike where you play as a necromancer and construct dark creatures from dead bodies by adding and removing body parts. 
+Roguelike where you play as a necromancer and construct dark creatures from dead bodies by adding and removing body parts. Concept version written in Python was released at 2020 7DRL Game Jam as [Necromanzer-7DRL](https://tairesh.itch.io/necromanzer-7drl).
