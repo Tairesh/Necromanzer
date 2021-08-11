@@ -1,0 +1,116 @@
+name: build
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: "Create release"
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version_name: ${{ steps.generate_env_vars.outputs.tag_name }}
+    steps:
+      - name: "Generate environmental variables"
+        id: generate_env_vars
+        run: |
+          echo "::set-output name=tag_name::${GITHUB_REF##*/}"
+          echo "::set-output name=release_name::Necromanzer ${GITHUB_REF##*/}"
+      - name: "Create release"
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.generate_env_vars.outputs.tag_name }}
+          release_name: ${{ steps.generate_env_vars.outputs.release_name }}
+          body: |
+            These are the outputs for the experimental build of commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+          draft: false
+          prerelease: true
+  build_linux:
+    needs: release
+    name: "Build (linux)"
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install dependencies"
+        run: |
+          sudo apt install -y libsdl2-dev libsdl2-gfx-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev
+      - name: "Run cargo build"
+        run: |
+          rustc --version
+          cargo build --release
+      - name: "Pack release"
+        run: |
+          mkdir necromanzer_linux
+          cp target/release/necromanzer necromanzer_linux
+          chmod +x necromanzer_linux/necromanzer
+          cp res necromanzer_linux -r
+          for file in necromanzer_linux/res/img/*.xcf; do
+            rm "$file"
+          done
+          cp launcher.sh necromanzer_linux/necromanzer_launcher.sh
+          chmod +x necromanzer_linux/necromanzer_launcher.sh
+          tar -zcf necromanzer_linux.tar.gz necromanzer_linux
+      - name: "Upload release asset"
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: necromanzer_linux.tar.gz
+          asset_name: necromanzer_linux_${{ needs.release.outputs.version_name }}.tar.gz
+          asset_content_type: application/gzip
+  build_win:
+    needs: release
+    name: "Build (windows)"
+    runs-on: windows-2016
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install dependencies"
+        shell: powershell
+        run: |
+          Import-Module BitsTransfer
+          Start-BitsTransfer -Source "https://www.libsdl.org/release/SDL2-devel-2.0.16-VC.zip" -Destination SDL2.zip
+          Expand-Archive -Path SDL2.zip -Destination .
+          Get-ChildItem -Path SDL2-2.0.16/lib/x64/ -Recurse -File | Move-Item -Destination . -Force
+          Start-BitsTransfer -Source "https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip" -Destination SDL2_mixer.zip
+          Expand-Archive -Path SDL2_mixer.zip -Destination .
+          Get-ChildItem -Path SDL2_mixer-2.0.4/lib/x64/ -Recurse -File | Move-Item -Destination . -Force
+          Start-BitsTransfer -Source "https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip" -Destination SDL2_image.zip
+          Expand-Archive -Path SDL2_image.zip -Destination .
+          Get-ChildItem -Path SDL2_image-2.0.5/lib/x64/ -Recurse -File | Move-Item -Destination . -Force
+          Start-BitsTransfer -Source "https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip" -Destination SDL2_ttf.zip
+          Expand-Archive -Path SDL2_ttf.zip -Destination .
+          Get-ChildItem -Path SDL2_ttf-2.0.15/lib/x64/ -Recurse -File | Move-Item -Destination . -Force
+      - name: "Run cargo build"
+        run: |
+          rustc --version
+          cargo build --release
+      - name: "Copy folders"
+        shell: bash
+        run: |
+          mkdir Necromanzer
+          cp target/release/necromanzer.exe Necromanzer
+          cp res Necromanzer -r
+          for file in Necromanzer/res/img/*.xcf; do
+            rm "$file"
+          done
+      - name: "Pack release"
+        shell: powershell
+        run: |
+          Compress-Archive -Path Necromanzer -DestinationPath necromanzer_windows.zip
+      - name: "Upload release asset"
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: necromanzer_windows.zip
+          asset_name: necromanzer_windows_${{ needs.release.outputs.version_name }}.zip
+          asset_content_type: application/gzip
