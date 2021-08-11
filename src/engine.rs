@@ -10,6 +10,7 @@ use settings::Settings;
 use std::error::Error;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
+use textures::TextureManager;
 
 const FPS_LOCK: u32 = 60;
 
@@ -19,6 +20,7 @@ pub struct Engine<'a> {
     pub ctx: sdl2::Sdl,
     pub canvas: Option<WindowCanvas>,
     pub scene: Option<Scene>,
+    pub texture_manager: Option<TextureManager>,
 }
 
 impl<'a> Engine<'a> {
@@ -29,6 +31,7 @@ impl<'a> Engine<'a> {
             ctx: sdl2::init()?,
             canvas: None,
             scene: None,
+            texture_manager: None,
         })
     }
 
@@ -66,6 +69,10 @@ impl<'a> Engine<'a> {
     pub fn start(&mut self) -> Result<(), Box<dyn Error>> {
         self.canvas = Some(self.create_window().unwrap());
         self.scene = Some(MainMenu {}.into());
+        self.texture_manager = Some(TextureManager::new(
+            sdl2::ttf::init()?,
+            self.canvas.as_ref().unwrap().texture_creator(),
+        ));
         let mut event_pump = self.ctx.event_pump()?;
         let mut fps_counter = FpsCounter::new(self.ctx.timer()?);
         let ns_per_frame: Duration = Duration::new(0, 1_000_000_000u32 / FPS_LOCK);
@@ -130,7 +137,8 @@ impl<'a> Engine<'a> {
     fn on_update(&mut self, elapsed_time: f64) -> Result<bool, Box<dyn Error>> {
         let scene = self.scene.as_mut().unwrap();
         let canvas = self.canvas.as_mut().unwrap();
-        scene.update(canvas, elapsed_time);
+        let textures = self.texture_manager.as_mut().unwrap();
+        scene.update(canvas, textures, elapsed_time);
         canvas.present();
         Ok(true)
     }

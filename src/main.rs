@@ -2,6 +2,7 @@ mod engine;
 mod fps;
 mod scene;
 mod settings;
+mod textures;
 
 extern crate sdl2;
 
