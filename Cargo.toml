@@ -6,7 +6,7 @@ authors = ["Ilya Agafonov <tairesh.rus@gmail.com>"]
 [dependencies.sdl2]
 version = "0.32"
 default-features = false
-features = ["ttf","image","gfx","mixer","unsafe_textures"]
+features = ["ttf","image","mixer","unsafe_textures"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

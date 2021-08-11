@@ -1,4 +1,3 @@
-use sdl2::gfx::primitives::ToColor;
 use sdl2::image::LoadTexture;
 use sdl2::pixels::Color;
 use sdl2::render::{Texture, TextureCreator};
@@ -42,7 +41,7 @@ impl TextureManager {
             .load_font("res/fonts/consolab.ttf", 16)
             .unwrap();
         let color = color.unwrap_or(self.default_color);
-        let hash = format!("{}:{}", text, color.as_u32());
+        let hash = format!("{}:{}:{}:{}:{}", text, color.r, color.g, color.b, color.a);
         if !self.textures.contains_key(hash.as_str()) {
             self.textures.insert(
                 hash.clone(),
