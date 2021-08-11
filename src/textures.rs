@@ -10,6 +10,7 @@ pub struct TextureManager {
     font_context: Sdl2TtfContext,
     texture_creator: TextureCreator<WindowContext>,
     textures: HashMap<String, Texture>,
+    default_color: Color,
 }
 
 impl TextureManager {
@@ -21,6 +22,7 @@ impl TextureManager {
             font_context,
             texture_creator,
             textures: HashMap::new(),
+            default_color: Color::RGB(0, 0, 0),
         }
     }
 
@@ -39,7 +41,7 @@ impl TextureManager {
             .font_context
             .load_font("res/fonts/consolab.ttf", 16)
             .unwrap();
-        let color = color.unwrap_or(Color::RGB(0, 0, 0));
+        let color = color.unwrap_or(self.default_color);
         let hash = format!("{}:{}", text, color.as_u32());
         if !self.textures.contains_key(hash.as_str()) {
             self.textures.insert(
