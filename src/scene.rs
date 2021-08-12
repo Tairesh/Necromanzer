@@ -62,10 +62,10 @@ impl SceneT for MainMenu {
         );
         canvas.copy(logo, None, Some(logo_position)).ok();
 
-        let version_label = textures.render_text(VERSION, None);
+        let version_label = textures.render_text(&*VERSION, None);
         let version_position = Rect::new(
-            logo_position.right() - version_label.query().width as i32 - 15,
-            logo_position.top() + 25,
+            logo_position.right() - version_label.query().width as i32 - 20,
+            logo_position.bottom(),
             version_label.query().width,
             version_label.query().height,
         );

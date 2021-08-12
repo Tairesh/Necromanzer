@@ -74,6 +74,7 @@ name = "necromanzer"
 version = "0.1.0"
 dependencies = [
  "enum_dispatch",
+ "lazy_static",
  "sdl2",
  "serde",
  "serde_json",
