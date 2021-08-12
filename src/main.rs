@@ -8,16 +8,16 @@ mod textures;
 extern crate sdl2;
 
 use engine::Engine;
-use std::fs;
 
-const CARGO_VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const TITLE: &'static str = "Necromanzer";
+const TITLE: &str = "Necromanzer";
+const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
+const BUILD_VERSION: &str = "dirty";
 lazy_static::lazy_static! {
-    static ref VERSION: String = format!(
-        "v{}-{}",
-        CARGO_VERSION,
-        fs::read_to_string("version.txt").unwrap_or("dirty".to_string())
-    );
+    static ref VERSION: String = if BUILD_VERSION == "stable" {
+        format!("v{}", CARGO_VERSION)
+    } else {
+        format!("v{}-{}", CARGO_VERSION, BUILD_VERSION)
+    };
 }
 
 pub fn main() {

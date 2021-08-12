@@ -61,12 +61,12 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - name: "Set build version"
-        run: |
-          echo "${{ needs.release.outputs.version_name }}" > version.txt
       - name: "Install dependencies"
         run: |
           sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev
+      - name: "Set build version"
+        run: |
+          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_name }}\"/" src/main.rs
       - name: "Run cargo build"
         run: |
           rustc --version
@@ -119,7 +119,7 @@ jobs:
       - name: "Set build version"
         shell: bash
         run: |
-          echo "${{ needs.release.outputs.version_name }}" > version.txt
+          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_name }}\"/" src/main.rs
       - name: "Run cargo build"
         run: |
           rustc --version
