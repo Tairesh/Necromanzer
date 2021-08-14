@@ -192,6 +192,7 @@ pub enum ButtonState {
 
 #[derive(Hash, Eq, PartialEq)]
 pub struct Button {
+    pub id: String,
     pub text: String,
     pub size: (u32, u32),
     pub position: (i32, i32),

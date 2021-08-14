@@ -77,24 +77,28 @@ impl MainMenu {
             }],
             buttons: vec![
                 Button {
+                    id: "load_world".to_ascii_lowercase(),
                     text: "[l] Load world".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 300),
                     state: ButtonState::Disabled,
                 },
                 Button {
+                    id: "create_world".to_ascii_lowercase(),
                     text: "[c] Create new world".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 340),
                     state: ButtonState::Default,
                 },
                 Button {
+                    id: "settings".to_ascii_lowercase(),
                     text: "[s] Settings".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 380),
                     state: ButtonState::Default,
                 },
                 Button {
+                    id: "exit".to_ascii_lowercase(),
                     text: "[x] Exit".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 420),
@@ -168,22 +172,25 @@ impl SceneT for MainMenu {
                 y,
                 ..
             } => {
-                self.sprites_data
-                    .as_mut()
-                    .unwrap()
-                    .buttons
-                    .iter_mut()
-                    .for_each(|button| {
-                        if button.state != ButtonState::Disabled {
-                            let collide = collide((*x, *y), button);
-                            button.state = ButtonState::Default;
-                            if collide {
-                                button.state = ButtonState::Hovered;
-                                println!("clicked!");
-                            }
+                let mut result = CallResult::DoNothing;
+                for button in self.sprites_data.as_mut().unwrap().buttons.iter_mut() {
+                    if button.state != ButtonState::Disabled {
+                        let collide = collide((*x, *y), button);
+                        if collide && button.state == ButtonState::Pressed {
+                            button.state = ButtonState::Hovered;
+                            // println!("clicked {}!", button.id);
+                            match button.id.as_str() {
+                                "exit" => result = CallResult::SystemExit,
+                                "settings" => {
+                                    result = CallResult::ChangeScene(EmptyScreen {}.into())
+                                }
+                                _ => {}
+                            };
                         }
-                    });
-                CallResult::DoNothing
+                        button.state = ButtonState::Default;
+                    }
+                }
+                result
             }
             Event::KeyDown {
                 keycode: Some(Keycode::Escape),
