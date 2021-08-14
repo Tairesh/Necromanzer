@@ -131,7 +131,7 @@ impl SceneT for MainMenu {
                     .iter_mut()
                     .for_each(|button| {
                         if button.state != ButtonState::Disabled {
-                            let collide = collide((*x, *y), &button);
+                            let collide = collide((*x, *y), button);
                             if collide && button.state == ButtonState::Default {
                                 button.state = ButtonState::Hovered;
                             } else if !collide && button.state == ButtonState::Hovered {
@@ -154,7 +154,7 @@ impl SceneT for MainMenu {
                     .iter_mut()
                     .for_each(|button| {
                         if button.state != ButtonState::Disabled {
-                            let collide = collide((*x, *y), &button);
+                            let collide = collide((*x, *y), button);
                             if collide {
                                 button.state = ButtonState::Pressed;
                             }
@@ -175,7 +175,7 @@ impl SceneT for MainMenu {
                     .iter_mut()
                     .for_each(|button| {
                         if button.state != ButtonState::Disabled {
-                            let collide = collide((*x, *y), &button);
+                            let collide = collide((*x, *y), button);
                             button.state = ButtonState::Default;
                             if collide {
                                 button.state = ButtonState::Hovered;
