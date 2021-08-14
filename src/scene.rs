@@ -78,6 +78,7 @@ impl MainMenu {
             buttons: vec![
                 Button {
                     id: "load_world".to_ascii_lowercase(),
+                    key: Keycode::L,
                     text: "[l] Load world".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 300),
@@ -85,6 +86,7 @@ impl MainMenu {
                 },
                 Button {
                     id: "create_world".to_ascii_lowercase(),
+                    key: Keycode::C,
                     text: "[c] Create new world".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 340),
@@ -92,6 +94,7 @@ impl MainMenu {
                 },
                 Button {
                     id: "settings".to_ascii_lowercase(),
+                    key: Keycode::S,
                     text: "[s] Settings".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 380),
@@ -99,6 +102,7 @@ impl MainMenu {
                 },
                 Button {
                     id: "exit".to_ascii_lowercase(),
+                    key: Keycode::X,
                     text: "[x] Exit".to_string(),
                     size: button_size,
                     position: (screen_center.0 - button_size.0 as i32 / 2, 420),
@@ -121,6 +125,14 @@ impl MainMenu {
                 f = if f > 0 { f - 1 } else { buttons_len - 1 };
             }
             self.focused_input = Some(f);
+        }
+    }
+
+    fn button_click(button_id: &str) -> Option<CallResult> {
+        match button_id {
+            "exit" => Some(CallResult::SystemExit),
+            "settings" => Some(CallResult::ChangeScene(EmptyScreen {}.into())),
+            _ => None,
         }
     }
 }
@@ -172,25 +184,20 @@ impl SceneT for MainMenu {
                 y,
                 ..
             } => {
-                let mut result = CallResult::DoNothing;
                 for button in self.sprites_data.as_mut().unwrap().buttons.iter_mut() {
                     if button.state != ButtonState::Disabled {
                         let collide = collide((*x, *y), button);
                         if collide && button.state == ButtonState::Pressed {
                             button.state = ButtonState::Hovered;
                             // println!("clicked {}!", button.id);
-                            match button.id.as_str() {
-                                "exit" => result = CallResult::SystemExit,
-                                "settings" => {
-                                    result = CallResult::ChangeScene(EmptyScreen {}.into())
-                                }
-                                _ => {}
-                            };
+                            if let Some(result) = MainMenu::button_click(button.id.as_str()) {
+                                return result;
+                            }
                         }
                         button.state = ButtonState::Default;
                     }
                 }
-                result
+                CallResult::DoNothing
             }
             Event::KeyDown {
                 keycode: Some(Keycode::Escape),
@@ -241,6 +248,46 @@ impl SceneT for MainMenu {
                     .unwrap();
                 button.state = ButtonState::Focused;
 
+                CallResult::DoNothing
+            }
+            Event::KeyDown {
+                keycode: Some(keycode),
+                keymod,
+                ..
+            } => {
+                let shift = keymod.intersects(Mod::LSHIFTMOD | Mod::RSHIFTMOD);
+                let alt = keymod.intersects(Mod::LALTMOD | Mod::RALTMOD);
+                let ctrl = keymod.intersects(Mod::LCTRLMOD | Mod::RCTRLMOD);
+                if shift || alt || ctrl {
+                    return CallResult::DoNothing;
+                }
+                for button in self.sprites_data.as_mut().unwrap().buttons.iter_mut() {
+                    if button.key == *keycode {
+                        button.state = ButtonState::Pressed;
+                    }
+                }
+                CallResult::DoNothing
+            }
+            Event::KeyUp {
+                keycode: Some(keycode),
+                keymod,
+                ..
+            } => {
+                let shift = keymod.intersects(Mod::LSHIFTMOD | Mod::RSHIFTMOD);
+                let alt = keymod.intersects(Mod::LALTMOD | Mod::RALTMOD);
+                let ctrl = keymod.intersects(Mod::LCTRLMOD | Mod::RCTRLMOD);
+                if shift || alt || ctrl {
+                    return CallResult::DoNothing;
+                }
+                for button in self.sprites_data.as_mut().unwrap().buttons.iter_mut() {
+                    if button.key == *keycode && button.state == ButtonState::Pressed {
+                        button.state = ButtonState::Default;
+                        // println!("clicked {}!", button.id);
+                        if let Some(result) = MainMenu::button_click(button.id.as_str()) {
+                            return result;
+                        }
+                    }
+                }
                 CallResult::DoNothing
             }
             _ => CallResult::DoNothing,
