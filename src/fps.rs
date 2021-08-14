@@ -43,6 +43,6 @@ impl FpsCounter {
                 self.fps = 0;
             }
         }
-        return (true, elapsed, show_fps);
+        (true, elapsed, show_fps)
     }
 }
