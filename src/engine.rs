@@ -1,6 +1,6 @@
 use fps::FpsCounter;
 
-use scene::{CallResult, MainMenu, Scene, SceneT};
+use scene::{CallResult, MainMenu, Scene, SceneData, SceneT};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::image::LoadSurface;
 use sdl2::render::{TextureCreator, WindowCanvas};
@@ -45,6 +45,20 @@ impl EngineContext {
                 .ok();
         }
     }
+
+    pub fn draw_sprites(&mut self, data: &SceneData) -> Result<(), String> {
+        for sprite in data.img_sprites.iter() {
+            let texture = self.textures.load_image(sprite.path.as_str());
+            self.canvas.copy(texture, None, Some(sprite.position))?;
+        }
+        for sprite in data.text_sprites.iter() {
+            let texture = self
+                .textures
+                .render_text(sprite.text.as_str(), sprite.color);
+            self.canvas.copy(texture, None, Some(sprite.position))?;
+        }
+        Ok(())
+    }
 }
 
 pub struct Engine<'a> {
@@ -61,7 +75,7 @@ impl<'a> Engine<'a> {
             title,
             settings: Settings::load()?,
             sdl: sdl2::init()?,
-            scene: MainMenu {}.into(),
+            scene: MainMenu::new().into(),
             context: None,
         })
     }
@@ -105,6 +119,7 @@ impl<'a> Engine<'a> {
             texture_creator,
             FpsCounter::new(FPS_LOCK, self.sdl.timer()?),
         ));
+        self.scene.on_open(self.context.as_mut().unwrap());
         let mut event_pump = self.sdl.event_pump()?;
         self.context
             .as_mut()
@@ -127,6 +142,7 @@ impl<'a> Engine<'a> {
                     _ => match self.scene.call(self.context.as_mut().unwrap(), &event) {
                         CallResult::ChangeScene(new_scene) => {
                             self.scene = new_scene;
+                            self.scene.on_open(self.context.as_mut().unwrap());
                         }
                         CallResult::SystemExit => break 'running,
                         CallResult::DoNothing => {}
@@ -160,7 +176,7 @@ impl<'a> Engine<'a> {
 
     fn on_update(&mut self, elapsed_time: f64) -> Result<bool, Box<dyn Error>> {
         let context = self.context.as_mut().unwrap();
-        self.scene.update(context, elapsed_time);
+        self.scene.on_update(context, elapsed_time);
         context.canvas.present();
         Ok(true)
     }
