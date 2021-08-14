@@ -4,23 +4,56 @@ use scene::{CallResult, MainMenu, Scene, SceneT};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::image::LoadSurface;
 use sdl2::keyboard::Keycode;
-use sdl2::render::WindowCanvas;
+use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::surface::Surface;
+use sdl2::video::WindowContext;
 use settings::Settings;
 use std::error::Error;
-use std::thread::sleep;
-use std::time::{Duration, Instant};
 use textures::TextureManager;
 
 const FPS_LOCK: u32 = 60;
 
+pub struct EngineContext {
+    default_title: String,
+    pub canvas: WindowCanvas,
+    pub textures: TextureManager,
+    pub fps_counter: FpsCounter,
+}
+
+impl EngineContext {
+    pub fn new(
+        canvas: WindowCanvas,
+        texture_creator: TextureCreator<WindowContext>,
+        fps_counter: FpsCounter,
+    ) -> EngineContext {
+        EngineContext {
+            default_title: canvas.window().title().to_string(),
+            canvas,
+            textures: TextureManager::new(
+                sdl2::ttf::init().expect("Can't init sdl2::ttf!"),
+                texture_creator,
+            ),
+            fps_counter,
+        }
+    }
+
+    pub fn set_show_fps(&mut self, value: bool) {
+        self.fps_counter.show_fps = value;
+        if !value {
+            self.canvas
+                .window_mut()
+                .set_title(self.default_title.as_str())
+                .ok();
+        }
+    }
+}
+
 pub struct Engine<'a> {
     title: &'a str,
     pub settings: Settings,
-    pub ctx: sdl2::Sdl,
-    pub canvas: Option<WindowCanvas>,
-    pub scene: Option<Scene>,
-    pub texture_manager: Option<TextureManager>,
+    pub sdl: sdl2::Sdl,
+    pub scene: Scene,
+    pub context: Option<EngineContext>,
 }
 
 impl<'a> Engine<'a> {
@@ -28,15 +61,14 @@ impl<'a> Engine<'a> {
         Ok(Engine {
             title,
             settings: Settings::load()?,
-            ctx: sdl2::init()?,
-            canvas: None,
-            scene: None,
-            texture_manager: None,
+            sdl: sdl2::init()?,
+            scene: MainMenu {}.into(),
+            context: None,
         })
     }
 
     fn create_window(&mut self) -> Result<WindowCanvas, Box<dyn Error>> {
-        let video = self.ctx.video()?;
+        let video = self.sdl.video()?;
         let window_size = if self.settings.fullscreen {
             let mode = video.current_display_mode(0)?;
             (mode.w as u32, mode.h as u32)
@@ -67,36 +99,19 @@ impl<'a> Engine<'a> {
     }
 
     pub fn start(&mut self) -> Result<(), Box<dyn Error>> {
-        self.canvas = Some(self.create_window().unwrap());
-        self.scene = Some(MainMenu {}.into());
-        self.texture_manager = Some(TextureManager::new(
-            sdl2::ttf::init()?,
-            self.canvas.as_ref().unwrap().texture_creator(),
+        let canvas = self.create_window().unwrap();
+        let texture_creator = canvas.texture_creator();
+        self.context = Some(EngineContext::new(
+            canvas,
+            texture_creator,
+            FpsCounter::new(FPS_LOCK, self.sdl.timer()?),
         ));
-        let mut event_pump = self.ctx.event_pump()?;
-        let mut fps_counter = FpsCounter::new(self.ctx.timer()?);
-        let ns_per_frame: Duration = Duration::new(0, 1_000_000_000u32 / FPS_LOCK);
+        let mut event_pump = self.sdl.event_pump()?;
+        self.context
+            .as_mut()
+            .unwrap()
+            .set_show_fps(self.settings.show_fps);
         'running: loop {
-            let start = Instant::now();
-            let elapsed_time = fps_counter.update(self.settings.show_fps);
-            if self.settings.show_fps && fps_counter.time_acc() >= 1.0 {
-                let fps = fps_counter.fps();
-                let title = format!("{} ({} FPS)", self.title, fps.round() as u32);
-                // This fails silently on error
-                self.canvas
-                    .as_mut()
-                    .unwrap()
-                    .window_mut()
-                    .set_title(title.as_str())
-                    .ok();
-                fps_counter.reset_average();
-            }
-
-            // Process next frame and exit if `Ok(false)` is returned
-            if !self.on_update(elapsed_time)? {
-                break 'running;
-            }
-
             // Handle events
             for event in event_pump.poll_iter() {
                 match event {
@@ -109,25 +124,38 @@ impl<'a> Engine<'a> {
                         win_event: WindowEvent::Resized { .. },
                         ..
                     } => {
-                        let (w, h) = self.canvas.as_ref().unwrap().window().size();
+                        let (w, h) = self.context.as_ref().unwrap().canvas.window().size();
                         self.settings.width = w;
                         self.settings.height = h;
                         // println!("Window resized to {}x{}", w, h);
                     }
-                    _ => match self.scene.as_mut().unwrap().call(&event) {
+                    _ => match self.scene.call(self.context.as_mut().unwrap(), &event) {
                         CallResult::ChangeScene(new_scene) => {
-                            self.scene = Some(new_scene);
+                            self.scene = new_scene;
                         }
                         CallResult::DoNothing => {}
                     },
                 }
             }
 
-            // Framerate cap
-            let next_render_step = start + ns_per_frame;
-            let now = Instant::now();
-            if next_render_step >= now {
-                sleep(next_render_step - now);
+            let (need_render, elapsed_time, show_fps) =
+                self.context.as_mut().unwrap().fps_counter.tick();
+
+            if need_render {
+                if let Some(fps) = show_fps {
+                    let title = format!("{} ({} FPS)", self.title, fps);
+                    self.context
+                        .as_mut()
+                        .unwrap()
+                        .canvas
+                        .window_mut()
+                        .set_title(title.as_str())
+                        .ok();
+                }
+                // Process next frame and exit if `Ok(false)` is returned
+                if !self.on_update(elapsed_time)? {
+                    break 'running;
+                }
             }
         }
         self.settings.save();
@@ -135,11 +163,9 @@ impl<'a> Engine<'a> {
     }
 
     fn on_update(&mut self, elapsed_time: f64) -> Result<bool, Box<dyn Error>> {
-        let scene = self.scene.as_mut().unwrap();
-        let canvas = self.canvas.as_mut().unwrap();
-        let textures = self.texture_manager.as_mut().unwrap();
-        scene.update(canvas, textures, elapsed_time);
-        canvas.present();
+        let context = self.context.as_mut().unwrap();
+        self.scene.update(context, elapsed_time);
+        context.canvas.present();
         Ok(true)
     }
 }
