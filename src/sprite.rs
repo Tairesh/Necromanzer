@@ -1,6 +1,6 @@
 use colors;
 use sdl2::image::LoadTexture;
-use sdl2::keyboard::Keycode;
+use sdl2::keyboard::Scancode;
 use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::rect::Rect;
 use sdl2::render::{Texture, TextureCreator};
@@ -194,7 +194,7 @@ pub enum ButtonState {
 #[derive(Hash, Eq, PartialEq)]
 pub struct Button {
     pub id: String,
-    pub key: Keycode,
+    pub key: Scancode,
     pub text: String,
     pub size: (u32, u32),
     pub position: (i32, i32),

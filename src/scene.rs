@@ -1,6 +1,6 @@
 use engine::EngineContext;
 use sdl2::event::Event;
-use sdl2::keyboard::{Keycode, Mod};
+use sdl2::keyboard::{Keycode, Mod, Scancode};
 use sdl2::mouse::MouseButton;
 use sprite::{Button, ButtonState, ImgSprite, TextSprite};
 use {colors, VERSION};
@@ -86,7 +86,7 @@ impl MainMenu {
             buttons: vec![
                 Button {
                     id: "load_world".to_ascii_lowercase(),
-                    key: Keycode::L,
+                    key: Scancode::L,
                     text: load_button_text.to_string(),
                     size: load_button_size,
                     position: (screen_center.0 - load_button_size.0 as i32 / 2, 300),
@@ -94,7 +94,7 @@ impl MainMenu {
                 },
                 Button {
                     id: "create_world".to_ascii_lowercase(),
-                    key: Keycode::C,
+                    key: Scancode::C,
                     text: create_button_text.to_string(),
                     size: create_button_size,
                     position: (screen_center.0 - create_button_size.0 as i32 / 2, 340),
@@ -102,7 +102,7 @@ impl MainMenu {
                 },
                 Button {
                     id: "settings".to_ascii_lowercase(),
-                    key: Keycode::S,
+                    key: Scancode::S,
                     text: settings_button_text.to_string(),
                     size: settings_button_size,
                     position: (screen_center.0 - settings_button_size.0 as i32 / 2, 380),
@@ -110,7 +110,7 @@ impl MainMenu {
                 },
                 Button {
                     id: "exit".to_ascii_lowercase(),
-                    key: Keycode::X,
+                    key: Scancode::X,
                     text: exit_button_text.to_string(),
                     size: exit_button_size,
                     position: (screen_center.0 - exit_button_size.0 as i32 / 2, 420),
@@ -255,7 +255,7 @@ impl SceneT for MainMenu {
                 CallResult::DoNothing
             }
             Event::KeyDown {
-                keycode: Some(keycode),
+                scancode: Some(scancode),
                 keymod,
                 ..
             } => {
@@ -266,14 +266,14 @@ impl SceneT for MainMenu {
                     return CallResult::DoNothing;
                 }
                 for button in self.sprites_data.as_mut().unwrap().buttons.iter_mut() {
-                    if button.key == *keycode {
+                    if button.key == *scancode {
                         button.state = ButtonState::Pressed;
                     }
                 }
                 CallResult::DoNothing
             }
             Event::KeyUp {
-                keycode: Some(keycode),
+                scancode: Some(scancode),
                 keymod,
                 ..
             } => {
@@ -284,7 +284,7 @@ impl SceneT for MainMenu {
                     return CallResult::DoNothing;
                 }
                 for button in self.sprites_data.as_mut().unwrap().buttons.iter_mut() {
-                    if button.key == *keycode && button.state == ButtonState::Pressed {
+                    if button.key == *scancode && button.state == ButtonState::Pressed {
                         button.state = ButtonState::Default;
                         // println!("clicked {}!", button.id);
                         if let Some(result) = MainMenu::button_click(button.id.as_str()) {
