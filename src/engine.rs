@@ -1,6 +1,6 @@
 use fps::FpsCounter;
 
-use scene::{CallResult, MainMenu, Scene, SceneData, SceneT};
+use scene::{CallResult, MainMenu, Scene, SceneT, SpritesData};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::image::LoadSurface;
 use sdl2::render::{TextureCreator, WindowCanvas};
@@ -46,16 +46,21 @@ impl EngineContext {
         }
     }
 
-    pub fn draw_sprites(&mut self, data: &SceneData) -> Result<(), String> {
+    pub fn draw_sprites(&mut self, data: &SpritesData) -> Result<(), String> {
         for sprite in data.img_sprites.iter() {
-            let texture = self.textures.load_image(sprite.path.as_str());
-            self.canvas.copy(texture, None, Some(sprite.position))?;
+            self.canvas.copy(
+                self.textures.load_image(sprite.path.as_str()),
+                None,
+                Some(sprite.position),
+            )?;
         }
         for sprite in data.text_sprites.iter() {
-            let texture = self
-                .textures
-                .render_text(sprite.text.as_str(), sprite.color);
-            self.canvas.copy(texture, None, Some(sprite.position))?;
+            self.canvas.copy(
+                self.textures
+                    .render_text(sprite.text.as_str(), sprite.color),
+                None,
+                Some(sprite.position),
+            )?;
         }
         Ok(())
     }
@@ -105,7 +110,7 @@ impl<'a> Engine<'a> {
         let icon: Surface =
             LoadSurface::from_file("res/img/zombie.png").expect("Can't load resources!");
         window.set_icon(icon);
-        window.set_minimum_size(640, 480).ok();
+        window.set_minimum_size(800, 600).ok();
         window.set_maximum_size(1920, 1280).ok();
         window.show();
         Ok(window.into_canvas().accelerated().build()?)
@@ -137,6 +142,7 @@ impl<'a> Engine<'a> {
                         let (w, h) = self.context.as_ref().unwrap().canvas.window().size();
                         self.settings.width = w;
                         self.settings.height = h;
+                        self.scene.on_resize(self.context.as_mut().unwrap());
                         // println!("Window resized to {}x{}", w, h);
                     }
                     _ => match self.scene.call(self.context.as_mut().unwrap(), &event) {

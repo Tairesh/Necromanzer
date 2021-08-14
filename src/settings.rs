@@ -50,14 +50,14 @@ impl Settings {
     }
 
     fn validate(&mut self) -> &Settings {
-        if self.width < 640 {
-            self.width = 640;
+        if self.width < 800 {
+            self.width = 800;
         }
         if self.width > 1920 {
             self.width = 1920;
         }
-        if self.height < 480 {
-            self.height = 480;
+        if self.height < 600 {
+            self.height = 600;
         }
         if self.height > 1280 {
             self.height = 1280;
