@@ -52,7 +52,15 @@ impl MainMenu {
         let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
         let logo_size = context.sprite_manager.image_size("res/img/logo.png");
         let version_size = context.sprite_manager.text_size(&*VERSION);
-        let button_size = (220, 30);
+        let button_size = |text: &str| (context.sprite_manager.text_size(text).0 + 20, 30);
+        let load_button_text = "[l] Load world";
+        let load_button_size = button_size(load_button_text);
+        let create_button_text = "[c] Create new world";
+        let create_button_size = button_size(create_button_text);
+        let settings_button_text = "[s] Settings";
+        let settings_button_size = button_size(settings_button_text);
+        let exit_button_text = "[x] Exit";
+        let exit_button_size = button_size(exit_button_text);
         self.sprites_data = Some(SpritesData {
             img_sprites: vec![
                 ImgSprite {
@@ -79,33 +87,33 @@ impl MainMenu {
                 Button {
                     id: "load_world".to_ascii_lowercase(),
                     key: Keycode::L,
-                    text: "[l] Load world".to_string(),
-                    size: button_size,
-                    position: (screen_center.0 - button_size.0 as i32 / 2, 300),
+                    text: load_button_text.to_string(),
+                    size: load_button_size,
+                    position: (screen_center.0 - load_button_size.0 as i32 / 2, 300),
                     state: ButtonState::Disabled,
                 },
                 Button {
                     id: "create_world".to_ascii_lowercase(),
                     key: Keycode::C,
-                    text: "[c] Create new world".to_string(),
-                    size: button_size,
-                    position: (screen_center.0 - button_size.0 as i32 / 2, 340),
+                    text: create_button_text.to_string(),
+                    size: create_button_size,
+                    position: (screen_center.0 - create_button_size.0 as i32 / 2, 340),
                     state: ButtonState::Default,
                 },
                 Button {
                     id: "settings".to_ascii_lowercase(),
                     key: Keycode::S,
-                    text: "[s] Settings".to_string(),
-                    size: button_size,
-                    position: (screen_center.0 - button_size.0 as i32 / 2, 380),
+                    text: settings_button_text.to_string(),
+                    size: settings_button_size,
+                    position: (screen_center.0 - settings_button_size.0 as i32 / 2, 380),
                     state: ButtonState::Default,
                 },
                 Button {
                     id: "exit".to_ascii_lowercase(),
                     key: Keycode::X,
-                    text: "[x] Exit".to_string(),
-                    size: button_size,
-                    position: (screen_center.0 - button_size.0 as i32 / 2, 420),
+                    text: exit_button_text.to_string(),
+                    size: exit_button_size,
+                    position: (screen_center.0 - exit_button_size.0 as i32 / 2, 420),
                     state: ButtonState::Default,
                 },
             ],
@@ -200,11 +208,7 @@ impl SceneT for MainMenu {
                 CallResult::DoNothing
             }
             Event::KeyDown {
-                keycode: Some(Keycode::Escape),
-                ..
-            } => CallResult::SystemExit,
-            Event::KeyDown {
-                keycode: Some(Keycode::F11),
+                keycode: Some(Keycode::F2),
                 ..
             } => {
                 context.set_show_fps(!context.fps_counter.show_fps);
