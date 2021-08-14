@@ -2,9 +2,8 @@ use engine::EngineContext;
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Mod};
 use sdl2::mouse::MouseButton;
-use sdl2::pixels::Color;
 use sprite::{Button, ButtonState, ImgSprite, TextSprite};
-use VERSION;
+use {colors, VERSION};
 
 fn collide(mouse_pos: (i32, i32), button: &Button) -> bool {
     let (left, top) = (button.position.0, button.position.1);
@@ -277,7 +276,7 @@ impl SceneT for EmptyScreen {
     fn on_resize(&mut self, _context: &mut EngineContext) {}
 
     fn on_update(&mut self, context: &mut EngineContext, _elapsed_dime: f64) -> CallResult {
-        context.canvas.set_draw_color(Color::RGB(0, 0, 0));
+        context.canvas.set_draw_color(colors::rgb(colors::BLACK));
         context.canvas.clear();
         CallResult::DoNothing
     }

@@ -1,3 +1,4 @@
+use colors;
 use sdl2::image::LoadTexture;
 use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::rect::Rect;
@@ -53,7 +54,7 @@ impl SpritesManager {
             font_context,
             texture_creator,
             textures: HashMap::new(),
-            default_color: Color::RGB(0, 0, 0),
+            default_color: colors::rgb(colors::BLACK),
         }
     }
 
@@ -114,11 +115,20 @@ impl SpritesManager {
             .load_font("res/fonts/consolab.ttf", 16)
             .unwrap();
         let (fg_color, bg_color) = match button.state {
-            ButtonState::Hovered => (Color::RGB(255, 255, 255), Color::RGBA(0, 50, 0, 200)),
-            ButtonState::Focused => (Color::RGB(255, 255, 255), Color::RGBA(94, 75, 47, 200)),
-            ButtonState::Pressed => (Color::RGB(0, 0, 0), Color::RGBA(0, 255, 0, 200)),
-            ButtonState::Disabled => (Color::RGB(33, 33, 33), Color::RGBA(128, 128, 128, 200)),
-            ButtonState::Default => (Color::RGB(0, 255, 0), Color::RGBA(0, 0, 0, 200)),
+            ButtonState::Hovered => (
+                colors::rgb(colors::WHITE),
+                colors::rgba(colors::DARK_GREEN, 200),
+            ),
+            ButtonState::Focused => (
+                colors::rgb(colors::WHITE),
+                colors::rgba(colors::DARK_SEPIA, 200),
+            ),
+            ButtonState::Pressed => (colors::rgb(colors::BLACK), colors::rgba(colors::LIME, 200)),
+            ButtonState::Disabled => (
+                colors::rgb(colors::DARK_GRAY),
+                colors::rgba(colors::GRAY, 200),
+            ),
+            ButtonState::Default => (colors::rgb(colors::LIME), colors::rgba(colors::BLACK, 200)),
         };
         let hash = format!(
             "button:{}:{}:{}:{}",
