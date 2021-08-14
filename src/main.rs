@@ -4,7 +4,6 @@ mod fps;
 mod scene;
 mod settings;
 mod sprite;
-mod textures;
 
 extern crate sdl2;
 

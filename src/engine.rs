@@ -3,19 +3,20 @@ use fps::FpsCounter;
 use scene::{CallResult, MainMenu, Scene, SceneT, SpritesData};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::image::LoadSurface;
+use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::surface::Surface;
 use sdl2::video::WindowContext;
 use settings::Settings;
+use sprite::SpritesManager;
 use std::error::Error;
-use textures::TextureManager;
 
 const FPS_LOCK: u32 = 60;
 
 pub struct EngineContext {
     default_title: String,
     pub canvas: WindowCanvas,
-    pub textures: TextureManager,
+    pub sprite_manager: SpritesManager,
     pub fps_counter: FpsCounter,
 }
 
@@ -28,7 +29,7 @@ impl EngineContext {
         EngineContext {
             default_title: canvas.window().title().to_string(),
             canvas,
-            textures: TextureManager::new(
+            sprite_manager: SpritesManager::new(
                 sdl2::ttf::init().expect("Can't init sdl2::ttf!"),
                 texture_creator,
             ),
@@ -48,18 +49,45 @@ impl EngineContext {
 
     pub fn draw_sprites(&mut self, data: &SpritesData) -> Result<(), String> {
         for sprite in data.img_sprites.iter() {
+            let texture = self.sprite_manager.load_image(sprite);
+            let size = texture.query();
             self.canvas.copy(
-                self.textures.load_image(sprite.path.as_str()),
+                texture,
                 None,
-                Some(sprite.position),
+                Some(Rect::new(
+                    sprite.position.0,
+                    sprite.position.1,
+                    size.width,
+                    size.height,
+                )),
             )?;
         }
         for sprite in data.text_sprites.iter() {
+            let texture = self.sprite_manager.render_text(sprite);
+            let size = texture.query();
             self.canvas.copy(
-                self.textures
-                    .render_text(sprite.text.as_str(), sprite.color),
+                texture,
                 None,
-                Some(sprite.position),
+                Some(Rect::new(
+                    sprite.position.0,
+                    sprite.position.1,
+                    size.width,
+                    size.height,
+                )),
+            )?;
+        }
+        for sprite in data.buttons.iter() {
+            let texture = self.sprite_manager.render_button(sprite);
+            let size = texture.query();
+            self.canvas.copy(
+                texture,
+                None,
+                Some(Rect::new(
+                    sprite.position.0,
+                    sprite.position.1,
+                    size.width,
+                    size.height,
+                )),
             )?;
         }
         Ok(())
