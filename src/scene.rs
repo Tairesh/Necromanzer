@@ -8,6 +8,7 @@ use VERSION;
 
 pub enum CallResult {
     DoNothing,
+    SystemExit,
     ChangeScene(Scene),
 }
 
@@ -26,6 +27,10 @@ impl SceneT for MainMenu {
                 mouse_btn: MouseButton::Left,
                 ..
             } => CallResult::ChangeScene(EmptyScreen {}.into()),
+            Event::KeyDown {
+                keycode: Some(Keycode::Escape),
+                ..
+            } => CallResult::SystemExit,
             Event::KeyDown {
                 keycode: Some(Keycode::F11),
                 ..

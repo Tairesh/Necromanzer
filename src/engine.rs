@@ -3,7 +3,6 @@ use fps::FpsCounter;
 use scene::{CallResult, MainMenu, Scene, SceneT};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::image::LoadSurface;
-use sdl2::keyboard::Keycode;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::surface::Surface;
 use sdl2::video::WindowContext;
@@ -115,11 +114,7 @@ impl<'a> Engine<'a> {
             // Handle events
             for event in event_pump.poll_iter() {
                 match event {
-                    Event::Quit { .. }
-                    | Event::KeyDown {
-                        keycode: Some(Keycode::Escape),
-                        ..
-                    } => break 'running,
+                    Event::Quit { .. } => break 'running,
                     Event::Window {
                         win_event: WindowEvent::Resized { .. },
                         ..
@@ -133,6 +128,7 @@ impl<'a> Engine<'a> {
                         CallResult::ChangeScene(new_scene) => {
                             self.scene = new_scene;
                         }
+                        CallResult::SystemExit => break 'running,
                         CallResult::DoNothing => {}
                     },
                 }
