@@ -1,4 +1,10 @@
+# Rust stuff
 /target
+/Cargo.lock
+
+# IDEA stuff
 /.idea
+
+# Local build stuff
 /settings.json
 /version.txt
