@@ -1,6 +1,6 @@
 use fps::FpsCounter;
 
-use scene::{CallResult, MainMenu, Scene, SceneT, SpritesData};
+use scene_manager::{CallResult, SceneManager, SpritesData};
 use sdl2::event::{Event, WindowEvent};
 use sdl2::image::LoadSurface;
 use sdl2::rect::Rect;
@@ -98,7 +98,7 @@ pub struct Engine<'a> {
     title: &'a str,
     pub settings: Settings,
     pub sdl: sdl2::Sdl,
-    pub scene: Scene,
+    pub scene_manager: SceneManager,
     pub context: Option<EngineContext>,
 }
 
@@ -108,7 +108,7 @@ impl<'a> Engine<'a> {
             title,
             settings: Settings::load()?,
             sdl: sdl2::init()?,
-            scene: MainMenu::new().into(),
+            scene_manager: SceneManager::new(),
             context: None,
         })
     }
@@ -152,7 +152,7 @@ impl<'a> Engine<'a> {
             texture_creator,
             FpsCounter::new(FPS_LOCK, self.sdl.timer()?),
         ));
-        self.scene.on_open(self.context.as_mut().unwrap());
+        self.scene_manager.on_open(self.context.as_mut().unwrap());
         let mut event_pump = self.sdl.event_pump()?;
         self.context
             .as_mut()
@@ -170,13 +170,16 @@ impl<'a> Engine<'a> {
                         let (w, h) = self.context.as_ref().unwrap().canvas.window().size();
                         self.settings.width = w;
                         self.settings.height = h;
-                        self.scene.on_resize(self.context.as_mut().unwrap());
+                        self.scene_manager.on_resize(self.context.as_mut().unwrap());
                         // println!("Window resized to {}x{}", w, h);
                     }
-                    _ => match self.scene.call(self.context.as_mut().unwrap(), &event) {
+                    _ => match self
+                        .scene_manager
+                        .call(self.context.as_mut().unwrap(), &event)
+                    {
                         CallResult::ChangeScene(new_scene) => {
-                            self.scene = new_scene;
-                            self.scene.on_open(self.context.as_mut().unwrap());
+                            self.scene_manager
+                                .change_scene(self.context.as_mut().unwrap(), new_scene.as_str());
                         }
                         CallResult::SystemExit => break 'running,
                         CallResult::DoNothing => {}
@@ -210,7 +213,7 @@ impl<'a> Engine<'a> {
 
     fn on_update(&mut self, elapsed_time: f64) -> Result<bool, Box<dyn Error>> {
         let context = self.context.as_mut().unwrap();
-        self.scene.on_update(context, elapsed_time);
+        self.scene_manager.on_update(context, elapsed_time);
         context.canvas.present();
         Ok(true)
     }

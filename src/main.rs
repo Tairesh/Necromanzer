@@ -2,7 +2,8 @@
 mod colors;
 mod engine;
 mod fps;
-mod scene;
+mod scene_manager;
+mod scenes;
 mod settings;
 mod sprite;
 
