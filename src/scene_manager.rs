@@ -148,7 +148,7 @@ impl SceneManager {
             let scene: Scene = match scene_id {
                 "main_menu" => MainMenu {}.into(),
                 "empty_screen" => EmptyScreen {}.into(),
-                _ => panic!(format!("Unknown scene id: {}!", scene_id)),
+                _ => panic!("Unknown scene id: {}!", scene_id),
             };
             self.scenes.insert(scene_id.to_ascii_lowercase(), scene);
         }
