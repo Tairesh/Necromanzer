@@ -10,7 +10,7 @@ pub struct FpsCounter {
 }
 
 impl FpsCounter {
-    pub fn new(target_fps: u32, mut timer_subsystem: TimerSubsystem) -> FpsCounter {
+    pub fn new(target_fps: u32, timer_subsystem: TimerSubsystem) -> FpsCounter {
         let now = timer_subsystem.ticks();
 
         FpsCounter {
