@@ -80,7 +80,15 @@ jobs:
           for file in necromanzer_linux/res/img/*.xcf; do
             rm "$file"
           done
-          cp launcher.sh necromanzer_linux/necromanzer_launcher.sh
+          cat >necromanzer_linux/necromanzer_launcher.sh <<EOL
+          #!/bin/sh
+          TARGET_FILE=\$0
+          cd "\$(dirname "\$TARGET_FILE")" || {
+              echo "Could not change directory to '\$TARGET_FILE'" >&2
+              exit 1
+          }
+          exec ./necromanzer "\$@"
+          EOL
           chmod +x necromanzer_linux/necromanzer_launcher.sh
           tar -zcf necromanzer_linux.tar.gz necromanzer_linux
       - name: "Upload release asset"
