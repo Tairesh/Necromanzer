@@ -13,7 +13,9 @@ jobs:
       timestamp: ${{ steps.get-timestamp.outputs.time }}
       release_already_exists: ${{ steps.tag_check.outputs.exists }}
       version_name: ${{ steps.generate_env_vars.outputs.tag_name }}
+      version_postfix: ${{ steps.generate_env_vars.outputs.build_version }}
     steps:
+      - uses: actions/checkout@v2
       - name: "Get build timestamp"
         id: get-timestamp
         uses: nanzm/get-time-action@v1.1
@@ -23,8 +25,11 @@ jobs:
       - name: "Generate environmental variables"
         id: generate_env_vars
         run: |
-          echo "::set-output name=tag_name::experimental-${{ steps.get-timestamp.outputs.time }}"
-          echo "::set-output name=release_name::Necromanzer experimental build ${{ steps.get-timestamp.outputs.time }}"
+          cargo_version=$(grep "version = " Cargo.toml | head -n 1 | sed -e "s/version = \"//" -e "s/\"//")
+          version_postfix="experimental-${{ steps.get-timestamp.outputs.time }}"
+          echo "::set-output name=tag_name::$cargo_version-$version_postfix"
+          echo "::set-output name=release_name::Necromanzer $cargo_version-$version_postfix"
+          echo "::set-output name=build_version::$version_postfix"
       - name: "Check if there is existing git tag"
         id: tag_check
         uses: mukunku/tag-exists-action@v1.0.0
@@ -32,7 +37,6 @@ jobs:
           tag: ${{ steps.generate_env_vars.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/checkout@v2
       - name: "Push tag"
         id: tag_version
         uses: mathieudutour/github-tag-action@v5.5
@@ -66,7 +70,7 @@ jobs:
           sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev libsdl2-mixer-dev
       - name: "Set build version"
         run: |
-          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_name }}\"/" src/main.rs
+          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_postfix }}\"/" src/main.rs
       - name: "Run cargo build"
         run: |
           rustc --version
@@ -99,7 +103,7 @@ jobs:
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: necromanzer_linux.tar.gz
-          asset_name: necromanzer_linux_${{ needs.release.outputs.version_name }}.tar.gz
+          asset_name: Necromanzer ${{ needs.release.outputs.version_name }} (Linux)
           asset_content_type: application/gzip
   build_win:
     needs: release
@@ -156,5 +160,5 @@ jobs:
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: necromanzer_windows.zip
-          asset_name: necromanzer_windows_${{ needs.release.outputs.version_name }}.zip
+          asset_name: Necromanzer ${{ needs.release.outputs.version_name }} (Windows)
           asset_content_type: application/gzip
