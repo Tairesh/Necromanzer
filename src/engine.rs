@@ -49,12 +49,11 @@ impl EngineContext {
 
     pub fn draw_sprites(&mut self, data: &SceneSprites) -> Result<(), String> {
         for sprite in data.sprites.iter() {
-            let (texture, position) = match sprite {
-                Sprite::Image(img) => (self.sprite_manager.load_image(img), img.position),
-                Sprite::Label(label) => (self.sprite_manager.render_text(label), label.position),
-                Sprite::Button(button) => {
-                    (self.sprite_manager.render_button(button), button.position)
-                }
+            let texture = self.sprite_manager.render_sprite(sprite);
+            let position: (i32, i32) = match sprite {
+                Sprite::Image(img) => img.position,
+                Sprite::Label(label) => label.position,
+                Sprite::Button(btn) => btn.position,
             };
             let size = texture.query();
             self.canvas.copy(

@@ -64,7 +64,23 @@ impl SpritesManager {
         (query.width, query.height)
     }
 
-    pub fn load_image(&mut self, sprite: &Image) -> &Texture {
+    pub fn text_size(&self, text: &str) -> (u32, u32) {
+        let default_font = self
+            .font_context
+            .load_font("res/fonts/consolab.ttf", 16)
+            .unwrap();
+        default_font.size_of(text).unwrap()
+    }
+
+    pub fn render_sprite(&mut self, sprite: &Sprite) -> &Texture {
+        match sprite {
+            Sprite::Image(img) => self.render_image(img),
+            Sprite::Label(label) => self.render_label(label),
+            Sprite::Button(btn) => self.render_button(btn),
+        }
+    }
+
+    fn render_image(&mut self, sprite: &Image) -> &Texture {
         if !self.textures.contains_key(sprite.path.as_str()) {
             self.textures.insert(
                 sprite.path.clone(),
@@ -76,15 +92,7 @@ impl SpritesManager {
         self.textures.get(sprite.path.as_str()).unwrap()
     }
 
-    pub fn text_size(&self, text: &str) -> (u32, u32) {
-        let default_font = self
-            .font_context
-            .load_font("res/fonts/consolab.ttf", 16)
-            .unwrap();
-        default_font.size_of(text).unwrap()
-    }
-
-    pub fn render_text(&mut self, sprite: &Label) -> &Texture {
+    fn render_label(&mut self, sprite: &Label) -> &Texture {
         let default_font = self
             .font_context
             .load_font("res/fonts/consolab.ttf", 16)
@@ -110,7 +118,7 @@ impl SpritesManager {
         self.textures.get(hash.as_str()).unwrap()
     }
 
-    pub fn render_button(&mut self, button: &Button) -> &Texture {
+    fn render_button(&mut self, button: &Button) -> &Texture {
         let default_font = self
             .font_context
             .load_font("res/fonts/consolab.ttf", 16)
@@ -191,8 +199,15 @@ pub struct Image {
 }
 
 #[derive(Hash, Eq, PartialEq)]
+pub enum LabelFont {
+    Default,
+    Title,
+}
+
+#[derive(Hash, Eq, PartialEq)]
 pub struct Label {
     pub text: String,
+    pub font: LabelFont,
     pub color: Option<Color>,
     pub position: (i32, i32),
 }
@@ -217,10 +232,24 @@ pub struct Button {
 }
 
 #[enum_dispatch::enum_dispatch]
-pub trait SpriteT {}
-impl SpriteT for Image {}
-impl SpriteT for Label {}
-impl SpriteT for Button {}
+pub trait SpriteT {
+    fn position(&self) -> (i32, i32);
+}
+impl SpriteT for Image {
+    fn position(&self) -> (i32, i32) {
+        self.position
+    }
+}
+impl SpriteT for Label {
+    fn position(&self) -> (i32, i32) {
+        self.position
+    }
+}
+impl SpriteT for Button {
+    fn position(&self) -> (i32, i32) {
+        self.position
+    }
+}
 
 #[enum_dispatch::enum_dispatch(SpriteT)]
 #[derive(Hash, Eq, PartialEq)]

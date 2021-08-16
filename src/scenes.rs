@@ -3,7 +3,7 @@ use scene_manager::CallResult;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, Image, Label, SceneSprites};
+use sprite::{Button, ButtonState, Image, Label, LabelFont, SceneSprites};
 use {colors, VERSION};
 
 #[enum_dispatch::enum_dispatch]
@@ -60,6 +60,7 @@ impl SceneT for MainMenu {
         sprites.add_sprite(
             Label {
                 text: (*VERSION).to_string(),
+                font: LabelFont::Default,
                 color: None,
                 position: (
                     screen_center.0 + logo_size.0 as i32 / 2 - version_size.0 as i32 - 20,
