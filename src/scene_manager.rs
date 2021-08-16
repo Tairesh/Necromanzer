@@ -1,5 +1,5 @@
 use engine::EngineContext;
-use scenes::{EmptyScreen, MainMenu, Scene, SceneT};
+use scenes::{EmptyScreen, MainMenu, Scene, SceneT, Settings};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Mod, Scancode};
 use sdl2::mouse::MouseButton;
@@ -131,6 +131,7 @@ impl SceneManager {
     }
 
     pub fn on_open(&mut self, context: &mut EngineContext) {
+        context.canvas.clear();
         self.current_scene().on_open(context);
         self.sprites = self.current_scene().create_sprites(context);
         self.focused_input = None;
@@ -147,6 +148,7 @@ impl SceneManager {
             let scene: Scene = match scene_id {
                 "main_menu" => MainMenu {}.into(),
                 "empty_screen" => EmptyScreen {}.into(),
+                "settings" => Settings {}.into(),
                 _ => panic!("Unknown scene id: {}!", scene_id),
             };
             self.scenes.insert(scene_id.to_ascii_lowercase(), scene);

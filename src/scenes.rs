@@ -26,7 +26,8 @@ impl SceneT for MainMenu {
     fn button_click(&mut self, button_id: &str) -> Option<CallResult> {
         match button_id {
             "exit" => Some(CallResult::SystemExit),
-            "settings" => Some(CallResult::ChangeScene("empty_screen".to_ascii_lowercase())),
+            "create_world" => Some(CallResult::ChangeScene("empty_screen".to_ascii_lowercase())),
+            "settings" => Some(CallResult::ChangeScene("settings".to_ascii_lowercase())),
             _ => None,
         }
     }
@@ -56,7 +57,9 @@ impl SceneT for MainMenu {
             }
             .into(),
         );
-        let version_size = context.sprite_manager.text_size(&*VERSION);
+        let version_size = context
+            .sprite_manager
+            .text_size(&*VERSION, LabelFont::Default);
         sprites.add_sprite(
             Label {
                 text: (*VERSION).to_string(),
@@ -69,7 +72,12 @@ impl SceneT for MainMenu {
             }
             .into(),
         );
-        let button_size = |text: &str| (context.sprite_manager.text_size(text).0 + 20, 30);
+        let button_size = |text: &str| {
+            (
+                context.sprite_manager.text_size(text, LabelFont::Default).0 + 20,
+                30,
+            )
+        };
         let load_button_text = "[l] Load world";
         let load_button_size = button_size(load_button_text);
         sprites.add_sprite(
@@ -136,11 +144,7 @@ pub struct EmptyScreen;
 impl SceneT for EmptyScreen {
     fn call(&mut self, _context: &mut EngineContext, event: &Event) -> CallResult {
         match event {
-            Event::MouseButtonDown {
-                mouse_btn: MouseButton::Left,
-                ..
-            }
-            | Event::KeyDown {
+            Event::KeyDown {
                 scancode: Some(Scancode::Escape),
                 ..
             } => CallResult::ChangeScene("main_menu".to_ascii_lowercase()),
@@ -163,9 +167,67 @@ impl SceneT for EmptyScreen {
     fn on_update(&mut self, context: &mut EngineContext, _elapsed_dime: f64) {
         context
             .canvas
-            .set_draw_color(colors::rgb(colors::DARK_SEA_GREEN));
+            .set_draw_color(colors::rgb(colors::DARK_GREEN));
         context.canvas.clear();
     }
+}
+
+#[derive(Hash, Eq, PartialEq)]
+pub struct Settings;
+impl SceneT for Settings {
+    fn call(&mut self, _context: &mut EngineContext, event: &Event) -> CallResult {
+        match event {
+            Event::MouseButtonDown {
+                mouse_btn: MouseButton::X1,
+                ..
+            }
+            | Event::KeyDown {
+                scancode: Some(Scancode::Escape),
+                ..
+            } => CallResult::ChangeScene("main_menu".to_ascii_lowercase()),
+            _ => CallResult::DoNothing,
+        }
+    }
+
+    fn button_click(&mut self, _button_id: &str) -> Option<CallResult> {
+        None
+    }
+
+    fn on_open(&mut self, _context: &mut EngineContext) {}
+
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SceneSprites> {
+        let (w, h) = context.canvas.output_size().unwrap();
+        let screen_center = (w as i32 / 2, h as i32 / 2);
+        let mut sprites = SceneSprites::new();
+        let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
+        sprites.add_sprite(
+            Image {
+                path: "res/img/bg.jpg".to_string(),
+                position: (
+                    screen_center.0 - bg_size.0 as i32 / 2,
+                    screen_center.1 - bg_size.1 as i32 / 2,
+                ),
+            }
+            .into(),
+        );
+        let title_size = context
+            .sprite_manager
+            .text_size("Settings", LabelFont::Title);
+        sprites.add_sprite(
+            Label {
+                text: "Settings".to_string(),
+                font: LabelFont::Title,
+                color: Some(colors::rgb(colors::DARK_GREEN)),
+                position: (screen_center.0 - title_size.0 as i32 / 2, 30),
+            }
+            .into(),
+        );
+        Some(sprites)
+    }
+
+    fn on_resize(&mut self, _context: &mut EngineContext) {}
+
+    fn on_update(&mut self, _context: &mut EngineContext, _elapsed_dime: f64) {}
 }
 
 #[enum_dispatch::enum_dispatch(SceneT)]
@@ -173,4 +235,5 @@ impl SceneT for EmptyScreen {
 pub enum Scene {
     MainMenu,
     EmptyScreen,
+    Settings,
 }

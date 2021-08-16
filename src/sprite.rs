@@ -39,6 +39,13 @@ fn draw_rect(
     }
 }
 
+fn font_path_and_size<'a>(font: LabelFont) -> (&'a str, u16) {
+    match font {
+        LabelFont::Default => ("res/fonts/consolab.ttf", 16),
+        LabelFont::Title => ("res/fonts/avqest.ttf", 64),
+    }
+}
+
 pub struct SpritesManager {
     font_context: Sdl2TtfContext,
     texture_creator: TextureCreator<WindowContext>,
@@ -64,12 +71,10 @@ impl SpritesManager {
         (query.width, query.height)
     }
 
-    pub fn text_size(&self, text: &str) -> (u32, u32) {
-        let default_font = self
-            .font_context
-            .load_font("res/fonts/consolab.ttf", 16)
-            .unwrap();
-        default_font.size_of(text).unwrap()
+    pub fn text_size(&self, text: &str, font: LabelFont) -> (u32, u32) {
+        let (path, size) = font_path_and_size(font);
+        let font = self.font_context.load_font(path, size).unwrap();
+        font.size_of(text).unwrap()
     }
 
     pub fn render_sprite(&mut self, sprite: &Sprite) -> &Texture {
@@ -93,10 +98,8 @@ impl SpritesManager {
     }
 
     fn render_label(&mut self, sprite: &Label) -> &Texture {
-        let default_font = self
-            .font_context
-            .load_font("res/fonts/consolab.ttf", 16)
-            .unwrap();
+        let (path, size) = font_path_and_size(sprite.font);
+        let font = self.font_context.load_font(path, size).unwrap();
         let color = sprite.color.unwrap_or(self.default_color);
         let hash = format!(
             "{}:{}:{}:{}:{}",
@@ -107,10 +110,7 @@ impl SpritesManager {
                 hash.clone(),
                 self.texture_creator
                     .create_texture_from_surface(
-                        default_font
-                            .render(sprite.text.as_str())
-                            .blended(color)
-                            .unwrap(),
+                        font.render(sprite.text.as_str()).blended(color).unwrap(),
                     )
                     .unwrap(),
             );
@@ -119,10 +119,8 @@ impl SpritesManager {
     }
 
     fn render_button(&mut self, button: &Button) -> &Texture {
-        let default_font = self
-            .font_context
-            .load_font("res/fonts/consolab.ttf", 16)
-            .unwrap();
+        let (path, size) = font_path_and_size(LabelFont::Default);
+        let font = self.font_context.load_font(path, size).unwrap();
         let (fg_color, bg_color) = match button.state {
             ButtonState::Hovered => (
                 colors::rgb(colors::WHITE),
@@ -148,10 +146,7 @@ impl SpritesManager {
                 Surface::new(button.size.0, button.size.1, PixelFormatEnum::RGBA32).unwrap();
             draw_rect(&mut surface, Some(fg_color), Some(bg_color), 2);
 
-            let text_surface = default_font
-                .render(button.text.as_str())
-                .blended(fg_color)
-                .unwrap();
+            let text_surface = font.render(button.text.as_str()).blended(fg_color).unwrap();
             let (w, h) = text_surface.size();
             text_surface
                 .blit(
@@ -198,7 +193,7 @@ pub struct Image {
     pub position: (i32, i32),
 }
 
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Copy, Clone)]
 pub enum LabelFont {
     Default,
     Title,
