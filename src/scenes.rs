@@ -1,9 +1,9 @@
 use engine::EngineContext;
-use scene_manager::{CallResult, SpritesData};
+use scene_manager::CallResult;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, ImgSprite, TextSprite};
+use sprite::{Button, ButtonState, Image, Label, SceneSprites};
 use {colors, VERSION};
 
 #[enum_dispatch::enum_dispatch]
@@ -11,7 +11,7 @@ pub trait SceneT {
     fn call(&mut self, context: &mut EngineContext, event: &Event) -> CallResult;
     fn button_click(&mut self, button_id: &str) -> Option<CallResult>;
     fn on_open(&mut self, context: &mut EngineContext);
-    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SpritesData>;
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SceneSprites>;
     fn on_resize(&mut self, context: &mut EngineContext);
     fn on_update(&mut self, context: &mut EngineContext, elapsed_dime: f64);
 }
@@ -33,78 +33,96 @@ impl SceneT for MainMenu {
 
     fn on_open(&mut self, _context: &mut EngineContext) {}
 
-    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SpritesData> {
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SceneSprites> {
+        let mut sprites = SceneSprites::new();
         let (w, h) = context.canvas.output_size().unwrap();
         let screen_center = (w as i32 / 2, h as i32 / 2);
         let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
+        sprites.add_sprite(
+            Image {
+                path: "res/img/bg.jpg".to_string(),
+                position: (
+                    screen_center.0 - bg_size.0 as i32 / 2,
+                    screen_center.1 - bg_size.1 as i32 / 2,
+                ),
+            }
+            .into(),
+        );
         let logo_size = context.sprite_manager.image_size("res/img/logo.png");
+        sprites.add_sprite(
+            Image {
+                path: "res/img/logo.png".to_string(),
+                position: (screen_center.0 - logo_size.0 as i32 / 2, 10),
+            }
+            .into(),
+        );
         let version_size = context.sprite_manager.text_size(&*VERSION);
-        let button_size = |text: &str| (context.sprite_manager.text_size(text).0 + 20, 30);
-        let load_button_text = "[l] Load world";
-        let load_button_size = button_size(load_button_text);
-        let create_button_text = "[c] Create new world";
-        let create_button_size = button_size(create_button_text);
-        let settings_button_text = "[s] Settings";
-        let settings_button_size = button_size(settings_button_text);
-        let exit_button_text = "[x] Exit";
-        let exit_button_size = button_size(exit_button_text);
-        Some(SpritesData {
-            img_sprites: vec![
-                ImgSprite {
-                    path: "res/img/bg.jpg".to_string(),
-                    position: (
-                        screen_center.0 - bg_size.0 as i32 / 2,
-                        screen_center.1 - bg_size.1 as i32 / 2,
-                    ),
-                },
-                ImgSprite {
-                    path: "res/img/logo.png".to_string(),
-                    position: (screen_center.0 - logo_size.0 as i32 / 2, 10),
-                },
-            ],
-            text_sprites: vec![TextSprite {
+        sprites.add_sprite(
+            Label {
                 text: (*VERSION).to_string(),
                 color: None,
                 position: (
                     screen_center.0 + logo_size.0 as i32 / 2 - version_size.0 as i32 - 20,
                     logo_size.1 as i32 + 10,
                 ),
-            }],
-            buttons: vec![
-                Button {
-                    id: "load_world".to_ascii_lowercase(),
-                    key: Scancode::L,
-                    text: load_button_text.to_string(),
-                    size: load_button_size,
-                    position: (screen_center.0 - load_button_size.0 as i32 / 2, 300),
-                    state: ButtonState::Disabled,
-                },
-                Button {
-                    id: "create_world".to_ascii_lowercase(),
-                    key: Scancode::C,
-                    text: create_button_text.to_string(),
-                    size: create_button_size,
-                    position: (screen_center.0 - create_button_size.0 as i32 / 2, 340),
-                    state: ButtonState::Default,
-                },
-                Button {
-                    id: "settings".to_ascii_lowercase(),
-                    key: Scancode::S,
-                    text: settings_button_text.to_string(),
-                    size: settings_button_size,
-                    position: (screen_center.0 - settings_button_size.0 as i32 / 2, 380),
-                    state: ButtonState::Default,
-                },
-                Button {
-                    id: "exit".to_ascii_lowercase(),
-                    key: Scancode::X,
-                    text: exit_button_text.to_string(),
-                    size: exit_button_size,
-                    position: (screen_center.0 - exit_button_size.0 as i32 / 2, 420),
-                    state: ButtonState::Default,
-                },
-            ],
-        })
+            }
+            .into(),
+        );
+        let button_size = |text: &str| (context.sprite_manager.text_size(text).0 + 20, 30);
+        let load_button_text = "[l] Load world";
+        let load_button_size = button_size(load_button_text);
+        sprites.add_sprite(
+            Button {
+                id: "load_world".to_ascii_lowercase(),
+                key: Scancode::L,
+                text: load_button_text.to_string(),
+                size: load_button_size,
+                position: (screen_center.0 - load_button_size.0 as i32 / 2, 300),
+                state: ButtonState::Disabled,
+            }
+            .into(),
+        );
+        let create_button_text = "[c] Create new world";
+        let create_button_size = button_size(create_button_text);
+        sprites.add_sprite(
+            Button {
+                id: "create_world".to_ascii_lowercase(),
+                key: Scancode::C,
+                text: create_button_text.to_string(),
+                size: create_button_size,
+                position: (screen_center.0 - create_button_size.0 as i32 / 2, 340),
+                state: ButtonState::Default,
+            }
+            .into(),
+        );
+        let settings_button_text = "[s] Settings";
+        let settings_button_size = button_size(settings_button_text);
+        sprites.add_sprite(
+            Button {
+                id: "settings".to_ascii_lowercase(),
+                key: Scancode::S,
+                text: settings_button_text.to_string(),
+                size: settings_button_size,
+                position: (screen_center.0 - settings_button_size.0 as i32 / 2, 380),
+                state: ButtonState::Default,
+            }
+            .into(),
+        );
+        let exit_button_text = "[x] Exit";
+        let exit_button_size = button_size(exit_button_text);
+        sprites.add_sprite(
+            Button {
+                id: "exit".to_ascii_lowercase(),
+                key: Scancode::X,
+                text: exit_button_text.to_string(),
+                size: exit_button_size,
+                position: (screen_center.0 - exit_button_size.0 as i32 / 2, 420),
+                state: ButtonState::Default,
+            }
+            .into(),
+        );
+
+        Some(sprites)
     }
 
     fn on_resize(&mut self, _context: &mut EngineContext) {}
@@ -135,7 +153,7 @@ impl SceneT for EmptyScreen {
 
     fn on_open(&mut self, _context: &mut EngineContext) {}
 
-    fn create_sprites(&mut self, _context: &mut EngineContext) -> Option<SpritesData> {
+    fn create_sprites(&mut self, _context: &mut EngineContext) -> Option<SceneSprites> {
         None
     }
 

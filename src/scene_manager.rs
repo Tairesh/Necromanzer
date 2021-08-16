@@ -3,7 +3,7 @@ use scenes::{EmptyScreen, MainMenu, Scene, SceneT};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Mod, Scancode};
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, ImgSprite, TextSprite};
+use sprite::{Button, ButtonState, SceneSprites, Sprite};
 use std::collections::HashMap;
 
 fn collide(mouse_pos: (i32, i32), button: &Button) -> bool {
@@ -13,40 +13,46 @@ fn collide(mouse_pos: (i32, i32), button: &Button) -> bool {
     left <= x && x <= right && top <= y && y <= bottom
 }
 
-fn process_mouse_motion(mouse_pos: (i32, i32), data: &mut SpritesData) {
-    data.buttons.iter_mut().for_each(|button| {
-        if button.state != ButtonState::Disabled {
-            let collide = collide(mouse_pos, button);
-            if collide && button.state == ButtonState::Default {
+fn process_mouse_motion(mouse_pos: (i32, i32), data: &mut SceneSprites) {
+    data.sprites.iter_mut().for_each(|sprite| {
+        if let Sprite::Button(button) = sprite {
+            if button.state != ButtonState::Disabled {
+                let collide = collide(mouse_pos, button);
+                if collide && button.state == ButtonState::Default {
+                    button.state = ButtonState::Hovered;
+                } else if !collide && button.state == ButtonState::Hovered {
+                    button.state = ButtonState::Default;
+                }
+            }
+        }
+    });
+}
+
+fn process_mouse_button_down(mouse_pos: (i32, i32), data: &mut SceneSprites) {
+    data.sprites.iter_mut().for_each(|sprite| {
+        if let Sprite::Button(button) = sprite {
+            if button.state != ButtonState::Disabled {
+                let collide = collide(mouse_pos, button);
+                if collide {
+                    button.state = ButtonState::Pressed;
+                }
+            }
+        }
+    });
+}
+
+fn process_mouse_button_up(mouse_pos: (i32, i32), data: &mut SceneSprites) -> Option<String> {
+    let mut clicked: Option<String> = None;
+    for sprite in data.sprites.iter_mut() {
+        if let Sprite::Button(button) = sprite {
+            let collides = collide(mouse_pos, button);
+            if collides && button.state == ButtonState::Pressed {
                 button.state = ButtonState::Hovered;
-            } else if !collide && button.state == ButtonState::Hovered {
+                // println!("clicked {}!", button.id);
+                clicked = Some(button.id.clone());
+            } else if !collides && button.state == ButtonState::Pressed {
                 button.state = ButtonState::Default;
             }
-        }
-    });
-}
-
-fn process_mouse_button_down(mouse_pos: (i32, i32), data: &mut SpritesData) {
-    data.buttons.iter_mut().for_each(|button| {
-        if button.state != ButtonState::Disabled {
-            let collide = collide(mouse_pos, button);
-            if collide {
-                button.state = ButtonState::Pressed;
-            }
-        }
-    });
-}
-
-fn process_mouse_button_up(mouse_pos: (i32, i32), data: &mut SpritesData) -> Option<String> {
-    let mut clicked: Option<String> = None;
-    for button in data.buttons.iter_mut() {
-        let collides = collide(mouse_pos, button);
-        if collides && button.state == ButtonState::Pressed {
-            button.state = ButtonState::Hovered;
-            // println!("clicked {}!", button.id);
-            clicked = Some(button.id.clone());
-        } else if !collides && button.state == ButtonState::Pressed {
-            button.state = ButtonState::Default;
         }
     }
     clicked
@@ -56,15 +62,19 @@ fn process_key_down(
     scancode: Scancode,
     keymod: Mod,
     focused_input: Option<usize>,
-    data: &mut SpritesData,
+    data: &mut SceneSprites,
 ) {
     let shift = keymod.intersects(Mod::LSHIFTMOD | Mod::RSHIFTMOD);
     let alt = keymod.intersects(Mod::LALTMOD | Mod::RALTMOD);
     let ctrl = keymod.intersects(Mod::LCTRLMOD | Mod::RCTRLMOD);
     if !shift && !alt && !ctrl {
-        for (i, button) in data.buttons.iter_mut().enumerate() {
-            if button.key == scancode || (focused_input.is_some() && focused_input.unwrap() == i) {
-                button.state = ButtonState::Pressed;
+        for (i, sprite) in data.sprites.iter_mut().enumerate() {
+            if let Sprite::Button(button) = sprite {
+                if button.key == scancode
+                    || (focused_input.is_some() && focused_input.unwrap() == i)
+                {
+                    button.state = ButtonState::Pressed;
+                }
             }
         }
     }
@@ -74,20 +84,23 @@ fn process_key_up(
     scancode: Scancode,
     keymod: Mod,
     focused_input: Option<usize>,
-    data: &mut SpritesData,
+    data: &mut SceneSprites,
 ) -> Option<String> {
     let mut clicked: Option<String> = None;
     let shift = keymod.intersects(Mod::LSHIFTMOD | Mod::RSHIFTMOD);
     let alt = keymod.intersects(Mod::LALTMOD | Mod::RALTMOD);
     let ctrl = keymod.intersects(Mod::LCTRLMOD | Mod::RCTRLMOD);
     if !shift && !alt && !ctrl {
-        for (i, button) in data.buttons.iter_mut().enumerate() {
-            if (button.key == scancode || (focused_input.is_some() && focused_input.unwrap() == i))
-                && button.state == ButtonState::Pressed
-            {
-                button.state = ButtonState::Default;
-                // println!("clicked {}!", button.id);
-                clicked = Some(button.id.clone());
+        for (i, sprite) in data.sprites.iter_mut().enumerate() {
+            if let Sprite::Button(button) = sprite {
+                if (button.key == scancode
+                    || (focused_input.is_some() && focused_input.unwrap() == i))
+                    && button.state == ButtonState::Pressed
+                {
+                    button.state = ButtonState::Default;
+                    // println!("clicked {}!", button.id);
+                    clicked = Some(button.id.clone());
+                }
             }
         }
     }
@@ -100,17 +113,10 @@ pub enum CallResult {
     ChangeScene(String),
 }
 
-#[derive(Hash, Eq, PartialEq)]
-pub struct SpritesData {
-    pub img_sprites: Vec<ImgSprite>,
-    pub text_sprites: Vec<TextSprite>,
-    pub buttons: Vec<Button>,
-}
-
 pub struct SceneManager {
     scenes: HashMap<String, Scene>,
     current_scene: String,
-    sprites_data: Option<SpritesData>,
+    sprites: Option<SceneSprites>,
     focused_input: Option<usize>,
 }
 
@@ -119,21 +125,14 @@ impl SceneManager {
         SceneManager {
             scenes: HashMap::with_capacity(5),
             current_scene: "main_menu".to_ascii_lowercase(),
-            sprites_data: None,
+            sprites: None,
             focused_input: None,
         }
     }
 
-    pub fn focused_input(&mut self) -> Option<&mut Button> {
-        if let (Some(sprites), Some(f)) = (self.sprites_data.as_mut(), self.focused_input) {
-            return sprites.buttons.get_mut(f);
-        }
-        None
-    }
-
     pub fn on_open(&mut self, context: &mut EngineContext) {
         self.current_scene().on_open(context);
-        self.sprites_data = self.current_scene().create_sprites(context);
+        self.sprites = self.current_scene().create_sprites(context);
         self.focused_input = None;
     }
 
@@ -156,19 +155,29 @@ impl SceneManager {
     }
 
     pub fn on_update(&mut self, context: &mut EngineContext, elapsed_time: f64) {
-        if let Some(sprites) = self.sprites_data.as_ref() {
+        if let Some(sprites) = self.sprites.as_ref() {
             context.draw_sprites(sprites).ok();
         }
         self.current_scene().on_update(context, elapsed_time);
     }
 
     pub fn on_resize(&mut self, context: &mut EngineContext) {
-        self.sprites_data = self.current_scene().create_sprites(context);
+        self.sprites = self.current_scene().create_sprites(context);
         self.current_scene().on_resize(context);
     }
 
+    pub fn focused_input(&mut self) -> Option<&mut Button> {
+        if let (Some(sprites), Some(f)) = (self.sprites.as_mut(), self.focused_input) {
+            return match sprites.sprites.get_mut(f).unwrap() {
+                Sprite::Button(button) => Some(button),
+                _ => None,
+            };
+        }
+        None
+    }
+
     fn next_input(&mut self, forward: bool) {
-        let buttons_len = self.sprites_data.as_ref().unwrap().buttons.len();
+        let buttons_len = self.sprites.as_ref().unwrap().sprites.len();
         if self.focused_input.is_none() {
             let f = if forward { 0 } else { buttons_len - 1 };
             self.focused_input = Some(f);
@@ -186,7 +195,7 @@ impl SceneManager {
     pub fn call(&mut self, context: &mut EngineContext, event: &Event) -> CallResult {
         match event {
             Event::MouseMotion { x, y, .. } => {
-                if let Some(sprites) = self.sprites_data.as_mut() {
+                if let Some(sprites) = self.sprites.as_mut() {
                     process_mouse_motion((*x, *y), sprites);
                 }
             }
@@ -196,7 +205,7 @@ impl SceneManager {
                 y,
                 ..
             } => {
-                if let Some(sprites) = self.sprites_data.as_mut() {
+                if let Some(sprites) = self.sprites.as_mut() {
                     process_mouse_button_down((*x, *y), sprites);
                 }
             }
@@ -206,7 +215,7 @@ impl SceneManager {
                 y,
                 ..
             } => {
-                if let Some(sprites) = self.sprites_data.as_mut() {
+                if let Some(sprites) = self.sprites.as_mut() {
                     if let Some(clicked) = process_mouse_button_up((*x, *y), sprites) {
                         if let Some(result) = self.current_scene().button_click(clicked.as_str()) {
                             return result;
@@ -225,7 +234,7 @@ impl SceneManager {
                 keymod,
                 ..
             } => {
-                if self.sprites_data.is_some() {
+                if self.sprites.is_some() {
                     let shift = keymod.intersects(Mod::LSHIFTMOD | Mod::RSHIFTMOD);
                     if self.focused_input.is_some() {
                         self.focused_input().unwrap().state = ButtonState::Default;
@@ -242,7 +251,7 @@ impl SceneManager {
                 keymod,
                 ..
             } => {
-                if let Some(sprites) = self.sprites_data.as_mut() {
+                if let Some(sprites) = self.sprites.as_mut() {
                     process_key_down(*scancode, *keymod, self.focused_input, sprites);
                 }
             }
@@ -251,7 +260,7 @@ impl SceneManager {
                 keymod,
                 ..
             } => {
-                if let Some(sprites) = self.sprites_data.as_mut() {
+                if let Some(sprites) = self.sprites.as_mut() {
                     if let Some(clicked) =
                         process_key_up(*scancode, *keymod, self.focused_input, sprites)
                     {

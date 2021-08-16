@@ -64,7 +64,7 @@ impl SpritesManager {
         (query.width, query.height)
     }
 
-    pub fn load_image(&mut self, sprite: &ImgSprite) -> &Texture {
+    pub fn load_image(&mut self, sprite: &Image) -> &Texture {
         if !self.textures.contains_key(sprite.path.as_str()) {
             self.textures.insert(
                 sprite.path.clone(),
@@ -84,7 +84,7 @@ impl SpritesManager {
         default_font.size_of(text).unwrap()
     }
 
-    pub fn render_text(&mut self, sprite: &TextSprite) -> &Texture {
+    pub fn render_text(&mut self, sprite: &Label) -> &Texture {
         let default_font = self
             .font_context
             .load_font("res/fonts/consolab.ttf", 16)
@@ -170,13 +170,28 @@ impl SpritesManager {
 }
 
 #[derive(Hash, Eq, PartialEq)]
-pub struct ImgSprite {
+pub struct SceneSprites {
+    pub sprites: Vec<Sprite>,
+}
+
+impl SceneSprites {
+    pub fn new() -> SceneSprites {
+        SceneSprites { sprites: vec![] }
+    }
+
+    pub fn add_sprite(&mut self, sprite: Sprite) {
+        self.sprites.push(sprite);
+    }
+}
+
+#[derive(Hash, Eq, PartialEq)]
+pub struct Image {
     pub path: String,
     pub position: (i32, i32),
 }
 
 #[derive(Hash, Eq, PartialEq)]
-pub struct TextSprite {
+pub struct Label {
     pub text: String,
     pub color: Option<Color>,
     pub position: (i32, i32),
@@ -199,4 +214,18 @@ pub struct Button {
     pub size: (u32, u32),
     pub position: (i32, i32),
     pub state: ButtonState,
+}
+
+#[enum_dispatch::enum_dispatch]
+pub trait SpriteT {}
+impl SpriteT for Image {}
+impl SpriteT for Label {}
+impl SpriteT for Button {}
+
+#[enum_dispatch::enum_dispatch(SpriteT)]
+#[derive(Hash, Eq, PartialEq)]
+pub enum Sprite {
+    Image,
+    Label,
+    Button,
 }
