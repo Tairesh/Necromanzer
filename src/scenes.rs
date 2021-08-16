@@ -3,7 +3,7 @@ use scene_manager::CallResult;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, Image, Label, LabelFont, SceneSprites};
+use sprite::{Button, ButtonState, Image, Label, LabelFont, Sprite};
 use {colors, VERSION};
 
 #[enum_dispatch::enum_dispatch]
@@ -11,7 +11,7 @@ pub trait SceneT {
     fn call(&mut self, context: &mut EngineContext, event: &Event) -> CallResult;
     fn button_click(&mut self, button_id: &str) -> Option<CallResult>;
     fn on_open(&mut self, context: &mut EngineContext);
-    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SceneSprites>;
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Vec<Sprite>;
     fn on_resize(&mut self, context: &mut EngineContext);
     fn on_update(&mut self, context: &mut EngineContext, elapsed_dime: f64);
 }
@@ -34,12 +34,12 @@ impl SceneT for MainMenu {
 
     fn on_open(&mut self, _context: &mut EngineContext) {}
 
-    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SceneSprites> {
-        let mut sprites = SceneSprites::new();
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Vec<Sprite> {
+        let mut sprites = Vec::with_capacity(8);
         let (w, h) = context.canvas.output_size().unwrap();
         let screen_center = (w as i32 / 2, h as i32 / 2);
         let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
-        sprites.add_sprite(
+        sprites.push(
             Image {
                 path: "res/img/bg.jpg".to_string(),
                 position: (
@@ -50,7 +50,7 @@ impl SceneT for MainMenu {
             .into(),
         );
         let logo_size = context.sprite_manager.image_size("res/img/logo.png");
-        sprites.add_sprite(
+        sprites.push(
             Image {
                 path: "res/img/logo.png".to_string(),
                 position: (screen_center.0 - logo_size.0 as i32 / 2, 10),
@@ -60,7 +60,7 @@ impl SceneT for MainMenu {
         let version_size = context
             .sprite_manager
             .text_size(&*VERSION, LabelFont::Default);
-        sprites.add_sprite(
+        sprites.push(
             Label {
                 text: (*VERSION).to_string(),
                 font: LabelFont::Default,
@@ -80,7 +80,7 @@ impl SceneT for MainMenu {
         };
         let load_button_text = "[l] Load world";
         let load_button_size = button_size(load_button_text);
-        sprites.add_sprite(
+        sprites.push(
             Button {
                 id: "load_world".to_ascii_lowercase(),
                 key: Scancode::L,
@@ -93,7 +93,7 @@ impl SceneT for MainMenu {
         );
         let create_button_text = "[c] Create new world";
         let create_button_size = button_size(create_button_text);
-        sprites.add_sprite(
+        sprites.push(
             Button {
                 id: "create_world".to_ascii_lowercase(),
                 key: Scancode::C,
@@ -106,7 +106,7 @@ impl SceneT for MainMenu {
         );
         let settings_button_text = "[s] Settings";
         let settings_button_size = button_size(settings_button_text);
-        sprites.add_sprite(
+        sprites.push(
             Button {
                 id: "settings".to_ascii_lowercase(),
                 key: Scancode::S,
@@ -119,7 +119,7 @@ impl SceneT for MainMenu {
         );
         let exit_button_text = "[x] Exit";
         let exit_button_size = button_size(exit_button_text);
-        sprites.add_sprite(
+        sprites.push(
             Button {
                 id: "exit".to_ascii_lowercase(),
                 key: Scancode::X,
@@ -131,7 +131,7 @@ impl SceneT for MainMenu {
             .into(),
         );
 
-        Some(sprites)
+        sprites
     }
 
     fn on_resize(&mut self, _context: &mut EngineContext) {}
@@ -158,8 +158,8 @@ impl SceneT for EmptyScreen {
 
     fn on_open(&mut self, _context: &mut EngineContext) {}
 
-    fn create_sprites(&mut self, _context: &mut EngineContext) -> Option<SceneSprites> {
-        None
+    fn create_sprites(&mut self, _context: &mut EngineContext) -> Vec<Sprite> {
+        vec![]
     }
 
     fn on_resize(&mut self, _context: &mut EngineContext) {}
@@ -195,12 +195,12 @@ impl SceneT for Settings {
 
     fn on_open(&mut self, _context: &mut EngineContext) {}
 
-    fn create_sprites(&mut self, context: &mut EngineContext) -> Option<SceneSprites> {
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Vec<Sprite> {
         let (w, h) = context.canvas.output_size().unwrap();
         let screen_center = (w as i32 / 2, h as i32 / 2);
-        let mut sprites = SceneSprites::new();
+        let mut sprites = Vec::with_capacity(2);
         let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
-        sprites.add_sprite(
+        sprites.push(
             Image {
                 path: "res/img/bg.jpg".to_string(),
                 position: (
@@ -213,7 +213,7 @@ impl SceneT for Settings {
         let title_size = context
             .sprite_manager
             .text_size("Settings", LabelFont::Title);
-        sprites.add_sprite(
+        sprites.push(
             Label {
                 text: "Settings".to_string(),
                 font: LabelFont::Title,
@@ -222,7 +222,7 @@ impl SceneT for Settings {
             }
             .into(),
         );
-        Some(sprites)
+        sprites
     }
 
     fn on_resize(&mut self, _context: &mut EngineContext) {}

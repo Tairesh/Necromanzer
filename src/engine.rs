@@ -8,7 +8,7 @@ use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::surface::Surface;
 use sdl2::video::WindowContext;
 use settings::Settings;
-use sprite::{SceneSprites, Sprite, SpritesManager};
+use sprite::{Sprite, SpritesManager};
 use std::error::Error;
 
 const FPS_LOCK: u32 = 60;
@@ -47,8 +47,8 @@ impl EngineContext {
         }
     }
 
-    pub fn draw_sprites(&mut self, data: &SceneSprites) -> Result<(), String> {
-        for sprite in data.sprites.iter() {
+    pub fn draw_sprites(&mut self, sprites: &[Sprite]) -> Result<(), String> {
+        for sprite in sprites.iter() {
             let texture = self.sprite_manager.render_sprite(sprite);
             let position: (i32, i32) = match sprite {
                 Sprite::Image(img) => img.position,

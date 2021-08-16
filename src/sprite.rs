@@ -173,21 +173,6 @@ impl SpritesManager {
 }
 
 #[derive(Hash, Eq, PartialEq)]
-pub struct SceneSprites {
-    pub sprites: Vec<Sprite>,
-}
-
-impl SceneSprites {
-    pub fn new() -> SceneSprites {
-        SceneSprites { sprites: vec![] }
-    }
-
-    pub fn add_sprite(&mut self, sprite: Sprite) {
-        self.sprites.push(sprite);
-    }
-}
-
-#[derive(Hash, Eq, PartialEq)]
 pub struct Image {
     pub path: String,
     pub position: (i32, i32),
