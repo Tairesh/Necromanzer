@@ -14,22 +14,30 @@ fn draw_rect(
     border_color: Option<Color>,
     bg_color: Option<Color>,
     border_width: u32,
+    rect: Rect,
 ) {
-    let size = surface.size();
     if let Some(bg_color) = bg_color {
-        surface
-            .fill_rect(Rect::new(0, 0, size.0, size.1), bg_color)
-            .ok();
+        surface.fill_rect(rect, bg_color).ok();
     }
     if border_width > 0 {
         if let Some(border_color) = border_color {
             surface
                 .fill_rects(
                     [
-                        Rect::new(0, 0, size.0, border_width),
-                        Rect::new(0, 0, border_width, size.1),
-                        Rect::new((size.0 - border_width) as i32, 0, border_width, size.1),
-                        Rect::new(0, (size.1 - border_width) as i32, size.0, border_width),
+                        Rect::new(rect.left(), rect.top(), rect.width(), border_width),
+                        Rect::new(rect.left(), rect.top(), border_width, rect.height()),
+                        Rect::new(
+                            rect.right() - border_width as i32,
+                            rect.top(),
+                            border_width,
+                            rect.height(),
+                        ),
+                        Rect::new(
+                            rect.left(),
+                            rect.bottom() - border_width as i32,
+                            rect.width(),
+                            border_width,
+                        ),
                     ]
                     .as_ref(),
                     border_color,
@@ -84,6 +92,9 @@ impl SpritesManager {
             Sprite::Label(label) => self.render_label(label.text.as_str(), label.font, label.color),
             Sprite::Button(btn) => self.render_button(btn.state, btn.text.as_str(), btn.size),
             Sprite::RadioButton(btn) => self.render_button(btn.state, btn.text.as_str(), btn.size),
+            Sprite::TextInput(input) => {
+                self.render_input(input.value.as_str(), input.state, input.size, input.blink)
+            }
         }
     }
 
@@ -113,29 +124,119 @@ impl SpritesManager {
         self.textures.get(hash.as_str()).unwrap()
     }
 
-    fn render_button(&mut self, state: ButtonState, text: &str, size: (u32, u32)) -> &Texture {
+    fn render_input(
+        &mut self,
+        value: &str,
+        state: ClickableState,
+        size: (u32, u32),
+        blink: bool,
+    ) -> &Texture {
         let (path, font_size) = font_path_and_size(LabelFont::Default);
         let font = self.font_context.load_font(path, font_size).unwrap();
         let (fg_color, bg_color) = match state {
-            ButtonState::Hovered => (
+            ClickableState::Hovered => (
+                colors::rgb(colors::LIME),
+                colors::rgba(colors::DARK_GRAY, 200),
+            ),
+            ClickableState::Focused => {
+                (colors::rgb(colors::LIME), colors::rgba(colors::BLACK, 200))
+            }
+            ClickableState::Pressed => (
+                colors::rgb(colors::LIME),
+                colors::rgba(colors::DARK_GRAY, 200),
+            ),
+            ClickableState::Disabled => (
+                colors::rgb(colors::LIME),
+                colors::rgba(colors::DARK_GRAY, 200),
+            ),
+            ClickableState::Default => (
+                colors::rgb(colors::LIME),
+                colors::rgba(colors::DARK_GRAY, 200),
+            ),
+        };
+        let hash = format!(
+            "input:{}:{}:{}:{}:{}",
+            value, size.0, size.1, state as i32, blink as u8
+        );
+        if !self.textures.contains_key(hash.as_str()) {
+            let mut surface = Surface::new(size.0, size.1, PixelFormatEnum::RGBA32).unwrap();
+            let size = surface.size();
+            draw_rect(
+                &mut surface,
+                Some(fg_color),
+                Some(bg_color),
+                2,
+                Rect::new(0, 0, size.0, size.1),
+            );
+
+            let mut blink_offset = 5;
+            if !value.is_empty() {
+                let text_surface = font.render(value).blended(fg_color).unwrap();
+                let (w, h) = text_surface.size();
+                blink_offset += w as i32 + 2;
+                text_surface
+                    .blit(
+                        None,
+                        &mut surface,
+                        Rect::new(5, size.1 as i32 / 2 - h as i32 / 2, w, h),
+                    )
+                    .ok();
+            }
+
+            if blink && state == ClickableState::Focused {
+                draw_rect(
+                    &mut surface,
+                    None,
+                    Some(fg_color),
+                    0,
+                    Rect::new(blink_offset, 5, 10, size.1 - 10),
+                );
+            }
+
+            self.textures.insert(
+                hash.clone(),
+                self.texture_creator
+                    .create_texture_from_surface(surface)
+                    .unwrap(),
+            );
+        }
+        self.textures.get(hash.as_str()).unwrap()
+    }
+
+    fn render_button(&mut self, state: ClickableState, text: &str, size: (u32, u32)) -> &Texture {
+        let (path, font_size) = font_path_and_size(LabelFont::Default);
+        let font = self.font_context.load_font(path, font_size).unwrap();
+        let (fg_color, bg_color) = match state {
+            ClickableState::Hovered => (
                 colors::rgb(colors::WHITE),
                 colors::rgba(colors::DARK_GREEN, 200),
             ),
-            ButtonState::Focused => (
+            ClickableState::Focused => (
                 colors::rgb(colors::WHITE),
                 colors::rgba(colors::DARK_SEPIA, 200),
             ),
-            ButtonState::Pressed => (colors::rgb(colors::BLACK), colors::rgba(colors::LIME, 200)),
-            ButtonState::Disabled => (
+            ClickableState::Pressed => {
+                (colors::rgb(colors::BLACK), colors::rgba(colors::LIME, 200))
+            }
+            ClickableState::Disabled => (
                 colors::rgb(colors::DARK_GRAY),
                 colors::rgba(colors::GRAY, 200),
             ),
-            ButtonState::Default => (colors::rgb(colors::LIME), colors::rgba(colors::BLACK, 200)),
+            ClickableState::Default => {
+                (colors::rgb(colors::LIME), colors::rgba(colors::BLACK, 200))
+            }
         };
         let hash = format!("button:{}:{}:{}:{}", text, size.0, size.1, state as i32);
         if !self.textures.contains_key(hash.as_str()) {
             let mut surface = Surface::new(size.0, size.1, PixelFormatEnum::RGBA32).unwrap();
-            draw_rect(&mut surface, Some(fg_color), Some(bg_color), 2);
+            let size = surface.size();
+            draw_rect(
+                &mut surface,
+                Some(fg_color),
+                Some(bg_color),
+                2,
+                Rect::new(0, 0, size.0, size.1),
+            );
 
             let text_surface = font.render(text).blended(fg_color).unwrap();
             let (w, h) = text_surface.size();
@@ -185,7 +286,7 @@ pub struct Label {
 }
 
 #[derive(Hash, Eq, PartialEq, Copy, Clone)]
-pub enum ButtonState {
+pub enum ClickableState {
     Default,
     Hovered,
     Focused,
@@ -200,7 +301,7 @@ pub struct Button {
     pub text: String,
     pub size: (u32, u32),
     pub position: (i32, i32),
-    pub state: ButtonState,
+    pub state: ClickableState,
 }
 
 #[derive(Hash, Eq, PartialEq)]
@@ -210,7 +311,18 @@ pub struct RadioButton {
     pub text: String,
     pub size: (u32, u32),
     pub position: (i32, i32),
-    pub state: ButtonState,
+    pub state: ClickableState,
+}
+
+#[derive(Hash, Eq, PartialEq)]
+pub struct TextInput {
+    pub id: String,
+    pub value: String,
+    pub size: (u32, u32),
+    pub position: (i32, i32),
+    pub state: ClickableState,
+    pub blink: bool,
+    pub blink_elapsed: u16,
 }
 
 #[enum_dispatch::enum_dispatch]
@@ -237,19 +349,24 @@ impl SpriteT for RadioButton {
         self.position
     }
 }
+impl SpriteT for TextInput {
+    fn position(&self) -> (i32, i32) {
+        self.position
+    }
+}
 
 pub trait Clickable {
-    fn state(&self) -> ButtonState;
-    fn change_state(&mut self, state: ButtonState);
+    fn state(&self) -> ClickableState;
+    fn change_state(&mut self, state: ClickableState);
     fn rect(&self) -> Rect;
     fn id(&self) -> String;
 }
 impl Clickable for Button {
-    fn state(&self) -> ButtonState {
+    fn state(&self) -> ClickableState {
         self.state
     }
 
-    fn change_state(&mut self, state: ButtonState) {
+    fn change_state(&mut self, state: ClickableState) {
         self.state = state;
     }
 
@@ -262,11 +379,28 @@ impl Clickable for Button {
     }
 }
 impl Clickable for RadioButton {
-    fn state(&self) -> ButtonState {
+    fn state(&self) -> ClickableState {
         self.state
     }
 
-    fn change_state(&mut self, state: ButtonState) {
+    fn change_state(&mut self, state: ClickableState) {
+        self.state = state;
+    }
+
+    fn rect(&self) -> Rect {
+        Rect::new(self.position.0, self.position.1, self.size.0, self.size.1)
+    }
+
+    fn id(&self) -> String {
+        self.id.clone()
+    }
+}
+impl Clickable for TextInput {
+    fn state(&self) -> ClickableState {
+        self.state
+    }
+
+    fn change_state(&mut self, state: ClickableState) {
         self.state = state;
     }
 
@@ -286,4 +420,5 @@ pub enum Sprite {
     Label,
     Button,
     RadioButton,
+    TextInput,
 }

@@ -3,8 +3,15 @@ use scene_manager::CallResult;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, Image, Label, LabelFont, RadioButton, Sprite};
+use sprite::{Button, ClickableState, Image, Label, LabelFont, RadioButton, Sprite, TextInput};
 use {colors, VERSION};
+
+fn bg_img(position: (i32, i32)) -> Image {
+    Image {
+        path: "res/img/bg.jpg".to_string(),
+        position,
+    }
+}
 
 #[enum_dispatch::enum_dispatch]
 pub trait SceneT {
@@ -26,7 +33,7 @@ impl SceneT for MainMenu {
     fn button_click(&mut self, button_id: &str) -> Option<CallResult> {
         match button_id {
             "exit" => Some(CallResult::SystemExit),
-            "create_world" => Some(CallResult::ChangeScene("empty_screen".to_ascii_lowercase())),
+            "create_world" => Some(CallResult::ChangeScene("create_world".to_ascii_lowercase())),
             "settings" => Some(CallResult::ChangeScene("settings".to_ascii_lowercase())),
             _ => None,
         }
@@ -40,13 +47,10 @@ impl SceneT for MainMenu {
         let screen_center = (w as i32 / 2, h as i32 / 2);
         let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
         sprites.push(
-            Image {
-                path: "res/img/bg.jpg".to_string(),
-                position: (
-                    screen_center.0 - bg_size.0 as i32 / 2,
-                    screen_center.1 - bg_size.1 as i32 / 2,
-                ),
-            }
+            bg_img((
+                screen_center.0 - bg_size.0 as i32 / 2,
+                screen_center.1 - bg_size.1 as i32 / 2,
+            ))
             .into(),
         );
         let logo_size = context.sprite_manager.image_size("res/img/logo.png");
@@ -87,7 +91,7 @@ impl SceneT for MainMenu {
                 text: load_button_text.to_string(),
                 size: load_button_size,
                 position: (screen_center.0 - load_button_size.0 as i32 / 2, 300),
-                state: ButtonState::Disabled,
+                state: ClickableState::Disabled,
             }
             .into(),
         );
@@ -100,7 +104,7 @@ impl SceneT for MainMenu {
                 text: create_button_text.to_string(),
                 size: create_button_size,
                 position: (screen_center.0 - create_button_size.0 as i32 / 2, 340),
-                state: ButtonState::Default,
+                state: ClickableState::Default,
             }
             .into(),
         );
@@ -113,7 +117,7 @@ impl SceneT for MainMenu {
                 text: settings_button_text.to_string(),
                 size: settings_button_size,
                 position: (screen_center.0 - settings_button_size.0 as i32 / 2, 380),
-                state: ButtonState::Default,
+                state: ClickableState::Default,
             }
             .into(),
         );
@@ -126,7 +130,7 @@ impl SceneT for MainMenu {
                 text: exit_button_text.to_string(),
                 size: exit_button_size,
                 position: (screen_center.0 - exit_button_size.0 as i32 / 2, 420),
-                state: ButtonState::Default,
+                state: ClickableState::Default,
             }
             .into(),
         );
@@ -206,13 +210,10 @@ impl SceneT for Settings {
         let mut sprites = Vec::with_capacity(2);
         let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
         sprites.push(
-            Image {
-                path: "res/img/bg.jpg".to_string(),
-                position: (
-                    screen_center.0 - bg_size.0 as i32 / 2,
-                    screen_center.1 - bg_size.1 as i32 / 2,
-                ),
-            }
+            bg_img((
+                screen_center.0 - bg_size.0 as i32 / 2,
+                screen_center.1 - bg_size.1 as i32 / 2,
+            ))
             .into(),
         );
         let title_size = context
@@ -258,10 +259,10 @@ impl SceneT for Settings {
                 screen_center.0 - 100,
                 100 + window_mode_label_size.1 as i32 / 2 - 15,
             ),
-            state: ButtonState::Default,
+            state: ClickableState::Default,
         };
         if context.window_mode == WindowMode::Fullscreen {
-            fullscreen_btn.state = ButtonState::Pressed;
+            fullscreen_btn.state = ClickableState::Pressed;
         }
         sprites.push(fullscreen_btn.into());
         let borderless_btn_text = "Fullscreen window";
@@ -279,10 +280,10 @@ impl SceneT for Settings {
                 screen_center.0 - 100 + fullscreen_btn_width as i32 + 2,
                 100 + window_mode_label_size.1 as i32 / 2 - 15,
             ),
-            state: ButtonState::Default,
+            state: ClickableState::Default,
         };
         if context.window_mode == WindowMode::Borderless {
-            borderless_btn.state = ButtonState::Pressed;
+            borderless_btn.state = ClickableState::Pressed;
         }
         sprites.push(borderless_btn.into());
         let window_btn_text = "Window";
@@ -303,12 +304,100 @@ impl SceneT for Settings {
                     + 4,
                 100 + window_mode_label_size.1 as i32 / 2 - 15,
             ),
-            state: ButtonState::Default,
+            state: ClickableState::Default,
         };
         if context.window_mode == WindowMode::Window {
-            window_btn.state = ButtonState::Pressed;
+            window_btn.state = ClickableState::Pressed;
         }
         sprites.push(window_btn.into());
+        sprites
+    }
+
+    fn on_resize(&mut self, _context: &mut EngineContext) {}
+
+    fn on_update(&mut self, _context: &mut EngineContext, _elapsed_dime: f64) {}
+}
+
+#[derive(Hash, Eq, PartialEq)]
+pub struct CreateWorld;
+impl SceneT for CreateWorld {
+    fn call(&mut self, _context: &mut EngineContext, event: &Event) -> CallResult {
+        match event {
+            Event::MouseButtonDown {
+                mouse_btn: MouseButton::X1,
+                ..
+            }
+            | Event::KeyDown {
+                scancode: Some(Scancode::Escape),
+                ..
+            } => CallResult::ChangeScene("main_menu".to_ascii_lowercase()),
+            _ => CallResult::DoNothing,
+        }
+    }
+
+    fn button_click(&mut self, _button_id: &str) -> Option<CallResult> {
+        None
+    }
+
+    fn on_open(&mut self, _context: &mut EngineContext) {}
+
+    fn create_sprites(&mut self, context: &mut EngineContext) -> Vec<Sprite> {
+        let (w, h) = context.canvas.output_size().unwrap();
+        let screen_center = (w as i32 / 2, h as i32 / 2);
+        let mut sprites = Vec::with_capacity(2);
+        let bg_size = context.sprite_manager.image_size("res/img/bg.jpg");
+        sprites.push(
+            bg_img((
+                screen_center.0 - bg_size.0 as i32 / 2,
+                screen_center.1 - bg_size.1 as i32 / 2,
+            ))
+            .into(),
+        );
+        let title = "Creating new world";
+        let title_size = context.sprite_manager.text_size(title, LabelFont::Header1);
+        sprites.push(
+            Label {
+                text: title.to_string(),
+                font: LabelFont::Header1,
+                color: Some(colors::rgb(colors::DARK_GREEN)),
+                position: (screen_center.0 - title_size.0 as i32 / 2, 10),
+            }
+            .into(),
+        );
+        let name = "Name:";
+        let name_size = context.sprite_manager.text_size(name, LabelFont::Header2);
+        sprites.push(
+            Label {
+                text: name.to_string(),
+                font: LabelFont::Header2,
+                color: None,
+                position: (screen_center.0 - 100 - name_size.0 as i32 - 10, 100),
+            }
+            .into(),
+        );
+        sprites.push(
+            TextInput {
+                id: "name".to_string(),
+                value: "".to_string(),
+                size: (300, 30),
+                position: (screen_center.0 - 100, 100 + name_size.1 as i32 / 2 - 15),
+                state: ClickableState::Default,
+                blink: false,
+                blink_elapsed: 30,
+            }
+            .into(),
+        );
+        let seed = "Seed:";
+        let seed_size = context.sprite_manager.text_size(seed, LabelFont::Header2);
+        sprites.push(
+            Label {
+                text: seed.to_string(),
+                font: LabelFont::Header2,
+                color: None,
+                position: (screen_center.0 - 100 - seed_size.0 as i32 - 10, 150),
+            }
+            .into(),
+        );
         sprites
     }
 
@@ -323,4 +412,5 @@ pub enum Scene {
     MainMenu,
     EmptyScreen,
     Settings,
+    CreateWorld,
 }
