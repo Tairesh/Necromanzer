@@ -42,7 +42,8 @@ fn draw_rect(
 fn font_path_and_size<'a>(font: LabelFont) -> (&'a str, u16) {
     match font {
         LabelFont::Default => ("res/fonts/consolab.ttf", 16),
-        LabelFont::Title => ("res/fonts/avqest.ttf", 64),
+        LabelFont::Header1 => ("res/fonts/avqest.ttf", 64),
+        LabelFont::Header2 => ("res/fonts/avqest.ttf", 32),
     }
 }
 
@@ -171,7 +172,8 @@ pub struct Image {
 #[derive(Hash, Eq, PartialEq, Copy, Clone)]
 pub enum LabelFont {
     Default,
-    Title,
+    Header1,
+    Header2,
 }
 
 #[derive(Hash, Eq, PartialEq)]

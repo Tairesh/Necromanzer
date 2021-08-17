@@ -217,13 +217,29 @@ impl SceneT for Settings {
         );
         let title_size = context
             .sprite_manager
-            .text_size("Settings", LabelFont::Title);
+            .text_size("Settings", LabelFont::Header1);
         sprites.push(
             Label {
                 text: "Settings".to_string(),
-                font: LabelFont::Title,
+                font: LabelFont::Header1,
                 color: Some(colors::rgb(colors::DARK_GREEN)),
-                position: (screen_center.0 - title_size.0 as i32 / 2, 30),
+                position: (screen_center.0 - title_size.0 as i32 / 2, 10),
+            }
+            .into(),
+        );
+        let window_mode_label_text = "Window mode:";
+        let window_mode_label_size = context
+            .sprite_manager
+            .text_size(window_mode_label_text, LabelFont::Header2);
+        sprites.push(
+            Label {
+                text: window_mode_label_text.to_string(),
+                font: LabelFont::Header2,
+                color: None,
+                position: (
+                    screen_center.0 - 100 - window_mode_label_size.0 as i32 - 10,
+                    100,
+                ),
             }
             .into(),
         );
@@ -238,7 +254,10 @@ impl SceneT for Settings {
             radio_set: "window_mode".to_ascii_lowercase(),
             text: fullscreen_btn_text.to_string(),
             size: (fullscreen_btn_width, 30),
-            position: (screen_center.0 - 200, 100),
+            position: (
+                screen_center.0 - 100,
+                100 + window_mode_label_size.1 as i32 / 2 - 15,
+            ),
             state: ButtonState::Default,
         };
         if context.window_mode == WindowMode::Fullscreen {
@@ -256,7 +275,10 @@ impl SceneT for Settings {
             radio_set: "window_mode".to_ascii_lowercase(),
             text: borderless_btn_text.to_string(),
             size: (borderless_btn_width, 30),
-            position: (screen_center.0 - 200 + fullscreen_btn_width as i32 + 2, 100),
+            position: (
+                screen_center.0 - 100 + fullscreen_btn_width as i32 + 2,
+                100 + window_mode_label_size.1 as i32 / 2 - 15,
+            ),
             state: ButtonState::Default,
         };
         if context.window_mode == WindowMode::Borderless {
@@ -275,11 +297,11 @@ impl SceneT for Settings {
             text: window_btn_text.to_string(),
             size: (window_btn_width, 30),
             position: (
-                screen_center.0 - 200
+                screen_center.0 - 100
                     + fullscreen_btn_width as i32
                     + borderless_btn_width as i32
                     + 4,
-                100,
+                100 + window_mode_label_size.1 as i32 / 2 - 15,
             ),
             state: ButtonState::Default,
         };
