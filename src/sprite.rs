@@ -79,49 +79,43 @@ impl SpritesManager {
 
     pub fn render_sprite(&mut self, sprite: &Sprite) -> &Texture {
         match sprite {
-            Sprite::Image(img) => self.render_image(img),
-            Sprite::Label(label) => self.render_label(label),
-            Sprite::Button(btn) => self.render_button(btn),
+            Sprite::Image(img) => self.render_image(img.path.as_str()),
+            Sprite::Label(label) => self.render_label(label.text.as_str(), label.font, label.color),
+            Sprite::Button(btn) => self.render_button(btn.state, btn.text.as_str(), btn.size),
+            Sprite::RadioButton(btn) => self.render_button(btn.state, btn.text.as_str(), btn.size),
         }
     }
 
-    fn render_image(&mut self, sprite: &Image) -> &Texture {
-        if !self.textures.contains_key(sprite.path.as_str()) {
+    fn render_image(&mut self, path: &str) -> &Texture {
+        if !self.textures.contains_key(path) {
             self.textures.insert(
-                sprite.path.clone(),
-                self.texture_creator
-                    .load_texture(sprite.path.as_str())
-                    .unwrap(),
+                path.to_string(),
+                self.texture_creator.load_texture(path).unwrap(),
             );
         }
-        self.textures.get(sprite.path.as_str()).unwrap()
+        self.textures.get(path).unwrap()
     }
 
-    fn render_label(&mut self, sprite: &Label) -> &Texture {
-        let (path, size) = font_path_and_size(sprite.font);
+    fn render_label(&mut self, text: &str, font: LabelFont, color: Option<Color>) -> &Texture {
+        let (path, size) = font_path_and_size(font);
         let font = self.font_context.load_font(path, size).unwrap();
-        let color = sprite.color.unwrap_or(self.default_color);
-        let hash = format!(
-            "{}:{}:{}:{}:{}",
-            sprite.text, color.r, color.g, color.b, color.a
-        );
+        let color = color.unwrap_or(self.default_color);
+        let hash = format!("{}:{}:{}:{}:{}", text, color.r, color.g, color.b, color.a);
         if !self.textures.contains_key(hash.as_str()) {
             self.textures.insert(
                 hash.clone(),
                 self.texture_creator
-                    .create_texture_from_surface(
-                        font.render(sprite.text.as_str()).blended(color).unwrap(),
-                    )
+                    .create_texture_from_surface(font.render(text).blended(color).unwrap())
                     .unwrap(),
             );
         }
         self.textures.get(hash.as_str()).unwrap()
     }
 
-    fn render_button(&mut self, button: &Button) -> &Texture {
-        let (path, size) = font_path_and_size(LabelFont::Default);
-        let font = self.font_context.load_font(path, size).unwrap();
-        let (fg_color, bg_color) = match button.state {
+    fn render_button(&mut self, state: ButtonState, text: &str, size: (u32, u32)) -> &Texture {
+        let (path, font_size) = font_path_and_size(LabelFont::Default);
+        let font = self.font_context.load_font(path, font_size).unwrap();
+        let (fg_color, bg_color) = match state {
             ButtonState::Hovered => (
                 colors::rgb(colors::WHITE),
                 colors::rgba(colors::DARK_GREEN, 200),
@@ -137,24 +131,20 @@ impl SpritesManager {
             ),
             ButtonState::Default => (colors::rgb(colors::LIME), colors::rgba(colors::BLACK, 200)),
         };
-        let hash = format!(
-            "button:{}:{}:{}:{}",
-            button.text, button.size.0, button.size.1, button.state as i32
-        );
+        let hash = format!("button:{}:{}:{}:{}", text, size.0, size.1, state as i32);
         if !self.textures.contains_key(hash.as_str()) {
-            let mut surface =
-                Surface::new(button.size.0, button.size.1, PixelFormatEnum::RGBA32).unwrap();
+            let mut surface = Surface::new(size.0, size.1, PixelFormatEnum::RGBA32).unwrap();
             draw_rect(&mut surface, Some(fg_color), Some(bg_color), 2);
 
-            let text_surface = font.render(button.text.as_str()).blended(fg_color).unwrap();
+            let text_surface = font.render(text).blended(fg_color).unwrap();
             let (w, h) = text_surface.size();
             text_surface
                 .blit(
                     None,
                     &mut surface,
                     Rect::new(
-                        button.size.0 as i32 / 2 - w as i32 / 2,
-                        button.size.1 as i32 / 2 - h as i32 / 2,
+                        size.0 as i32 / 2 - w as i32 / 2,
+                        size.1 as i32 / 2 - h as i32 / 2,
                         w,
                         h,
                     ),
@@ -211,6 +201,16 @@ pub struct Button {
     pub state: ButtonState,
 }
 
+#[derive(Hash, Eq, PartialEq)]
+pub struct RadioButton {
+    pub id: String,
+    pub radio_set: String,
+    pub text: String,
+    pub size: (u32, u32),
+    pub position: (i32, i32),
+    pub state: ButtonState,
+}
+
 #[enum_dispatch::enum_dispatch]
 pub trait SpriteT {
     fn position(&self) -> (i32, i32);
@@ -230,6 +230,52 @@ impl SpriteT for Button {
         self.position
     }
 }
+impl SpriteT for RadioButton {
+    fn position(&self) -> (i32, i32) {
+        self.position
+    }
+}
+
+pub trait Clickable {
+    fn state(&self) -> ButtonState;
+    fn change_state(&mut self, state: ButtonState);
+    fn rect(&self) -> Rect;
+    fn id(&self) -> String;
+}
+impl Clickable for Button {
+    fn state(&self) -> ButtonState {
+        self.state
+    }
+
+    fn change_state(&mut self, state: ButtonState) {
+        self.state = state;
+    }
+
+    fn rect(&self) -> Rect {
+        Rect::new(self.position.0, self.position.1, self.size.0, self.size.1)
+    }
+
+    fn id(&self) -> String {
+        self.id.clone()
+    }
+}
+impl Clickable for RadioButton {
+    fn state(&self) -> ButtonState {
+        self.state
+    }
+
+    fn change_state(&mut self, state: ButtonState) {
+        self.state = state;
+    }
+
+    fn rect(&self) -> Rect {
+        Rect::new(self.position.0, self.position.1, self.size.0, self.size.1)
+    }
+
+    fn id(&self) -> String {
+        self.id.clone()
+    }
+}
 
 #[enum_dispatch::enum_dispatch(SpriteT)]
 #[derive(Hash, Eq, PartialEq)]
@@ -237,4 +283,5 @@ pub enum Sprite {
     Image,
     Label,
     Button,
+    RadioButton,
 }

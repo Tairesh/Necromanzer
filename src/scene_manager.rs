@@ -1,57 +1,99 @@
-use engine::EngineContext;
+use engine::{EngineContext, WindowMode};
 use scenes::{EmptyScreen, MainMenu, Scene, SceneT, Settings};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Mod, Scancode};
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, Sprite};
+use sprite::{Button, ButtonState, Clickable, Sprite};
 use std::collections::HashMap;
 
-fn collide(mouse_pos: (i32, i32), button: &Button) -> bool {
-    let (left, top) = (button.position.0, button.position.1);
-    let (right, bottom) = (left + button.size.0 as i32, top + button.size.1 as i32);
-    let (x, y) = mouse_pos;
-    left <= x && x <= right && top <= y && y <= bottom
-}
-
 fn process_mouse_motion(mouse_pos: (i32, i32), sprites: &mut Vec<Sprite>) {
-    sprites.iter_mut().for_each(|sprite| {
-        if let Sprite::Button(button) = sprite {
-            if button.state != ButtonState::Disabled {
-                let collide = collide(mouse_pos, button);
-                if collide && button.state == ButtonState::Default {
-                    button.state = ButtonState::Hovered;
-                } else if !collide && button.state == ButtonState::Hovered {
-                    button.state = ButtonState::Default;
-                }
+    fn process_hovered<B>(mouse_pos: (i32, i32), button: &mut B)
+    where
+        B: Clickable,
+    {
+        if button.state() != ButtonState::Disabled {
+            let collide = button.rect().contains_point(mouse_pos);
+            if collide && button.state() == ButtonState::Default {
+                button.change_state(ButtonState::Hovered);
+            } else if !collide && button.state() == ButtonState::Hovered {
+                button.change_state(ButtonState::Default);
             }
         }
+    }
+
+    sprites.iter_mut().for_each(|sprite| match sprite {
+        Sprite::Button(button) => {
+            process_hovered(mouse_pos, button);
+        }
+        Sprite::RadioButton(button) => {
+            process_hovered(mouse_pos, button);
+        }
+        _ => {}
     });
 }
 
 fn process_mouse_button_down(mouse_pos: (i32, i32), sprites: &mut Vec<Sprite>) {
-    sprites.iter_mut().for_each(|sprite| {
-        if let Sprite::Button(button) = sprite {
-            if button.state != ButtonState::Disabled {
-                let collide = collide(mouse_pos, button);
-                if collide {
-                    button.state = ButtonState::Pressed;
-                }
+    fn process_pressed<B>(mouse_pos: (i32, i32), button: &mut B)
+    where
+        B: Clickable,
+    {
+        if button.state() != ButtonState::Disabled {
+            let collide = button.rect().contains_point(mouse_pos);
+            if collide {
+                button.change_state(ButtonState::Pressed);
             }
         }
+    }
+    sprites.iter_mut().for_each(|sprite| match sprite {
+        Sprite::Button(button) => {
+            process_pressed(mouse_pos, button);
+        }
+        Sprite::RadioButton(button) => {
+            process_pressed(mouse_pos, button);
+        }
+        _ => {}
     });
 }
 
 fn process_mouse_button_up(mouse_pos: (i32, i32), sprites: &mut Vec<Sprite>) -> Option<String> {
     let mut clicked: Option<String> = None;
+    let mut radio_set: Option<String> = None;
     for sprite in sprites.iter_mut() {
-        if let Sprite::Button(button) = sprite {
-            let collides = collide(mouse_pos, button);
-            if collides && button.state == ButtonState::Pressed {
-                button.state = ButtonState::Hovered;
-                // println!("clicked {}!", button.id);
-                clicked = Some(button.id.clone());
-            } else if !collides && button.state == ButtonState::Pressed {
-                button.state = ButtonState::Default;
+        match sprite {
+            Sprite::Button(button) => {
+                let collides = button.rect().contains_point(mouse_pos);
+                match (collides, button.state) {
+                    (true, ButtonState::Pressed) => {
+                        button.state = ButtonState::Hovered;
+                        // println!("clicked {}!", button.id);
+                        clicked = Some(button.id.clone());
+                    }
+                    (false, ButtonState::Pressed) => {
+                        button.change_state(ButtonState::Default);
+                    }
+                    _ => {}
+                }
+            }
+            Sprite::RadioButton(button) => {
+                let collides = button.rect().contains_point(mouse_pos);
+                if collides && button.state == ButtonState::Pressed {
+                    clicked = Some(button.id.clone());
+                    // println!("clicked {}!", button.id);
+                    radio_set = Some(button.radio_set.clone());
+                }
+            }
+            _ => {}
+        }
+    }
+    if let Some(radio_set) = radio_set {
+        for sprite in sprites.iter_mut() {
+            if let Sprite::RadioButton(other) = sprite {
+                if other.radio_set == radio_set
+                    && other.id != *clicked.as_ref().unwrap()
+                    && other.state == ButtonState::Pressed
+                {
+                    other.state = ButtonState::Default;
+                }
             }
         }
     }
@@ -111,6 +153,7 @@ pub enum CallResult {
     DoNothing,
     SystemExit,
     ChangeScene(String),
+    ChangeWindowMode(WindowMode),
 }
 
 pub struct SceneManager {

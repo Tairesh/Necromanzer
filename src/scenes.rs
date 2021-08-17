@@ -1,9 +1,9 @@
-use engine::EngineContext;
+use engine::{EngineContext, WindowMode};
 use scene_manager::CallResult;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::mouse::MouseButton;
-use sprite::{Button, ButtonState, Image, Label, LabelFont, Sprite};
+use sprite::{Button, ButtonState, Image, Label, LabelFont, RadioButton, Sprite};
 use {colors, VERSION};
 
 #[enum_dispatch::enum_dispatch]
@@ -189,8 +189,13 @@ impl SceneT for Settings {
         }
     }
 
-    fn button_click(&mut self, _button_id: &str) -> Option<CallResult> {
-        None
+    fn button_click(&mut self, button_id: &str) -> Option<CallResult> {
+        match button_id {
+            "window_mode_fullscreen" => Some(CallResult::ChangeWindowMode(WindowMode::Fullscreen)),
+            "window_mode_borderless" => Some(CallResult::ChangeWindowMode(WindowMode::Borderless)),
+            "window_mode_default" => Some(CallResult::ChangeWindowMode(WindowMode::Window)),
+            _ => None,
+        }
     }
 
     fn on_open(&mut self, _context: &mut EngineContext) {}
@@ -222,6 +227,66 @@ impl SceneT for Settings {
             }
             .into(),
         );
+        let fullscreen_btn_text = "Fullscreen";
+        let fullscreen_btn_width = context
+            .sprite_manager
+            .text_size(fullscreen_btn_text, LabelFont::Default)
+            .0
+            + 20;
+        let mut fullscreen_btn = RadioButton {
+            id: "window_mode_fullscreen".to_ascii_lowercase(),
+            radio_set: "window_mode".to_ascii_lowercase(),
+            text: fullscreen_btn_text.to_string(),
+            size: (fullscreen_btn_width, 30),
+            position: (screen_center.0 - 200, 100),
+            state: ButtonState::Default,
+        };
+        if context.window_mode == WindowMode::Fullscreen {
+            fullscreen_btn.state = ButtonState::Pressed;
+        }
+        sprites.push(fullscreen_btn.into());
+        let borderless_btn_text = "Fullscreen window";
+        let borderless_btn_width = context
+            .sprite_manager
+            .text_size(borderless_btn_text, LabelFont::Default)
+            .0
+            + 20;
+        let mut borderless_btn = RadioButton {
+            id: "window_mode_borderless".to_ascii_lowercase(),
+            radio_set: "window_mode".to_ascii_lowercase(),
+            text: borderless_btn_text.to_string(),
+            size: (borderless_btn_width, 30),
+            position: (screen_center.0 - 200 + fullscreen_btn_width as i32 + 2, 100),
+            state: ButtonState::Default,
+        };
+        if context.window_mode == WindowMode::Borderless {
+            borderless_btn.state = ButtonState::Pressed;
+        }
+        sprites.push(borderless_btn.into());
+        let window_btn_text = "Window";
+        let window_btn_width = context
+            .sprite_manager
+            .text_size(window_btn_text, LabelFont::Default)
+            .0
+            + 20;
+        let mut window_btn = RadioButton {
+            id: "window_mode_default".to_ascii_lowercase(),
+            radio_set: "window_mode".to_ascii_lowercase(),
+            text: window_btn_text.to_string(),
+            size: (window_btn_width, 30),
+            position: (
+                screen_center.0 - 200
+                    + fullscreen_btn_width as i32
+                    + borderless_btn_width as i32
+                    + 4,
+                100,
+            ),
+            state: ButtonState::Default,
+        };
+        if context.window_mode == WindowMode::Window {
+            window_btn.state = ButtonState::Pressed;
+        }
+        sprites.push(window_btn.into());
         sprites
     }
 
