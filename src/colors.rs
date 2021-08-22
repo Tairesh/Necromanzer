@@ -1,5 +1,6 @@
 #![allow(dead_code)]
-use sdl2::pixels::Color;
+
+use tetra::graphics::Color;
 
 pub const ALICE_BLUE: (u8, u8, u8) = (240, 248, 255);
 pub const ANTIQUE_WHITE: (u8, u8, u8) = (250, 235, 215);
@@ -173,9 +174,9 @@ pub const ESPRESSO: (u8, u8, u8) = (96, 51, 18);
 pub const CHOCOLATE: (u8, u8, u8) = (42, 25, 15);
 
 pub fn rgba(const_color: (u8, u8, u8), alpha: u8) -> Color {
-    Color::RGBA(const_color.0, const_color.1, const_color.2, alpha)
+    Color::rgba8(const_color.0, const_color.1, const_color.2, alpha)
 }
 
 pub fn rgb(const_color: (u8, u8, u8)) -> Color {
-    Color::RGB(const_color.0, const_color.1, const_color.2)
+    Color::rgb8(const_color.0, const_color.1, const_color.2)
 }
