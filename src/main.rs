@@ -1,17 +1,12 @@
 #![windows_subsystem = "windows"]
+
 mod colors;
-// mod engine;
-// mod fps;
-// mod scene_manager;
-// mod scenes;
 mod settings;
-// mod sprite;
-//
+
 extern crate serde;
 extern crate tetra;
 
-//
-// use engine::Engine;
+use colors::Colors;
 use settings::Settings;
 use tetra::graphics::{self, ImageData};
 use tetra::input::Key;
@@ -29,22 +24,16 @@ lazy_static::lazy_static! {
     };
 }
 
-// pub fn main() {
-//     let title = format!("{} {}", TITLE, *VERSION);
-//     let mut engine = Engine::new(title.as_str()).unwrap();
-//     engine.start().ok();
-// }
-
 struct GameState {
     default_title: String,
     settings: Settings,
 }
 
 impl GameState {
-    pub fn new() -> GameState {
+    pub fn new(settings: Settings) -> GameState {
         GameState {
             default_title: format!("{} {}", TITLE, *VERSION),
-            settings: Settings::load().unwrap(),
+            settings,
         }
     }
 }
@@ -58,20 +47,17 @@ impl Drop for GameState {
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         if self.settings.show_fps {
-            set_title(
-                ctx,
-                format!(
-                    "{} {} ({} FPS)",
-                    TITLE,
-                    *VERSION,
-                    time::get_fps(ctx).round()
-                ),
-            )
+            let title = format!(
+                "{} ({} FPS)",
+                self.default_title,
+                time::get_fps(ctx).round()
+            );
+            set_title(ctx, title);
         }
         Ok(())
     }
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-        graphics::clear(ctx, colors::rgb(colors::LAVENDER));
+        graphics::clear(ctx, Colors::LAVENDER);
         Ok(())
     }
     fn event(&mut self, ctx: &mut Context, event: Event) -> tetra::Result {
@@ -79,7 +65,7 @@ impl State for GameState {
             Event::KeyPressed { key: Key::F2 } => {
                 self.settings.show_fps = !self.settings.show_fps;
                 if !self.settings.show_fps {
-                    set_title(ctx, self.default_title.as_str());
+                    set_title(ctx, &self.default_title);
                 }
             }
             Event::KeyPressed { key } => println!("{}", serde_json::to_string(&key).unwrap()),
@@ -90,11 +76,22 @@ impl State for GameState {
 }
 
 fn main() -> tetra::Result {
-    let mut ctx = ContextBuilder::new(format!("{} {}", TITLE, *VERSION), 1024, 768)
-        .quit_on_escape(true)
-        .show_mouse(true)
-        .build()?;
+    let settings = Settings::load().unwrap();
+    let mut ctx = ContextBuilder::new(
+        format!("{} {}", TITLE, *VERSION),
+        settings.width as i32,
+        settings.height as i32,
+    );
+    ctx.quit_on_escape(true).show_mouse(true).vsync(true);
+    let mut ctx = if settings.fullscreen && settings.borderless {
+        ctx.resizable(true).maximized(true).borderless(true)
+    } else if settings.fullscreen && !settings.borderless {
+        ctx.fullscreen(true)
+    } else {
+        ctx.resizable(true)
+    }
+    .build()?;
     let mut icon = ImageData::from_file("res/img/zombie.png")?;
     set_icon(&mut ctx, &mut icon)?;
-    ctx.run(|_| Ok(GameState::new()))
+    ctx.run(|_| Ok(GameState::new(settings)))
 }

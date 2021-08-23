@@ -4,13 +4,8 @@ version = "0.1.0"
 authors = ["Ilya Agafonov <tairesh.rus@gmail.com>"]
 build = "build.rs"
 
-#[dependencies.sdl2]
-#version = "0.34"
-#default-features = false
-#features = ["ttf","image","mixer","unsafe_textures"]
-
 [dependencies.tetra]
-git = "https://github.com/17cupsofcoffee/tetra"
+git = "https://github.com/Tairesh/tetra"
 default-features = false
 features = ["serde_support","texture_png","texture_jpeg","font_ttf"]
 
