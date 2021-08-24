@@ -4,6 +4,13 @@ use std::path::Path;
 
 const PATH: &str = "settings.json";
 
+#[derive(Hash, Eq, PartialEq, Copy, Clone)]
+pub enum WindowMode {
+    Fullscreen,
+    Borderless,
+    Window,
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Settings {
     pub width: u32,
@@ -49,7 +56,7 @@ impl Settings {
         serde_json::to_writer(&File::create(Path::new(PATH)).unwrap(), self).unwrap();
     }
 
-    fn validate(&mut self) -> &Settings {
+    pub fn validate(&mut self) -> &Settings {
         if self.width < 800 {
             self.width = 800;
         }
@@ -66,5 +73,13 @@ impl Settings {
             self.music_volume = 128;
         }
         self
+    }
+
+    pub fn window_mode(&self) -> WindowMode {
+        match (self.fullscreen, self.borderless) {
+            (true, true) => WindowMode::Borderless,
+            (true, false) => WindowMode::Fullscreen,
+            _ => WindowMode::Window,
+        }
     }
 }
