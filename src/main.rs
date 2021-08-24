@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+mod assets;
 mod colors;
 mod scene_manager;
 mod scenes;
@@ -8,9 +9,12 @@ mod settings;
 extern crate serde;
 extern crate tetra;
 
+use assets::Assets;
 use scene_manager::SceneManager;
 use scenes::main_menu::MainMenu;
 use settings::{Settings, WindowMode};
+use std::cell::RefCell;
+use std::rc::Rc;
 use tetra::graphics::ImageData;
 use tetra::window;
 use tetra::ContextBuilder;
@@ -42,5 +46,9 @@ fn main() -> tetra::Result {
     .build()?;
     let mut icon = ImageData::from_file("res/img/zombie.png")?;
     window::set_icon(&mut ctx, &mut icon)?;
-    ctx.run(|_| Ok(SceneManager::new(Box::new(MainMenu {}), settings)))
+
+    ctx.run(|ctx| {
+        let scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)))?;
+        Ok(SceneManager::new(Box::new(scene), settings))
+    })
 }
