@@ -10,6 +10,7 @@ pub struct Assets {
     pub button: Texture,
     pub button_disabled: Texture,
     pub button_pressed: Texture,
+    pub button_hovered: Texture,
 }
 
 impl Assets {
@@ -35,6 +36,10 @@ impl Assets {
             button_pressed: Texture::from_file_data(
                 ctx,
                 include_bytes!("../res/img/button_pressed.png"),
+            )?,
+            button_hovered: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/button_hovered.png"),
             )?,
         })
     }

@@ -31,12 +31,35 @@ impl MainMenu {
             Colors::DARK_GRAY,
             Position::empty(),
         );
+        let select_world = Button::new(
+            "select_world",
+            Some(Key::L),
+            "[e] Select world",
+            assets.clone(),
+            TetraVec2::new(3.6, 3.0),
+            Position {
+                x: Horizontal::AtWindowCenter { offset: 0.0 },
+                y: Vertical::AtWindowCenter { offset: 0.0 },
+            },
+        )
+        .with_disabled(true);
+        let create_world = Button::new(
+            "create_world",
+            Some(Key::C),
+            "[c] Create new world",
+            assets.clone(),
+            TetraVec2::new(4.3, 3.0),
+            Position {
+                x: Horizontal::AtWindowCenter { offset: 0.0 },
+                y: Vertical::AtWindowCenter { offset: 50.0 },
+            },
+        );
         let settings = Button::new(
             "settings",
             Some(Key::S),
             "[s] Settings",
             assets.clone(),
-            TetraVec2::new(3.0, 3.0),
+            TetraVec2::new(2.7, 3.0),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 100.0 },
@@ -59,6 +82,8 @@ impl MainMenu {
                 Box::new(bg),
                 Box::new(logo),
                 Box::new(version),
+                Box::new(select_world),
+                Box::new(create_world),
                 Box::new(settings),
                 Box::new(exit),
             ],

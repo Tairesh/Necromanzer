@@ -20,6 +20,7 @@ pub struct Button {
     default: Texture,
     disabled: Texture,
     pressed: Texture,
+    hovered: Texture,
     vec: Option<TetraVec2>,
     pub is_pressed: bool,
     pub is_disabled: bool,
@@ -48,12 +49,18 @@ impl Button {
             default: assets.borrow().button.clone(),
             disabled: assets.borrow().button_disabled.clone(),
             pressed: assets.borrow().button_pressed.clone(),
+            hovered: assets.borrow().button_hovered.clone(),
             vec: None,
             is_pressed: false,
             is_hovered: false,
             is_disabled: false,
             dirty: false,
         }
+    }
+
+    pub fn with_disabled(mut self, val: bool) -> Self {
+        self.is_disabled = val;
+        self
     }
 
     fn on_pressed(&mut self) {
@@ -99,6 +106,9 @@ impl Sprite for Button {
     }
 
     fn update(&mut self, ctx: &mut Context) -> Option<String> {
+        if self.is_disabled {
+            return None;
+        }
         if let Some(key) = self.key {
             if input::is_key_pressed(ctx, key) {
                 self.on_pressed();
@@ -138,25 +148,21 @@ impl Sprite for Button {
             &self.disabled
         } else if self.is_pressed {
             &self.pressed
+        } else if self.is_hovered {
+            &self.hovered
         } else {
             &self.default
         };
         texture.draw(ctx, DrawParams::new().position(vec).scale(self.scale));
         let bounds = self.text.get_bounds(ctx).unwrap();
-        vec.x += self.size.0 / 2.0 - bounds.width / 2.0;
+        vec.x += self.size.0 / 2.0 - bounds.width / 2.0 - 2.0;
         vec.y += self.size.1 / 2.0 - bounds.height / 2.0 - 3.0;
         if !self.is_pressed {
             vec.y -= 2.0;
         }
         self.text.draw(
             ctx,
-            DrawParams::new()
-                .position(vec)
-                .color(if self.is_pressed || self.is_hovered {
-                    Colors::LIGHT_YELLOW
-                } else {
-                    Colors::LIGHT_SEPIA
-                }),
+            DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
         );
         self.dirty = false;
     }
