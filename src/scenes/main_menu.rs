@@ -2,14 +2,15 @@ use assets::Assets;
 use colors::Colors;
 use scene_manager::{Scene, Transition};
 use scenes::settings::SettingsScene;
+use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
-use sprites::position::{AnchorX, AnchorY, Position};
+use sprites::position::{AnchorX, AnchorY, Horizontal, Position, Vertical};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
-use tetra::input::{Key, MouseButton};
-use tetra::{input, Context};
+use tetra::input::Key;
+use tetra::{Context, TetraVec2};
 use VERSION;
 
 pub struct MainMenu {
@@ -30,22 +31,49 @@ impl MainMenu {
             Colors::DARK_GRAY,
             Position::empty(),
         );
+        let settings = Button::new(
+            "settings",
+            Some(Key::S),
+            "[s] Settings",
+            assets.clone(),
+            TetraVec2::new(3.0, 3.0),
+            Position {
+                x: Horizontal::AtWindowCenter { offset: 0.0 },
+                y: Vertical::AtWindowCenter { offset: 100.0 },
+            },
+        );
+        let exit = Button::new(
+            "exit",
+            Some(Key::X),
+            "[x] Exit",
+            assets.clone(),
+            TetraVec2::new(2.0, 3.0),
+            Position {
+                x: Horizontal::AtWindowCenter { offset: 0.0 },
+                y: Vertical::AtWindowCenter { offset: 150.0 },
+            },
+        );
         Ok(MainMenu {
             assets,
-            sprites: vec![Box::new(bg), Box::new(logo), Box::new(version)],
+            sprites: vec![
+                Box::new(bg),
+                Box::new(logo),
+                Box::new(version),
+                Box::new(settings),
+                Box::new(exit),
+            ],
         })
     }
 }
 
 impl Scene for MainMenu {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
-        if input::is_mouse_button_released(ctx, MouseButton::Left) {
-            let scene = SettingsScene::new(Rc::clone(&self.assets))?;
-            Ok(Transition::Push(Box::new(scene)))
-        } else if input::is_key_released(ctx, Key::X) {
-            Ok(Transition::Quit)
-        } else {
-            Ok(Transition::None)
+    fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
+        match btn_id {
+            "exit" => Some(Transition::Quit),
+            "settings" => Some(Transition::Push(Box::new(
+                SettingsScene::new(self.assets.clone()).unwrap(),
+            ))),
+            _ => None,
         }
     }
 

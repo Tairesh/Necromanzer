@@ -7,6 +7,9 @@ pub struct Assets {
     pub avqest: Font,
     pub logo: Texture,
     pub bg: Texture,
+    pub button: Texture,
+    pub button_disabled: Texture,
+    pub button_pressed: Texture,
 }
 
 impl Assets {
@@ -24,6 +27,15 @@ impl Assets {
             )?,
             logo: Texture::from_file_data(ctx, include_bytes!("../res/img/logo.png"))?,
             bg: Texture::from_file_data(ctx, include_bytes!("../res/img/bg.jpg"))?,
+            button: Texture::from_file_data(ctx, include_bytes!("../res/img/button.png"))?,
+            button_disabled: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/button_disabled.png"),
+            )?,
+            button_pressed: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/button_pressed.png"),
+            )?,
         })
     }
 }

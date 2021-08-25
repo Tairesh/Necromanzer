@@ -1,11 +1,12 @@
 use sprites::position::Position;
 use sprites::sprite::Sprite;
-use tetra::graphics::Texture;
+use tetra::graphics::{DrawParams, Texture};
 use tetra::{Context, TetraVec2};
 
 pub struct Image {
     pub texture: Texture,
     size: (f32, f32),
+    scale: TetraVec2,
     pub position: Position,
     vec: Option<TetraVec2>,
 }
@@ -16,9 +17,18 @@ impl Image {
         Image {
             texture,
             size: (size.0 as f32, size.1 as f32),
+            scale: TetraVec2::new(1.0, 1.0),
             position,
             vec: None,
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn with_scale(mut self, scale: TetraVec2) -> Image {
+        self.scale = scale;
+        self.size.0 *= scale.x;
+        self.size.1 *= scale.y;
+        self
     }
 }
 
@@ -40,6 +50,11 @@ impl Sprite for Image {
     }
 
     fn draw(&mut self, ctx: &mut Context) {
-        self.texture.draw(ctx, self.vec.unwrap());
+        self.texture.draw(
+            ctx,
+            DrawParams::new()
+                .position(self.vec.unwrap())
+                .scale(self.scale),
+        );
     }
 }

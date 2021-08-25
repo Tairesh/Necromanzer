@@ -6,8 +6,27 @@ use tetra::{Context, State};
 use {TITLE, VERSION};
 
 pub trait Scene {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
-    fn draw(&mut self, _ctx: &mut Context) -> tetra::Result {
+    fn on_button_click(&mut self, _ctx: &mut Context, _btn_id: &str) -> Option<Transition> {
+        None
+    }
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+        let mut btn_clicked = None;
+        for sprite in self.sprites().iter_mut() {
+            if let Some(btn_id) = sprite.update(ctx) {
+                btn_clicked = Some(btn_id);
+            }
+        }
+        if let Some(btn_id) = btn_clicked {
+            if let Some(t) = self.on_button_click(ctx, btn_id.as_str()) {
+                return Ok(t);
+            }
+        }
+        Ok(Transition::None)
+    }
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+        if self.sprites().iter().any(|s| s.dirty()) {
+            self.clear(ctx)?;
+        }
         Ok(())
     }
     fn clear(&mut self, ctx: &mut Context) -> tetra::Result {
