@@ -9,7 +9,6 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, MouseButton};
-use tetra::math::Vec2;
 use tetra::{input, Context};
 use VERSION;
 
@@ -52,7 +51,7 @@ impl Scene for MainMenu {
 
     fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
         let logo = self.sprites.get_mut(1).unwrap();
-        let logo_vec: Vec2<f32> = logo.calc_position(ctx);
+        let logo_vec = logo.calc_position(ctx);
         let logo_size = logo.size(ctx);
         let version = self.sprites.get_mut(2).unwrap();
         version.set_position(Position::new(

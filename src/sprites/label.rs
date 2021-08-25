@@ -2,14 +2,13 @@ use sprites::position::Position;
 use sprites::sprite::Sprite;
 use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
-use tetra::math::Vec2;
-use tetra::Context;
+use tetra::{Context, TetraVec2};
 
 pub struct Label {
     pub text: Text,
     pub color: Color,
     pub position: Position,
-    vec: Option<Vec2<f32>>,
+    vec: Option<TetraVec2>,
 }
 
 impl Label {
@@ -37,7 +36,7 @@ impl Sprite for Label {
         (rect.width, rect.height)
     }
 
-    fn set_vec(&mut self, vec: Vec2<f32>) {
+    fn set_vec(&mut self, vec: TetraVec2) {
         self.vec = Some(vec);
     }
 

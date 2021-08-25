@@ -1,14 +1,13 @@
 use sprites::position::Position;
 use sprites::sprite::Sprite;
 use tetra::graphics::Texture;
-use tetra::math::Vec2;
-use tetra::Context;
+use tetra::{Context, TetraVec2};
 
 pub struct Image {
     pub texture: Texture,
     size: (f32, f32),
     pub position: Position,
-    vec: Option<Vec2<f32>>,
+    vec: Option<TetraVec2>,
 }
 
 impl Image {
@@ -36,7 +35,7 @@ impl Sprite for Image {
         self.size
     }
 
-    fn set_vec(&mut self, vec: Vec2<f32>) {
+    fn set_vec(&mut self, vec: TetraVec2) {
         self.vec = Some(vec);
     }
 
