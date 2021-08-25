@@ -5,7 +5,7 @@ use scenes::settings::SettingsScene;
 use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
-use sprites::position::{AnchorX, AnchorY, Horizontal, Position, Vertical};
+use sprites::position::{AnchorY, Horizontal, Position, Vertical};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -28,8 +28,11 @@ impl MainMenu {
         let version = Label::new(
             &*VERSION,
             assets.borrow().consolab.clone(),
-            Colors::DARK_GRAY,
-            Position::empty(),
+            Colors::LIGHT_YELLOW,
+            Position {
+                x: Horizontal::AtWindowCenter { offset: 0.0 },
+                y: Vertical::AtWindowBottom { offset: -10.0 },
+            },
         );
         let select_world = Button::new(
             "select_world",
@@ -100,24 +103,6 @@ impl Scene for MainMenu {
             ))),
             _ => None,
         }
-    }
-
-    fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
-        let logo = self.sprites.get_mut(1).unwrap();
-        let logo_vec = logo.calc_position(ctx);
-        let logo_size = logo.size(ctx);
-        let version = self.sprites.get_mut(2).unwrap();
-        version.set_position(Position::new(
-            logo_vec.x + logo_size.0 - 22.0,
-            logo_vec.y + 17.0,
-            AnchorX::Right,
-            AnchorY::Top,
-        ));
-
-        for sprite in self.sprites.iter_mut() {
-            sprite.calc_position(ctx);
-        }
-        self.clear(ctx)
     }
 
     fn sprites(&mut self) -> &mut Vec<Box<dyn Sprite>> {
