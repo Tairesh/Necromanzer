@@ -122,9 +122,11 @@ impl Sprite for Button {
             }
             if collides && input::is_mouse_button_pressed(ctx, MouseButton::Left) {
                 self.on_pressed();
-            } else if collides && input::is_mouse_button_released(ctx, MouseButton::Left) {
+            } else if input::is_mouse_button_released(ctx, MouseButton::Left) {
                 self.off_pressed();
-                return Some(self.id.clone());
+                if collides {
+                    return Some(self.id.clone());
+                }
             }
         }
         None
