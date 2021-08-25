@@ -7,6 +7,13 @@ use {TITLE, VERSION};
 pub trait Scene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result;
+    fn clear(&mut self, ctx: &mut Context) -> tetra::Result;
+    fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
+        self.clear(ctx)
+    }
+    fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
+        self.on_resize(ctx)
+    }
 }
 
 #[allow(dead_code)]
@@ -50,9 +57,13 @@ impl State for SceneManager {
                 Transition::None => {}
                 Transition::Push(s) => {
                     self.scenes.push(s);
+                    self.scenes.last_mut().unwrap().on_open(ctx)?;
                 }
                 Transition::Pop => {
                     self.scenes.pop();
+                    if let Some(new_scene) = self.scenes.last_mut() {
+                        new_scene.on_open(ctx)?;
+                    }
                 }
                 Transition::Quit => window::quit(ctx),
                 Transition::ChangeWindowMode(_) => {}
@@ -87,6 +98,9 @@ impl State for SceneManager {
                 if self.settings.width as i32 != width || self.settings.height as i32 != height {
                     window::set_size(ctx, self.settings.width as i32, self.settings.height as i32)
                         .ok();
+                }
+                if let Some(scene) = self.scenes.last_mut() {
+                    scene.on_resize(ctx)?;
                 }
             }
             _ => {}

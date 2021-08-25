@@ -10,7 +10,7 @@ extern crate serde;
 extern crate tetra;
 
 use assets::Assets;
-use scene_manager::SceneManager;
+use scene_manager::{Scene, SceneManager};
 use scenes::main_menu::MainMenu;
 use settings::{Settings, WindowMode};
 use std::cell::RefCell;
@@ -48,7 +48,8 @@ fn main() -> tetra::Result {
     window::set_icon(&mut ctx, &mut icon)?;
 
     ctx.run(|ctx| {
-        let scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)))?;
+        let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)))?;
+        scene.on_open(ctx).ok();
         Ok(SceneManager::new(Box::new(scene), settings))
     })
 }
