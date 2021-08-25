@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/*.rs'
+      - '**/*.jpg'
+      - '**/*.png'
+      - '**/*.json'
+      - '**/*.toml'
+      - '**/*.yml'
 jobs:
   release:
     name: "Create release"
