@@ -2,26 +2,38 @@ use assets::Assets;
 use colors::Colors;
 use scene_manager::{Scene, Transition};
 use scenes::settings::SettingsScene;
+use sprites::image::Image;
+use sprites::label::Label;
+use sprites::position::{AnchorX, AnchorY, Position};
+use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
-use tetra::graphics::text::Text;
-use tetra::graphics::DrawParams;
-use tetra::input::MouseButton;
+use tetra::input::{Key, MouseButton};
 use tetra::math::Vec2;
-use tetra::{input, window, Context};
+use tetra::{input, Context};
 use VERSION;
 
 pub struct MainMenu {
     assets: Rc<RefCell<Assets>>,
-    version_label: Text,
+    sprites: Vec<Box<dyn Sprite>>,
 }
 
 impl MainMenu {
     pub fn new(assets: Rc<RefCell<Assets>>) -> tetra::Result<Self> {
-        let version_label = Text::new(&*VERSION, assets.borrow().consolab.clone());
+        let bg = Image::new(assets.borrow().bg.clone(), Position::center());
+        let logo = Image::new(
+            assets.borrow().logo.clone(),
+            Position::horizontal_center(50.0, AnchorY::Top),
+        );
+        let version = Label::new(
+            &*VERSION,
+            assets.borrow().consolab.clone(),
+            Colors::DARK_GRAY,
+            Position::empty(),
+        );
         Ok(MainMenu {
             assets,
-            version_label,
+            sprites: vec![Box::new(bg), Box::new(logo), Box::new(version)],
         })
     }
 }
@@ -29,40 +41,34 @@ impl MainMenu {
 impl Scene for MainMenu {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         if input::is_mouse_button_released(ctx, MouseButton::Left) {
-            Ok(Transition::Push(Box::new(SettingsScene::new(Rc::clone(
-                &self.assets,
-            ))?)))
+            let scene = SettingsScene::new(Rc::clone(&self.assets))?;
+            Ok(Transition::Push(Box::new(scene)))
+        } else if input::is_key_released(ctx, Key::X) {
+            Ok(Transition::Quit)
         } else {
             Ok(Transition::None)
         }
     }
 
-    fn draw(&mut self, _ctx: &mut Context) -> tetra::Result {
-        Ok(())
+    fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
+        let logo = self.sprites.get_mut(1).unwrap();
+        let logo_vec: Vec2<f32> = logo.calc_position(ctx);
+        let logo_size = logo.size(ctx);
+        let version = self.sprites.get_mut(2).unwrap();
+        version.set_position(Position::new(
+            logo_vec.x + logo_size.0 - 22.0,
+            logo_vec.y + 17.0,
+            AnchorX::Right,
+            AnchorY::Top,
+        ));
+
+        for sprite in self.sprites.iter_mut() {
+            sprite.calc_position(ctx);
+        }
+        self.clear(ctx)
     }
 
-    fn clear(&mut self, ctx: &mut Context) -> tetra::Result {
-        let (w, h) = window::get_size(ctx);
-        let (bg_width, bg_height) = self.assets.borrow().bg.size();
-        let bg_pos = Vec2::new(
-            (w / 2 - bg_width / 2) as f32,
-            (h / 2 - bg_height / 2) as f32,
-        );
-        self.assets.borrow().bg.draw(ctx, bg_pos);
-        let logo_width = self.assets.borrow().logo.width() as f32;
-        let logo_pos = Vec2::new(w as f32 / 2.0 - logo_width / 2.0, 30.0);
-        self.assets.borrow().logo.draw(ctx, logo_pos);
-        let bounds = self.version_label.get_bounds(ctx).unwrap();
-        let version_pos = Vec2::new(
-            logo_pos.x + logo_width - bounds.width - 15.0,
-            logo_pos.y + 15.0,
-        );
-        self.version_label.draw(
-            ctx,
-            DrawParams::new()
-                .position(version_pos)
-                .color(Colors::DARK_GRAY),
-        );
-        Ok(())
+    fn sprites(&mut self) -> &mut Vec<Box<dyn Sprite>> {
+        &mut self.sprites
     }
 }

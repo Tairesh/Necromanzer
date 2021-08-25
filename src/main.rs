@@ -5,6 +5,7 @@ mod colors;
 mod scene_manager;
 mod scenes;
 mod settings;
+mod sprites;
 
 extern crate serde;
 extern crate tetra;
@@ -37,7 +38,7 @@ fn main() -> tetra::Result {
         settings.width as i32,
         settings.height as i32,
     );
-    ctx.quit_on_escape(true).show_mouse(true).vsync(true);
+    ctx.show_mouse(true).vsync(true);
     let mut ctx = match settings.window_mode() {
         WindowMode::Fullscreen => ctx.fullscreen(true),
         WindowMode::Borderless => ctx.resizable(true).maximized(true).borderless(true),

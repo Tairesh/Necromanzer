@@ -1,4 +1,5 @@
 use settings::{Settings, WindowMode};
+use sprites::sprite::Sprite;
 use tetra::input::Key;
 use tetra::{time, window, Event, TetraError};
 use tetra::{Context, State};
@@ -6,11 +7,22 @@ use {TITLE, VERSION};
 
 pub trait Scene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result;
-    fn clear(&mut self, ctx: &mut Context) -> tetra::Result;
+    fn draw(&mut self, _ctx: &mut Context) -> tetra::Result {
+        Ok(())
+    }
+    fn clear(&mut self, ctx: &mut Context) -> tetra::Result {
+        for sprite in self.sprites().iter_mut() {
+            sprite.draw(ctx);
+        }
+        Ok(())
+    }
     fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
+        for sprite in self.sprites().iter_mut() {
+            sprite.calc_position(ctx);
+        }
         self.clear(ctx)
     }
+    fn sprites(&mut self) -> &mut Vec<Box<dyn Sprite>>;
     fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
         self.on_resize(ctx)
     }
