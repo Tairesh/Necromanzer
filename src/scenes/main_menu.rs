@@ -10,7 +10,7 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
-use tetra::{Context, TetraVec2};
+use tetra::Context;
 use VERSION;
 
 pub struct MainMenu {
@@ -39,7 +39,6 @@ impl MainMenu {
             Some(Key::L),
             "[e] Select world",
             assets.clone(),
-            TetraVec2::new(3.6, 3.0),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 0.0 },
@@ -51,7 +50,6 @@ impl MainMenu {
             Some(Key::C),
             "[c] Create new world",
             assets.clone(),
-            TetraVec2::new(4.3, 3.0),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 50.0 },
@@ -62,7 +60,6 @@ impl MainMenu {
             Some(Key::S),
             "[s] Settings",
             assets.clone(),
-            TetraVec2::new(2.7, 3.0),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 100.0 },
@@ -73,7 +70,6 @@ impl MainMenu {
             Some(Key::X),
             "[x] Exit",
             assets.clone(),
-            TetraVec2::new(2.0, 3.0),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 150.0 },

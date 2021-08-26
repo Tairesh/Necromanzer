@@ -5,7 +5,7 @@ use tetra::{Context, TetraVec2};
 
 pub struct Image {
     pub texture: Texture,
-    size: (f32, f32),
+    size: TetraVec2,
     scale: TetraVec2,
     pub position: Position,
     vec: Option<TetraVec2>,
@@ -16,7 +16,7 @@ impl Image {
         let size = texture.size();
         Image {
             texture,
-            size: (size.0 as f32, size.1 as f32),
+            size: TetraVec2::new(size.0 as f32, size.1 as f32),
             scale: TetraVec2::new(1.0, 1.0),
             position,
             vec: None,
@@ -25,9 +25,7 @@ impl Image {
 
     #[allow(dead_code)]
     pub fn with_scale(mut self, scale: TetraVec2) -> Image {
-        self.scale = scale;
-        self.size.0 *= scale.x;
-        self.size.1 *= scale.y;
+        self.size *= scale;
         self
     }
 }
@@ -41,7 +39,7 @@ impl Sprite for Image {
         self.position = position;
     }
 
-    fn size(&mut self, _ctx: &mut Context) -> (f32, f32) {
+    fn size(&mut self, _ctx: &mut Context) -> TetraVec2 {
         self.size
     }
 

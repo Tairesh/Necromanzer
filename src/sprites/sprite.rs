@@ -7,7 +7,7 @@ pub trait Sprite {
     }
     fn position(&self) -> Position;
     fn set_position(&mut self, position: Position);
-    fn size(&mut self, ctx: &mut Context) -> (f32, f32);
+    fn size(&mut self, ctx: &mut Context) -> TetraVec2;
     fn set_vec(&mut self, vec: TetraVec2);
     fn calc_position(&mut self, ctx: &mut Context) -> TetraVec2 {
         let window_size = window::get_size(ctx);

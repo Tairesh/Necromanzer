@@ -14,13 +14,13 @@ pub struct Button {
     pub id: String,
     pub key: Option<Key>,
     pub text: Text,
-    pub size: (f32, f32),
-    scale: TetraVec2,
     pub position: Position,
-    default: Texture,
-    disabled: Texture,
-    pressed: Texture,
-    hovered: Texture,
+    default_texture: Texture,
+    // should be the same size as default_texture
+    disabled_texture: Texture,
+    pressed_texture: Texture,
+    hovered_texture: Texture,
+    size: (i32, i32),
     vec: Option<TetraVec2>,
     pub is_pressed: bool,
     pub is_disabled: bool,
@@ -34,22 +34,18 @@ impl Button {
         key: Option<Key>,
         text: &str,
         assets: Rc<RefCell<Assets>>,
-        scale: TetraVec2,
         position: Position,
     ) -> Button {
-        let text = Text::new(text, assets.borrow().consolab.clone());
-        let size = assets.borrow().button.size();
         Button {
             id: id.to_string(),
             key,
-            text,
-            size: (size.0 as f32 * scale.x, size.1 as f32 * scale.y),
-            scale,
+            text: Text::new(text, assets.borrow().consolab.clone()),
             position,
-            default: assets.borrow().button.clone(),
-            disabled: assets.borrow().button_disabled.clone(),
-            pressed: assets.borrow().button_pressed.clone(),
-            hovered: assets.borrow().button_hovered.clone(),
+            default_texture: assets.borrow().button.clone(),
+            disabled_texture: assets.borrow().button_disabled.clone(),
+            pressed_texture: assets.borrow().button_pressed.clone(),
+            hovered_texture: assets.borrow().button_hovered.clone(),
+            size: assets.borrow().button.size(),
             vec: None,
             is_pressed: false,
             is_hovered: false,
@@ -82,6 +78,23 @@ impl Button {
         self.is_hovered = false;
         self.dirty = true;
     }
+
+    fn texture(&self) -> &Texture {
+        if self.is_disabled {
+            &self.disabled_texture
+        } else if self.is_pressed {
+            &self.pressed_texture
+        } else if self.is_hovered {
+            &self.hovered_texture
+        } else {
+            &self.default_texture
+        }
+    }
+
+    fn scale(&mut self, ctx: &mut Context) -> TetraVec2 {
+        let bounds = self.text.get_bounds(ctx).unwrap();
+        TetraVec2::new((bounds.width + 30.0) / self.texture().width() as f32, 3.0)
+    }
 }
 
 impl Sprite for Button {
@@ -97,8 +110,9 @@ impl Sprite for Button {
         self.position = position;
     }
 
-    fn size(&mut self, _ctx: &mut Context) -> (f32, f32) {
-        self.size
+    fn size(&mut self, ctx: &mut Context) -> TetraVec2 {
+        let scale = self.scale(ctx);
+        TetraVec2::new(self.size.0 as f32 * scale.x, self.size.1 as f32 * scale.y)
     }
 
     fn set_vec(&mut self, vec: TetraVec2) {
@@ -118,12 +132,8 @@ impl Sprite for Button {
                 return Some(self.id.clone());
             }
             let mouse = input::get_mouse_position(ctx);
-            let rect = Rect::new(
-                self.vec.unwrap().x,
-                self.vec.unwrap().y,
-                self.size.0,
-                self.size.1,
-            );
+            let size = self.size(ctx);
+            let rect = Rect::new(self.vec.unwrap().x, self.vec.unwrap().y, size.x, size.y);
             let collides = rect.contains_point(mouse);
             if !self.is_hovered && collides {
                 self.on_hovered();
@@ -144,19 +154,13 @@ impl Sprite for Button {
 
     fn draw(&mut self, ctx: &mut Context) {
         let mut vec = self.vec.unwrap();
-        let texture = if self.is_disabled {
-            &self.disabled
-        } else if self.is_pressed {
-            &self.pressed
-        } else if self.is_hovered {
-            &self.hovered
-        } else {
-            &self.default
-        };
-        texture.draw(ctx, DrawParams::new().position(vec).scale(self.scale));
+        let scale = self.scale(ctx);
+        self.texture()
+            .draw(ctx, DrawParams::new().position(vec).scale(scale));
         let bounds = self.text.get_bounds(ctx).unwrap();
-        vec.x += self.size.0 / 2.0 - bounds.width / 2.0 - 2.0;
-        vec.y += self.size.1 / 2.0 - bounds.height / 2.0 - 3.0;
+        let size = self.size(ctx);
+        vec.x += size.x / 2.0 - bounds.width / 2.0 - 3.0;
+        vec.y += size.y / 2.0 - bounds.height / 2.0 - 3.0;
         if !self.is_pressed {
             vec.y -= 2.0;
         }

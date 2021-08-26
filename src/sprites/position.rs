@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use tetra::math::Vec2;
+use tetra::TetraVec2;
 
 #[derive(Copy, Clone)]
 pub enum Horizontal {
@@ -93,25 +93,25 @@ impl Position {
         }
     }
 
-    pub fn vec(&self, owner_size: (f32, f32), window_size: (i32, i32)) -> Vec2<f32> {
+    pub fn vec(&self, owner_size: TetraVec2, window_size: (i32, i32)) -> TetraVec2 {
         let x = match self.x {
             Horizontal::ByLeft { x } => x,
-            Horizontal::ByCenter { x } => x - owner_size.0 / 2.0,
-            Horizontal::ByRight { x } => x - owner_size.0,
+            Horizontal::ByCenter { x } => x - owner_size.x / 2.0,
+            Horizontal::ByRight { x } => x - owner_size.x,
             Horizontal::AtWindowCenter { offset } => {
-                (window_size.0 / 2) as f32 - (owner_size.0 / 2.0) + offset
+                (window_size.0 / 2) as f32 - (owner_size.x / 2.0) + offset
             }
-            Horizontal::AtWindowRight { offset } => window_size.0 as f32 - owner_size.0 + offset,
+            Horizontal::AtWindowRight { offset } => window_size.0 as f32 - owner_size.x + offset,
         };
         let y = match self.y {
             Vertical::ByTop { y } => y,
-            Vertical::ByCenter { y } => y - owner_size.1 / 2.0,
-            Vertical::ByBottom { y } => y - owner_size.1,
+            Vertical::ByCenter { y } => y - owner_size.y / 2.0,
+            Vertical::ByBottom { y } => y - owner_size.y,
             Vertical::AtWindowCenter { offset } => {
-                (window_size.1 / 2) as f32 - (owner_size.1 / 2.0) + offset
+                (window_size.1 / 2) as f32 - (owner_size.y / 2.0) + offset
             }
-            Vertical::AtWindowBottom { offset } => window_size.1 as f32 - owner_size.1 + offset,
+            Vertical::AtWindowBottom { offset } => window_size.1 as f32 - owner_size.y + offset,
         };
-        Vec2::new(x, y)
+        TetraVec2::new(x, y)
     }
 }

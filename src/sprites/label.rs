@@ -31,9 +31,9 @@ impl Sprite for Label {
         self.position = position;
     }
 
-    fn size(&mut self, ctx: &mut Context) -> (f32, f32) {
+    fn size(&mut self, ctx: &mut Context) -> TetraVec2 {
         let rect = self.text.get_bounds(ctx).unwrap();
-        (rect.width, rect.height)
+        TetraVec2::new(rect.width, rect.height)
     }
 
     fn set_vec(&mut self, vec: TetraVec2) {
