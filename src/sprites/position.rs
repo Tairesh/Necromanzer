@@ -93,7 +93,7 @@ impl Position {
         }
     }
 
-    pub fn vec(&self, owner_size: TetraVec2, window_size: (i32, i32)) -> TetraVec2 {
+    pub fn as_vec(&self, owner_size: TetraVec2, window_size: (i32, i32)) -> TetraVec2 {
         let x = match self.x {
             Horizontal::ByLeft { x } => x,
             Horizontal::ByCenter { x } => x - owner_size.x / 2.0,

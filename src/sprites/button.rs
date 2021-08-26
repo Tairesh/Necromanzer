@@ -1,7 +1,7 @@
 use assets::Assets;
 use colors::Colors;
 use sprites::position::Position;
-use sprites::sprite::Sprite;
+use sprites::sprite::{Draw, Positionate, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
@@ -21,7 +21,7 @@ pub struct Button {
     pressed_texture: Texture,
     hovered_texture: Texture,
     size: (i32, i32),
-    vec: Option<TetraVec2>,
+    rect: Option<Rect<f32, f32>>,
     pub is_pressed: bool,
     pub is_disabled: bool,
     pub is_hovered: bool,
@@ -46,7 +46,7 @@ impl Button {
             pressed_texture: assets.borrow().button_pressed.clone(),
             hovered_texture: assets.borrow().button_hovered.clone(),
             size: assets.borrow().button.size(),
-            vec: None,
+            rect: None,
             is_pressed: false,
             is_hovered: false,
             is_disabled: false,
@@ -97,11 +97,36 @@ impl Button {
     }
 }
 
-impl Sprite for Button {
+impl Draw for Button {
     fn dirty(&self) -> bool {
         self.dirty
     }
 
+    fn draw(&mut self, ctx: &mut Context) {
+        let rect = self.rect.unwrap();
+        let mut vec = TetraVec2::new(rect.x, rect.y);
+        let scale = self.scale(ctx);
+        self.texture()
+            .draw(ctx, DrawParams::new().position(vec).scale(scale));
+        let bounds = self.text.get_bounds(ctx).unwrap();
+        vec.x += rect.w / 2.0 - bounds.width / 2.0 - 3.0;
+        vec.y += rect.h / 2.0 - bounds.height / 2.0 - 3.0;
+        if !self.is_pressed {
+            vec.y -= 2.0;
+        }
+        self.text.draw(
+            ctx,
+            DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
+        );
+        self.dirty = false;
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
+    }
+}
+
+impl Positionate for Button {
     fn position(&self) -> Position {
         self.position
     }
@@ -110,15 +135,13 @@ impl Sprite for Button {
         self.position = position;
     }
 
-    fn size(&mut self, ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
         let scale = self.scale(ctx);
         TetraVec2::new(self.size.0 as f32 * scale.x, self.size.1 as f32 * scale.y)
     }
+}
 
-    fn set_vec(&mut self, vec: TetraVec2) {
-        self.vec = Some(vec);
-    }
-
+impl Update for Button {
     fn update(&mut self, ctx: &mut Context) -> Option<String> {
         if self.is_disabled {
             return None;
@@ -132,8 +155,7 @@ impl Sprite for Button {
                 return Some(self.id.clone());
             }
             let mouse = input::get_mouse_position(ctx);
-            let size = self.size(ctx);
-            let rect = Rect::new(self.vec.unwrap().x, self.vec.unwrap().y, size.x, size.y);
+            let rect = self.rect.unwrap();
             let collides = rect.contains_point(mouse);
             if !self.is_hovered && collides {
                 self.on_hovered();
@@ -151,23 +173,6 @@ impl Sprite for Button {
         }
         None
     }
-
-    fn draw(&mut self, ctx: &mut Context) {
-        let mut vec = self.vec.unwrap();
-        let scale = self.scale(ctx);
-        self.texture()
-            .draw(ctx, DrawParams::new().position(vec).scale(scale));
-        let bounds = self.text.get_bounds(ctx).unwrap();
-        let size = self.size(ctx);
-        vec.x += size.x / 2.0 - bounds.width / 2.0 - 3.0;
-        vec.y += size.y / 2.0 - bounds.height / 2.0 - 3.0;
-        if !self.is_pressed {
-            vec.y -= 2.0;
-        }
-        self.text.draw(
-            ctx,
-            DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
-        );
-        self.dirty = false;
-    }
 }
+
+impl Sprite for Button {}

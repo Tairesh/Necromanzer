@@ -36,8 +36,11 @@ pub trait Scene {
         Ok(())
     }
     fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
+        let window_size = window::get_size(ctx);
         for sprite in self.sprites().iter_mut() {
-            sprite.calc_position(ctx);
+            let size = sprite.calc_size(ctx);
+            let rect = sprite.calc_rect(size, window_size);
+            sprite.set_rect(rect);
         }
         self.clear(ctx)
     }

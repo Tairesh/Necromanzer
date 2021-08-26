@@ -1,36 +1,50 @@
 use sprites::position::Position;
-use sprites::sprite::Sprite;
+use sprites::sprite::{Draw, Positionate, Sprite, Update};
 use tetra::graphics::{DrawParams, Texture};
+use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
 pub struct Image {
     pub texture: Texture,
-    size: TetraVec2,
     scale: TetraVec2,
     pub position: Position,
-    vec: Option<TetraVec2>,
+    rect: Option<Rect<f32, f32>>,
 }
 
 impl Image {
     pub fn new(texture: Texture, position: Position) -> Image {
-        let size = texture.size();
         Image {
             texture,
-            size: TetraVec2::new(size.0 as f32, size.1 as f32),
             scale: TetraVec2::new(1.0, 1.0),
             position,
-            vec: None,
+            rect: None,
         }
     }
 
     #[allow(dead_code)]
     pub fn with_scale(mut self, scale: TetraVec2) -> Image {
-        self.size *= scale;
+        self.scale = scale;
         self
     }
 }
 
-impl Sprite for Image {
+impl Draw for Image {
+    fn draw(&mut self, ctx: &mut Context) {
+        let rect = self.rect.unwrap();
+        self.texture.draw(
+            ctx,
+            DrawParams::new()
+                .position(TetraVec2::new(rect.x, rect.y))
+                .scale(self.scale),
+        );
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
+    }
+}
+
+impl Positionate for Image {
     fn position(&self) -> Position {
         self.position
     }
@@ -39,20 +53,11 @@ impl Sprite for Image {
         self.position = position;
     }
 
-    fn size(&mut self, _ctx: &mut Context) -> TetraVec2 {
-        self.size
-    }
-
-    fn set_vec(&mut self, vec: TetraVec2) {
-        self.vec = Some(vec);
-    }
-
-    fn draw(&mut self, ctx: &mut Context) {
-        self.texture.draw(
-            ctx,
-            DrawParams::new()
-                .position(self.vec.unwrap())
-                .scale(self.scale),
-        );
+    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
+        let size = self.texture.size();
+        TetraVec2::new(size.0 as f32 * self.scale.x, size.1 as f32 * self.scale.y)
     }
 }
+
+impl Update for Image {}
+impl Sprite for Image {}

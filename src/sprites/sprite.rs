@@ -1,23 +1,30 @@
 use sprites::position::Position;
-use tetra::{window, Context, TetraVec2};
+use tetra::math::Rect;
+use tetra::{Context, TetraVec2};
 
-pub trait Sprite {
+pub trait Draw {
     fn dirty(&self) -> bool {
         false
-    }
+    } // need redraw
+    fn draw(&mut self, ctx: &mut Context);
+    fn set_rect(&mut self, rect: Rect<f32, f32>);
+}
+
+pub trait Positionate {
     fn position(&self) -> Position;
     fn set_position(&mut self, position: Position);
-    fn size(&mut self, ctx: &mut Context) -> TetraVec2;
-    fn set_vec(&mut self, vec: TetraVec2);
-    fn calc_position(&mut self, ctx: &mut Context) -> TetraVec2 {
-        let window_size = window::get_size(ctx);
-        let owner_size = self.size(ctx);
-        let vec = self.position().vec(owner_size, window_size);
-        self.set_vec(vec);
-        vec
+    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2;
+    fn calc_rect(&mut self, owner_size: TetraVec2, window_size: (i32, i32)) -> Rect<f32, f32> {
+        let left_top = self.position().as_vec(owner_size, window_size);
+        Rect::new(left_top.x, left_top.y, owner_size.x, owner_size.y)
     }
+}
+
+pub trait Update {
+    // return id for calling in Scene::on_button_click(id)
     fn update(&mut self, _ctx: &mut Context) -> Option<String> {
         None
     }
-    fn draw(&mut self, ctx: &mut Context);
 }
+
+pub trait Sprite: Draw + Positionate + Update {}

@@ -1,14 +1,15 @@
 use sprites::position::Position;
-use sprites::sprite::Sprite;
+use sprites::sprite::{Draw, Positionate, Sprite, Update};
 use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
+use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
 pub struct Label {
     pub text: Text,
     pub color: Color,
     pub position: Position,
-    vec: Option<TetraVec2>,
+    rect: Option<Rect<f32, f32>>,
 }
 
 impl Label {
@@ -17,12 +18,28 @@ impl Label {
             text: Text::new(text, font),
             color,
             position,
-            vec: None,
+            rect: None,
         }
     }
 }
 
-impl Sprite for Label {
+impl Draw for Label {
+    fn draw(&mut self, ctx: &mut Context) {
+        let rect = self.rect.unwrap();
+        self.text.draw(
+            ctx,
+            DrawParams::new()
+                .position(TetraVec2::new(rect.x, rect.y))
+                .color(self.color),
+        );
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
+    }
+}
+
+impl Positionate for Label {
     fn position(&self) -> Position {
         self.position
     }
@@ -31,21 +48,11 @@ impl Sprite for Label {
         self.position = position;
     }
 
-    fn size(&mut self, ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
         let rect = self.text.get_bounds(ctx).unwrap();
         TetraVec2::new(rect.width, rect.height)
     }
-
-    fn set_vec(&mut self, vec: TetraVec2) {
-        self.vec = Some(vec);
-    }
-
-    fn draw(&mut self, ctx: &mut Context) {
-        self.text.draw(
-            ctx,
-            DrawParams::new()
-                .position(self.vec.unwrap())
-                .color(self.color),
-        );
-    }
 }
+
+impl Update for Label {}
+impl Sprite for Label {}
