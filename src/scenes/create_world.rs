@@ -9,7 +9,7 @@ use sprites::image::Image;
 use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::Sprite;
+use sprites::sprite::{Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -23,7 +23,11 @@ pub struct CreateWorld {
 }
 
 impl CreateWorld {
-    pub fn new(assets: Rc<RefCell<Assets>>, settings: Rc<RefCell<Settings>>) -> Self {
+    pub fn new(
+        assets: Rc<RefCell<Assets>>,
+        settings: Rc<RefCell<Settings>>,
+        ctx: &mut Context,
+    ) -> Self {
         let bg = Image::new(assets.borrow().bg.clone(), Position::center());
         let title = Label::new(
             "Create new world:",
@@ -42,7 +46,11 @@ impl CreateWorld {
         );
         let name_input = TextInput::new(
             "world_name",
-            "Tadek",
+            *assets
+                .borrow()
+                .names
+                .choose(&mut rand::thread_rng())
+                .unwrap(),
             250.0,
             assets.clone(),
             Position {
@@ -61,7 +69,7 @@ impl CreateWorld {
         );
         let seed_input = TextInput::new(
             "world_seed",
-            "1233254234523",
+            random_seed().as_str(),
             250.0,
             assets.clone(),
             Position {
@@ -69,7 +77,7 @@ impl CreateWorld {
                 y: AnchorY::Center.to_position(250.0),
             },
         );
-        let randomize_btn = Button::new(
+        let mut randomize_btn = Button::new(
             "randomize",
             vec![
                 (Key::NumPadMultiply, None),
@@ -78,7 +86,20 @@ impl CreateWorld {
             "[*] Randomize",
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 0.0 },
+                x: Horizontal::AtWindowCenter { offset: 0.0 },
+                y: AnchorY::Center.to_position(500.0),
+            },
+        );
+        let randomize_size = randomize_btn.calc_size(ctx);
+        let back_btn = Button::new(
+            "back",
+            vec![(Key::Escape, None)],
+            "[Esc] Back",
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByRight {
+                    offset: -randomize_size.x / 2.0,
+                },
                 y: AnchorY::Center.to_position(500.0),
             },
         );
@@ -88,7 +109,9 @@ impl CreateWorld {
             "[Enter] Create",
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft {
+                    offset: randomize_size.x / 2.0,
+                },
                 y: AnchorY::Center.to_position(500.0),
             },
         );
@@ -102,16 +125,12 @@ impl CreateWorld {
                 Box::new(name_input),
                 Box::new(seed_label),
                 Box::new(seed_input),
+                Box::new(back_btn),
                 Box::new(randomize_btn),
                 Box::new(create_btn),
             ],
         }
     }
-}
-
-fn random_world_name() -> &'static str {
-    let variants = vec!["Tadek", "Tarmian", "Rimworld"];
-    variants.choose(&mut rand::thread_rng()).unwrap()
 }
 
 fn random_seed() -> String {
@@ -122,10 +141,14 @@ impl Scene for CreateWorld {
     fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "randomize" => {
-                self.sprites
-                    .get_mut(3)
-                    .unwrap()
-                    .set_value(random_world_name());
+                self.sprites.get_mut(3).unwrap().set_value(
+                    *self
+                        .assets
+                        .borrow()
+                        .names
+                        .choose(&mut rand::thread_rng())
+                        .unwrap(),
+                );
                 self.sprites
                     .get_mut(5)
                     .unwrap()
@@ -138,6 +161,7 @@ impl Scene for CreateWorld {
                     self.sprites.get(5).unwrap().get_value().unwrap()
                 )
             }
+            "back" => return Some(Transition::Pop),
             _ => {}
         }
         None

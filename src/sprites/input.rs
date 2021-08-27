@@ -65,7 +65,7 @@ impl TextInput {
         if self.is_disabled {
             Some(Colors::DARK_GRAY.with_alpha(0.8))
         } else if self.is_focused {
-            Some(Colors::DARK_GREEN.with_alpha(0.5))
+            Some(Colors::DARK_GREEN.with_alpha(0.8))
         } else if self.is_hovered {
             Some(Colors::DARK_BROWN.with_alpha(0.2))
         } else {
@@ -191,7 +191,7 @@ impl Update for TextInput {
             self.off_hovered();
         }
         if self.is_focused {
-            if input::is_mouse_button_released(ctx, MouseButton::Left) && !collides {
+            if input::is_mouse_button_pressed(ctx, MouseButton::Left) && !collides {
                 self.off_pressed();
             }
             if Instant::now() - self.last_blinked > Duration::new(0, 500_000_000) {
