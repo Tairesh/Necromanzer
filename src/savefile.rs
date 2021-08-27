@@ -1,5 +1,5 @@
 use std::fs::{create_dir, File};
-use std::io::Write;
+use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 
 pub struct SaveFile {
@@ -29,6 +29,14 @@ impl SaveFile {
         }
     }
 
+    pub fn load(path: PathBuf) -> Option<Self> {
+        let file = File::open(&path).ok()?;
+        let mut lines = BufReader::new(&file).lines();
+        let name = lines.next()?.ok()?;
+        let seed = lines.next()?.ok()?;
+        Some(SaveFile { path, name, seed })
+    }
+
     pub fn save(&self) -> Result<(), SaveFileError> {
         let path = Path::new("save");
         if !path.exists() {
@@ -45,4 +53,17 @@ impl SaveFile {
             Ok(())
         }
     }
+}
+
+pub fn savefiles() -> Vec<SaveFile> {
+    let path = Path::new("save");
+    let mut files = Vec::new();
+    if path.exists() {
+        for p in path.read_dir().unwrap() {
+            if let Some(s) = SaveFile::load(p.unwrap().path()) {
+                files.push(s);
+            }
+        }
+    }
+    files
 }

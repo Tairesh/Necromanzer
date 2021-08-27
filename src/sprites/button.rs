@@ -249,4 +249,11 @@ impl Sprite for Button {
         self.is_hovered = false;
         self.dirty = true;
     }
+
+    fn set_disabled(&mut self, disabled: bool) {
+        if disabled != self.is_disabled {
+            self.is_disabled = disabled;
+            self.dirty = true;
+        }
+    }
 }

@@ -58,4 +58,6 @@ pub trait Sprite: Draw + Positionate + Update {
     fn get_danger(&self) -> bool {
         false
     }
+
+    fn set_disabled(&mut self, _disabled: bool) {}
 }

@@ -1,5 +1,6 @@
 use assets::Assets;
 use colors::Colors;
+use savefile::{savefiles, SaveFile};
 use scenes::create_world::CreateWorld;
 use scenes::manager::{update_sprites, Scene, Transition};
 use scenes::settings::SettingsScene;
@@ -19,6 +20,7 @@ pub struct MainMenu {
     assets: Rc<RefCell<Assets>>,
     settings: Rc<RefCell<Settings>>,
     sprites: Vec<Box<dyn Sprite>>,
+    savefiles: Vec<SaveFile>,
 }
 
 impl MainMenu {
@@ -87,6 +89,7 @@ impl MainMenu {
                 Box::new(settings_btn),
                 Box::new(exit_btn),
             ],
+            savefiles: vec![],
         }
     }
 }
@@ -119,5 +122,14 @@ impl Scene for MainMenu {
 
     fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
         Some(&mut self.sprites)
+    }
+
+    fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
+        self.savefiles = savefiles();
+        self.sprites
+            .get_mut(3)
+            .unwrap()
+            .set_disabled(self.savefiles.is_empty());
+        self.on_resize(ctx)
     }
 }
