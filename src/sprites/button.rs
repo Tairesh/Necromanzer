@@ -11,10 +11,10 @@ use tetra::math::Rect;
 use tetra::{input, Context, TetraVec2};
 
 pub struct Button {
-    pub id: String,
-    pub key: Option<Key>,
-    pub text: Text,
-    pub position: Position,
+    id: String,
+    key: Option<Key>,
+    text: Text,
+    position: Position,
     default_texture: Texture,
     // should be the same size as default_texture
     disabled_texture: Texture,
@@ -22,10 +22,10 @@ pub struct Button {
     hovered_texture: Texture,
     size: (i32, i32),
     rect: Option<Rect<f32, f32>>,
-    pub is_pressed: bool,
-    pub is_disabled: bool,
-    pub is_hovered: bool,
-    pub fixable: bool,
+    is_pressed: bool,
+    is_disabled: bool,
+    is_hovered: bool,
+    fixable: bool,
     dirty: bool,
 }
 
@@ -36,7 +36,7 @@ impl Button {
         text: &str,
         assets: Rc<RefCell<Assets>>,
         position: Position,
-    ) -> Button {
+    ) -> Self {
         Button {
             id: id.to_string(),
             key,

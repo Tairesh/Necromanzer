@@ -1,5 +1,6 @@
 use assets::Assets;
 use colors::Colors;
+use scenes::create_world::CreateWorld;
 use scenes::manager::{update_sprites, Scene, Transition};
 use scenes::settings::SettingsScene;
 use settings::Settings;
@@ -21,10 +22,7 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(
-        assets: Rc<RefCell<Assets>>,
-        settings: Rc<RefCell<Settings>>,
-    ) -> tetra::Result<Self> {
+    pub fn new(assets: Rc<RefCell<Assets>>, settings: Rc<RefCell<Settings>>) -> Self {
         let bg = Image::new(assets.borrow().bg.clone(), Position::center());
         let logo = Image::new(
             assets.borrow().logo.clone(),
@@ -33,11 +31,8 @@ impl MainMenu {
         let version = Label::new(
             &*VERSION,
             assets.borrow().default.clone(),
-            Colors::LIGHT_YELLOW,
-            Position {
-                x: Horizontal::AtWindowCenter { offset: 0.0 },
-                y: Vertical::AtWindowBottom { offset: -10.0 },
-            },
+            Colors::DARK_BROWN,
+            Position::horizontal_center(0.0, 69.69, AnchorY::Top),
         );
         let select_btn = Button::new(
             "select_world",
@@ -80,7 +75,7 @@ impl MainMenu {
                 y: Vertical::AtWindowCenter { offset: 150.0 },
             },
         );
-        Ok(MainMenu {
+        MainMenu {
             assets,
             settings,
             sprites: vec![
@@ -92,7 +87,7 @@ impl MainMenu {
                 Box::new(settings_btn),
                 Box::new(exit_btn),
             ],
-        })
+        }
     }
 }
 
@@ -100,9 +95,15 @@ impl Scene for MainMenu {
     fn on_button_click(&mut self, ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "exit" => Some(Transition::Quit),
-            "settings" => Some(Transition::Push(Box::new(
-                SettingsScene::new(self.assets.clone(), self.settings.clone(), ctx).unwrap(),
-            ))),
+            "settings" => Some(Transition::Push(Box::new(SettingsScene::new(
+                self.assets.clone(),
+                self.settings.clone(),
+                ctx,
+            )))),
+            "create_world" => Some(Transition::Push(Box::new(CreateWorld::new(
+                self.assets.clone(),
+                self.settings.clone(),
+            )))),
             _ => None,
         }
     }
@@ -115,7 +116,7 @@ impl Scene for MainMenu {
         }
     }
 
-    fn sprites(&mut self) -> &mut Vec<Box<dyn Sprite>> {
-        &mut self.sprites
+    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+        Some(&mut self.sprites)
     }
 }

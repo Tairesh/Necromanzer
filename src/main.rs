@@ -37,7 +37,7 @@ fn main() -> tetra::Result {
         settings.borrow().width as i32,
         settings.borrow().height as i32,
     );
-    ctx.show_mouse(true).vsync(true);
+    ctx.show_mouse(true).vsync(true).key_repeat(true);
     let mut ctx = match settings.borrow().window_mode() {
         WindowMode::Fullscreen => ctx.fullscreen(true),
         WindowMode::Borderless => ctx.resizable(true).maximized(true).borderless(true),
@@ -48,7 +48,7 @@ fn main() -> tetra::Result {
     window::set_icon(&mut ctx, &mut icon)?;
 
     ctx.run(|ctx| {
-        let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)), settings.clone())?;
+        let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)), settings.clone());
         scene.on_open(ctx).ok();
         Ok(SceneManager::new(Box::new(scene), settings.clone()))
     })

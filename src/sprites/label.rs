@@ -6,14 +6,14 @@ use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
 pub struct Label {
-    pub text: Text,
-    pub color: Color,
-    pub position: Position,
+    text: Text,
+    color: Color,
+    position: Position,
     rect: Option<Rect<f32, f32>>,
 }
 
 impl Label {
-    pub fn new(text: &str, font: Font, color: Color, position: Position) -> Label {
+    pub fn new(text: &str, font: Font, color: Color, position: Position) -> Self {
         Label {
             text: Text::new(text, font),
             color,

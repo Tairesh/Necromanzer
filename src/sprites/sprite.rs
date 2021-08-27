@@ -40,4 +40,8 @@ pub trait Sprite: Draw + Positionate + Update {
     fn on_hovered(&mut self) {}
 
     fn off_hovered(&mut self) {}
+
+    fn is_focusable(&self) -> bool {
+        false
+    }
 }

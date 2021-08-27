@@ -5,14 +5,14 @@ use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
 pub struct Image {
-    pub texture: Texture,
+    texture: Texture,
     scale: TetraVec2,
-    pub position: Position,
+    position: Position,
     rect: Option<Rect<f32, f32>>,
 }
 
 impl Image {
-    pub fn new(texture: Texture, position: Position) -> Image {
+    pub fn new(texture: Texture, position: Position) -> Self {
         Image {
             texture,
             scale: TetraVec2::new(1.0, 1.0),

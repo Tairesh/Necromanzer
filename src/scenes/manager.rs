@@ -9,16 +9,18 @@ use tetra::{Context, State};
 use {TITLE, VERSION};
 
 pub(crate) fn update_sprites<T: Scene>(scene: &mut T, ctx: &mut Context) -> Option<Transition> {
-    let mut btn_clicked = None;
-    for sprite in scene.sprites().iter_mut() {
-        if let Some(btn_id) = sprite.update(ctx) {
-            btn_clicked = Some(btn_id);
+    if let Some(sprites) = scene.sprites() {
+        let mut btn_clicked = None;
+        for sprite in sprites.iter_mut() {
+            if let Some(btn_id) = sprite.update(ctx) {
+                btn_clicked = Some(btn_id);
+            }
         }
-    }
-    if let Some(btn_id) = btn_clicked {
-        let t = scene.on_button_click(ctx, btn_id.as_str());
-        if t.is_some() {
-            return t;
+        if let Some(btn_id) = btn_clicked {
+            let t = scene.on_button_click(ctx, btn_id.as_str());
+            if t.is_some() {
+                return t;
+            }
         }
     }
     None
@@ -32,27 +34,37 @@ pub trait Scene {
         Ok(Transition::None)
     }
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-        if self.sprites().iter().any(|s| s.dirty()) {
-            self.redraw_sprites(ctx)?;
+        if let Some(sprites) = self.sprites() {
+            if sprites.iter().any(|s| s.dirty()) {
+                self.redraw_sprites(ctx)?;
+            }
         }
         Ok(())
     }
     fn redraw_sprites(&mut self, ctx: &mut Context) -> tetra::Result {
-        for sprite in self.sprites().iter_mut() {
-            sprite.draw(ctx);
+        if let Some(sprites) = self.sprites() {
+            for sprite in sprites.iter_mut() {
+                sprite.draw(ctx);
+            }
         }
         Ok(())
     }
     fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
-        let window_size = window::get_size(ctx);
-        for sprite in self.sprites().iter_mut() {
-            let size = sprite.calc_size(ctx);
-            let rect = sprite.calc_rect(size, window_size);
-            sprite.set_rect(rect);
+        if let Some(sprites) = self.sprites() {
+            let window_size = window::get_size(ctx);
+            for sprite in sprites.iter_mut() {
+                let size = sprite.calc_size(ctx);
+                let rect = sprite.calc_rect(size, window_size);
+                sprite.set_rect(rect);
+            }
+            self.redraw_sprites(ctx)
+        } else {
+            Ok(())
         }
-        self.redraw_sprites(ctx)
     }
-    fn sprites(&mut self) -> &mut Vec<Box<dyn Sprite>>;
+    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+        None
+    }
     fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
         self.on_resize(ctx)
     }

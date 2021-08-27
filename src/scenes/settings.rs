@@ -21,7 +21,7 @@ impl SettingsScene {
         assets: Rc<RefCell<Assets>>,
         settings: Rc<RefCell<Settings>>,
         ctx: &mut Context,
-    ) -> tetra::Result<Self> {
+    ) -> Self {
         let bg = Image::new(assets.borrow().bg.clone(), Position::center());
         let title = Label::new(
             "Settings",
@@ -89,7 +89,7 @@ impl SettingsScene {
             },
         );
 
-        Ok(SettingsScene {
+        SettingsScene {
             sprites: vec![
                 Box::new(bg),
                 Box::new(title),
@@ -99,7 +99,7 @@ impl SettingsScene {
                 Box::new(borderless_btn),
                 Box::new(back_btn),
             ],
-        })
+        }
     }
 }
 
@@ -141,7 +141,7 @@ impl Scene for SettingsScene {
         self.redraw_sprites(ctx)
     }
 
-    fn sprites(&mut self) -> &mut Vec<Box<dyn Sprite>> {
-        &mut self.sprites
+    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+        Some(&mut self.sprites)
     }
 }
