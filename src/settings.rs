@@ -4,6 +4,13 @@ use std::path::Path;
 
 const PATH: &str = "settings.json";
 
+#[derive(Hash, Eq, PartialEq, Copy, Clone)]
+pub enum WindowMode {
+    Fullscreen,
+    Borderless,
+    Window,
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Settings {
     pub width: u32,
@@ -16,8 +23,8 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn default() -> Result<Settings, String> {
-        Ok(Settings {
+    pub fn default() -> Settings {
+        Settings {
             width: 1024,
             height: 768,
             fullscreen: false,
@@ -25,10 +32,10 @@ impl Settings {
             show_fps: false,
             music_enabled: true,
             music_volume: 64,
-        })
+        }
     }
 
-    pub fn load() -> Result<Settings, String> {
+    pub fn load() -> tetra::Result<Settings> {
         let path = Path::new(PATH);
         let mut settings: Settings;
         if path.is_file() {
@@ -37,7 +44,7 @@ impl Settings {
             settings = serde_json::from_reader(reader).unwrap();
             settings.validate();
         } else {
-            settings = Settings::default()?;
+            settings = Settings::default();
             serde_json::to_writer(&File::create(path).unwrap(), &settings).unwrap();
         }
 
@@ -49,7 +56,7 @@ impl Settings {
         serde_json::to_writer(&File::create(Path::new(PATH)).unwrap(), self).unwrap();
     }
 
-    fn validate(&mut self) -> &Settings {
+    pub fn validate(&mut self) -> &Settings {
         if self.width < 800 {
             self.width = 800;
         }
@@ -66,5 +73,13 @@ impl Settings {
             self.music_volume = 128;
         }
         self
+    }
+
+    pub fn window_mode(&self) -> WindowMode {
+        match (self.fullscreen, self.borderless) {
+            (true, true) => WindowMode::Borderless,
+            (true, false) => WindowMode::Fullscreen,
+            _ => WindowMode::Window,
+        }
     }
 }

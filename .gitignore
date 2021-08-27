@@ -6,5 +6,6 @@
 /.idea
 
 # Local build stuff
+/save/
 /settings.json
 /version.txt

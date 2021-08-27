@@ -1,15 +1,26 @@
 #![windows_subsystem = "windows"]
+
+mod assets;
 mod colors;
-mod engine;
-mod fps;
-mod scene_manager;
+mod savefile;
 mod scenes;
 mod settings;
-mod sprite;
+mod sprites;
 
-extern crate sdl2;
+extern crate chrono;
+extern crate rand;
+extern crate serde;
+extern crate tetra;
 
-use engine::Engine;
+use assets::Assets;
+use scenes::main_menu::MainMenu;
+use scenes::manager::{Scene, SceneManager};
+use settings::{Settings, WindowMode};
+use std::cell::RefCell;
+use std::rc::Rc;
+use tetra::graphics::ImageData;
+use tetra::window;
+use tetra::ContextBuilder;
 
 const TITLE: &str = "Necromanzer";
 const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -22,8 +33,26 @@ lazy_static::lazy_static! {
     };
 }
 
-pub fn main() {
-    let title = format!("{} {}", TITLE, *VERSION);
-    let mut engine = Engine::new(title.as_str()).unwrap();
-    engine.start().ok();
+fn main() -> tetra::Result {
+    let settings = Rc::new(RefCell::new(Settings::load()?));
+    let mut ctx = ContextBuilder::new(
+        format!("{} {}", TITLE, *VERSION),
+        settings.borrow().width as i32,
+        settings.borrow().height as i32,
+    );
+    ctx.show_mouse(true).vsync(true).key_repeat(true);
+    let mut ctx = match settings.borrow().window_mode() {
+        WindowMode::Fullscreen => ctx.fullscreen(true),
+        WindowMode::Borderless => ctx.resizable(true).maximized(true).borderless(true),
+        WindowMode::Window => ctx.resizable(true),
+    }
+    .build()?;
+    let mut icon = ImageData::from_file("res/img/zombie.png")?;
+    window::set_icon(&mut ctx, &mut icon)?;
+
+    ctx.run(|ctx| {
+        let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)), settings.clone());
+        scene.on_open(ctx).ok();
+        Ok(SceneManager::new(Box::new(scene), settings.clone()))
+    })
 }
