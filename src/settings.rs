@@ -23,8 +23,8 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn default() -> Result<Settings, String> {
-        Ok(Settings {
+    pub fn default() -> Settings {
+        Settings {
             width: 1024,
             height: 768,
             fullscreen: false,
@@ -32,10 +32,10 @@ impl Settings {
             show_fps: false,
             music_enabled: true,
             music_volume: 64,
-        })
+        }
     }
 
-    pub fn load() -> Result<Settings, String> {
+    pub fn load() -> tetra::Result<Settings> {
         let path = Path::new(PATH);
         let mut settings: Settings;
         if path.is_file() {
@@ -44,7 +44,7 @@ impl Settings {
             settings = serde_json::from_reader(reader).unwrap();
             settings.validate();
         } else {
-            settings = Settings::default()?;
+            settings = Settings::default();
             serde_json::to_writer(&File::create(path).unwrap(), &settings).unwrap();
         }
 

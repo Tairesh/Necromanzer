@@ -2,7 +2,6 @@
 
 mod assets;
 mod colors;
-mod scene_manager;
 mod scenes;
 mod settings;
 mod sprites;
@@ -11,8 +10,8 @@ extern crate serde;
 extern crate tetra;
 
 use assets::Assets;
-use scene_manager::{Scene, SceneManager};
 use scenes::main_menu::MainMenu;
+use scenes::manager::{Scene, SceneManager};
 use settings::{Settings, WindowMode};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -32,14 +31,14 @@ lazy_static::lazy_static! {
 }
 
 fn main() -> tetra::Result {
-    let settings = Settings::load().unwrap();
+    let settings = Rc::new(RefCell::new(Settings::load()?));
     let mut ctx = ContextBuilder::new(
         format!("{} {}", TITLE, *VERSION),
-        settings.width as i32,
-        settings.height as i32,
+        settings.borrow().width as i32,
+        settings.borrow().height as i32,
     );
     ctx.show_mouse(true).vsync(true);
-    let mut ctx = match settings.window_mode() {
+    let mut ctx = match settings.borrow().window_mode() {
         WindowMode::Fullscreen => ctx.fullscreen(true),
         WindowMode::Borderless => ctx.resizable(true).maximized(true).borderless(true),
         WindowMode::Window => ctx.resizable(true),
@@ -49,8 +48,8 @@ fn main() -> tetra::Result {
     window::set_icon(&mut ctx, &mut icon)?;
 
     ctx.run(|ctx| {
-        let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)))?;
+        let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)), settings.clone())?;
         scene.on_open(ctx).ok();
-        Ok(SceneManager::new(Box::new(scene), settings))
+        Ok(SceneManager::new(Box::new(scene), settings.clone()))
     })
 }

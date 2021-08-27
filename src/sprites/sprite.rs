@@ -3,9 +3,10 @@ use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
 pub trait Draw {
+    /// Need redraw
     fn dirty(&self) -> bool {
         false
-    } // need redraw
+    }
     fn draw(&mut self, ctx: &mut Context);
     fn set_rect(&mut self, rect: Rect<f32, f32>);
 }
@@ -21,10 +22,22 @@ pub trait Positionate {
 }
 
 pub trait Update {
-    // return id for calling in Scene::on_button_click(id)
+    fn id(&self) -> Option<String> {
+        None
+    }
     fn update(&mut self, _ctx: &mut Context) -> Option<String> {
         None
     }
 }
 
-pub trait Sprite: Draw + Positionate + Update {}
+pub trait Sprite: Draw + Positionate + Update {
+    fn on_pressed(&mut self) {}
+
+    fn off_pressed(&mut self) {}
+
+    fn unpress(&mut self) {}
+
+    fn on_hovered(&mut self) {}
+
+    fn off_hovered(&mut self) {}
+}

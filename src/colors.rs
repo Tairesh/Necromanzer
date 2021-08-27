@@ -27,6 +27,7 @@ impl Colors {
     pub const DARK_BLUE: Color = Color::rgb8(0, 0, 139);
     pub const DARK_CYAN: Color = Color::rgb8(0, 139, 139);
     pub const DARK_GOLDEN_ROD: Color = Color::rgb8(184, 134, 11);
+    pub const DARK_BROWN: Color = Color::rgb8(32, 7, 0);
     pub const DARK_GRAY: Color = Color::rgb8(33, 33, 33);
     pub const DARK_GREY: Color = Colors::DARK_GRAY;
     pub const DARK_GREEN: Color = Color::rgb8(0, 50, 0);

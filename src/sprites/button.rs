@@ -25,6 +25,7 @@ pub struct Button {
     pub is_pressed: bool,
     pub is_disabled: bool,
     pub is_hovered: bool,
+    pub fixable: bool,
     dirty: bool,
 }
 
@@ -39,7 +40,7 @@ impl Button {
         Button {
             id: id.to_string(),
             key,
-            text: Text::new(text, assets.borrow().consolab.clone()),
+            text: Text::new(text, assets.borrow().default.clone()),
             position,
             default_texture: assets.borrow().button.clone(),
             disabled_texture: assets.borrow().button_disabled.clone(),
@@ -50,6 +51,34 @@ impl Button {
             is_pressed: false,
             is_hovered: false,
             is_disabled: false,
+            fixable: false,
+            dirty: false,
+        }
+    }
+
+    pub fn fixed(
+        id: &str,
+        key: Option<Key>,
+        text: &str,
+        state: bool,
+        assets: Rc<RefCell<Assets>>,
+        position: Position,
+    ) -> Button {
+        Button {
+            id: id.to_string(),
+            key,
+            text: Text::new(text, assets.borrow().default.clone()),
+            position,
+            default_texture: assets.borrow().button.clone(),
+            disabled_texture: assets.borrow().button_disabled.clone(),
+            pressed_texture: assets.borrow().button_pressed.clone(),
+            hovered_texture: assets.borrow().button_hovered.clone(),
+            size: assets.borrow().button.size(),
+            rect: None,
+            is_pressed: state,
+            is_hovered: false,
+            is_disabled: false,
+            fixable: true,
             dirty: false,
         }
     }
@@ -57,26 +86,6 @@ impl Button {
     pub fn with_disabled(mut self, val: bool) -> Self {
         self.is_disabled = val;
         self
-    }
-
-    fn on_pressed(&mut self) {
-        self.is_pressed = true;
-        self.dirty = true;
-    }
-
-    fn off_pressed(&mut self) {
-        self.is_pressed = false;
-        self.dirty = true;
-    }
-
-    fn on_hovered(&mut self) {
-        self.is_hovered = true;
-        self.dirty = true;
-    }
-
-    fn off_hovered(&mut self) {
-        self.is_hovered = false;
-        self.dirty = true;
     }
 
     fn texture(&self) -> &Texture {
@@ -142,6 +151,9 @@ impl Positionate for Button {
 }
 
 impl Update for Button {
+    fn id(&self) -> Option<String> {
+        Some(self.id.clone())
+    }
     fn update(&mut self, ctx: &mut Context) -> Option<String> {
         if self.is_disabled {
             return None;
@@ -152,7 +164,7 @@ impl Update for Button {
             }
             if input::is_key_released(ctx, key) {
                 self.off_pressed();
-                return Some(self.id.clone());
+                return self.id();
             }
             let mouse = input::get_mouse_position(ctx);
             let rect = self.rect.unwrap();
@@ -162,12 +174,15 @@ impl Update for Button {
             } else if self.is_hovered && !collides {
                 self.off_hovered();
             }
-            if collides && input::is_mouse_button_pressed(ctx, MouseButton::Left) {
+            if collides
+                && !self.is_pressed
+                && input::is_mouse_button_pressed(ctx, MouseButton::Left)
+            {
                 self.on_pressed();
-            } else if input::is_mouse_button_released(ctx, MouseButton::Left) {
+            } else if self.is_pressed && input::is_mouse_button_released(ctx, MouseButton::Left) {
                 self.off_pressed();
                 if collides {
-                    return Some(self.id.clone());
+                    return self.id();
                 }
             }
         }
@@ -175,4 +190,30 @@ impl Update for Button {
     }
 }
 
-impl Sprite for Button {}
+impl Sprite for Button {
+    fn on_pressed(&mut self) {
+        self.is_pressed = true;
+        self.dirty = true;
+    }
+
+    fn off_pressed(&mut self) {
+        if !self.fixable {
+            self.unpress();
+        }
+    }
+
+    fn unpress(&mut self) {
+        self.is_pressed = false;
+        self.dirty = true;
+    }
+
+    fn on_hovered(&mut self) {
+        self.is_hovered = true;
+        self.dirty = true;
+    }
+
+    fn off_hovered(&mut self) {
+        self.is_hovered = false;
+        self.dirty = true;
+    }
+}
