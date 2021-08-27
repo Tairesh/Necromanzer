@@ -2,6 +2,7 @@ use assets::Assets;
 use colors::Colors;
 use rand::seq::SliceRandom;
 use rand::RngCore;
+use savefile::{SaveFile, SaveFileError};
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
 use sprites::button::Button;
@@ -155,11 +156,19 @@ impl Scene for CreateWorld {
                     .set_value(random_seed().as_str());
             }
             "create" => {
-                println!(
-                    "{} {}",
-                    self.sprites.get(3).unwrap().get_value().unwrap(),
-                    self.sprites.get(5).unwrap().get_value().unwrap()
-                )
+                let file = SaveFile::new(
+                    self.sprites.get(3).unwrap().get_value().unwrap().as_str(),
+                    self.sprites.get(5).unwrap().get_value().unwrap().as_str(),
+                );
+                match file.save() {
+                    Ok(_) => return Some(Transition::Pop),
+                    Err(err) => match err {
+                        SaveFileError::SystemError(err) => panic!("Can't create savefile: {}", err),
+                        SaveFileError::FileExists => {
+                            println!("file exists");
+                        }
+                    },
+                }
             }
             "back" => return Some(Transition::Pop),
             _ => {}
