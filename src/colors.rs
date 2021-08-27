@@ -68,7 +68,7 @@ impl Colors {
     pub const INDIAN_RED: Color = Color::rgb8(205, 92, 92);
     pub const INDIGO: Color = Color::rgb8(75, 0, 130);
     pub const IVORY: Color = Color::rgb8(255, 255, 240);
-    pub const KHAKI: Color = Color::rgb8(240, 230, 140);
+    pub const KHAKI: Color = Color::rgb8(132, 129, 114);
     pub const LAVENDER: Color = Color::rgb8(230, 230, 250);
     pub const LAVENDER_BLUSH: Color = Color::rgb8(255, 240, 245);
     pub const LAWN_GREEN: Color = Color::rgb8(124, 252, 0);

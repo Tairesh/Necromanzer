@@ -1,3 +1,4 @@
+pub mod alert;
 pub mod button;
 pub mod image;
 pub mod input;

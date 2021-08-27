@@ -2,6 +2,7 @@ use assets::Assets;
 use colors::Colors;
 use savefile::{savefiles, SaveFile};
 use scenes::create_world::CreateWorld;
+use scenes::load_world::LoadWorld;
 use scenes::manager::{update_sprites, Scene, Transition};
 use scenes::settings::SettingsScene;
 use settings::Settings;
@@ -38,7 +39,7 @@ impl MainMenu {
         );
         let select_btn = Button::new(
             "select_world",
-            vec![(Key::L, None)],
+            vec![(Key::E, None)],
             "[e] Select world",
             assets.clone(),
             Position {
@@ -106,6 +107,10 @@ impl Scene for MainMenu {
             "create_world" => Some(Transition::Push(Box::new(CreateWorld::new(
                 self.assets.clone(),
                 self.settings.clone(),
+                ctx,
+            )))),
+            "select_world" => Some(Transition::Push(Box::new(LoadWorld::new(
+                self.assets.clone(),
                 ctx,
             )))),
             _ => None,

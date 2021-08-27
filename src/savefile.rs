@@ -3,9 +3,9 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 
 pub struct SaveFile {
-    path: PathBuf,
-    name: String,
-    seed: String,
+    pub path: PathBuf,
+    pub name: String,
+    pub seed: String,
 }
 
 pub enum SaveFileError {

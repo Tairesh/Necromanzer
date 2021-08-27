@@ -199,24 +199,21 @@ impl Update for Button {
                 self.off_pressed();
                 return self.id();
             }
-            let mouse = input::get_mouse_position(ctx);
-            let rect = self.rect.unwrap();
-            let collides = rect.contains_point(mouse);
-            if !self.is_hovered && collides {
-                self.on_hovered();
-            } else if self.is_hovered && !collides {
-                self.off_hovered();
-            }
-            if collides
-                && !self.is_pressed
-                && input::is_mouse_button_pressed(ctx, MouseButton::Left)
-            {
-                self.on_pressed();
-            } else if self.is_pressed && input::is_mouse_button_released(ctx, MouseButton::Left) {
-                self.off_pressed();
-                if collides {
-                    return self.id();
-                }
+        }
+        let mouse = input::get_mouse_position(ctx);
+        let rect = self.rect.unwrap();
+        let collides = rect.contains_point(mouse);
+        if !self.is_hovered && collides {
+            self.on_hovered();
+        } else if self.is_hovered && !collides {
+            self.off_hovered();
+        }
+        if collides && !self.is_pressed && input::is_mouse_button_pressed(ctx, MouseButton::Left) {
+            self.on_pressed();
+        } else if self.is_pressed && input::is_mouse_button_released(ctx, MouseButton::Left) {
+            self.off_pressed();
+            if collides {
+                return self.id();
             }
         }
         None

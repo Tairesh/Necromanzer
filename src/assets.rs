@@ -6,12 +6,22 @@ pub struct Assets {
     pub default: Font,
     pub header1: Font,
     pub header2: Font,
+
     pub logo: Texture,
     pub bg: Texture,
     pub button: Texture,
     pub button_disabled: Texture,
     pub button_pressed: Texture,
     pub button_hovered: Texture,
+    pub alert_top: Texture,
+    pub alert_top_left: Texture,
+    pub alert_top_right: Texture,
+    pub alert_middle_left: Texture,
+    pub alert_middle_right: Texture,
+    pub alert_bottom: Texture,
+    pub alert_bottom_left: Texture,
+    pub alert_bottom_right: Texture,
+
     pub male_names: Vec<&'static str>,
     pub female_names: Vec<&'static str>,
     pub names: Vec<&'static str>,
@@ -66,6 +76,35 @@ impl Assets {
             button_hovered: Texture::from_file_data(
                 ctx,
                 include_bytes!("../res/img/button_hovered.png"),
+            )?,
+            alert_top: Texture::from_file_data(ctx, include_bytes!("../res/img/alert_top.png"))?,
+            alert_top_left: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_top_left.png"),
+            )?,
+            alert_top_right: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_top_right.png"),
+            )?,
+            alert_middle_left: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_middle_left.png"),
+            )?,
+            alert_middle_right: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_middle_right.png"),
+            )?,
+            alert_bottom: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_bottom.png"),
+            )?,
+            alert_bottom_left: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_bottom_left.png"),
+            )?,
+            alert_bottom_right: Texture::from_file_data(
+                ctx,
+                include_bytes!("../res/img/alert_bottom_right.png"),
             )?,
             male_names,
             female_names,
