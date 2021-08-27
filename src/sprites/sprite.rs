@@ -44,4 +44,10 @@ pub trait Sprite: Draw + Positionate + Update {
     fn is_focusable(&self) -> bool {
         false
     }
+
+    fn set_value(&mut self, _value: &str) {}
+
+    fn get_value(&self) -> Option<String> {
+        None
+    }
 }

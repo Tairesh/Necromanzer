@@ -1,5 +1,7 @@
 use assets::Assets;
 use colors::Colors;
+use rand::seq::SliceRandom;
+use rand::RngCore;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
 use sprites::button::Button;
@@ -107,7 +109,40 @@ impl CreateWorld {
     }
 }
 
+fn random_world_name() -> &'static str {
+    let variants = vec!["Tadek", "Tarmian", "Rimworld"];
+    variants.choose(&mut rand::thread_rng()).unwrap()
+}
+
+fn random_seed() -> String {
+    rand::thread_rng().next_u32().to_string()
+}
+
 impl Scene for CreateWorld {
+    fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
+        match btn_id {
+            "randomize" => {
+                self.sprites
+                    .get_mut(3)
+                    .unwrap()
+                    .set_value(random_world_name());
+                self.sprites
+                    .get_mut(5)
+                    .unwrap()
+                    .set_value(random_seed().as_str());
+            }
+            "create" => {
+                println!(
+                    "{} {}",
+                    self.sprites.get(3).unwrap().get_value().unwrap(),
+                    self.sprites.get(5).unwrap().get_value().unwrap()
+                )
+            }
+            _ => {}
+        }
+        None
+    }
+
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             Ok(Transition::Pop)

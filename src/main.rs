@@ -6,6 +6,7 @@ mod scenes;
 mod settings;
 mod sprites;
 
+extern crate rand;
 extern crate serde;
 extern crate tetra;
 

@@ -137,9 +137,9 @@ impl Scene for SettingsScene {
         }
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-        self.redraw_sprites(ctx)
-    }
+    // fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+    //     self.redraw_sprites(ctx)
+    // }
 
     fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
         Some(&mut self.sprites)

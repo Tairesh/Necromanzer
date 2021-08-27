@@ -120,6 +120,7 @@ impl Draw for TextInput {
                 .position(TetraVec2::new(rect.x, rect.y))
                 .color(self.border_color()),
         );
+        self.text.set_content(self.value.replace(" ", "_"));
         let text_width = self
             .text
             .get_bounds(ctx)
@@ -130,6 +131,7 @@ impl Draw for TextInput {
         } else {
             TetraVec2::new(rect.x + 7.0, rect.y + 6.0)
         };
+        self.text.set_content(self.value.as_str());
         self.text.draw(
             ctx,
             DrawParams::new()
@@ -258,5 +260,15 @@ impl Sprite for TextInput {
 
     fn is_focusable(&self) -> bool {
         !self.is_disabled
+    }
+
+    fn set_value(&mut self, value: &str) {
+        self.value = value.to_string();
+        self.text.set_content(value);
+        self.dirty = true;
+    }
+
+    fn get_value(&self) -> Option<String> {
+        Some(self.value.clone())
     }
 }

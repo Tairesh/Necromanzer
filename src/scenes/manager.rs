@@ -179,6 +179,11 @@ impl State for SceneManager {
                     window::set_title(ctx, &self.default_title);
                 }
             }
+            Event::FocusGained | Event::Restored => {
+                if let Some(scene) = self.scenes.last_mut() {
+                    scene.redraw_sprites(ctx)?;
+                }
+            }
             Event::Resized { width, height } => {
                 if !settings.fullscreen {
                     settings.width = width as u32;
