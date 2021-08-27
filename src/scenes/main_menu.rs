@@ -36,7 +36,7 @@ impl MainMenu {
         );
         let select_btn = Button::new(
             "select_world",
-            Some(Key::L),
+            vec![(Key::L, None)],
             "[e] Select world",
             assets.clone(),
             Position {
@@ -47,7 +47,7 @@ impl MainMenu {
         .with_disabled(true);
         let create_btn = Button::new(
             "create_world",
-            Some(Key::C),
+            vec![(Key::C, None)],
             "[c] Create new world",
             assets.clone(),
             Position {
@@ -57,7 +57,7 @@ impl MainMenu {
         );
         let settings_btn = Button::new(
             "settings",
-            Some(Key::S),
+            vec![(Key::S, None)],
             "[s] Settings",
             assets.clone(),
             Position {
@@ -67,7 +67,7 @@ impl MainMenu {
         );
         let exit_btn = Button::new(
             "exit",
-            Some(Key::X),
+            vec![(Key::X, None)],
             "[x] Exit",
             assets.clone(),
             Position {

@@ -10,7 +10,7 @@ use sprites::position::{AnchorY, Horizontal, Position};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
-use tetra::input::{Key, MouseButton};
+use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
 
 #[allow(dead_code)]
@@ -69,7 +69,10 @@ impl CreateWorld {
         );
         let randomize_btn = Button::new(
             "randomize",
-            Some(Key::NumPadMultiply),
+            vec![
+                (Key::NumPadMultiply, None),
+                (Key::Num8, Some(KeyModifier::Shift)),
+            ],
             "[*] Randomize",
             assets.clone(),
             Position {
@@ -79,7 +82,7 @@ impl CreateWorld {
         );
         let create_btn = Button::new(
             "create",
-            Some(Key::Enter),
+            vec![(Key::Enter, None)],
             "[Enter] Create",
             assets.clone(),
             Position {

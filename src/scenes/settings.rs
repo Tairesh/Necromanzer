@@ -9,7 +9,7 @@ use sprites::position::{AnchorY, Horizontal, Position, Vertical};
 use sprites::sprite::{Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
-use tetra::input::{Key, MouseButton};
+use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
 
 pub struct SettingsScene {
@@ -31,8 +31,8 @@ impl SettingsScene {
         );
         let mut fullscreen_btn = Button::fixed(
             "window_mode:fullscreen",
-            Some(Key::F),
-            "[f] Fullscreen",
+            vec![(Key::F, Some(KeyModifier::Alt))],
+            "[Alt+F] Fullscreen",
             settings.borrow().window_mode() == WindowMode::Fullscreen,
             assets.clone(),
             Position {
@@ -43,8 +43,8 @@ impl SettingsScene {
         let fullscreen_size = fullscreen_btn.calc_size(ctx);
         let mut window_btn = Button::fixed(
             "window_mode:window",
-            Some(Key::W),
-            "[w] Window",
+            vec![(Key::W, Some(KeyModifier::Alt))],
+            "[Alt+W] Window",
             settings.borrow().window_mode() == WindowMode::Window,
             assets.clone(),
             Position {
@@ -66,8 +66,8 @@ impl SettingsScene {
         );
         let borderless_btn = Button::fixed(
             "window_mode:borderless",
-            Some(Key::B),
-            "[b] Borderless",
+            vec![(Key::B, Some(KeyModifier::Alt))],
+            "[Alt+B] Borderless",
             settings.borrow().window_mode() == WindowMode::Borderless,
             assets.clone(),
             Position {
@@ -80,7 +80,7 @@ impl SettingsScene {
 
         let back_btn = Button::new(
             "back",
-            Some(Key::Escape),
+            vec![(Key::Escape, None)],
             "[Esc] Back",
             assets, // no need to clone as there is last use of it
             Position {
