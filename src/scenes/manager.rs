@@ -44,7 +44,9 @@ pub trait Scene {
     fn redraw_sprites(&mut self, ctx: &mut Context) -> tetra::Result {
         if let Some(sprites) = self.sprites() {
             for sprite in sprites.iter_mut() {
-                sprite.draw(ctx);
+                if sprite.visible() {
+                    sprite.draw(ctx);
+                }
             }
         }
         Ok(())

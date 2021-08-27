@@ -10,6 +10,7 @@ pub struct Label {
     color: Color,
     position: Position,
     rect: Option<Rect<f32, f32>>,
+    visible: bool,
 }
 
 impl Label {
@@ -19,6 +20,7 @@ impl Label {
             color,
             position,
             rect: None,
+            visible: true,
         }
     }
 }
@@ -36,6 +38,14 @@ impl Draw for Label {
 
     fn set_rect(&mut self, rect: Rect<f32, f32>) {
         self.rect = Some(rect);
+    }
+
+    fn visible(&self) -> bool {
+        self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
 }
 

@@ -10,7 +10,7 @@ use sprites::image::Image;
 use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::{Positionate, Sprite};
+use sprites::sprite::{Draw, Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -55,17 +55,27 @@ impl CreateWorld {
             250.0,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(200.0),
             },
         );
+        let mut name_error = Label::new(
+            "Savefile with this name already exists",
+            assets.borrow().default.clone(),
+            Colors::RED,
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Bottom.to_position(180.0),
+            },
+        );
+        name_error.set_visible(false);
         let seed_label = Label::new(
             "World seed:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(245.0),
+                y: AnchorY::Center.to_position(255.0),
             },
         );
         let seed_input = TextInput::new(
@@ -74,10 +84,20 @@ impl CreateWorld {
             250.0,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -0.0 },
-                y: AnchorY::Center.to_position(250.0),
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Center.to_position(260.0),
             },
         );
+        let mut seed_error = Label::new(
+            "Seed can't be empty",
+            assets.borrow().default.clone(),
+            Colors::RED,
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Bottom.to_position(240.0),
+            },
+        );
+        seed_error.set_visible(false);
         let mut randomize_btn = Button::new(
             "randomize",
             vec![
@@ -129,6 +149,8 @@ impl CreateWorld {
                 Box::new(back_btn),
                 Box::new(randomize_btn),
                 Box::new(create_btn),
+                Box::new(name_error),
+                Box::new(seed_error),
             ],
         }
     }
@@ -156,18 +178,26 @@ impl Scene for CreateWorld {
                     .set_value(random_seed().as_str());
             }
             "create" => {
-                let file = SaveFile::new(
-                    self.sprites.get(3).unwrap().get_value().unwrap().as_str(),
-                    self.sprites.get(5).unwrap().get_value().unwrap().as_str(),
-                );
-                match file.save() {
-                    Ok(_) => return Some(Transition::Pop),
-                    Err(err) => match err {
-                        SaveFileError::SystemError(err) => panic!("Can't create savefile: {}", err),
-                        SaveFileError::FileExists => {
-                            println!("file exists");
-                        }
-                    },
+                if self.sprites.get(5).unwrap().get_value().unwrap().is_empty() {
+                    self.sprites.get_mut(5).unwrap().set_danger(true);
+                    self.sprites.get_mut(10).unwrap().set_visible(true);
+                } else {
+                    let file = SaveFile::new(
+                        self.sprites.get(3).unwrap().get_value().unwrap().as_str(),
+                        self.sprites.get(5).unwrap().get_value().unwrap().as_str(),
+                    );
+                    match file.save() {
+                        Ok(_) => return Some(Transition::Pop),
+                        Err(err) => match err {
+                            SaveFileError::SystemError(err) => {
+                                panic!("Can't create savefile: {}", err)
+                            }
+                            SaveFileError::FileExists => {
+                                self.sprites.get_mut(3).unwrap().set_danger(true);
+                                self.sprites.get_mut(9).unwrap().set_visible(true);
+                            }
+                        },
+                    }
                 }
             }
             "back" => return Some(Transition::Pop),
@@ -177,6 +207,12 @@ impl Scene for CreateWorld {
     }
 
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+        if !self.sprites.get(3).unwrap().get_danger() && self.sprites.get(9).unwrap().visible() {
+            self.sprites.get_mut(9).unwrap().set_visible(false);
+        }
+        if !self.sprites.get(5).unwrap().get_danger() && self.sprites.get(10).unwrap().visible() {
+            self.sprites.get_mut(10).unwrap().set_visible(false);
+        }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             Ok(Transition::Pop)
         } else if let Some(t) = update_sprites(self, ctx) {

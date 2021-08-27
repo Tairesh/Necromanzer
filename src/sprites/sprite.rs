@@ -9,6 +9,8 @@ pub trait Draw {
     }
     fn draw(&mut self, ctx: &mut Context);
     fn set_rect(&mut self, rect: Rect<f32, f32>);
+    fn visible(&self) -> bool;
+    fn set_visible(&mut self, visible: bool);
 }
 
 pub trait Positionate {
@@ -49,5 +51,11 @@ pub trait Sprite: Draw + Positionate + Update {
 
     fn get_value(&self) -> Option<String> {
         None
+    }
+
+    fn set_danger(&mut self, _danger: bool) {}
+
+    fn get_danger(&self) -> bool {
+        false
     }
 }

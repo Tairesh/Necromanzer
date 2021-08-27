@@ -9,6 +9,7 @@ pub struct Image {
     scale: TetraVec2,
     position: Position,
     rect: Option<Rect<f32, f32>>,
+    visible: bool,
 }
 
 impl Image {
@@ -18,6 +19,7 @@ impl Image {
             scale: TetraVec2::new(1.0, 1.0),
             position,
             rect: None,
+            visible: true,
         }
     }
 
@@ -41,6 +43,14 @@ impl Draw for Image {
 
     fn set_rect(&mut self, rect: Rect<f32, f32>) {
         self.rect = Some(rect);
+    }
+
+    fn visible(&self) -> bool {
+        self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
 }
 

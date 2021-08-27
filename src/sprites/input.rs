@@ -22,9 +22,11 @@ pub struct TextInput {
     is_focused: bool,
     is_disabled: bool,
     is_hovered: bool,
+    is_danger: bool,
     blink: bool,
     last_blinked: Instant,
     dirty: bool,
+    visible: bool,
 }
 
 impl TextInput {
@@ -45,14 +47,18 @@ impl TextInput {
             is_focused: false,
             is_disabled: false,
             is_hovered: false,
+            is_danger: false,
             blink: false,
             last_blinked: Instant::now(),
             dirty: false,
+            visible: true,
         }
     }
 
     fn border_color(&self) -> Color {
-        if self.is_disabled {
+        if self.is_danger {
+            Colors::DARK_RED
+        } else if self.is_disabled {
             Colors::DARK_GRAY
         } else if self.is_focused {
             Colors::DARK_GREEN
@@ -62,7 +68,9 @@ impl TextInput {
     }
 
     fn bg_color(&self) -> Option<Color> {
-        if self.is_disabled {
+        if self.is_danger && self.is_focused {
+            Some(Colors::RED.with_alpha(0.8))
+        } else if self.is_disabled {
             Some(Colors::DARK_GRAY.with_alpha(0.8))
         } else if self.is_focused {
             Some(Colors::DARK_GREEN.with_alpha(0.8))
@@ -138,7 +146,7 @@ impl Draw for TextInput {
                 .position(text_pos)
                 .color(self.text_color()),
         );
-        if self.blink {
+        if self.blink && self.is_focused {
             Mesh::rectangle(
                 ctx,
                 ShapeStyle::Fill,
@@ -157,6 +165,14 @@ impl Draw for TextInput {
 
     fn set_rect(&mut self, rect: Rect<f32, f32>) {
         self.rect = Some(rect);
+    }
+
+    fn visible(&self) -> bool {
+        self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
 }
 
@@ -204,11 +220,13 @@ impl Update for TextInput {
                 chars.next_back();
                 self.value = chars.as_str().to_string();
                 self.text.set_content(self.value.as_str());
+                self.is_danger = false;
                 self.dirty = true;
             }
             if let Some(text_input) = input::get_text_input(ctx) {
                 self.value.push_str(text_input);
                 self.text.set_content(self.value.as_str());
+                self.is_danger = false;
                 self.dirty = true;
             }
             if (input::is_key_pressed(ctx, Key::V)
@@ -225,6 +243,7 @@ impl Update for TextInput {
                         }
                     }));
                 self.text.set_content(self.value.as_str());
+                self.is_danger = false;
                 self.dirty = true;
             }
         } else if input::is_mouse_button_pressed(ctx, MouseButton::Left) && collides {
@@ -265,10 +284,20 @@ impl Sprite for TextInput {
     fn set_value(&mut self, value: &str) {
         self.value = value.to_string();
         self.text.set_content(value);
+        self.is_danger = false;
         self.dirty = true;
     }
 
     fn get_value(&self) -> Option<String> {
         Some(self.value.clone())
+    }
+
+    fn set_danger(&mut self, danger: bool) {
+        self.is_danger = danger;
+        self.dirty = true;
+    }
+
+    fn get_danger(&self) -> bool {
+        self.is_danger
     }
 }

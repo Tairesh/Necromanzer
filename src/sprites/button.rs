@@ -27,6 +27,7 @@ pub struct Button {
     is_hovered: bool,
     fixable: bool,
     dirty: bool,
+    visible: bool,
 }
 
 impl Button {
@@ -53,6 +54,7 @@ impl Button {
             is_disabled: false,
             fixable: false,
             dirty: false,
+            visible: true,
         }
     }
 
@@ -80,6 +82,7 @@ impl Button {
             is_disabled: false,
             fixable: true,
             dirty: false,
+            visible: true,
         }
     }
 
@@ -132,6 +135,14 @@ impl Draw for Button {
 
     fn set_rect(&mut self, rect: Rect<f32, f32>) {
         self.rect = Some(rect);
+    }
+
+    fn visible(&self) -> bool {
+        self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
     }
 }
 
