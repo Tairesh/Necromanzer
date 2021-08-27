@@ -1,11 +1,15 @@
-use std::fs::{create_dir, File};
+use std::fs::{create_dir, remove_file, File};
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
+use std::time::{Duration, SystemTime};
+use CARGO_VERSION;
 
 pub struct SaveFile {
     pub path: PathBuf,
     pub name: String,
     pub seed: String,
+    pub version: String,
+    pub time: SystemTime,
 }
 
 pub enum SaveFileError {
@@ -26,6 +30,8 @@ impl SaveFile {
             path,
             name,
             seed: seed.to_string(),
+            version: CARGO_VERSION.to_string(),
+            time: SystemTime::now(),
         }
     }
 
@@ -34,7 +40,16 @@ impl SaveFile {
         let mut lines = BufReader::new(&file).lines();
         let name = lines.next()?.ok()?;
         let seed = lines.next()?.ok()?;
-        Some(SaveFile { path, name, seed })
+        let version = lines.next()?.ok()?;
+        let time = lines.next()?.ok()?.parse::<u64>().ok()?;
+        let time = SystemTime::UNIX_EPOCH + Duration::new(time, 0);
+        Some(SaveFile {
+            path,
+            name,
+            seed,
+            version,
+            time,
+        })
     }
 
     pub fn save(&self) -> Result<(), SaveFileError> {
@@ -47,7 +62,17 @@ impl SaveFile {
         } else {
             let mut file =
                 File::create(&self.path).map_err(|e| SaveFileError::SystemError(e.to_string()))?;
-            let data = self.name.clone() + "\n" + self.seed.clone().as_str();
+            let data = format!(
+                "{}\n{}\n{}\n{}",
+                self.name,
+                self.seed,
+                CARGO_VERSION,
+                self.time
+                    .duration_since(SystemTime::UNIX_EPOCH)
+                    .ok()
+                    .unwrap()
+                    .as_secs()
+            );
             file.write_all(data.as_bytes())
                 .map_err(|e| SaveFileError::SystemError(e.to_string()))?;
             Ok(())
@@ -66,4 +91,10 @@ pub fn savefiles() -> Vec<SaveFile> {
         }
     }
     files
+}
+
+pub fn delete(path: PathBuf) {
+    if path.exists() {
+        remove_file(path).ok();
+    }
 }
