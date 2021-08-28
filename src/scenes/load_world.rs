@@ -6,13 +6,15 @@ use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::alert::Alert;
 use sprites::button::Button;
 use sprites::label::Label;
+use sprites::meshy::HoverableMesh;
 use sprites::position::{Horizontal, Position, Vertical};
-use sprites::sprite::{Positionate, Sprite};
+use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
-use tetra::graphics::Color;
-use tetra::input::MouseButton;
-use tetra::{input, Context};
+use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::{Color, Rectangle};
+use tetra::input::{Key, MouseButton};
+use tetra::{input, Context, TetraVec2};
 use CARGO_VERSION;
 
 pub struct LoadWorld {
@@ -22,30 +24,43 @@ pub struct LoadWorld {
 impl LoadWorld {
     pub fn new(assets: Rc<RefCell<Assets>>, ctx: &mut Context) -> Self {
         let savefiles = savefiles();
-        let mut sprites: Vec<Box<dyn Sprite>> = Vec::with_capacity(savefiles.len() * 5 + 1);
-        let height = savefiles.len() as f32 * 16.0 + 11.0;
-        let mut y = -height * 1.5;
+        let mut sprites: Vec<Box<dyn Sprite>> = Vec::with_capacity(savefiles.len() * 6 + 1);
+        let height = savefiles.len() as f32 * 50.0 + 33.0;
+        let mut y = -height / 2.0;
         sprites.push(Box::new(Alert::new(
-            600.0 / 3.0,
+            600.0,
             height,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
-                y: Vertical::AtWindowCenterByTop { offset: y - 30.0 },
+                y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },
             },
         )));
-        for savefile in savefiles {
-            let mut label = Label::new(
+        for (i, savefile) in savefiles.iter().enumerate() {
+            sprites.push(Box::new(HoverableMesh::new(
+                Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 564.0, 50.0))
+                    .unwrap(),
+                if i % 2 == 1 {
+                    Colors::DARK_GRAY.with_alpha(0.5)
+                } else {
+                    Colors::TRANSPARENT
+                },
+                Colors::KHAKI.with_alpha(0.6),
+                TetraVec2::new(560.0, 50.0),
+                Position {
+                    x: Horizontal::AtWindowCenterByLeft { offset: -282.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y },
+                },
+            )));
+            sprites.push(Box::new(Label::new(
                 savefile.name.as_str(),
                 assets.borrow().header2.clone(),
-                Colors::DARK_BROWN,
+                Colors::LIGHT_YELLOW,
                 Position {
-                    x: Horizontal::AtWindowCenterByLeft { offset: -290.0 },
-                    y: Vertical::AtWindowCenter { offset: y + 15.0 },
+                    x: Horizontal::AtWindowCenterByLeft { offset: -280.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y - 2.0 },
                 },
-            );
-            let size = label.calc_size(ctx);
-            sprites.push(Box::new(label));
+            )));
             sprites.push(Box::new(Label::new(
                 savefile.version.as_str(),
                 assets.borrow().default.clone(),
@@ -55,22 +70,18 @@ impl LoadWorld {
                     Color::RED
                 },
                 Position {
-                    x: Horizontal::AtWindowCenterByLeft {
-                        offset: -260.0 + size.x,
-                    },
-                    y: Vertical::AtWindowCenter { offset: y + 20.0 },
+                    x: Horizontal::AtWindowCenterByLeft { offset: -275.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
             )));
             let time: DateTime<Local> = savefile.time.into();
             sprites.push(Box::new(Label::new(
                 time.format("%Y.%m.%d %H:%M:%S").to_string().as_str(),
                 assets.borrow().default.clone(),
-                Colors::DARK_BROWN,
+                Colors::LIGHT_YELLOW,
                 Position {
-                    x: Horizontal::AtWindowCenterByLeft {
-                        offset: -200.0 + size.x,
-                    },
-                    y: Vertical::AtWindowCenter { offset: y + 20.0 },
+                    x: Horizontal::AtWindowCenterByLeft { offset: -220.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
             )));
             sprites.push(Box::new(Button::new(
@@ -79,8 +90,8 @@ impl LoadWorld {
                 "Load",
                 assets.clone(),
                 Position {
-                    x: Horizontal::AtWindowCenterByRight { offset: 200.0 },
-                    y: Vertical::AtWindowCenter { offset: y + 25.0 },
+                    x: Horizontal::AtWindowCenterByRight { offset: 190.0 },
+                    y: Vertical::AtWindowCenter { offset: y + 24.5 },
                 },
             )));
             sprites.push(Box::new(Button::new(
@@ -89,8 +100,8 @@ impl LoadWorld {
                 "Delete",
                 assets.clone(),
                 Position {
-                    x: Horizontal::AtWindowCenterByRight { offset: 290.0 },
-                    y: Vertical::AtWindowCenter { offset: y + 25.0 },
+                    x: Horizontal::AtWindowCenterByRight { offset: 275.0 },
+                    y: Vertical::AtWindowCenter { offset: y + 24.5 },
                 },
             )));
             y += 50.0;
@@ -117,7 +128,9 @@ impl Scene for LoadWorld {
     }
 
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
-        if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
+        if input::is_mouse_button_pressed(ctx, MouseButton::X1)
+            || input::is_key_pressed(ctx, Key::Escape)
+        {
             Ok(Transition::Pop)
         } else if let Some(t) = update_sprites(self, ctx) {
             Ok(t)

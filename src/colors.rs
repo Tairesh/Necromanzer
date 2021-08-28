@@ -175,4 +175,7 @@ impl Colors {
     pub const GOLDEN: Color = Color::rgb8(129, 69, 33);
     pub const ESPRESSO: Color = Color::rgb8(96, 51, 18);
     pub const CHOCOLATE: Color = Color::rgb8(42, 25, 15);
+
+    // Special
+    pub const TRANSPARENT: Color = Color::rgba(0.0, 0.0, 0.0, 0.0);
 }

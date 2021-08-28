@@ -1,5 +1,5 @@
 use tetra::graphics::text::Font;
-use tetra::graphics::Texture;
+use tetra::graphics::{NineSlice, Rectangle, Texture};
 use tetra::Context;
 
 pub struct Assets {
@@ -13,14 +13,8 @@ pub struct Assets {
     pub button_disabled: Texture,
     pub button_pressed: Texture,
     pub button_hovered: Texture,
-    pub alert_top: Texture,
-    pub alert_top_left: Texture,
-    pub alert_top_right: Texture,
-    pub alert_middle_left: Texture,
-    pub alert_middle_right: Texture,
-    pub alert_bottom: Texture,
-    pub alert_bottom_left: Texture,
-    pub alert_bottom_right: Texture,
+    pub alert: Texture,
+    pub alert_nineslice: NineSlice,
 
     pub male_names: Vec<&'static str>,
     pub female_names: Vec<&'static str>,
@@ -77,35 +71,14 @@ impl Assets {
                 ctx,
                 include_bytes!("../res/img/button_hovered.png"),
             )?,
-            alert_top: Texture::from_file_data(ctx, include_bytes!("../res/img/alert_top.png"))?,
-            alert_top_left: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_top_left.png"),
-            )?,
-            alert_top_right: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_top_right.png"),
-            )?,
-            alert_middle_left: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_middle_left.png"),
-            )?,
-            alert_middle_right: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_middle_right.png"),
-            )?,
-            alert_bottom: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_bottom.png"),
-            )?,
-            alert_bottom_left: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_bottom_left.png"),
-            )?,
-            alert_bottom_right: Texture::from_file_data(
-                ctx,
-                include_bytes!("../res/img/alert_bottom_right.png"),
-            )?,
+            alert: Texture::from_file_data(ctx, include_bytes!("../res/img/alert.png"))?,
+            alert_nineslice: NineSlice::new(
+                Rectangle::new(0.0, 0.0, 48.0, 32.0),
+                6.0,
+                6.0,
+                6.0,
+                5.0,
+            ),
             male_names,
             female_names,
             names,
