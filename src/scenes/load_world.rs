@@ -18,6 +18,7 @@ use tetra::{input, Context, TetraVec2};
 use CARGO_VERSION;
 
 pub struct LoadWorld {
+    assets: Rc<RefCell<Assets>>,
     sprites: Vec<Box<dyn Sprite>>,
 }
 
@@ -41,7 +42,7 @@ impl LoadWorld {
                 Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 564.0, 50.0))
                     .unwrap(),
                 if i % 2 == 1 {
-                    Colors::DARK_GRAY.with_alpha(0.5)
+                    Colors::DARK_GRAY.with_alpha(0.3)
                 } else {
                     Colors::TRANSPARENT
                 },
@@ -106,22 +107,24 @@ impl LoadWorld {
             )));
             y += 50.0;
         }
-        LoadWorld { sprites }
+        LoadWorld { assets, sprites }
     }
 }
 
 impl Scene for LoadWorld {
-    fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
+    fn on_button_click(&mut self, ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "back" => Some(Transition::Pop),
             _ => {
-                if btn_id.starts_with("del:") {
-                    let path = btn_id.strip_prefix("del:").unwrap();
+                if let Some(path) = btn_id.strip_prefix("del:") {
                     delete(path.parse().unwrap());
-                    Some(Transition::Pop)
+                    Some(if savefiles().is_empty() {
+                        Transition::Pop
+                    } else {
+                        Transition::Replace(Box::new(LoadWorld::new(self.assets.clone(), ctx)))
+                    })
                 } else {
-                    println!("{}", btn_id);
-                    None
+                    btn_id.strip_prefix("load:").map(|_path| Transition::Pop)
                 }
             }
         }

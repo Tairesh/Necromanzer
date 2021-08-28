@@ -76,6 +76,7 @@ pub enum Transition {
     None,
     Push(Box<dyn Scene>),
     Pop,
+    Replace(Box<dyn Scene>), // pop and push
     ChangeWindowMode(WindowMode),
     Quit,
 }
@@ -119,6 +120,14 @@ impl State for SceneManager {
                     if let Some(new_scene) = self.scenes.last_mut() {
                         new_scene.on_open(ctx)?;
                     }
+                }
+                Transition::Replace(s) => {
+                    self.scenes.pop();
+                    if let Some(new_scene) = self.scenes.last_mut() {
+                        new_scene.on_open(ctx)?;
+                    }
+                    self.scenes.push(s);
+                    self.scenes.last_mut().unwrap().on_open(ctx)?;
                 }
                 Transition::Quit => window::quit(ctx),
                 Transition::ChangeWindowMode(wm) => {
