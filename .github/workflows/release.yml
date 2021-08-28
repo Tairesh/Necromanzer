@@ -87,10 +87,6 @@ jobs:
           mkdir necromanzer_linux
           cp target/release/necromanzer necromanzer_linux
           chmod +x necromanzer_linux/necromanzer
-          cp res necromanzer_linux -r
-          for file in necromanzer_linux/res/img/*.xcf; do
-            rm "$file"
-          done
           cat >necromanzer_linux/necromanzer_launcher.sh <<EOL
           #!/bin/sh
           TARGET_FILE=\$0
@@ -139,10 +135,6 @@ jobs:
         run: |
           mkdir Necromanzer
           cp target/release/necromanzer.exe Necromanzer
-          cp res Necromanzer -r
-          for file in Necromanzer/res/img/*.xcf; do
-            rm "$file"
-          done
           cp SDL2.dll Necromanzer
       - name: "Pack release"
         shell: powershell

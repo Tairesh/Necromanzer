@@ -47,7 +47,7 @@ fn main() -> tetra::Result {
         WindowMode::Window => ctx.resizable(true),
     }
     .build()?;
-    let mut icon = ImageData::from_file("res/img/zombie.png")?;
+    let mut icon = ImageData::from_file_data(include_bytes!("../res/img/zombie.png"))?;
     window::set_icon(&mut ctx, &mut icon)?;
 
     ctx.run(|ctx| {
