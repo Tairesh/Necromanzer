@@ -1,7 +1,8 @@
 use assets::Assets;
 use chrono::{DateTime, Local};
 use colors::Colors;
-use savefile::{delete, savefiles};
+use savefile::{delete, savefiles, SaveFile};
+use scenes::create_character::CreateCharacter;
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::alert::Alert;
 use sprites::button::Button;
@@ -124,7 +125,13 @@ impl Scene for LoadWorld {
                         Transition::Replace(Box::new(LoadWorld::new(self.assets.clone(), ctx)))
                     })
                 } else {
-                    btn_id.strip_prefix("load:").map(|_path| Transition::Pop)
+                    btn_id.strip_prefix("load:").map(|path| {
+                        Transition::Replace(Box::new(CreateCharacter::new(
+                            self.assets.clone(),
+                            SaveFile::load(path.parse().unwrap()).unwrap(),
+                            ctx,
+                        )))
+                    })
                 }
             }
         }

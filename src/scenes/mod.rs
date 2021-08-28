@@ -1,3 +1,4 @@
+mod create_character;
 mod create_world;
 mod load_world;
 pub mod main_menu;

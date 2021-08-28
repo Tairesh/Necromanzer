@@ -23,6 +23,16 @@ impl Label {
             visible: true,
         }
     }
+
+    pub fn hidden(text: &str, font: Font, color: Color, position: Position) -> Self {
+        Label {
+            text: Text::new(text, font),
+            color,
+            position,
+            rect: None,
+            visible: false,
+        }
+    }
 }
 
 impl Draw for Label {
@@ -65,4 +75,12 @@ impl Positionate for Label {
 }
 
 impl Update for Label {}
-impl Sprite for Label {}
+impl Sprite for Label {
+    fn set_value(&mut self, value: &str) {
+        self.text.set_content(value);
+    }
+
+    fn get_value(&self) -> Option<String> {
+        Some(self.text.content().to_string())
+    }
+}
