@@ -117,40 +117,39 @@ impl LoadWorld {
 
 impl Scene for LoadWorld {
     fn on_button_click(&mut self, ctx: &mut Context, btn_id: &str) -> Option<Transition> {
-        match btn_id {
-            "back" => Some(Transition::Pop),
-            _ => {
-                if let Some(path) = btn_id.strip_prefix("del:") {
-                    let path = path.parse::<PathBuf>().unwrap();
-                    delete(&path);
-                    Some(if savefiles().is_empty() {
-                        Transition::Pop
-                    } else {
-                        Transition::Replace(Box::new(LoadWorld::new(self.assets.clone(), ctx)))
-                    })
+        let mut parts = btn_id.split(':');
+        match (parts.next(), parts.next()) {
+            (Some("back"), _) => Some(Transition::Pop),
+            (Some("del"), Some(path)) => {
+                let path = path.parse::<PathBuf>().unwrap();
+                delete(&path);
+                Some(if savefiles().is_empty() {
+                    Transition::Pop
                 } else {
-                    btn_id.strip_prefix("load:").map(|path| {
-                        let savefile = SaveFile::load(path.parse().unwrap()).unwrap();
-                        if savefile.avatar_data.is_empty() {
-                            Transition::Replace(Box::new(CreateCharacter::new(
-                                self.assets.clone(),
-                                savefile,
-                                ctx,
-                            )))
-                        } else {
-                            Transition::Replace(Box::new(Game::new(
-                                self.assets.clone(),
-                                World::new(
-                                    savefile.path.clone(),
-                                    savefile.meta.clone(),
-                                    savefile.load_avatar(),
-                                ),
-                                ctx,
-                            )))
-                        }
-                    })
-                }
+                    Transition::Replace(Box::new(LoadWorld::new(self.assets.clone(), ctx)))
+                })
             }
+            (Some("load"), Some(path)) => {
+                let savefile = SaveFile::load(path.parse().unwrap()).unwrap();
+                Some(if savefile.avatar_data.is_empty() {
+                    Transition::Replace(Box::new(CreateCharacter::new(
+                        self.assets.clone(),
+                        savefile,
+                        ctx,
+                    )))
+                } else {
+                    Transition::Replace(Box::new(Game::new(
+                        self.assets.clone(),
+                        World::new(
+                            savefile.path.clone(),
+                            savefile.meta.clone(),
+                            savefile.load_avatar(),
+                        ),
+                        ctx,
+                    )))
+                })
+            }
+            _ => None,
         }
     }
 
