@@ -41,10 +41,6 @@ impl Draw for Image {
         );
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
-        self.rect = Some(rect);
-    }
-
     fn visible(&self) -> bool {
         self.visible
     }
@@ -66,6 +62,10 @@ impl Positionate for Image {
     fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
         let size = self.texture.size();
         TetraVec2::new(size.0 as f32 * self.scale.x, size.1 as f32 * self.scale.y)
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
     }
 }
 

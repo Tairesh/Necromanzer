@@ -180,10 +180,6 @@ impl Draw for Button {
         self.dirty = false;
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
-        self.rect = Some(rect);
-    }
-
     fn visible(&self) -> bool {
         self.visible
     }
@@ -205,6 +201,10 @@ impl Positionate for Button {
     fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
         let (content_size, offset_x) = self.content_size(ctx);
         TetraVec2::new(content_size.x + offset_x, 42.0)
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
     }
 }
 

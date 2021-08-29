@@ -46,10 +46,6 @@ impl Draw for Alert {
         )
     }
 
-    fn set_rect(&mut self, rect: TetraRect) {
-        self.rect = Some(rect);
-    }
-
     fn visible(&self) -> bool {
         self.visible
     }
@@ -70,6 +66,10 @@ impl Positionate for Alert {
 
     fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
         TetraVec2::new(self.width, self.height)
+    }
+
+    fn set_rect(&mut self, rect: TetraRect) {
+        self.rect = Some(rect);
     }
 }
 

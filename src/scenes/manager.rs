@@ -55,9 +55,7 @@ pub trait Scene {
         if let Some(sprites) = self.sprites() {
             let window_size = window::get_size(ctx);
             for sprite in sprites.iter_mut() {
-                let size = sprite.calc_size(ctx);
-                let rect = sprite.calc_rect(size, window_size);
-                sprite.set_rect(rect);
+                sprite.positionate(ctx, window_size);
             }
             self.redraw_sprites(ctx)
         } else {

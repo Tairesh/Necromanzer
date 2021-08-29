@@ -58,10 +58,6 @@ impl Draw for HoverableMesh {
         );
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
-        self.rect = Some(rect);
-    }
-
     fn visible(&self) -> bool {
         self.visible
     }
@@ -82,6 +78,10 @@ impl Positionate for HoverableMesh {
 
     fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
         self.size
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
     }
 }
 

@@ -46,10 +46,6 @@ impl Draw for Label {
         );
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
-        self.rect = Some(rect);
-    }
-
     fn visible(&self) -> bool {
         self.visible
     }
@@ -71,6 +67,10 @@ impl Positionate for Label {
     fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
         let rect = self.text.get_bounds(ctx).unwrap();
         TetraVec2::new(rect.width, rect.height)
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
     }
 }
 

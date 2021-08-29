@@ -189,10 +189,6 @@ impl Draw for TextInput {
         self.dirty = false;
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
-        self.rect = Some(rect);
-    }
-
     fn visible(&self) -> bool {
         self.visible
     }
@@ -213,6 +209,10 @@ impl Positionate for TextInput {
 
     fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
         TetraVec2::new(self.width, 42.0)
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
     }
 }
 

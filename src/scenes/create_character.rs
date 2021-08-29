@@ -1,5 +1,7 @@
 use assets::Assets;
 use colors::Colors;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 use savefile::SaveFile;
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::button::Button;
@@ -11,12 +13,41 @@ use sprites::sprite::{Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::{input, Context};
+use tetra::{input, window, Context};
+
+enum MainHand {
+    Left,
+    Right,
+    Ambidexter,
+}
+
+impl MainHand {
+    pub fn name(&self) -> &str {
+        match self {
+            MainHand::Left => "Left",
+            MainHand::Right => "Right",
+            MainHand::Ambidexter => "Ambidexter",
+        }
+    }
+}
+
+impl Distribution<MainHand> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> MainHand {
+        if rng.gen_bool(0.01) {
+            MainHand::Ambidexter
+        } else if rng.gen_bool(0.16) {
+            MainHand::Left
+        } else {
+            MainHand::Right
+        }
+    }
+}
 
 #[allow(dead_code)]
 pub struct CreateCharacter {
     assets: Rc<RefCell<Assets>>,
     sprites: Vec<Box<dyn Sprite>>,
+    main_hand: MainHand,
     savefile: SaveFile,
 }
 
@@ -45,7 +76,7 @@ impl CreateCharacter {
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(195.0),
+                y: AnchorY::Center.to_position(194.0),
             },
         )));
         sprites.push(Box::new(TextInput::new(
@@ -73,7 +104,7 @@ impl CreateCharacter {
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(245.0),
+                y: AnchorY::Center.to_position(244.0),
             },
         )));
         sprites.push(Box::new(Button::icon(
@@ -116,7 +147,7 @@ impl CreateCharacter {
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(295.0),
+                y: AnchorY::Center.to_position(294.0),
             },
         )));
         sprites.push(Box::new(Button::icon(
@@ -156,7 +187,36 @@ impl CreateCharacter {
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(345.0),
+                y: AnchorY::Center.to_position(344.0),
+            },
+        )));
+        sprites.push(Box::new(Button::icon(
+            "hand_left",
+            vec![],
+            assets.borrow().icons.lt,
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Center.to_position(350.0),
+            },
+        )));
+        sprites.push(Box::new(Label::new(
+            "Left",
+            assets.borrow().header2.clone(),
+            Colors::DARK_BROWN,
+            Position {
+                x: Horizontal::AtWindowCenter { offset: 125.0 },
+                y: AnchorY::Center.to_position(344.0),
+            },
+        )));
+        sprites.push(Box::new(Button::icon(
+            "hand_right",
+            vec![],
+            assets.borrow().icons.mt,
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByRight { offset: 250.0 },
+                y: AnchorY::Center.to_position(350.0),
             },
         )));
         sprites.push(Box::new(Label::new(
@@ -165,7 +225,7 @@ impl CreateCharacter {
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(395.0),
+                y: AnchorY::Center.to_position(394.0),
             },
         )));
         let mut randomize_btn = Button::new(
@@ -211,14 +271,30 @@ impl CreateCharacter {
             assets,
             sprites,
             savefile,
+            main_hand: MainHand::Left,
         }
     }
 }
 
 impl Scene for CreateCharacter {
-    fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
+    fn on_button_click(&mut self, ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "back" => Some(Transition::Pop),
+            "randomize" => {
+                let gender = self.sprites.get_mut(8).unwrap();
+                gender.set_value(if rand::random::<bool>() {
+                    "Male"
+                } else {
+                    "Female"
+                });
+                let age = self.sprites.get_mut(12).unwrap();
+                age.set_value(format!("{}", rand::thread_rng().gen_range(16..=99)).as_str());
+                let hand = self.sprites.get_mut(16).unwrap();
+                self.main_hand = rand::random::<MainHand>();
+                hand.set_value(self.main_hand.name());
+                hand.positionate(ctx, window::get_size(ctx));
+                None
+            }
             "gender_left" | "gender_right" => {
                 let input = self.sprites.get_mut(8).unwrap();
                 if let Some(value) = input.get_value() {
@@ -238,6 +314,35 @@ impl Scene for CreateCharacter {
                         input.set_value(format!("{}", value).as_str());
                     }
                 }
+                None
+            }
+            "hand_left" | "hand_right" => {
+                let label = self.sprites.get_mut(16).unwrap();
+                match self.main_hand {
+                    MainHand::Left => {
+                        self.main_hand = if btn_id == "hand_left" {
+                            MainHand::Ambidexter
+                        } else {
+                            MainHand::Right
+                        };
+                    }
+                    MainHand::Right => {
+                        self.main_hand = if btn_id == "hand_left" {
+                            MainHand::Left
+                        } else {
+                            MainHand::Ambidexter
+                        };
+                    }
+                    MainHand::Ambidexter => {
+                        self.main_hand = if btn_id == "hand_left" {
+                            MainHand::Right
+                        } else {
+                            MainHand::Left
+                        };
+                    }
+                }
+                label.set_value(self.main_hand.name());
+                label.positionate(ctx, window::get_size(ctx));
                 None
             }
             _ => None,
