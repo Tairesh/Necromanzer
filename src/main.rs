@@ -2,6 +2,7 @@
 
 mod assets;
 mod colors;
+mod human;
 mod savefile;
 mod scenes;
 mod settings;
