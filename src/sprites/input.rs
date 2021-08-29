@@ -44,7 +44,7 @@ impl TextInput {
     ) -> Self {
         Self {
             id: id.to_ascii_lowercase(),
-            value_type: ValueType::String { max_length: 24 },
+            value_type: ValueType::String { max_length: 16 },
             text: Text::new(value, assets.borrow().header2.clone()),
             position,
             width,

@@ -59,6 +59,12 @@ pub trait Sprite: Draw + Positionate + Update {
         None
     }
 
+    fn set_int_value(&mut self, _value: u32) {}
+
+    fn get_int_value(&self) -> Option<u32> {
+        None
+    }
+
     fn get_color(&self) -> Option<Color> {
         None
     }

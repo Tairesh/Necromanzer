@@ -1,5 +1,8 @@
-use sprites::position::Position;
+use assets::Assets;
+use sprites::position::{AnchorX, AnchorY, Position};
 use sprites::sprite::{Draw, Positionate, Sprite, Update};
+use std::cell::RefCell;
+use std::rc::Rc;
 use tetra::graphics::{Color, DrawParams, NineSlice, Rectangle, Texture};
 use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
@@ -115,3 +118,115 @@ impl Positionate for Image {
 
 impl Update for Image {}
 impl Sprite for Image {}
+
+pub struct Bar {
+    image: Image,
+    min_width: f32,
+    max_width: f32,
+    max_value: u32,
+    value: u32,
+    dirty: bool,
+}
+
+impl Bar {
+    pub fn red(max_value: u32, value: u32, assets: Rc<RefCell<Assets>>) -> Self {
+        let min_width = 4.0;
+        let max_width = 50.0;
+        Self {
+            image: Image::new(
+                assets.borrow().bars.clone(),
+                Position::new(100.0, 8.0, AnchorX::Left, AnchorY::Top),
+            )
+            .with_scale(TetraVec2::new(4.0, 4.0))
+            .with_nineslice(
+                assets.borrow().bar_red.clone(),
+                (value as f32 / max_value as f32) * (max_width - min_width) + min_width,
+                3.0,
+            ),
+            min_width,
+            max_width,
+            max_value,
+            value,
+            dirty: false,
+        }
+    }
+
+    pub fn blue(max_value: u32, value: u32, assets: Rc<RefCell<Assets>>) -> Self {
+        let min_width = 4.0;
+        let max_width = 43.0;
+        Self {
+            image: Image::new(
+                assets.borrow().bars.clone(),
+                Position::new(100.0, 32.0, AnchorX::Left, AnchorY::Top),
+            )
+            .with_scale(TetraVec2::new(4.0, 4.0))
+            .with_nineslice(
+                assets.borrow().bar_blue.clone(),
+                (value as f32 / max_value as f32) * (max_width - min_width) + min_width,
+                3.0,
+            ),
+            min_width,
+            max_width,
+            max_value,
+            value,
+            dirty: false,
+        }
+    }
+}
+
+impl Draw for Bar {
+    fn dirty(&self) -> bool {
+        self.dirty
+    }
+
+    fn draw(&mut self, ctx: &mut Context) {
+        self.image.draw(ctx);
+    }
+
+    fn visible(&self) -> bool {
+        self.image.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.image.visible = visible;
+        self.dirty = true;
+    }
+}
+
+impl Positionate for Bar {
+    fn position(&self) -> Position {
+        self.image.position
+    }
+
+    fn set_position(&mut self, position: Position) {
+        self.image.position = position;
+    }
+
+    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
+        self.image.calc_size(ctx)
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.image.set_rect(rect);
+    }
+}
+
+impl Update for Bar {}
+impl Sprite for Bar {
+    fn set_int_value(&mut self, value: u32) {
+        if value > 0 {
+            self.image.set_visible(true);
+            self.image.nine_slice.as_mut().unwrap().1 = (value as f32 / self.max_value as f32)
+                * (self.max_width - self.min_width)
+                + self.min_width;
+        } else {
+            self.image.set_visible(false);
+        }
+        self.value = value;
+        self.dirty = true;
+    }
+
+    fn get_int_value(&self) -> Option<u32> {
+        Some(self.value)
+    }
+}

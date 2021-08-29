@@ -1,12 +1,13 @@
 use assets::Assets;
 use colors::Colors;
 use scenes::manager::{update_sprites, Scene, Transition};
-use sprites::image::Image;
+use sprites::image::{Bar, Image};
 use sprites::label::Label;
 use sprites::position::{AnchorX, AnchorY, Position};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::time::SystemTime;
 use tetra::input::MouseButton;
 use tetra::{input, Context, TetraVec2};
 use world::World;
@@ -18,6 +19,8 @@ pub struct Game {
 
 impl Game {
     pub fn new(assets: Rc<RefCell<Assets>>, world: World, _ctx: &mut Context) -> Self {
+        let hp_bar = Bar::red(100, 50, assets.clone());
+        let mp_bar = Bar::blue(100, 50, assets.clone());
         let assets = assets.borrow();
         let hat =
             Image::new(assets.hat.clone(), Position::zeroed()).with_scale(TetraVec2::new(4.0, 4.0));
@@ -38,18 +41,7 @@ impl Game {
             world.avatar.skin_tone.color(),
             Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
         );
-        let hp_bar = Image::new(
-            assets.bars.clone(),
-            Position::new(100.0, 8.0, AnchorX::Left, AnchorY::Top),
-        )
-        .with_scale(TetraVec2::new(4.0, 4.0))
-        .with_nineslice(assets.bar_red.clone(), 50.0, 3.0);
-        let mp_bar = Image::new(
-            assets.bars.clone(),
-            Position::new(100.0, 32.0, AnchorX::Left, AnchorY::Top),
-        )
-        .with_scale(TetraVec2::new(4.0, 4.0))
-        .with_nineslice(assets.bar_blue.clone(), 43.0, 3.0);
+
         Self {
             sprites: vec![
                 Box::new(hat),
@@ -65,6 +57,12 @@ impl Game {
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+        let hp = (SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as u32)
+            % 100;
+        self.sprites.get_mut(3).unwrap().set_int_value(hp);
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             self.world.save();
             Ok(Transition::Pop)
