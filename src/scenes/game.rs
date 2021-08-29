@@ -1,7 +1,5 @@
 use assets::Assets;
 use colors::Colors;
-use human::character::Character;
-use savefile::SaveFile;
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::image::Image;
 use sprites::label::Label;
@@ -11,36 +9,33 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::MouseButton;
 use tetra::{input, Context, TetraVec2};
+use world::World;
 
 pub struct Game {
+    world: World,
     sprites: Vec<Box<dyn Sprite>>,
 }
 
 impl Game {
-    pub fn new(
-        assets: Rc<RefCell<Assets>>,
-        _savefile: SaveFile,
-        avatar: Character,
-        _ctx: &mut Context,
-    ) -> Self {
+    pub fn new(assets: Rc<RefCell<Assets>>, world: World, _ctx: &mut Context) -> Self {
         let assets = assets.borrow();
         let hat =
             Image::new(assets.hat.clone(), Position::zeroed()).with_scale(TetraVec2::new(4.0, 4.0));
         let name = Label::new(
-            avatar.name.as_str(),
+            world.avatar.name.as_str(),
             assets.header2.clone(),
             Colors::LIGHT_YELLOW,
             Position::new(174.0, 55.0, AnchorX::Center, AnchorY::Top),
         );
         let ava = Image::icon(
             assets.tileset.clone(),
-            match avatar.gender.as_str() {
+            match world.avatar.gender.as_str() {
                 "Female" => assets.icons.female,
                 "Male" => assets.icons.male,
                 _ => assets.icons.queer,
             },
             TetraVec2::new(6.0, 6.0),
-            avatar.skin_tone.color(),
+            world.avatar.skin_tone.color(),
             Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
         );
         let hp_bar = Image::new(
@@ -63,6 +58,7 @@ impl Game {
                 Box::new(hp_bar),
                 Box::new(mp_bar),
             ],
+            world,
         }
     }
 }
@@ -70,6 +66,7 @@ impl Game {
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
+            self.world.save();
             Ok(Transition::Pop)
         } else if let Some(t) = update_sprites(self, ctx) {
             Ok(t)

@@ -2,7 +2,7 @@ use assets::Assets;
 use colors::Colors;
 use rand::seq::SliceRandom;
 use rand::RngCore;
-use savefile::{SaveFile, SaveFileError};
+use savefile::{CreateFileError, SaveFile};
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::button::Button;
 use sprites::image::Image;
@@ -186,17 +186,17 @@ impl Scene for CreateWorld {
                     self.sprites.get_mut(3).unwrap().set_danger(true);
                     self.sprites.get_mut(11).unwrap().set_visible(true);
                 } else {
-                    let file = SaveFile::new(
+                    let mut file = SaveFile::new(
                         self.sprites.get(3).unwrap().get_value().unwrap().as_str(),
                         self.sprites.get(5).unwrap().get_value().unwrap().as_str(),
                     );
-                    match file.save() {
+                    match file.create() {
                         Ok(_) => return Some(Transition::Pop),
                         Err(err) => match err {
-                            SaveFileError::SystemError(err) => {
+                            CreateFileError::SystemError(err) => {
                                 panic!("Can't create savefile: {}", err)
                             }
-                            SaveFileError::FileExists => {
+                            CreateFileError::FileExists => {
                                 self.sprites.get_mut(3).unwrap().set_danger(true);
                                 self.sprites.get_mut(9).unwrap().set_visible(true);
                             }

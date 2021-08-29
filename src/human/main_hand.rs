@@ -1,7 +1,7 @@
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum MainHand {
     Left,
     Right,

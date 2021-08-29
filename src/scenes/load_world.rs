@@ -3,6 +3,7 @@ use chrono::{DateTime, Local};
 use colors::Colors;
 use savefile::{delete, savefiles, SaveFile};
 use scenes::create_character::CreateCharacter;
+use scenes::game::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::alert::Alert;
 use sprites::button::Button;
@@ -11,11 +12,13 @@ use sprites::meshy::HoverableMesh;
 use sprites::position::{Horizontal, Position, Vertical};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
+use std::path::PathBuf;
 use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{Color, Rectangle};
 use tetra::input::{Key, MouseButton};
 use tetra::{input, Context, TetraVec2};
+use world::World;
 use CARGO_VERSION;
 
 pub struct LoadWorld {
@@ -55,7 +58,7 @@ impl LoadWorld {
                 },
             )));
             sprites.push(Box::new(Label::new(
-                savefile.name.as_str(),
+                savefile.meta.name.as_str(),
                 assets.borrow().header2.clone(),
                 Colors::LIGHT_YELLOW,
                 Position {
@@ -118,7 +121,8 @@ impl Scene for LoadWorld {
             "back" => Some(Transition::Pop),
             _ => {
                 if let Some(path) = btn_id.strip_prefix("del:") {
-                    delete(path.parse().unwrap());
+                    let path = path.parse::<PathBuf>().unwrap();
+                    delete(&path);
                     Some(if savefiles().is_empty() {
                         Transition::Pop
                     } else {
@@ -126,11 +130,24 @@ impl Scene for LoadWorld {
                     })
                 } else {
                     btn_id.strip_prefix("load:").map(|path| {
-                        Transition::Replace(Box::new(CreateCharacter::new(
-                            self.assets.clone(),
-                            SaveFile::load(path.parse().unwrap()).unwrap(),
-                            ctx,
-                        )))
+                        let savefile = SaveFile::load(path.parse().unwrap()).unwrap();
+                        if savefile.avatar_data.is_empty() {
+                            Transition::Replace(Box::new(CreateCharacter::new(
+                                self.assets.clone(),
+                                savefile,
+                                ctx,
+                            )))
+                        } else {
+                            Transition::Replace(Box::new(Game::new(
+                                self.assets.clone(),
+                                World::new(
+                                    savefile.path.clone(),
+                                    savefile.meta.clone(),
+                                    savefile.load_avatar(),
+                                ),
+                                ctx,
+                            )))
+                        }
                     })
                 }
             }

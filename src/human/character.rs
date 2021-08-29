@@ -1,7 +1,7 @@
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Character {
     pub name: String,
     pub gender: String,

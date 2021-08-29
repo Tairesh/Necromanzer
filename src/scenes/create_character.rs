@@ -21,6 +21,7 @@ use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
 use tetra::graphics::Rectangle;
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, window, Context, TetraVec2};
+use world::World;
 
 pub struct CreateCharacter {
     assets: Rc<RefCell<Assets>>,
@@ -44,7 +45,7 @@ impl CreateCharacter {
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
         )));
         sprites.push(Box::new(Label::new(
-            format!("New adventurer in the «{}» world", savefile.name).as_str(),
+            format!("New adventurer in the «{}» world", savefile.meta.name).as_str(),
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, 100.0, AnchorY::Top),
@@ -323,10 +324,15 @@ impl Scene for CreateCharacter {
                         self.main_hand,
                         self.skin_tone,
                     );
+                    let mut world = World::new(
+                        self.savefile.path.clone(),
+                        self.savefile.meta.clone(),
+                        character,
+                    );
+                    world.save();
                     Some(Transition::Replace(Box::new(Game::new(
                         self.assets.clone(),
-                        self.savefile.clone(),
-                        character,
+                        world,
                         ctx,
                     ))))
                 }

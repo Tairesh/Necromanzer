@@ -7,6 +7,7 @@ mod savefile;
 mod scenes;
 mod settings;
 mod sprites;
+mod world;
 
 extern crate chrono;
 extern crate rand;
