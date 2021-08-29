@@ -11,7 +11,7 @@ use sprites::sprite::{Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::{input, Context, TetraVec2};
+use tetra::{input, Context};
 
 #[allow(dead_code)]
 pub struct CreateCharacter {
@@ -80,7 +80,6 @@ impl CreateCharacter {
             "gender_left",
             vec![],
             assets.borrow().icons.lt,
-            TetraVec2::new(3.0, 3.0),
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
@@ -105,7 +104,6 @@ impl CreateCharacter {
             "gender_right",
             vec![],
             assets.borrow().icons.mt,
-            TetraVec2::new(3.0, 3.0),
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 250.0 },
@@ -124,8 +122,7 @@ impl CreateCharacter {
         sprites.push(Box::new(Button::icon(
             "age_minus",
             vec![],
-            assets.borrow().icons.lt,
-            TetraVec2::new(3.0, 3.0),
+            assets.borrow().icons.minus,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
@@ -146,8 +143,7 @@ impl CreateCharacter {
         sprites.push(Box::new(Button::icon(
             "age_plus",
             vec![],
-            assets.borrow().icons.mt,
-            TetraVec2::new(3.0, 3.0),
+            assets.borrow().icons.plus,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 250.0 },

@@ -19,6 +19,7 @@ pub struct Button {
     id: String,
     keys: Vec<(Key, Option<KeyModifier>)>,
     content: ButtonContent,
+    content_height: f32,
     position: Position,
     assets: Rc<RefCell<Assets>>,
     rect: Option<Rect<f32, f32>>,
@@ -31,65 +32,19 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(
+    fn create(
         id: &str,
         keys: Vec<(Key, Option<KeyModifier>)>,
-        text: &str,
+        content: ButtonContent,
+        content_height: f32,
         assets: Rc<RefCell<Assets>>,
         position: Position,
     ) -> Self {
         Self {
             id: id.to_string(),
             keys,
-            content: ButtonContent::Text(Text::new(text, assets.borrow().default.clone())),
-            position,
-            assets: assets.clone(),
-            rect: None,
-            is_pressed: false,
-            is_hovered: false,
-            is_disabled: false,
-            fixable: false,
-            dirty: false,
-            visible: true,
-        }
-    }
-
-    pub fn fixed(
-        id: &str,
-        keys: Vec<(Key, Option<KeyModifier>)>,
-        text: &str,
-        state: bool,
-        assets: Rc<RefCell<Assets>>,
-        position: Position,
-    ) -> Self {
-        Self {
-            id: id.to_string(),
-            keys,
-            content: ButtonContent::Text(Text::new(text, assets.borrow().default.clone())),
-            position,
-            assets: assets.clone(),
-            rect: None,
-            is_pressed: state,
-            is_hovered: false,
-            is_disabled: false,
-            fixable: true,
-            dirty: false,
-            visible: true,
-        }
-    }
-
-    pub fn icon(
-        id: &str,
-        keys: Vec<(Key, Option<KeyModifier>)>,
-        region: Rectangle,
-        scale: TetraVec2,
-        assets: Rc<RefCell<Assets>>,
-        position: Position,
-    ) -> Self {
-        Self {
-            id: id.to_string(),
-            keys,
-            content: ButtonContent::Icon { region, scale },
+            content,
+            content_height,
             position,
             assets,
             rect: None,
@@ -102,6 +57,53 @@ impl Button {
         }
     }
 
+    pub fn new(
+        id: &str,
+        keys: Vec<(Key, Option<KeyModifier>)>,
+        text: &str,
+        assets: Rc<RefCell<Assets>>,
+        position: Position,
+    ) -> Self {
+        let content = ButtonContent::Text(Text::new(text, assets.borrow().default.clone()));
+        Self::create(id, keys, content, 20.0, assets, position)
+    }
+
+    pub fn fixed(
+        id: &str,
+        keys: Vec<(Key, Option<KeyModifier>)>,
+        text: &str,
+        state: bool,
+        assets: Rc<RefCell<Assets>>,
+        position: Position,
+    ) -> Self {
+        let mut s = Self::new(id, keys, text, assets, position);
+        s.fixable = true;
+        s.is_pressed = state;
+        s
+    }
+
+    pub fn icon(
+        id: &str,
+        keys: Vec<(Key, Option<KeyModifier>)>,
+        region: Rectangle,
+        assets: Rc<RefCell<Assets>>,
+        position: Position,
+    ) -> Self {
+        let icon_scale = TetraVec2::new(3.0, 3.0);
+        let content = ButtonContent::Icon {
+            region,
+            scale: icon_scale,
+        };
+        Self::create(
+            id,
+            keys,
+            content,
+            region.height * icon_scale.y,
+            assets,
+            position,
+        )
+    }
+
     pub fn with_disabled(mut self, val: bool) -> Self {
         self.is_disabled = val;
         self
@@ -111,7 +113,7 @@ impl Button {
         match &mut self.content {
             ButtonContent::Text(text) => (
                 text.get_bounds(ctx)
-                    .map(|b| TetraVec2::new(b.width, 20.0))
+                    .map(|b| TetraVec2::new(b.width, self.content_height))
                     .unwrap(),
                 30.0f32,
             ),

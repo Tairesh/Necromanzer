@@ -5,10 +5,13 @@ use tetra::Context;
 pub struct Icons {
     pub lt: Rectangle,
     pub mt: Rectangle,
+    pub plus: Rectangle,
+    pub minus: Rectangle,
 }
 
 pub struct Assets {
     pub default: Font,
+    pub default2: Font,
     pub header1: Font,
     pub header2: Font,
 
@@ -48,13 +51,11 @@ impl Assets {
             }
             names.push(name);
         }
+        let consolab = include_bytes!("../res/fonts/consolab.ttf");
         let avqest = include_bytes!("../res/fonts/avqest.ttf");
         Ok(Assets {
-            default: Font::from_vector_file_data(
-                ctx,
-                include_bytes!("../res/fonts/consolab.ttf"),
-                16.0,
-            )?,
+            default: Font::from_vector_file_data(ctx, consolab, 16.0)?,
+            default2: Font::from_vector_file_data(ctx, consolab, 24.0)?,
             header1: Font::from_vector_file_data(ctx, avqest, 86.0)?,
             header2: Font::from_vector_file_data(ctx, avqest, 32.0)?,
             logo: Texture::from_file_data(ctx, include_bytes!("../res/img/logo.png"))?,
@@ -63,6 +64,8 @@ impl Assets {
             icons: Icons {
                 mt: Rectangle::new(0.0, 90.0, 10.0, 10.0),
                 lt: Rectangle::new(10.0, 90.0, 10.0, 10.0),
+                minus: Rectangle::new(20.0, 90.0, 10.0, 10.0),
+                plus: Rectangle::new(30.0, 90.0, 10.0, 10.0),
             },
             button: Texture::from_file_data(ctx, include_bytes!("../res/img/button.png"))?,
             button_default: NineSlice::new(
