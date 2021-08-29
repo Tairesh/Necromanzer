@@ -3,6 +3,9 @@ use tetra::graphics::{NineSlice, Rectangle, Texture};
 use tetra::Context;
 
 pub struct Icons {
+    pub male: Rectangle,
+    pub female: Rectangle,
+    pub queer: Rectangle,
     pub lt: Rectangle,
     pub mt: Rectangle,
     pub plus: Rectangle,
@@ -26,6 +29,10 @@ pub struct Assets {
     pub button_hovered: NineSlice,
     pub alert: Texture,
     pub alert_nineslice: NineSlice,
+    pub hat: Texture,
+    pub bars: Texture,
+    pub bar_red: NineSlice,
+    pub bar_blue: NineSlice,
 
     pub male_names: Vec<&'static str>,
     pub female_names: Vec<&'static str>,
@@ -62,6 +69,9 @@ impl Assets {
             bg: Texture::from_file_data(ctx, include_bytes!("../res/img/bg.jpg"))?,
             tileset: Texture::from_file_data(ctx, include_bytes!("../res/img/tileset.png"))?,
             icons: Icons {
+                male: Rectangle::new(0.0, 0.0, 10.0, 10.0),
+                female: Rectangle::new(10.0, 0.0, 10.0, 10.0),
+                queer: Rectangle::new(20.0, 0.0, 10.0, 10.0),
                 mt: Rectangle::new(0.0, 90.0, 10.0, 10.0),
                 lt: Rectangle::new(10.0, 90.0, 10.0, 10.0),
                 minus: Rectangle::new(20.0, 90.0, 10.0, 10.0),
@@ -104,6 +114,10 @@ impl Assets {
                 6.0,
                 5.0,
             ),
+            hat: Texture::from_file_data(ctx, include_bytes!("../res/img/hat.png"))?,
+            bars: Texture::from_file_data(ctx, include_bytes!("../res/img/bars.png"))?,
+            bar_red: NineSlice::new(Rectangle::new(0.0, 0.0, 7.0, 3.0), 1.0, 4.0, 0.0, 0.0),
+            bar_blue: NineSlice::new(Rectangle::new(0.0, 3.0, 7.0, 3.0), 1.0, 4.0, 0.0, 0.0),
             male_names,
             female_names,
             names,

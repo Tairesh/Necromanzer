@@ -106,7 +106,6 @@ impl Scene for MainMenu {
             )))),
             "create_world" => Some(Transition::Push(Box::new(CreateWorld::new(
                 self.assets.clone(),
-                self.settings.clone(),
                 ctx,
             )))),
             "select_world" => Some(Transition::Push(Box::new(LoadWorld::new(

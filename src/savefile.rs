@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 use CARGO_VERSION;
 
+#[derive(Debug, Clone)]
 pub struct SaveFile {
     pub path: PathBuf,
     pub name: String,

@@ -1,10 +1,12 @@
 use assets::Assets;
 use colors::Colors;
+use human::character::Character;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use savefile::SaveFile;
+use scenes::game::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::button::Button;
 use sprites::image::Image;
@@ -20,7 +22,6 @@ use tetra::graphics::Rectangle;
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, window, Context, TetraVec2};
 
-#[allow(dead_code)]
 pub struct CreateCharacter {
     assets: Rc<RefCell<Assets>>,
     sprites: Vec<Box<dyn Sprite>>,
@@ -307,8 +308,28 @@ impl Scene for CreateCharacter {
                 if self.sprites.get(4).unwrap().get_value().unwrap().is_empty() {
                     self.sprites.get_mut(4).unwrap().set_danger(true);
                     self.sprites.get_mut(5).unwrap().set_visible(true);
+                    None
+                } else {
+                    let character = Character::new(
+                        self.sprites.get(4).unwrap().get_value().unwrap(),
+                        self.sprites.get(8).unwrap().get_value().unwrap(),
+                        self.sprites
+                            .get_mut(12)
+                            .unwrap()
+                            .get_value()
+                            .unwrap()
+                            .parse()
+                            .unwrap(),
+                        self.main_hand,
+                        self.skin_tone,
+                    );
+                    Some(Transition::Replace(Box::new(Game::new(
+                        self.assets.clone(),
+                        self.savefile.clone(),
+                        character,
+                        ctx,
+                    ))))
                 }
-                None
             }
             "randomize" => {
                 let gender = self.sprites.get_mut(8).unwrap();

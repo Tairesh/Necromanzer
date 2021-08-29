@@ -69,7 +69,7 @@ impl Position {
         }
     }
 
-    pub fn empty() -> Position {
+    pub fn zeroed() -> Position {
         Position {
             x: Horizontal::ByLeft { x: 0.0 },
             y: Vertical::ByTop { y: 0.0 },

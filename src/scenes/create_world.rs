@@ -4,7 +4,6 @@ use rand::seq::SliceRandom;
 use rand::RngCore;
 use savefile::{SaveFile, SaveFileError};
 use scenes::manager::{update_sprites, Scene, Transition};
-use settings::Settings;
 use sprites::button::Button;
 use sprites::image::Image;
 use sprites::input::TextInput;
@@ -16,19 +15,13 @@ use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
 
-#[allow(dead_code)]
 pub struct CreateWorld {
     assets: Rc<RefCell<Assets>>,
-    settings: Rc<RefCell<Settings>>,
     sprites: Vec<Box<dyn Sprite>>,
 }
 
 impl CreateWorld {
-    pub fn new(
-        assets: Rc<RefCell<Assets>>,
-        settings: Rc<RefCell<Settings>>,
-        ctx: &mut Context,
-    ) -> Self {
+    pub fn new(assets: Rc<RefCell<Assets>>, ctx: &mut Context) -> Self {
         let bg = Image::new(assets.borrow().bg.clone(), Position::center());
         let title = Label::new(
             "Create new world:",
@@ -145,7 +138,6 @@ impl CreateWorld {
         );
         CreateWorld {
             assets,
-            settings,
             sprites: vec![
                 Box::new(bg),
                 Box::new(title),
