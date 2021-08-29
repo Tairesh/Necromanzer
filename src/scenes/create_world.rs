@@ -119,7 +119,7 @@ impl CreateWorld {
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight {
-                    offset: -randomize_size.x / 2.0,
+                    offset: -randomize_size.x / 2.0 - 2.0,
                 },
                 y: AnchorY::Center.to_position(500.0),
             },
@@ -131,7 +131,7 @@ impl CreateWorld {
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft {
-                    offset: randomize_size.x / 2.0,
+                    offset: randomize_size.x / 2.0 + 2.0,
                 },
                 y: AnchorY::Center.to_position(500.0),
             },

@@ -5,7 +5,7 @@ use sprites::sprite::{Draw, Positionate, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
-use tetra::graphics::{DrawParams, Texture};
+use tetra::graphics::DrawParams;
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::math::Rect;
 use tetra::{input, Context, TetraVec2};
@@ -15,12 +15,7 @@ pub struct Button {
     keys: Vec<(Key, Option<KeyModifier>)>,
     text: Text,
     position: Position,
-    default_texture: Texture,
-    // should be the same size as default_texture
-    disabled_texture: Texture,
-    pressed_texture: Texture,
-    hovered_texture: Texture,
-    size: (i32, i32),
+    assets: Rc<RefCell<Assets>>,
     rect: Option<Rect<f32, f32>>,
     is_pressed: bool,
     is_disabled: bool,
@@ -43,11 +38,7 @@ impl Button {
             keys,
             text: Text::new(text, assets.borrow().default.clone()),
             position,
-            default_texture: assets.borrow().button.clone(),
-            disabled_texture: assets.borrow().button_disabled.clone(),
-            pressed_texture: assets.borrow().button_pressed.clone(),
-            hovered_texture: assets.borrow().button_hovered.clone(),
-            size: assets.borrow().button.size(),
+            assets: assets.clone(),
             rect: None,
             is_pressed: false,
             is_hovered: false,
@@ -71,11 +62,7 @@ impl Button {
             keys,
             text: Text::new(text, assets.borrow().default.clone()),
             position,
-            default_texture: assets.borrow().button.clone(),
-            disabled_texture: assets.borrow().button_disabled.clone(),
-            pressed_texture: assets.borrow().button_pressed.clone(),
-            hovered_texture: assets.borrow().button_hovered.clone(),
-            size: assets.borrow().button.size(),
+            assets: assets.clone(),
             rect: None,
             is_pressed: state,
             is_hovered: false,
@@ -90,23 +77,6 @@ impl Button {
         self.is_disabled = val;
         self
     }
-
-    fn texture(&self) -> &Texture {
-        if self.is_disabled {
-            &self.disabled_texture
-        } else if self.is_pressed {
-            &self.pressed_texture
-        } else if self.is_hovered {
-            &self.hovered_texture
-        } else {
-            &self.default_texture
-        }
-    }
-
-    fn scale(&mut self, ctx: &mut Context) -> TetraVec2 {
-        let bounds = self.text.get_bounds(ctx).unwrap();
-        TetraVec2::new((bounds.width + 30.0) / self.texture().width() as f32, 3.0)
-    }
 }
 
 impl Draw for Button {
@@ -117,11 +87,31 @@ impl Draw for Button {
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         let mut vec = TetraVec2::new(rect.x, rect.y);
-        let scale = self.scale(ctx);
-        self.texture()
-            .draw(ctx, DrawParams::new().position(vec).scale(scale));
         let bounds = self.text.get_bounds(ctx).unwrap();
-        vec.x += rect.w / 2.0 - bounds.width / 2.0 - 3.0;
+        let assets = self.assets.borrow();
+
+        let config = if self.is_disabled {
+            &assets.button_disabled
+        } else if self.is_pressed {
+            &assets.button_pressed
+        } else if self.is_hovered {
+            &assets.button_hovered
+        } else {
+            &assets.button_default
+        };
+        assets.button.draw_nine_slice(
+            ctx,
+            config,
+            (bounds.width + 30.0) / 3.0,
+            42.0 / 3.0,
+            DrawParams::new()
+                .position(vec)
+                .scale(TetraVec2::new(3.0, 3.0)),
+        );
+        vec.x += rect.w / 2.0 - bounds.width / 2.0;
+        if !self.keys.is_empty() {
+            vec.x -= 3.0;
+        }
         vec.y += rect.h / 2.0 - bounds.height / 2.0 - 3.0;
         if !self.is_pressed {
             vec.y -= 2.0;
@@ -156,8 +146,8 @@ impl Positionate for Button {
     }
 
     fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
-        let scale = self.scale(ctx);
-        TetraVec2::new(self.size.0 as f32 * scale.x, self.size.1 as f32 * scale.y)
+        let text_width = self.text.get_bounds(ctx).map(|r| r.width).unwrap();
+        TetraVec2::new(text_width + 30.0, 42.0)
     }
 }
 

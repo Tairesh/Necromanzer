@@ -48,7 +48,7 @@ impl SettingsScene {
             settings.borrow().window_mode() == WindowMode::Window,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -2.0 },
                 y: AnchorY::Center.to_position(150.0),
             },
         );
@@ -72,7 +72,7 @@ impl SettingsScene {
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft {
-                    offset: fullscreen_size.x,
+                    offset: fullscreen_size.x + 2.0,
                 },
                 y: AnchorY::Center.to_position(150.0),
             },
