@@ -83,4 +83,12 @@ impl Sprite for Label {
     fn get_value(&self) -> Option<String> {
         Some(self.text.content().to_string())
     }
+
+    fn get_color(&self) -> Option<Color> {
+        Some(self.color)
+    }
+
+    fn set_color(&mut self, color: Color) {
+        self.color = color;
+    }
 }

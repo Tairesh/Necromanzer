@@ -5,6 +5,77 @@ use tetra::graphics::{Color, DrawParams};
 use tetra::math::Rect;
 use tetra::{input, Context, TetraRect, TetraVec2};
 
+pub struct JustMesh {
+    mesh: Mesh,
+    color: Option<Color>,
+    size: TetraVec2,
+    position: Position,
+    rect: Option<TetraRect>,
+    visible: bool,
+}
+
+impl JustMesh {
+    pub fn new(mesh: Mesh, color: Option<Color>, size: TetraVec2, position: Position) -> Self {
+        Self {
+            mesh,
+            color,
+            size,
+            position,
+            rect: None,
+            visible: true,
+        }
+    }
+}
+
+impl Draw for JustMesh {
+    fn draw(&mut self, ctx: &mut Context) {
+        let rect = self.rect.unwrap();
+        self.mesh.draw(
+            ctx,
+            DrawParams::new()
+                .position(TetraVec2::new(rect.x, rect.y))
+                .color(self.color.unwrap_or(Color::WHITE)),
+        );
+    }
+
+    fn visible(&self) -> bool {
+        self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
+    }
+}
+
+impl Positionate for JustMesh {
+    fn position(&self) -> Position {
+        self.position
+    }
+
+    fn set_position(&mut self, position: Position) {
+        self.position = position;
+    }
+
+    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
+        self.size
+    }
+
+    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+        self.rect = Some(rect);
+    }
+}
+
+impl Update for JustMesh {}
+
+impl Sprite for JustMesh {
+    fn get_color(&self) -> Option<Color> {
+        self.color
+    }
+    fn set_color(&mut self, value: Color) {
+        self.color = Some(value);
+    }
+}
+
 pub struct HoverableMesh {
     mesh: Mesh,
     bg_color: Color,

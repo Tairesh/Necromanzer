@@ -1,4 +1,5 @@
 use sprites::position::Position;
+use tetra::graphics::Color;
 use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
@@ -57,6 +58,12 @@ pub trait Sprite: Draw + Positionate + Update {
     fn get_value(&self) -> Option<String> {
         None
     }
+
+    fn get_color(&self) -> Option<Color> {
+        None
+    }
+
+    fn set_color(&mut self, _color: Color) {}
 
     fn validate_value(&mut self) {}
 
