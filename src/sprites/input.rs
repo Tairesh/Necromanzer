@@ -135,9 +135,12 @@ impl Draw for TextInput {
             .map(|r| r.width + 3.0)
             .unwrap_or(-1.0f32);
         let text_pos = if !self.is_focused || self.is_disabled {
-            TetraVec2::new(rect.x + rect.w / 2.0 - text_width / 2.0, rect.y + 6.0)
+            TetraVec2::new(
+                rect.x + rect.w / 2.0 - text_width / 2.0,
+                rect.y + rect.h / 2.0 - 10.0,
+            )
         } else {
-            TetraVec2::new(rect.x + 7.0, rect.y + 6.0)
+            TetraVec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 10.0)
         };
         self.text.set_content(self.value.as_str());
         self.text.draw(
@@ -150,7 +153,7 @@ impl Draw for TextInput {
             Mesh::rectangle(
                 ctx,
                 ShapeStyle::Fill,
-                Rectangle::new(text_width + 7.0, 5.0, 10.0, 20.0),
+                Rectangle::new(text_width + 7.0, rect.h / 2.0 - 10.0, 10.0, 20.0),
             )
             .unwrap()
             .draw(
@@ -185,11 +188,8 @@ impl Positionate for TextInput {
         self.position = position;
     }
 
-    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
-        self.text.set_content("Test");
-        let text_height = self.text.get_bounds(ctx).map(|r| r.height).unwrap();
-        self.text.set_content(self.value.as_str());
-        TetraVec2::new(self.width, text_height + 20.0)
+    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
+        TetraVec2::new(self.width, 42.0)
     }
 }
 

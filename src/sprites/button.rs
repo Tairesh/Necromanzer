@@ -5,15 +5,20 @@ use sprites::sprite::{Draw, Positionate, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
-use tetra::graphics::DrawParams;
+use tetra::graphics::{DrawParams, Rectangle};
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::math::Rect;
 use tetra::{input, Context, TetraVec2};
 
+enum ButtonContent {
+    Text(Text),
+    Icon { region: Rectangle, scale: TetraVec2 },
+}
+
 pub struct Button {
     id: String,
     keys: Vec<(Key, Option<KeyModifier>)>,
-    text: Text,
+    content: ButtonContent,
     position: Position,
     assets: Rc<RefCell<Assets>>,
     rect: Option<Rect<f32, f32>>,
@@ -33,10 +38,10 @@ impl Button {
         assets: Rc<RefCell<Assets>>,
         position: Position,
     ) -> Self {
-        Button {
+        Self {
             id: id.to_string(),
             keys,
-            text: Text::new(text, assets.borrow().default.clone()),
+            content: ButtonContent::Text(Text::new(text, assets.borrow().default.clone())),
             position,
             assets: assets.clone(),
             rect: None,
@@ -56,11 +61,11 @@ impl Button {
         state: bool,
         assets: Rc<RefCell<Assets>>,
         position: Position,
-    ) -> Button {
-        Button {
+    ) -> Self {
+        Self {
             id: id.to_string(),
             keys,
-            text: Text::new(text, assets.borrow().default.clone()),
+            content: ButtonContent::Text(Text::new(text, assets.borrow().default.clone())),
             position,
             assets: assets.clone(),
             rect: None,
@@ -73,9 +78,48 @@ impl Button {
         }
     }
 
+    pub fn icon(
+        id: &str,
+        keys: Vec<(Key, Option<KeyModifier>)>,
+        region: Rectangle,
+        scale: TetraVec2,
+        assets: Rc<RefCell<Assets>>,
+        position: Position,
+    ) -> Self {
+        Self {
+            id: id.to_string(),
+            keys,
+            content: ButtonContent::Icon { region, scale },
+            position,
+            assets,
+            rect: None,
+            is_pressed: false,
+            is_hovered: false,
+            is_disabled: false,
+            fixable: false,
+            dirty: false,
+            visible: true,
+        }
+    }
+
     pub fn with_disabled(mut self, val: bool) -> Self {
         self.is_disabled = val;
         self
+    }
+
+    fn content_size(&mut self, ctx: &mut Context) -> (TetraVec2, f32) {
+        match &mut self.content {
+            ButtonContent::Text(text) => (
+                text.get_bounds(ctx)
+                    .map(|b| TetraVec2::new(b.width, 20.0))
+                    .unwrap(),
+                30.0f32,
+            ),
+            ButtonContent::Icon { region, scale } => (
+                TetraVec2::new(region.width * scale.x, region.height * scale.y),
+                10.0f32,
+            ),
+        }
     }
 }
 
@@ -87,7 +131,7 @@ impl Draw for Button {
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         let mut vec = TetraVec2::new(rect.x, rect.y);
-        let bounds = self.text.get_bounds(ctx).unwrap();
+        let (content_size, offset_x) = self.content_size(ctx);
         let assets = self.assets.borrow();
 
         let config = if self.is_disabled {
@@ -102,24 +146,35 @@ impl Draw for Button {
         assets.button.draw_nine_slice(
             ctx,
             config,
-            (bounds.width + 30.0) / 3.0,
+            (content_size.x + offset_x) / 3.0,
             42.0 / 3.0,
             DrawParams::new()
                 .position(vec)
                 .scale(TetraVec2::new(3.0, 3.0)),
         );
-        vec.x += rect.w / 2.0 - bounds.width / 2.0;
-        if !self.keys.is_empty() {
-            vec.x -= 3.0;
-        }
-        vec.y += rect.h / 2.0 - bounds.height / 2.0 - 3.0;
+        vec.x += rect.w / 2.0 - content_size.x / 2.0;
+        vec.y += rect.h / 2.0 - content_size.y / 2.0;
         if !self.is_pressed {
             vec.y -= 2.0;
         }
-        self.text.draw(
-            ctx,
-            DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
-        );
+        match &mut self.content {
+            ButtonContent::Text(text) => {
+                if !self.keys.is_empty() {
+                    vec.x -= 3.0;
+                }
+                text.draw(
+                    ctx,
+                    DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
+                );
+            }
+            ButtonContent::Icon { region, scale } => {
+                assets.tileset.draw_region(
+                    ctx,
+                    *region,
+                    DrawParams::new().position(vec).scale(*scale),
+                );
+            }
+        }
         self.dirty = false;
     }
 
@@ -146,8 +201,8 @@ impl Positionate for Button {
     }
 
     fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
-        let text_width = self.text.get_bounds(ctx).map(|r| r.width).unwrap();
-        TetraVec2::new(text_width + 30.0, 42.0)
+        let (content_size, offset_x) = self.content_size(ctx);
+        TetraVec2::new(content_size.x + offset_x, 42.0)
     }
 }
 

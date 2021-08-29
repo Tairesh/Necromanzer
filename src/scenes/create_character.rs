@@ -11,7 +11,7 @@ use sprites::sprite::{Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::{input, Context};
+use tetra::{input, Context, TetraVec2};
 
 #[allow(dead_code)]
 pub struct CreateCharacter {
@@ -74,6 +74,42 @@ impl CreateCharacter {
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
                 y: AnchorY::Center.to_position(245.0),
+            },
+        )));
+        sprites.push(Box::new(Button::icon(
+            "gender_left",
+            vec![],
+            assets.borrow().icons.lt,
+            TetraVec2::new(3.0, 3.0),
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Center.to_position(250.0),
+            },
+        )));
+        sprites.push(Box::new(TextInput::new(
+            "gender",
+            if savefile.time.elapsed().unwrap().as_secs() % 2 == 0 {
+                "Male"
+            } else {
+                "Female"
+            },
+            160.0,
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 45.0 },
+                y: AnchorY::Center.to_position(250.0),
+            },
+        )));
+        sprites.push(Box::new(Button::icon(
+            "gender_right",
+            vec![],
+            assets.borrow().icons.mt,
+            TetraVec2::new(3.0, 3.0),
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByRight { offset: 250.0 },
+                y: AnchorY::Center.to_position(250.0),
             },
         )));
         sprites.push(Box::new(Label::new(
@@ -154,6 +190,13 @@ impl Scene for CreateCharacter {
     fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "back" => Some(Transition::Pop),
+            "gender_left" | "gender_right" => {
+                let input = self.sprites.get_mut(8).unwrap();
+                if let Some(value) = input.get_value() {
+                    input.set_value(if value == "Male" { "Female" } else { "Male" });
+                }
+                None
+            }
             _ => None,
         }
     }

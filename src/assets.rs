@@ -2,6 +2,11 @@ use tetra::graphics::text::Font;
 use tetra::graphics::{NineSlice, Rectangle, Texture};
 use tetra::Context;
 
+pub struct Icons {
+    pub lt: Rectangle,
+    pub mt: Rectangle,
+}
+
 pub struct Assets {
     pub default: Font,
     pub header1: Font,
@@ -9,6 +14,8 @@ pub struct Assets {
 
     pub logo: Texture,
     pub bg: Texture,
+    pub tileset: Texture,
+    pub icons: Icons,
     pub button: Texture,
     pub button_default: NineSlice,
     pub button_disabled: NineSlice,
@@ -52,6 +59,11 @@ impl Assets {
             header2: Font::from_vector_file_data(ctx, avqest, 32.0)?,
             logo: Texture::from_file_data(ctx, include_bytes!("../res/img/logo.png"))?,
             bg: Texture::from_file_data(ctx, include_bytes!("../res/img/bg.jpg"))?,
+            tileset: Texture::from_file_data(ctx, include_bytes!("../res/img/tileset.png"))?,
+            icons: Icons {
+                mt: Rectangle::new(0.0, 90.0, 10.0, 10.0),
+                lt: Rectangle::new(10.0, 90.0, 10.0, 10.0),
+            },
             button: Texture::from_file_data(ctx, include_bytes!("../res/img/button.png"))?,
             button_default: NineSlice::new(
                 Rectangle::new(0.0, 0.0, 46.0, 14.0),
