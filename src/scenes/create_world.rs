@@ -10,7 +10,7 @@ use sprites::image::Image;
 use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::{Draw, Positionate, Sprite};
+use sprites::sprite::{Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -59,23 +59,31 @@ impl CreateWorld {
                 y: AnchorY::Center.to_position(200.0),
             },
         );
-        let mut name_error = Label::new(
+        let name_error = Label::hidden(
             "Savefile with this name already exists",
             assets.borrow().default.clone(),
-            Colors::RED,
+            Colors::DARK_RED,
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
-                y: AnchorY::Bottom.to_position(180.0),
+                y: AnchorY::Bottom.to_position(170.0),
             },
         );
-        name_error.set_visible(false);
+        let name_empty = Label::hidden(
+            "World name shall not be empty!",
+            assets.borrow().default.clone(),
+            Colors::DARK_RED,
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Bottom.to_position(170.0),
+            },
+        );
         let seed_label = Label::new(
             "World seed:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: AnchorY::Center.to_position(255.0),
+                y: AnchorY::Center.to_position(265.0),
             },
         );
         let seed_input = TextInput::new(
@@ -85,19 +93,18 @@ impl CreateWorld {
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
-                y: AnchorY::Center.to_position(260.0),
+                y: AnchorY::Center.to_position(270.0),
             },
         );
-        let mut seed_error = Label::new(
-            "Seed can't be empty",
+        let seed_error = Label::hidden(
+            "Seed shall not be empty!",
             assets.borrow().default.clone(),
-            Colors::RED,
+            Colors::DARK_RED,
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Bottom.to_position(240.0),
             },
         );
-        seed_error.set_visible(false);
         let mut randomize_btn = Button::new(
             "randomize",
             vec![
@@ -151,6 +158,7 @@ impl CreateWorld {
                 Box::new(create_btn),
                 Box::new(name_error),
                 Box::new(seed_error),
+                Box::new(name_empty),
             ],
         }
     }
@@ -181,6 +189,10 @@ impl Scene for CreateWorld {
                 if self.sprites.get(5).unwrap().get_value().unwrap().is_empty() {
                     self.sprites.get_mut(5).unwrap().set_danger(true);
                     self.sprites.get_mut(10).unwrap().set_visible(true);
+                }
+                if self.sprites.get(3).unwrap().get_value().unwrap().is_empty() {
+                    self.sprites.get_mut(3).unwrap().set_danger(true);
+                    self.sprites.get_mut(11).unwrap().set_visible(true);
                 } else {
                     let file = SaveFile::new(
                         self.sprites.get(3).unwrap().get_value().unwrap().as_str(),
@@ -209,6 +221,9 @@ impl Scene for CreateWorld {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         if !self.sprites.get(3).unwrap().get_danger() && self.sprites.get(9).unwrap().visible() {
             self.sprites.get_mut(9).unwrap().set_visible(false);
+        }
+        if !self.sprites.get(3).unwrap().get_danger() && self.sprites.get(11).unwrap().visible() {
+            self.sprites.get_mut(11).unwrap().set_visible(false);
         }
         if !self.sprites.get(5).unwrap().get_danger() && self.sprites.get(10).unwrap().visible() {
             self.sprites.get_mut(10).unwrap().set_visible(false);

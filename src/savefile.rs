@@ -39,8 +39,17 @@ impl SaveFile {
         let file = File::open(&path).ok()?;
         let mut lines = BufReader::new(&file).lines();
         let name = lines.next()?.ok()?;
+        if name.is_empty() {
+            return None;
+        }
         let seed = lines.next()?.ok()?;
+        if seed.is_empty() {
+            return None;
+        }
         let version = lines.next()?.ok()?;
+        if version.is_empty() {
+            return None;
+        }
         let time = lines.next()?.ok()?.parse::<u64>().ok()?;
         let time = SystemTime::UNIX_EPOCH + Duration::new(time, 0);
         Some(SaveFile {
