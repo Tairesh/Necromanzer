@@ -53,6 +53,8 @@ pub trait Sprite: Draw + Positionate + Update {
         None
     }
 
+    fn validate_value(&mut self) {}
+
     fn set_danger(&mut self, _danger: bool) {}
 
     fn get_danger(&self) -> bool {

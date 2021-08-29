@@ -121,6 +121,39 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(295.0),
             },
         )));
+        sprites.push(Box::new(Button::icon(
+            "age_minus",
+            vec![],
+            assets.borrow().icons.lt,
+            TetraVec2::new(3.0, 3.0),
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                y: AnchorY::Center.to_position(300.0),
+            },
+        )));
+        sprites.push(Box::new(TextInput::int(
+            "age",
+            18,
+            (16, 99),
+            160.0,
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByLeft { offset: 45.0 },
+                y: AnchorY::Center.to_position(300.0),
+            },
+        )));
+        sprites.push(Box::new(Button::icon(
+            "age_plus",
+            vec![],
+            assets.borrow().icons.mt,
+            TetraVec2::new(3.0, 3.0),
+            assets.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByRight { offset: 250.0 },
+                y: AnchorY::Center.to_position(300.0),
+            },
+        )));
         sprites.push(Box::new(Label::new(
             "Main hand:",
             assets.borrow().header2.clone(),
@@ -194,6 +227,20 @@ impl Scene for CreateCharacter {
                 let input = self.sprites.get_mut(8).unwrap();
                 if let Some(value) = input.get_value() {
                     input.set_value(if value == "Male" { "Female" } else { "Male" });
+                }
+                None
+            }
+            "age_plus" | "age_minus" => {
+                let input = self.sprites.get_mut(12).unwrap();
+                if let Some(value) = input.get_value() {
+                    if let Ok(mut value) = value.parse::<u32>() {
+                        if btn_id == "age_plus" {
+                            value += 1;
+                        } else if value > 0 {
+                            value -= 1;
+                        }
+                        input.set_value(format!("{}", value).as_str());
+                    }
                 }
                 None
             }
