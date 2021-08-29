@@ -45,7 +45,7 @@ impl TextInput {
         Self {
             id: id.to_ascii_lowercase(),
             value_type: ValueType::String { max_length: 24 },
-            text: Text::new(value, assets.borrow().default.clone()),
+            text: Text::new(value, assets.borrow().header2.clone()),
             position,
             width,
             rect: None,
@@ -160,10 +160,10 @@ impl Draw for TextInput {
         let text_pos = if !self.is_focused || self.is_disabled {
             TetraVec2::new(
                 rect.x + rect.w / 2.0 - text_width / 2.0,
-                rect.y + rect.h / 2.0 - 10.0,
+                rect.y + rect.h / 2.0 - 18.0,
             )
         } else {
-            TetraVec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 10.0)
+            TetraVec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 18.0)
         };
         self.text.set_content(content);
         self.text.draw(
@@ -176,7 +176,7 @@ impl Draw for TextInput {
             Mesh::rectangle(
                 ctx,
                 ShapeStyle::Fill,
-                Rectangle::new(text_width + 7.0, rect.h / 2.0 - 10.0, 10.0, 20.0),
+                Rectangle::new(text_width + 10.0, rect.h / 2.0 - 15.0, 10.0, 30.0),
             )
             .unwrap()
             .draw(

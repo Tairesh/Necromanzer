@@ -2,6 +2,7 @@ use assets::Assets;
 use colors::Colors;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
+use rand::seq::SliceRandom;
 use rand::Rng;
 use savefile::SaveFile;
 use scenes::manager::{update_sprites, Scene, Transition};
@@ -52,7 +53,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
                 y: AnchorY::Center.to_position(194.0),
             },
         )));
@@ -67,7 +68,7 @@ impl CreateCharacter {
             },
         )));
         sprites.push(Box::new(Label::hidden(
-            "Character with this name already exists",
+            "Character name shall not be empty!",
             assets.borrow().default.clone(),
             Colors::RED,
             Position {
@@ -80,7 +81,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
                 y: AnchorY::Center.to_position(244.0),
             },
         )));
@@ -123,7 +124,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
                 y: AnchorY::Center.to_position(294.0),
             },
         )));
@@ -163,7 +164,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
                 y: AnchorY::Center.to_position(344.0),
             },
         )));
@@ -201,7 +202,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
                 y: AnchorY::Center.to_position(394.0),
             },
         )));
@@ -309,6 +310,16 @@ impl Scene for CreateCharacter {
                 } else {
                     "Female"
                 });
+                let assets = self.assets.borrow();
+                let name = *match gender.get_value().unwrap().as_str() {
+                    "Male" => &assets.male_names,
+                    "Female" => &assets.female_names,
+                    _ => &assets.names,
+                }
+                .choose(&mut rand::thread_rng())
+                .unwrap();
+                let input = self.sprites.get_mut(4).unwrap();
+                input.set_value(name);
                 let age = self.sprites.get_mut(12).unwrap();
                 age.set_value(format!("{}", rand::thread_rng().gen_range(16..=99)).as_str());
                 self.main_hand = rand::random::<MainHand>();
