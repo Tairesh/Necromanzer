@@ -64,7 +64,7 @@ impl CreateWorld {
             assets.borrow().default.clone(),
             Colors::DARK_RED,
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenter { offset: 125.0 },
                 y: AnchorY::Bottom.to_position(170.0),
             },
         );
@@ -73,7 +73,7 @@ impl CreateWorld {
             assets.borrow().default.clone(),
             Colors::DARK_RED,
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenter { offset: 125.0 },
                 y: AnchorY::Bottom.to_position(170.0),
             },
         );
@@ -101,7 +101,7 @@ impl CreateWorld {
             assets.borrow().default.clone(),
             Colors::DARK_RED,
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenter { offset: 125.0 },
                 y: AnchorY::Bottom.to_position(240.0),
             },
         );
@@ -133,8 +133,8 @@ impl CreateWorld {
         );
         let create_btn = Button::new(
             "create",
-            vec![(Key::Enter, None)],
-            "[Enter] Create",
+            vec![(Key::Enter, Some(KeyModifier::Alt))],
+            "[Alt+Enter] Create",
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft {

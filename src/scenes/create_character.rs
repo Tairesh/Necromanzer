@@ -53,7 +53,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(194.0),
             },
         )));
@@ -63,7 +63,7 @@ impl CreateCharacter {
             300.0,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(200.0),
             },
         )));
@@ -72,8 +72,8 @@ impl CreateCharacter {
             assets.borrow().default.clone(),
             Colors::RED,
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
-                y: AnchorY::Bottom.to_position(180.0),
+                x: Horizontal::AtWindowCenter { offset: 110.0 },
+                y: AnchorY::Bottom.to_position(170.0),
             },
         )));
         sprites.push(Box::new(Label::new(
@@ -81,7 +81,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(244.0),
             },
         )));
@@ -91,7 +91,7 @@ impl CreateCharacter {
             assets.borrow().icons.lt,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(250.0),
             },
         )));
@@ -105,7 +105,7 @@ impl CreateCharacter {
             210.0,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 45.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: AnchorY::Center.to_position(250.0),
             },
         )));
@@ -115,7 +115,7 @@ impl CreateCharacter {
             assets.borrow().icons.mt,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 300.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(250.0),
             },
         )));
@@ -124,7 +124,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(294.0),
             },
         )));
@@ -134,7 +134,7 @@ impl CreateCharacter {
             assets.borrow().icons.minus,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(300.0),
             },
         )));
@@ -145,7 +145,7 @@ impl CreateCharacter {
             210.0,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 45.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: AnchorY::Center.to_position(300.0),
             },
         )));
@@ -155,7 +155,7 @@ impl CreateCharacter {
             assets.borrow().icons.plus,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 300.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(300.0),
             },
         )));
@@ -164,7 +164,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(344.0),
             },
         )));
@@ -174,7 +174,7 @@ impl CreateCharacter {
             assets.borrow().icons.lt,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(350.0),
             },
         )));
@@ -183,7 +183,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenter { offset: 150.0 },
+                x: Horizontal::AtWindowCenter { offset: 110.0 },
                 y: AnchorY::Center.to_position(344.0),
             },
         )));
@@ -193,7 +193,7 @@ impl CreateCharacter {
             assets.borrow().icons.mt,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 300.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(350.0),
             },
         )));
@@ -202,7 +202,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -20.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(394.0),
             },
         )));
@@ -212,7 +212,7 @@ impl CreateCharacter {
             assets.borrow().icons.lt,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(400.0),
             },
         )));
@@ -227,7 +227,7 @@ impl CreateCharacter {
             Some(Colors::WARM_IVORY),
             TetraVec2::new(210.0, 42.0),
             Position {
-                x: Horizontal::AtWindowCenter { offset: 150.0 },
+                x: Horizontal::AtWindowCenter { offset: 110.0 },
                 y: AnchorY::Center.to_position(400.0),
             },
         )));
@@ -236,7 +236,7 @@ impl CreateCharacter {
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
-                x: Horizontal::AtWindowCenter { offset: 150.0 },
+                x: Horizontal::AtWindowCenter { offset: 110.0 },
                 y: AnchorY::Center.to_position(394.0),
             },
         )));
@@ -246,7 +246,7 @@ impl CreateCharacter {
             assets.borrow().icons.mt,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 300.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(400.0),
             },
         )));
@@ -279,8 +279,8 @@ impl CreateCharacter {
         sprites.push(Box::new(randomize_btn));
         sprites.push(Box::new(Button::new(
             "create",
-            vec![(Key::Enter, None)],
-            "[Enter] Create",
+            vec![(Key::Enter, Some(KeyModifier::Alt))],
+            "[Alt+Enter] Create",
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft {
@@ -303,6 +303,13 @@ impl Scene for CreateCharacter {
     fn on_button_click(&mut self, ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "back" => Some(Transition::Pop),
+            "create" => {
+                if self.sprites.get(4).unwrap().get_value().unwrap().is_empty() {
+                    self.sprites.get_mut(4).unwrap().set_danger(true);
+                    self.sprites.get_mut(5).unwrap().set_visible(true);
+                }
+                None
+            }
             "randomize" => {
                 let gender = self.sprites.get_mut(8).unwrap();
                 gender.set_value(if rand::random::<bool>() {
@@ -386,6 +393,9 @@ impl Scene for CreateCharacter {
     }
 
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+        if !self.sprites.get(4).unwrap().get_danger() && self.sprites.get(5).unwrap().visible() {
+            self.sprites.get_mut(5).unwrap().set_visible(false);
+        }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             Ok(Transition::Pop)
         } else if let Some(t) = update_sprites(self, ctx) {
