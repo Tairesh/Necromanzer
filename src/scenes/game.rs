@@ -14,6 +14,7 @@ use world::World;
 pub struct Game {
     world: World,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
+    hp_bar: Rc<RefCell<Bar>>,
 }
 
 impl Game {
@@ -43,14 +44,17 @@ impl Game {
         )));
 
         Self {
-            sprites: vec![hat, name, ava, hp_bar, mp_bar],
+            sprites: vec![hat, name, ava, hp_bar.clone(), mp_bar],
             world,
+            hp_bar,
         }
     }
 }
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+        let val = self.hp_bar.borrow().value();
+        self.hp_bar.borrow_mut().set_value(val + 1);
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             self.world.save();
             Ok(Transition::Pop)

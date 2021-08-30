@@ -9,7 +9,7 @@ use sprites::image::Image;
 use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::{Draw, Positionate, Sprite};
+use sprites::sprite::{Draw, Positionate, Sprite, Stringify};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -190,8 +190,8 @@ impl Scene for CreateWorld {
                     .set_value(random_seed().as_str());
             }
             "create" => {
-                let seed = self.seed_input.borrow().get_value().unwrap();
-                let name = self.name_input.borrow().get_value().unwrap();
+                let seed = self.seed_input.borrow().value();
+                let name = self.name_input.borrow().value();
                 if seed.is_empty() {
                     self.seed_input.borrow_mut().set_danger(true);
                     self.seed_error.borrow_mut().set_visible(true);
@@ -228,13 +228,13 @@ impl Scene for CreateWorld {
             let mut name_error = self.name_error.borrow_mut();
             let seed = self.seed_input.borrow();
             let mut seed_error = self.seed_error.borrow_mut();
-            if !name.get_danger() && name_empty.visible() {
+            if !name.danger() && name_empty.visible() {
                 name_empty.set_visible(false);
             }
-            if !name.get_danger() && name_error.visible() {
+            if !name.danger() && name_error.visible() {
                 name_error.set_visible(false);
             }
-            if !seed.get_danger() && seed_error.visible() {
+            if !seed.danger() && seed_error.visible() {
                 seed_error.set_visible(false);
             }
         }

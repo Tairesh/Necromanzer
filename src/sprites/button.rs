@@ -1,7 +1,7 @@
 use assets::Assets;
 use colors::Colors;
 use sprites::position::Position;
-use sprites::sprite::{Draw, Positionate, Sprite, Update};
+use sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
@@ -267,7 +267,32 @@ impl Update for Button {
     }
 }
 
-impl Sprite for Button {
+impl Disable for Button {
+    fn disabled(&self) -> bool {
+        self.is_disabled
+    }
+
+    fn set_disabled(&mut self, disabled: bool) {
+        if disabled != self.is_disabled {
+            self.is_disabled = disabled;
+            self.dirty = true;
+        }
+    }
+}
+
+impl Hover for Button {
+    fn on_hovered(&mut self) {
+        self.is_hovered = true;
+        self.dirty = true;
+    }
+
+    fn off_hovered(&mut self) {
+        self.is_hovered = false;
+        self.dirty = true;
+    }
+}
+
+impl Press for Button {
     fn on_pressed(&mut self) {
         self.is_pressed = true;
         self.dirty = true;
@@ -283,21 +308,6 @@ impl Sprite for Button {
         self.is_pressed = false;
         self.dirty = true;
     }
-
-    fn on_hovered(&mut self) {
-        self.is_hovered = true;
-        self.dirty = true;
-    }
-
-    fn off_hovered(&mut self) {
-        self.is_hovered = false;
-        self.dirty = true;
-    }
-
-    fn set_disabled(&mut self, disabled: bool) {
-        if disabled != self.is_disabled {
-            self.is_disabled = disabled;
-            self.dirty = true;
-        }
-    }
 }
+
+impl Sprite for Button {}

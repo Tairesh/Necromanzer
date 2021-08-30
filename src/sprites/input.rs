@@ -1,7 +1,7 @@
 use assets::Assets;
 use colors::Colors;
 use sprites::position::Position;
-use sprites::sprite::{Draw, Positionate, Sprite, Update};
+use sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Stringify, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
@@ -110,6 +110,29 @@ impl TextInput {
         } else {
             Colors::DARK_BROWN
         }
+    }
+
+    fn validate_value(&mut self) {
+        if let ValueType::Unsigned { min, max } = self.value_type {
+            let mut val = self.text.content().parse::<u32>().unwrap_or(min);
+            if val < min {
+                val = min;
+            } else if val > max {
+                val = max;
+            }
+            self.text.set_content(format!("{}", val));
+        }
+    }
+
+    pub fn set_danger(&mut self, danger: bool) {
+        if danger != self.is_danger {
+            self.is_danger = danger;
+            self.dirty = true;
+        }
+    }
+
+    pub fn danger(&self) -> bool {
+        self.is_danger
     }
 }
 
@@ -275,28 +298,43 @@ impl Update for TextInput {
                     self.dirty = true;
                 }
             }
-        } else if input::is_mouse_button_pressed(ctx, MouseButton::Left) && collides {
+        } else if input::is_mouse_button_pressed(ctx, MouseButton::Left)
+            && collides
+            && !self.is_disabled
+        {
             self.on_pressed();
         }
         None
     }
 }
 
-impl Sprite for TextInput {
-    fn on_pressed(&mut self) {
-        self.is_focused = true;
-        self.blink = true;
-        self.last_blinked = Instant::now();
-        self.dirty = true;
+impl Disable for TextInput {
+    fn disabled(&self) -> bool {
+        self.is_disabled
     }
 
-    fn off_pressed(&mut self) {
-        self.is_focused = false;
-        self.blink = false;
+    fn set_disabled(&mut self, disabled: bool) {
+        if disabled != self.is_disabled {
+            self.is_disabled = disabled;
+            self.dirty = true;
+        }
+    }
+}
+
+impl Stringify for TextInput {
+    fn value(&self) -> String {
+        self.text.content().to_string()
+    }
+
+    fn set_value(&mut self, value: &str) {
+        self.text.set_content(value);
+        self.is_danger = false;
         self.dirty = true;
         self.validate_value();
     }
+}
 
+impl Hover for TextInput {
     fn on_hovered(&mut self) {
         self.is_hovered = true;
         self.dirty = true;
@@ -306,40 +344,26 @@ impl Sprite for TextInput {
         self.is_hovered = false;
         self.dirty = true;
     }
+}
 
-    fn is_focusable(&self) -> bool {
-        !self.is_disabled
+impl Press for TextInput {
+    fn on_pressed(&mut self) {
+        self.is_focused = true;
+        self.blink = true;
+        self.last_blinked = Instant::now();
+        self.dirty = true;
     }
 
-    fn set_value(&mut self, value: &str) {
-        self.text.set_content(value);
-        self.is_danger = false;
+    fn off_pressed(&mut self) {
+        self.unpress();
+    }
+
+    fn unpress(&mut self) {
+        self.is_focused = false;
+        self.blink = false;
         self.dirty = true;
         self.validate_value();
     }
-
-    fn get_value(&self) -> Option<String> {
-        Some(self.text.content().to_string())
-    }
-
-    fn validate_value(&mut self) {
-        if let ValueType::Unsigned { min, max } = self.value_type {
-            let mut val = self.text.content().parse::<u32>().unwrap_or(min);
-            if val < min {
-                val = min;
-            } else if val > max {
-                val = max;
-            }
-            self.text.set_content(format!("{}", val));
-        }
-    }
-
-    fn set_danger(&mut self, danger: bool) {
-        self.is_danger = danger;
-        self.dirty = true;
-    }
-
-    fn get_danger(&self) -> bool {
-        self.is_danger
-    }
 }
+
+impl Sprite for TextInput {}

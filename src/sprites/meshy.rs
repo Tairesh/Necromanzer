@@ -1,5 +1,5 @@
 use sprites::position::Position;
-use sprites::sprite::{Draw, Positionate, Sprite, Update};
+use sprites::sprite::{Colorize, Draw, Hover, Positionate, Sprite, Update};
 use tetra::graphics::mesh::Mesh;
 use tetra::graphics::{Color, DrawParams};
 use tetra::math::Rect;
@@ -65,16 +65,18 @@ impl Positionate for JustMesh {
     }
 }
 
-impl Update for JustMesh {}
-
-impl Sprite for JustMesh {
-    fn get_color(&self) -> Option<Color> {
-        self.color
+impl Colorize for JustMesh {
+    fn color(&self) -> Color {
+        self.color.unwrap_or(Color::WHITE)
     }
+
     fn set_color(&mut self, value: Color) {
         self.color = Some(value);
     }
 }
+
+impl Update for JustMesh {}
+impl Sprite for JustMesh {}
 
 pub struct HoverableMesh {
     mesh: Mesh,
@@ -170,7 +172,7 @@ impl Update for HoverableMesh {
     }
 }
 
-impl Sprite for HoverableMesh {
+impl Hover for HoverableMesh {
     fn on_hovered(&mut self) {
         self.is_hovered = true;
         self.dirty = true;
@@ -181,3 +183,5 @@ impl Sprite for HoverableMesh {
         self.dirty = true;
     }
 }
+
+impl Sprite for HoverableMesh {}

@@ -1,6 +1,6 @@
 use assets::Assets;
 use sprites::position::{AnchorX, AnchorY, Position};
-use sprites::sprite::{Draw, Positionate, Sprite, Update};
+use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::{Color, DrawParams, NineSlice, Rectangle, Texture};
@@ -116,6 +116,16 @@ impl Positionate for Image {
     }
 }
 
+impl Colorize for Image {
+    fn color(&self) -> Color {
+        self.color.unwrap_or(Color::WHITE)
+    }
+
+    fn set_color(&mut self, color: Color) {
+        self.color = Some(color);
+    }
+}
+
 impl Update for Image {}
 impl Sprite for Image {}
 
@@ -172,6 +182,23 @@ impl Bar {
             dirty: false,
         }
     }
+
+    pub fn set_value(&mut self, value: u32) {
+        if value > 0 {
+            self.image.set_visible(true);
+            self.image.nine_slice.as_mut().unwrap().1 = (value as f32 / self.max_value as f32)
+                * (self.max_width - self.min_width)
+                + self.min_width;
+        } else {
+            self.image.set_visible(false);
+        }
+        self.value = value;
+        self.dirty = true;
+    }
+
+    pub fn value(&self) -> u32 {
+        self.value
+    }
 }
 
 impl Draw for Bar {
@@ -212,21 +239,4 @@ impl Positionate for Bar {
 }
 
 impl Update for Bar {}
-impl Sprite for Bar {
-    fn set_int_value(&mut self, value: u32) {
-        if value > 0 {
-            self.image.set_visible(true);
-            self.image.nine_slice.as_mut().unwrap().1 = (value as f32 / self.max_value as f32)
-                * (self.max_width - self.min_width)
-                + self.min_width;
-        } else {
-            self.image.set_visible(false);
-        }
-        self.value = value;
-        self.dirty = true;
-    }
-
-    fn get_int_value(&self) -> Option<u32> {
-        Some(self.value)
-    }
-}
+impl Sprite for Bar {}

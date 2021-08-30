@@ -1,5 +1,5 @@
 use sprites::position::Position;
-use sprites::sprite::{Draw, Positionate, Sprite, Update};
+use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
 use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
 use tetra::math::Rect;
@@ -74,21 +74,25 @@ impl Positionate for Label {
     }
 }
 
-impl Update for Label {}
-impl Sprite for Label {
-    fn set_value(&mut self, value: &str) {
-        self.text.set_content(value);
-    }
-
-    fn get_value(&self) -> Option<String> {
-        Some(self.text.content().to_string())
-    }
-
-    fn get_color(&self) -> Option<Color> {
-        Some(self.color)
+impl Colorize for Label {
+    fn color(&self) -> Color {
+        self.color
     }
 
     fn set_color(&mut self, color: Color) {
         self.color = color;
     }
 }
+
+impl Stringify for Label {
+    fn value(&self) -> String {
+        self.text.content().to_string()
+    }
+
+    fn set_value(&mut self, value: &str) {
+        self.text.set_content(value);
+    }
+}
+
+impl Update for Label {}
+impl Sprite for Label {}

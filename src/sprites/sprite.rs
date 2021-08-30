@@ -38,46 +38,30 @@ pub trait Update {
     }
 }
 
-pub trait Sprite: Draw + Positionate + Update {
-    fn on_pressed(&mut self) {}
-
-    fn off_pressed(&mut self) {}
-
-    fn unpress(&mut self) {}
-
-    fn on_hovered(&mut self) {}
-
-    fn off_hovered(&mut self) {}
-
-    fn is_focusable(&self) -> bool {
-        false
-    }
-
-    fn set_value(&mut self, _value: &str) {}
-
-    fn get_value(&self) -> Option<String> {
-        None
-    }
-
-    fn set_int_value(&mut self, _value: u32) {}
-
-    fn get_int_value(&self) -> Option<u32> {
-        None
-    }
-
-    fn get_color(&self) -> Option<Color> {
-        None
-    }
-
-    fn set_color(&mut self, _color: Color) {}
-
-    fn validate_value(&mut self) {}
-
-    fn set_danger(&mut self, _danger: bool) {}
-
-    fn get_danger(&self) -> bool {
-        false
-    }
-
-    fn set_disabled(&mut self, _disabled: bool) {}
+pub trait Disable {
+    fn disabled(&self) -> bool;
+    fn set_disabled(&mut self, disabled: bool);
 }
+
+pub trait Colorize {
+    fn color(&self) -> Color;
+    fn set_color(&mut self, color: Color);
+}
+
+pub trait Stringify {
+    fn value(&self) -> String;
+    fn set_value(&mut self, value: &str);
+}
+
+pub trait Hover {
+    fn on_hovered(&mut self);
+    fn off_hovered(&mut self);
+}
+
+pub trait Press {
+    fn on_pressed(&mut self);
+    fn off_pressed(&mut self);
+    fn unpress(&mut self);
+}
+
+pub trait Sprite: Draw + Positionate + Update {}

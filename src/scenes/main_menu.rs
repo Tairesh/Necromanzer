@@ -10,7 +10,7 @@ use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position, Vertical};
-use sprites::sprite::Sprite;
+use sprites::sprite::{Disable, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;

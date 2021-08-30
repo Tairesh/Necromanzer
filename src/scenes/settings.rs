@@ -6,7 +6,7 @@ use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position, Vertical};
-use sprites::sprite::{Positionate, Sprite};
+use sprites::sprite::{Positionate, Press, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -14,6 +14,7 @@ use tetra::{input, Context};
 
 pub struct SettingsScene {
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
+    radio_buttons: Vec<Rc<RefCell<Button>>>,
 }
 
 impl SettingsScene {
@@ -93,6 +94,11 @@ impl SettingsScene {
         )));
 
         SettingsScene {
+            radio_buttons: vec![
+                window_btn.clone(),
+                fullscreen_btn.clone(),
+                borderless_btn.clone(),
+            ],
             sprites: vec![
                 bg,
                 title,
@@ -109,7 +115,7 @@ impl SettingsScene {
 impl Scene for SettingsScene {
     fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         if btn_id.starts_with("window_mode:") {
-            for sprite in self.sprites[3..=5].iter() {
+            for sprite in self.radio_buttons.iter() {
                 if let Some(other_id) = sprite.borrow().id() {
                     if other_id.as_str() != btn_id {
                         sprite.borrow_mut().unpress();

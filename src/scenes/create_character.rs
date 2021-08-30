@@ -14,7 +14,7 @@ use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::meshy::JustMesh;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::{Draw, Positionate, Sprite};
+use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
@@ -327,20 +327,14 @@ impl Scene for CreateCharacter {
         match btn_id {
             "back" => Some(Transition::Pop),
             "create" => {
-                let name = self.name_input.borrow().get_value().unwrap();
+                let name = self.name_input.borrow().value();
                 if name.is_empty() {
                     self.name_input.borrow_mut().set_danger(true);
                     self.name_empty.borrow_mut().set_visible(true);
                     None
                 } else {
-                    let gender = self.gender_input.borrow().get_value().unwrap();
-                    let age = self
-                        .age_input
-                        .borrow()
-                        .get_value()
-                        .unwrap()
-                        .parse::<u8>()
-                        .unwrap();
+                    let gender = self.gender_input.borrow().value();
+                    let age = self.age_input.borrow().value().parse::<u8>().unwrap();
                     let character =
                         Character::new(name, gender, age, self.main_hand, self.skin_tone);
                     let mut world = World::new(
@@ -364,7 +358,7 @@ impl Scene for CreateCharacter {
                     "Female"
                 });
                 let assets = self.assets.borrow();
-                let name = *match gender.get_value().unwrap().as_str() {
+                let name = *match gender.value().as_str() {
                     "Male" => &assets.male_names,
                     "Female" => &assets.female_names,
                     _ => &assets.names,
@@ -392,22 +386,19 @@ impl Scene for CreateCharacter {
             }
             "gender_left" | "gender_right" => {
                 let mut input = self.name_input.borrow_mut();
-                if let Some(value) = input.get_value() {
-                    input.set_value(if value == "Male" { "Female" } else { "Male" });
-                }
+                let value = input.value();
+                input.set_value(if value == "Male" { "Female" } else { "Male" });
                 None
             }
             "age_plus" | "age_minus" => {
                 let mut input = self.age_input.borrow_mut();
-                if let Some(value) = input.get_value() {
-                    if let Ok(mut value) = value.parse::<u8>() {
-                        if btn_id == "age_plus" {
-                            value += 1;
-                        } else if value > 0 {
-                            value -= 1;
-                        }
-                        input.set_value(format!("{}", value).as_str());
+                if let Ok(mut value) = input.value().parse::<u8>() {
+                    if btn_id == "age_plus" {
+                        value += 1;
+                    } else if value > 0 {
+                        value -= 1;
                     }
+                    input.set_value(format!("{}", value).as_str());
                 }
                 None
             }
@@ -444,7 +435,7 @@ impl Scene for CreateCharacter {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         {
             let mut name_error = self.name_empty.borrow_mut();
-            if !self.name_input.borrow().get_danger() && name_error.visible() {
+            if !self.name_input.borrow().danger() && name_error.visible() {
                 name_error.set_visible(false);
             }
         };
