@@ -23,16 +23,16 @@ use CARGO_VERSION;
 
 pub struct LoadWorld {
     assets: Rc<RefCell<Assets>>,
-    sprites: Vec<Box<dyn Sprite>>,
+    sprites: Vec<Rc<RefCell<dyn Sprite>>>,
 }
 
 impl LoadWorld {
     pub fn new(assets: Rc<RefCell<Assets>>, ctx: &mut Context) -> Self {
         let savefiles = savefiles();
-        let mut sprites: Vec<Box<dyn Sprite>> = Vec::with_capacity(savefiles.len() * 6 + 1);
+        let mut sprites: Vec<Rc<RefCell<dyn Sprite>>> = Vec::with_capacity(savefiles.len() * 6 + 1);
         let height = savefiles.len() as f32 * 50.0 + 33.0;
         let mut y = -height / 2.0;
-        sprites.push(Box::new(Alert::new(
+        sprites.push(Rc::new(RefCell::new(Alert::new(
             600.0,
             height,
             assets.clone(),
@@ -40,9 +40,9 @@ impl LoadWorld {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },
             },
-        )));
+        ))));
         for (i, savefile) in savefiles.iter().enumerate() {
-            sprites.push(Box::new(HoverableMesh::new(
+            sprites.push(Rc::new(RefCell::new(HoverableMesh::new(
                 Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 564.0, 50.0))
                     .unwrap(),
                 if i % 2 == 1 {
@@ -56,8 +56,8 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -282.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y },
                 },
-            )));
-            sprites.push(Box::new(Label::new(
+            ))));
+            sprites.push(Rc::new(RefCell::new(Label::new(
                 savefile.meta.name.as_str(),
                 assets.borrow().header2.clone(),
                 Colors::LIGHT_YELLOW,
@@ -65,8 +65,8 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -280.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y - 2.0 },
                 },
-            )));
-            sprites.push(Box::new(Label::new(
+            ))));
+            sprites.push(Rc::new(RefCell::new(Label::new(
                 savefile.version.as_str(),
                 assets.borrow().default.clone(),
                 if savefile.version.as_str() == CARGO_VERSION {
@@ -78,9 +78,9 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -275.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
-            )));
+            ))));
             let time: DateTime<Local> = savefile.time.into();
-            sprites.push(Box::new(Label::new(
+            sprites.push(Rc::new(RefCell::new(Label::new(
                 time.format("%Y.%m.%d %H:%M:%S").to_string().as_str(),
                 assets.borrow().default.clone(),
                 Colors::LIGHT_YELLOW,
@@ -88,8 +88,8 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -220.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
-            )));
-            sprites.push(Box::new(Button::new(
+            ))));
+            sprites.push(Rc::new(RefCell::new(Button::new(
                 format!("load:{}", savefile.path.to_str().unwrap()).as_str(),
                 vec![],
                 "Load",
@@ -98,8 +98,8 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByRight { offset: 190.0 },
                     y: Vertical::AtWindowCenter { offset: y + 24.5 },
                 },
-            )));
-            sprites.push(Box::new(Button::new(
+            ))));
+            sprites.push(Rc::new(RefCell::new(Button::new(
                 format!("del:{}", savefile.path.to_str().unwrap()).as_str(),
                 vec![],
                 "Delete",
@@ -108,7 +108,7 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByRight { offset: 275.0 },
                     y: Vertical::AtWindowCenter { offset: y + 24.5 },
                 },
-            )));
+            ))));
             y += 50.0;
         }
         LoadWorld { assets, sprites }
@@ -165,7 +165,7 @@ impl Scene for LoadWorld {
         }
     }
 
-    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+    fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
     }
 }

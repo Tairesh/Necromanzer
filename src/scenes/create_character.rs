@@ -14,7 +14,7 @@ use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::meshy::JustMesh;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::{Positionate, Sprite};
+use sprites::sprite::{Draw, Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
@@ -25,32 +25,39 @@ use world::World;
 
 pub struct CreateCharacter {
     assets: Rc<RefCell<Assets>>,
-    sprites: Vec<Box<dyn Sprite>>,
+    savefile: SaveFile,
+    sprites: Vec<Rc<RefCell<dyn Sprite>>>,
+    name_input: Rc<RefCell<TextInput>>,
+    name_empty: Rc<RefCell<Label>>,
+    gender_input: Rc<RefCell<TextInput>>,
+    age_input: Rc<RefCell<TextInput>>,
+    hand_label: Rc<RefCell<Label>>,
+    skin_mesh: Rc<RefCell<JustMesh>>,
+    skin_label: Rc<RefCell<Label>>,
     main_hand: MainHand,
     skin_tone: SkinTone,
-    savefile: SaveFile,
 }
 
 impl CreateCharacter {
     pub fn new(assets: Rc<RefCell<Assets>>, savefile: SaveFile, ctx: &mut Context) -> Self {
-        let mut sprites: Vec<Box<dyn Sprite>> = Vec::new();
-        sprites.push(Box::new(Image::new(
+        let mut sprites: Vec<Rc<RefCell<dyn Sprite>>> = Vec::new();
+        sprites.push(Rc::new(RefCell::new(Image::new(
             assets.borrow().bg.clone(),
             Position::center(),
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Label::new(
             "Create new character:",
             assets.borrow().header1.clone(),
             Colors::DARK_GREEN,
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Label::new(
             format!("New adventurer in the «{}» world", savefile.meta.name).as_str(),
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, 100.0, AnchorY::Top),
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Label::new(
             "Name:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -58,8 +65,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(194.0),
             },
-        )));
-        sprites.push(Box::new(TextInput::new(
+        ))));
+        let name_input = Rc::new(RefCell::new(TextInput::new(
             "name",
             "",
             300.0,
@@ -69,7 +76,8 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(200.0),
             },
         )));
-        sprites.push(Box::new(Label::hidden(
+        sprites.push(name_input.clone());
+        let name_empty = Rc::new(RefCell::new(Label::hidden(
             "Character name shall not be empty!",
             assets.borrow().default.clone(),
             Colors::RED,
@@ -78,7 +86,8 @@ impl CreateCharacter {
                 y: AnchorY::Bottom.to_position(170.0),
             },
         )));
-        sprites.push(Box::new(Label::new(
+        sprites.push(name_empty.clone());
+        sprites.push(Rc::new(RefCell::new(Label::new(
             "Gender:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -86,8 +95,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(244.0),
             },
-        )));
-        sprites.push(Box::new(Button::icon(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "gender_left",
             vec![],
             assets.borrow().icons.lt,
@@ -96,8 +105,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(250.0),
             },
-        )));
-        sprites.push(Box::new(TextInput::new(
+        ))));
+        let gender_input = Rc::new(RefCell::new(TextInput::new(
             "gender",
             if savefile.time.elapsed().unwrap().as_secs() % 2 == 0 {
                 "Male"
@@ -111,7 +120,8 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(250.0),
             },
         )));
-        sprites.push(Box::new(Button::icon(
+        sprites.push(gender_input.clone());
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "gender_right",
             vec![],
             assets.borrow().icons.mt,
@@ -120,8 +130,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(250.0),
             },
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Label::new(
             "Age:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -129,8 +139,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(294.0),
             },
-        )));
-        sprites.push(Box::new(Button::icon(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "age_minus",
             vec![],
             assets.borrow().icons.minus,
@@ -139,8 +149,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(300.0),
             },
-        )));
-        sprites.push(Box::new(TextInput::int(
+        ))));
+        let age_input = Rc::new(RefCell::new(TextInput::int(
             "age",
             18,
             (16, 99),
@@ -151,7 +161,8 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(300.0),
             },
         )));
-        sprites.push(Box::new(Button::icon(
+        sprites.push(age_input.clone());
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "age_plus",
             vec![],
             assets.borrow().icons.plus,
@@ -160,8 +171,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(300.0),
             },
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Label::new(
             "Main hand:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -169,8 +180,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(344.0),
             },
-        )));
-        sprites.push(Box::new(Button::icon(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "hand_left",
             vec![],
             assets.borrow().icons.lt,
@@ -179,8 +190,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(350.0),
             },
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        let hand_label = Rc::new(RefCell::new(Label::new(
             "Left",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -189,7 +200,8 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(344.0),
             },
         )));
-        sprites.push(Box::new(Button::icon(
+        sprites.push(hand_label.clone());
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "hand_right",
             vec![],
             assets.borrow().icons.mt,
@@ -198,8 +210,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(350.0),
             },
-        )));
-        sprites.push(Box::new(Label::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Label::new(
             "Skin tone:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -207,8 +219,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: AnchorY::Center.to_position(394.0),
             },
-        )));
-        sprites.push(Box::new(Button::icon(
+        ))));
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "skin_left",
             vec![],
             assets.borrow().icons.lt,
@@ -217,8 +229,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(400.0),
             },
-        )));
-        sprites.push(Box::new(JustMesh::new(
+        ))));
+        let skin_mesh = Rc::new(RefCell::new(JustMesh::new(
             Mesh::rounded_rectangle(
                 ctx,
                 ShapeStyle::Fill,
@@ -233,7 +245,8 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(400.0),
             },
         )));
-        sprites.push(Box::new(Label::new(
+        sprites.push(skin_mesh.clone());
+        let skin_label = Rc::new(RefCell::new(Label::new(
             "Warm Ivory",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -242,7 +255,8 @@ impl CreateCharacter {
                 y: AnchorY::Center.to_position(394.0),
             },
         )));
-        sprites.push(Box::new(Button::icon(
+        sprites.push(skin_label.clone());
+        sprites.push(Rc::new(RefCell::new(Button::icon(
             "skin_right",
             vec![],
             assets.borrow().icons.mt,
@@ -251,7 +265,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: AnchorY::Center.to_position(400.0),
             },
-        )));
+        ))));
         let mut randomize_btn = Button::new(
             "randomize",
             vec![
@@ -266,7 +280,7 @@ impl CreateCharacter {
             },
         );
         let randomize_size = randomize_btn.calc_size(ctx);
-        sprites.push(Box::new(Button::new(
+        sprites.push(Rc::new(RefCell::new(Button::new(
             "back",
             vec![(Key::Escape, None)],
             "[Esc] Back",
@@ -277,9 +291,9 @@ impl CreateCharacter {
                 },
                 y: AnchorY::Center.to_position(500.0),
             },
-        )));
-        sprites.push(Box::new(randomize_btn));
-        sprites.push(Box::new(Button::new(
+        ))));
+        sprites.push(Rc::new(RefCell::new(randomize_btn)));
+        sprites.push(Rc::new(RefCell::new(Button::new(
             "create",
             vec![(Key::Enter, Some(KeyModifier::Alt))],
             "[Alt+Enter] Create",
@@ -290,11 +304,18 @@ impl CreateCharacter {
                 },
                 y: AnchorY::Center.to_position(500.0),
             },
-        )));
+        ))));
         Self {
             assets,
-            sprites,
             savefile,
+            sprites,
+            name_input,
+            name_empty,
+            gender_input,
+            age_input,
+            hand_label,
+            skin_mesh,
+            skin_label,
             main_hand: MainHand::Left,
             skin_tone: SkinTone::WarmIvory,
         }
@@ -306,24 +327,22 @@ impl Scene for CreateCharacter {
         match btn_id {
             "back" => Some(Transition::Pop),
             "create" => {
-                if self.sprites.get(4).unwrap().get_value().unwrap().is_empty() {
-                    self.sprites.get_mut(4).unwrap().set_danger(true);
-                    self.sprites.get_mut(5).unwrap().set_visible(true);
+                let name = self.name_input.borrow().get_value().unwrap();
+                if name.is_empty() {
+                    self.name_input.borrow_mut().set_danger(true);
+                    self.name_empty.borrow_mut().set_visible(true);
                     None
                 } else {
-                    let character = Character::new(
-                        self.sprites.get(4).unwrap().get_value().unwrap(),
-                        self.sprites.get(8).unwrap().get_value().unwrap(),
-                        self.sprites
-                            .get_mut(12)
-                            .unwrap()
-                            .get_value()
-                            .unwrap()
-                            .parse()
-                            .unwrap(),
-                        self.main_hand,
-                        self.skin_tone,
-                    );
+                    let gender = self.gender_input.borrow().get_value().unwrap();
+                    let age = self
+                        .age_input
+                        .borrow()
+                        .get_value()
+                        .unwrap()
+                        .parse::<u8>()
+                        .unwrap();
+                    let character =
+                        Character::new(name, gender, age, self.main_hand, self.skin_tone);
                     let mut world = World::new(
                         self.savefile.path.clone(),
                         self.savefile.meta.clone(),
@@ -338,7 +357,7 @@ impl Scene for CreateCharacter {
                 }
             }
             "randomize" => {
-                let gender = self.sprites.get_mut(8).unwrap();
+                let mut gender = self.gender_input.borrow_mut();
                 gender.set_value(if rand::random::<bool>() {
                     "Male"
                 } else {
@@ -352,34 +371,36 @@ impl Scene for CreateCharacter {
                 }
                 .choose(&mut rand::thread_rng())
                 .unwrap();
-                let input = self.sprites.get_mut(4).unwrap();
-                input.set_value(name);
-                let age = self.sprites.get_mut(12).unwrap();
-                age.set_value(format!("{}", rand::thread_rng().gen_range(16..=99)).as_str());
+                self.name_input.borrow_mut().set_value(name);
+                self.age_input
+                    .borrow_mut()
+                    .set_value(format!("{}", rand::thread_rng().gen_range(16..=99)).as_str());
                 self.main_hand = rand::random::<MainHand>();
-                let hand = self.sprites.get_mut(16).unwrap();
+                let mut hand = self.hand_label.borrow_mut();
                 hand.set_value(self.main_hand.name());
-                hand.positionate(ctx, window::get_size(ctx));
+                let window_size = window::get_size(ctx);
+                hand.positionate(ctx, window_size);
                 self.skin_tone = rand::random::<SkinTone>();
-                let mesh = self.sprites.get_mut(20).unwrap();
-                mesh.set_color(self.skin_tone.color());
-                let label = self.sprites.get_mut(21).unwrap();
+                self.skin_mesh
+                    .borrow_mut()
+                    .set_color(self.skin_tone.color());
+                let mut label = self.skin_label.borrow_mut();
                 label.set_value(self.skin_tone.name());
                 label.set_color(self.skin_tone.text_color());
-                label.positionate(ctx, window::get_size(ctx));
+                label.positionate(ctx, window_size);
                 None
             }
             "gender_left" | "gender_right" => {
-                let input = self.sprites.get_mut(8).unwrap();
+                let mut input = self.name_input.borrow_mut();
                 if let Some(value) = input.get_value() {
                     input.set_value(if value == "Male" { "Female" } else { "Male" });
                 }
                 None
             }
             "age_plus" | "age_minus" => {
-                let input = self.sprites.get_mut(12).unwrap();
+                let mut input = self.age_input.borrow_mut();
                 if let Some(value) = input.get_value() {
-                    if let Ok(mut value) = value.parse::<u32>() {
+                    if let Ok(mut value) = value.parse::<u8>() {
                         if btn_id == "age_plus" {
                             value += 1;
                         } else if value > 0 {
@@ -391,7 +412,7 @@ impl Scene for CreateCharacter {
                 None
             }
             "hand_left" | "hand_right" => {
-                let label = self.sprites.get_mut(16).unwrap();
+                let mut label = self.hand_label.borrow_mut();
                 self.main_hand = if btn_id == "hand_right" {
                     self.main_hand.next()
                 } else {
@@ -407,9 +428,10 @@ impl Scene for CreateCharacter {
                 } else {
                     self.skin_tone.prev()
                 };
-                let mesh = self.sprites.get_mut(20).unwrap();
-                mesh.set_color(self.skin_tone.color());
-                let label = self.sprites.get_mut(21).unwrap();
+                self.skin_mesh
+                    .borrow_mut()
+                    .set_color(self.skin_tone.color());
+                let mut label = self.skin_label.borrow_mut();
                 label.set_value(self.skin_tone.name());
                 label.set_color(self.skin_tone.text_color());
                 label.positionate(ctx, window::get_size(ctx));
@@ -420,9 +442,12 @@ impl Scene for CreateCharacter {
     }
 
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
-        if !self.sprites.get(4).unwrap().get_danger() && self.sprites.get(5).unwrap().visible() {
-            self.sprites.get_mut(5).unwrap().set_visible(false);
-        }
+        {
+            let mut name_error = self.name_empty.borrow_mut();
+            if !self.name_input.borrow().get_danger() && name_error.visible() {
+                name_error.set_visible(false);
+            }
+        };
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             Ok(Transition::Pop)
         } else if let Some(t) = update_sprites(self, ctx) {
@@ -432,7 +457,7 @@ impl Scene for CreateCharacter {
         }
     }
 
-    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+    fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
     }
 }

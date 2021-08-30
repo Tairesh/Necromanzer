@@ -11,8 +11,8 @@ use {TITLE, VERSION};
 pub(crate) fn update_sprites<T: Scene>(scene: &mut T, ctx: &mut Context) -> Option<Transition> {
     if let Some(sprites) = scene.sprites() {
         let mut btn_clicked = None;
-        for sprite in sprites.iter_mut() {
-            if let Some(btn_id) = sprite.update(ctx) {
+        for sprite in sprites.iter() {
+            if let Some(btn_id) = sprite.borrow_mut().update(ctx) {
                 btn_clicked = Some(btn_id);
             }
         }
@@ -35,7 +35,7 @@ pub trait Scene {
     }
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         if let Some(sprites) = self.sprites() {
-            if sprites.iter().any(|s| s.dirty()) {
+            if sprites.iter().any(|s| s.borrow().dirty()) {
                 self.redraw_sprites(ctx)?;
             }
         }
@@ -43,9 +43,9 @@ pub trait Scene {
     }
     fn redraw_sprites(&mut self, ctx: &mut Context) -> tetra::Result {
         if let Some(sprites) = self.sprites() {
-            for sprite in sprites.iter_mut() {
-                if sprite.visible() {
-                    sprite.draw(ctx);
+            for sprite in sprites.iter() {
+                if sprite.borrow().visible() {
+                    sprite.borrow_mut().draw(ctx);
                 }
             }
         }
@@ -54,15 +54,15 @@ pub trait Scene {
     fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
         if let Some(sprites) = self.sprites() {
             let window_size = window::get_size(ctx);
-            for sprite in sprites.iter_mut() {
-                sprite.positionate(ctx, window_size);
+            for sprite in sprites.iter() {
+                sprite.borrow_mut().positionate(ctx, window_size);
             }
             self.redraw_sprites(ctx)
         } else {
             Ok(())
         }
     }
-    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+    fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         None
     }
     fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {

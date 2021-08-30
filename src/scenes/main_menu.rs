@@ -1,6 +1,6 @@
 use assets::Assets;
 use colors::Colors;
-use savefile::{savefiles, SaveFile};
+use savefile::savefiles;
 use scenes::create_world::CreateWorld;
 use scenes::load_world::LoadWorld;
 use scenes::manager::{update_sprites, Scene, Transition};
@@ -20,35 +20,40 @@ use VERSION;
 pub struct MainMenu {
     assets: Rc<RefCell<Assets>>,
     settings: Rc<RefCell<Settings>>,
-    sprites: Vec<Box<dyn Sprite>>,
-    savefiles: Vec<SaveFile>,
+    sprites: Vec<Rc<RefCell<dyn Sprite>>>,
+    select_btn: Rc<RefCell<Button>>,
 }
 
 impl MainMenu {
     pub fn new(assets: Rc<RefCell<Assets>>, settings: Rc<RefCell<Settings>>) -> Self {
-        let bg = Image::new(assets.borrow().bg.clone(), Position::center());
-        let logo = Image::new(
+        let bg = Rc::new(RefCell::new(Image::new(
+            assets.borrow().bg.clone(),
+            Position::center(),
+        )));
+        let logo = Rc::new(RefCell::new(Image::new(
             assets.borrow().logo.clone(),
             Position::horizontal_center(0.0, 50.0, AnchorY::Top),
-        );
-        let version = Label::new(
+        )));
+        let version = Rc::new(RefCell::new(Label::new(
             &*VERSION,
             assets.borrow().default.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, 69.69, AnchorY::Top),
-        );
-        let select_btn = Button::new(
-            "select_world",
-            vec![(Key::E, None)],
-            "[e] Select world",
-            assets.clone(),
-            Position {
-                x: Horizontal::AtWindowCenter { offset: 0.0 },
-                y: Vertical::AtWindowCenter { offset: 0.0 },
-            },
-        )
-        .with_disabled(true);
-        let create_btn = Button::new(
+        )));
+        let select_btn = Rc::new(RefCell::new(
+            Button::new(
+                "select_world",
+                vec![(Key::E, None)],
+                "[e] Select world",
+                assets.clone(),
+                Position {
+                    x: Horizontal::AtWindowCenter { offset: 0.0 },
+                    y: Vertical::AtWindowCenter { offset: 0.0 },
+                },
+            )
+            .with_disabled(true),
+        ));
+        let create_btn = Rc::new(RefCell::new(Button::new(
             "create_world",
             vec![(Key::C, None)],
             "[c] Create new world",
@@ -57,8 +62,8 @@ impl MainMenu {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 50.0 },
             },
-        );
-        let settings_btn = Button::new(
+        )));
+        let settings_btn = Rc::new(RefCell::new(Button::new(
             "settings",
             vec![(Key::S, None)],
             "[s] Settings",
@@ -67,8 +72,8 @@ impl MainMenu {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 100.0 },
             },
-        );
-        let exit_btn = Button::new(
+        )));
+        let exit_btn = Rc::new(RefCell::new(Button::new(
             "exit",
             vec![(Key::X, None)],
             "[x] Exit",
@@ -77,20 +82,20 @@ impl MainMenu {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenter { offset: 150.0 },
             },
-        );
+        )));
         MainMenu {
             assets,
             settings,
             sprites: vec![
-                Box::new(bg),
-                Box::new(logo),
-                Box::new(version),
-                Box::new(select_btn),
-                Box::new(create_btn),
-                Box::new(settings_btn),
-                Box::new(exit_btn),
+                bg,
+                logo,
+                version,
+                select_btn.clone(),
+                create_btn,
+                settings_btn,
+                exit_btn,
             ],
-            savefiles: vec![],
+            select_btn,
         }
     }
 }
@@ -124,16 +129,14 @@ impl Scene for MainMenu {
         }
     }
 
-    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+    fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
     }
 
     fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
-        self.savefiles = savefiles();
-        self.sprites
-            .get_mut(3)
-            .unwrap()
-            .set_disabled(self.savefiles.is_empty());
+        self.select_btn
+            .borrow_mut()
+            .set_disabled(savefiles().is_empty());
         self.on_resize(ctx)
     }
 }

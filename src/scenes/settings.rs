@@ -13,7 +13,7 @@ use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
 
 pub struct SettingsScene {
-    sprites: Vec<Box<dyn Sprite>>,
+    sprites: Vec<Rc<RefCell<dyn Sprite>>>,
 }
 
 impl SettingsScene {
@@ -22,14 +22,17 @@ impl SettingsScene {
         settings: Rc<RefCell<Settings>>,
         ctx: &mut Context,
     ) -> Self {
-        let bg = Image::new(assets.borrow().bg.clone(), Position::center());
-        let title = Label::new(
+        let bg = Rc::new(RefCell::new(Image::new(
+            assets.borrow().bg.clone(),
+            Position::center(),
+        )));
+        let title = Rc::new(RefCell::new(Label::new(
             "Settings",
             assets.borrow().header1.clone(),
             Colors::DARK_GREEN,
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
-        );
-        let mut fullscreen_btn = Button::fixed(
+        )));
+        let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
             "window_mode:fullscreen",
             vec![(Key::F, Some(KeyModifier::Alt))],
             "[Alt+F] Fullscreen",
@@ -39,9 +42,9 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(150.0),
             },
-        );
-        let fullscreen_size = fullscreen_btn.calc_size(ctx);
-        let mut window_btn = Button::fixed(
+        )));
+        let fullscreen_size = fullscreen_btn.borrow_mut().calc_size(ctx);
+        let window_btn = Rc::new(RefCell::new(Button::fixed(
             "window_mode:window",
             vec![(Key::W, Some(KeyModifier::Alt))],
             "[Alt+W] Window",
@@ -51,9 +54,9 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByRight { offset: -2.0 },
                 y: AnchorY::Center.to_position(150.0),
             },
-        );
-        let window_size = window_btn.calc_size(ctx);
-        let window_mode = Label::new(
+        )));
+        let window_size = window_btn.borrow_mut().calc_size(ctx);
+        let window_mode = Rc::new(RefCell::new(Label::new(
             "Window mode:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -63,8 +66,8 @@ impl SettingsScene {
                 },
                 y: AnchorY::Center.to_position(145.0),
             },
-        );
-        let borderless_btn = Button::fixed(
+        )));
+        let borderless_btn = Rc::new(RefCell::new(Button::fixed(
             "window_mode:borderless",
             vec![(Key::B, Some(KeyModifier::Alt))],
             "[Alt+B] Borderless",
@@ -76,9 +79,9 @@ impl SettingsScene {
                 },
                 y: AnchorY::Center.to_position(150.0),
             },
-        );
+        )));
 
-        let back_btn = Button::new(
+        let back_btn = Rc::new(RefCell::new(Button::new(
             "back",
             vec![(Key::Escape, None)],
             "[Esc] Back",
@@ -87,17 +90,17 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowBottom { offset: -200.0 },
             },
-        );
+        )));
 
         SettingsScene {
             sprites: vec![
-                Box::new(bg),
-                Box::new(title),
-                Box::new(window_mode),
-                Box::new(window_btn),
-                Box::new(fullscreen_btn),
-                Box::new(borderless_btn),
-                Box::new(back_btn),
+                bg,
+                title,
+                window_mode,
+                window_btn,
+                fullscreen_btn,
+                borderless_btn,
+                back_btn,
             ],
         }
     }
@@ -106,10 +109,10 @@ impl SettingsScene {
 impl Scene for SettingsScene {
     fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         if btn_id.starts_with("window_mode:") {
-            for sprite in self.sprites[3..=5].iter_mut() {
-                if let Some(other_id) = sprite.id() {
+            for sprite in self.sprites[3..=5].iter() {
+                if let Some(other_id) = sprite.borrow().id() {
                     if other_id.as_str() != btn_id {
-                        sprite.unpress();
+                        sprite.borrow_mut().unpress();
                     }
                 }
             }
@@ -137,11 +140,7 @@ impl Scene for SettingsScene {
         }
     }
 
-    // fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-    //     self.redraw_sprites(ctx)
-    // }
-
-    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+    fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
     }
 }

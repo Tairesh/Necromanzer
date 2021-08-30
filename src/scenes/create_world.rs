@@ -9,7 +9,7 @@ use sprites::image::Image;
 use sprites::input::TextInput;
 use sprites::label::Label;
 use sprites::position::{AnchorY, Horizontal, Position};
-use sprites::sprite::{Positionate, Sprite};
+use sprites::sprite::{Draw, Positionate, Sprite};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -17,19 +17,27 @@ use tetra::{input, Context};
 
 pub struct CreateWorld {
     assets: Rc<RefCell<Assets>>,
-    sprites: Vec<Box<dyn Sprite>>,
+    sprites: Vec<Rc<RefCell<dyn Sprite>>>,
+    name_input: Rc<RefCell<TextInput>>,
+    name_empty: Rc<RefCell<Label>>,
+    name_error: Rc<RefCell<Label>>,
+    seed_input: Rc<RefCell<TextInput>>,
+    seed_error: Rc<RefCell<Label>>,
 }
 
 impl CreateWorld {
     pub fn new(assets: Rc<RefCell<Assets>>, ctx: &mut Context) -> Self {
-        let bg = Image::new(assets.borrow().bg.clone(), Position::center());
-        let title = Label::new(
+        let bg = Rc::new(RefCell::new(Image::new(
+            assets.borrow().bg.clone(),
+            Position::center(),
+        )));
+        let title = Rc::new(RefCell::new(Label::new(
             "Create new world:",
             assets.borrow().header1.clone(),
             Colors::DARK_GREEN,
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
-        );
-        let name_label = Label::new(
+        )));
+        let name_label = Rc::new(RefCell::new(Label::new(
             "World name:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -37,8 +45,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
                 y: AnchorY::Center.to_position(195.0),
             },
-        );
-        let name_input = TextInput::new(
+        )));
+        let name_input = Rc::new(RefCell::new(TextInput::new(
             "world_name",
             *assets
                 .borrow()
@@ -51,8 +59,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(200.0),
             },
-        );
-        let name_error = Label::hidden(
+        )));
+        let name_error = Rc::new(RefCell::new(Label::hidden(
             "Savefile with this name already exists",
             assets.borrow().default.clone(),
             Colors::DARK_RED,
@@ -60,8 +68,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenter { offset: 125.0 },
                 y: AnchorY::Bottom.to_position(170.0),
             },
-        );
-        let name_empty = Label::hidden(
+        )));
+        let name_empty = Rc::new(RefCell::new(Label::hidden(
             "World name shall not be empty!",
             assets.borrow().default.clone(),
             Colors::DARK_RED,
@@ -69,8 +77,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenter { offset: 125.0 },
                 y: AnchorY::Bottom.to_position(170.0),
             },
-        );
-        let seed_label = Label::new(
+        )));
+        let seed_label = Rc::new(RefCell::new(Label::new(
             "World seed:",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
@@ -78,8 +86,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
                 y: AnchorY::Center.to_position(265.0),
             },
-        );
-        let seed_input = TextInput::new(
+        )));
+        let seed_input = Rc::new(RefCell::new(TextInput::new(
             "world_seed",
             random_seed().as_str(),
             250.0,
@@ -88,8 +96,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(270.0),
             },
-        );
-        let seed_error = Label::hidden(
+        )));
+        let seed_error = Rc::new(RefCell::new(Label::hidden(
             "Seed shall not be empty!",
             assets.borrow().default.clone(),
             Colors::DARK_RED,
@@ -97,8 +105,8 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenter { offset: 125.0 },
                 y: AnchorY::Bottom.to_position(240.0),
             },
-        );
-        let mut randomize_btn = Button::new(
+        )));
+        let randomize_btn = Rc::new(RefCell::new(Button::new(
             "randomize",
             vec![
                 (Key::NumPadMultiply, None),
@@ -110,9 +118,9 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: AnchorY::Center.to_position(500.0),
             },
-        );
-        let randomize_size = randomize_btn.calc_size(ctx);
-        let back_btn = Button::new(
+        )));
+        let randomize_size = randomize_btn.borrow_mut().calc_size(ctx);
+        let back_btn = Rc::new(RefCell::new(Button::new(
             "back",
             vec![(Key::Escape, None)],
             "[Esc] Back",
@@ -123,8 +131,8 @@ impl CreateWorld {
                 },
                 y: AnchorY::Center.to_position(500.0),
             },
-        );
-        let create_btn = Button::new(
+        )));
+        let create_btn = Rc::new(RefCell::new(Button::new(
             "create",
             vec![(Key::Enter, Some(KeyModifier::Alt))],
             "[Alt+Enter] Create",
@@ -135,23 +143,28 @@ impl CreateWorld {
                 },
                 y: AnchorY::Center.to_position(500.0),
             },
-        );
+        )));
         CreateWorld {
             assets,
             sprites: vec![
-                Box::new(bg),
-                Box::new(title),
-                Box::new(name_label),
-                Box::new(name_input),
-                Box::new(seed_label),
-                Box::new(seed_input),
-                Box::new(back_btn),
-                Box::new(randomize_btn),
-                Box::new(create_btn),
-                Box::new(name_error),
-                Box::new(seed_error),
-                Box::new(name_empty),
+                bg,
+                title,
+                name_label,
+                name_input.clone(),
+                seed_label,
+                seed_input.clone(),
+                back_btn,
+                randomize_btn,
+                create_btn,
+                name_error.clone(),
+                seed_error.clone(),
+                name_empty.clone(),
             ],
+            name_input,
+            name_error,
+            name_empty,
+            seed_input,
+            seed_error,
         }
     }
 }
@@ -164,7 +177,7 @@ impl Scene for CreateWorld {
     fn on_button_click(&mut self, _ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "randomize" => {
-                self.sprites.get_mut(3).unwrap().set_value(
+                self.name_input.borrow_mut().set_value(
                     *self
                         .assets
                         .borrow()
@@ -172,24 +185,22 @@ impl Scene for CreateWorld {
                         .choose(&mut rand::thread_rng())
                         .unwrap(),
                 );
-                self.sprites
-                    .get_mut(5)
-                    .unwrap()
+                self.seed_input
+                    .borrow_mut()
                     .set_value(random_seed().as_str());
             }
             "create" => {
-                if self.sprites.get(5).unwrap().get_value().unwrap().is_empty() {
-                    self.sprites.get_mut(5).unwrap().set_danger(true);
-                    self.sprites.get_mut(10).unwrap().set_visible(true);
+                let seed = self.seed_input.borrow().get_value().unwrap();
+                let name = self.name_input.borrow().get_value().unwrap();
+                if seed.is_empty() {
+                    self.seed_input.borrow_mut().set_danger(true);
+                    self.seed_error.borrow_mut().set_visible(true);
                 }
-                if self.sprites.get(3).unwrap().get_value().unwrap().is_empty() {
-                    self.sprites.get_mut(3).unwrap().set_danger(true);
-                    self.sprites.get_mut(11).unwrap().set_visible(true);
+                if name.is_empty() {
+                    self.name_input.borrow_mut().set_danger(true);
+                    self.name_empty.borrow_mut().set_visible(true);
                 } else {
-                    let mut file = SaveFile::new(
-                        self.sprites.get(3).unwrap().get_value().unwrap().as_str(),
-                        self.sprites.get(5).unwrap().get_value().unwrap().as_str(),
-                    );
+                    let mut file = SaveFile::new(name.as_str(), seed.as_str());
                     match file.create() {
                         Ok(_) => return Some(Transition::Pop),
                         Err(err) => match err {
@@ -197,8 +208,8 @@ impl Scene for CreateWorld {
                                 panic!("Can't create savefile: {}", err)
                             }
                             CreateFileError::FileExists => {
-                                self.sprites.get_mut(3).unwrap().set_danger(true);
-                                self.sprites.get_mut(9).unwrap().set_visible(true);
+                                self.name_input.borrow_mut().set_danger(true);
+                                self.name_error.borrow_mut().set_visible(true);
                             }
                         },
                     }
@@ -211,14 +222,21 @@ impl Scene for CreateWorld {
     }
 
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
-        if !self.sprites.get(3).unwrap().get_danger() && self.sprites.get(9).unwrap().visible() {
-            self.sprites.get_mut(9).unwrap().set_visible(false);
-        }
-        if !self.sprites.get(3).unwrap().get_danger() && self.sprites.get(11).unwrap().visible() {
-            self.sprites.get_mut(11).unwrap().set_visible(false);
-        }
-        if !self.sprites.get(5).unwrap().get_danger() && self.sprites.get(10).unwrap().visible() {
-            self.sprites.get_mut(10).unwrap().set_visible(false);
+        {
+            let name = self.name_input.borrow();
+            let mut name_empty = self.name_empty.borrow_mut();
+            let mut name_error = self.name_error.borrow_mut();
+            let seed = self.seed_input.borrow();
+            let mut seed_error = self.seed_error.borrow_mut();
+            if !name.get_danger() && name_empty.visible() {
+                name_empty.set_visible(false);
+            }
+            if !name.get_danger() && name_error.visible() {
+                name_error.set_visible(false);
+            }
+            if !seed.get_danger() && seed_error.visible() {
+                seed_error.set_visible(false);
+            }
         }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             Ok(Transition::Pop)
@@ -229,7 +247,7 @@ impl Scene for CreateWorld {
         }
     }
 
-    fn sprites(&mut self) -> Option<&mut Vec<Box<dyn Sprite>>> {
+    fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
     }
 }
