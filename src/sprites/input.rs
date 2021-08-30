@@ -18,7 +18,6 @@ enum ValueType {
 }
 
 pub struct TextInput {
-    id: String,
     text: Text,
     position: Position,
     width: f32,
@@ -35,15 +34,8 @@ pub struct TextInput {
 }
 
 impl TextInput {
-    pub fn new(
-        id: &str,
-        value: &str,
-        width: f32,
-        assets: Rc<RefCell<Assets>>,
-        position: Position,
-    ) -> Self {
+    pub fn new(value: &str, width: f32, assets: Rc<RefCell<Assets>>, position: Position) -> Self {
         Self {
-            id: id.to_ascii_lowercase(),
             value_type: ValueType::String { max_length: 16 },
             text: Text::new(value, assets.borrow().header2.clone()),
             position,
@@ -61,14 +53,13 @@ impl TextInput {
     }
 
     pub fn int(
-        id: &str,
         value: u32,
         clamps: (u32, u32),
         width: f32,
         assets: Rc<RefCell<Assets>>,
         position: Position,
     ) -> Self {
-        let mut s = Self::new(id, format!("{}", value).as_str(), width, assets, position);
+        let mut s = Self::new(format!("{}", value).as_str(), width, assets, position);
         s.value_type = ValueType::Unsigned {
             min: clamps.0,
             max: clamps.1,
@@ -240,10 +231,6 @@ impl Positionate for TextInput {
 }
 
 impl Update for TextInput {
-    fn id(&self) -> Option<String> {
-        Some(self.id.clone())
-    }
-
     fn update(&mut self, ctx: &mut Context) -> Option<String> {
         let mouse = input::get_mouse_position(ctx);
         let collides = self.rect.unwrap().contains_point(mouse);

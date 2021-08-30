@@ -47,7 +47,6 @@ impl CreateWorld {
             },
         )));
         let name_input = Rc::new(RefCell::new(TextInput::new(
-            "world_name",
             *assets
                 .borrow()
                 .names
@@ -88,7 +87,6 @@ impl CreateWorld {
             },
         )));
         let seed_input = Rc::new(RefCell::new(TextInput::new(
-            "world_seed",
             random_seed().as_str(),
             250.0,
             assets.clone(),

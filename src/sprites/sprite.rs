@@ -30,9 +30,6 @@ pub trait Positionate {
 }
 
 pub trait Update {
-    fn id(&self) -> Option<String> {
-        None
-    }
     fn update(&mut self, _ctx: &mut Context) -> Option<String> {
         None
     }

@@ -67,7 +67,6 @@ impl CreateCharacter {
             },
         ))));
         let name_input = Rc::new(RefCell::new(TextInput::new(
-            "name",
             "",
             300.0,
             assets.clone(),
@@ -107,7 +106,6 @@ impl CreateCharacter {
             },
         ))));
         let gender_input = Rc::new(RefCell::new(TextInput::new(
-            "gender",
             if savefile.time.elapsed().unwrap().as_secs() % 2 == 0 {
                 "Male"
             } else {
@@ -151,7 +149,6 @@ impl CreateCharacter {
             },
         ))));
         let age_input = Rc::new(RefCell::new(TextInput::int(
-            "age",
             18,
             (16, 99),
             210.0,

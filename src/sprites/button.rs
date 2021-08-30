@@ -109,6 +109,10 @@ impl Button {
         self
     }
 
+    pub fn id(&self) -> String {
+        self.id.clone()
+    }
+
     fn content_size(&mut self, ctx: &mut Context) -> (TetraVec2, f32) {
         match &mut self.content {
             ButtonContent::Text(text) => (
@@ -222,9 +226,6 @@ fn is_pressed_key_with_mod(ctx: &mut Context, key: Key, key_mod: Option<KeyModif
 }
 
 impl Update for Button {
-    fn id(&self) -> Option<String> {
-        Some(self.id.clone())
-    }
     fn update(&mut self, ctx: &mut Context) -> Option<String> {
         if self.is_disabled {
             return None;
@@ -244,7 +245,7 @@ impl Update for Button {
                 self.on_pressed();
             } else if off_pressed {
                 self.off_pressed();
-                return self.id();
+                return Some(self.id());
             }
         }
         let mouse = input::get_mouse_position(ctx);
@@ -260,7 +261,7 @@ impl Update for Button {
         } else if self.is_pressed && input::is_mouse_button_released(ctx, MouseButton::Left) {
             self.off_pressed();
             if collides {
-                return self.id();
+                return Some(self.id());
             }
         }
         None
