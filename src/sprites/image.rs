@@ -183,6 +183,7 @@ impl Bar {
         }
     }
 
+    #[allow(dead_code)]
     pub fn set_value(&mut self, value: u32) {
         if value > 0 {
             self.image.set_visible(true);
@@ -196,6 +197,7 @@ impl Bar {
         self.dirty = true;
     }
 
+    #[allow(dead_code)]
     pub fn value(&self) -> u32 {
         self.value
     }

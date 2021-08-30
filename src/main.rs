@@ -3,12 +3,14 @@
 mod assets;
 mod colors;
 mod human;
+mod maptile;
 mod savefile;
 mod scenes;
 mod settings;
 mod sprites;
 mod world;
 
+extern crate arr_macro;
 extern crate chrono;
 extern crate rand;
 extern crate serde;
@@ -51,6 +53,8 @@ fn main() -> tetra::Result {
     .build()?;
     let mut icon = ImageData::from_file_data(include_bytes!("../res/img/zombie.png"))?;
     window::set_icon(&mut ctx, &mut icon)?;
+    window::set_minimum_size(&mut ctx, 1024, 768)?;
+    window::set_maximum_size(&mut ctx, 1920, 1280)?;
 
     ctx.run(|ctx| {
         let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)), settings.clone());
