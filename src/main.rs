@@ -1,6 +1,7 @@
 #![windows_subsystem = "windows"]
 
 mod assets;
+mod chunk;
 mod colors;
 mod human;
 mod maptile;

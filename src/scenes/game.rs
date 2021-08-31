@@ -1,7 +1,6 @@
-use arr_macro::arr;
 use assets::Assets;
 use colors::Colors;
-use maptile::{DirtVariant, TileBase};
+use maptile::{BoulderVariant, DirtVariant, TileBase};
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::image::{Bar, Image};
 use sprites::label::Label;
@@ -18,7 +17,8 @@ pub struct Game {
     world: World,
     assets: Rc<RefCell<Assets>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
-    tiles: [TileBase; 2048],
+    zoom: f32,
+    dirty: bool,
 }
 
 impl Game {
@@ -48,18 +48,29 @@ impl Game {
             Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
         )));
 
-        let tiles = arr![TileBase::Dirt(rand::random::<DirtVariant>()); 2048];
         Self {
             sprites: vec![hat, name, ava, hp_bar, mp_bar],
             world,
             assets: assets_copy,
-            tiles,
+            zoom: 2.0,
+            dirty: true,
         }
     }
 }
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+        let scroll = input::get_mouse_wheel_movement(ctx).y;
+        if scroll != 0 {
+            self.zoom += scroll as f32 / 2.0;
+            if self.zoom < 1.0 {
+                self.zoom = 1.0;
+            } else if self.zoom > 10.0 {
+                self.zoom = 10.0;
+            } else {
+                self.dirty = true;
+            }
+        }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             self.world.save();
             Ok(Transition::Pop)
@@ -71,29 +82,65 @@ impl Scene for Game {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+        if !self.dirty {
+            return Ok(());
+        }
         graphics::clear(ctx, Colors::BLACK);
         {
             let assets = self.assets.borrow();
-            for i in 0..2048 {
-                let (x, y) = (i % 64, i / 64);
-                let region = match &self.tiles[i] {
-                    TileBase::Dirt(variant) => match variant {
-                        DirtVariant::Dirt1 => assets.icons.dirt1,
-                        DirtVariant::Dirt2 => assets.icons.dirt2,
-                        DirtVariant::Dirt3 => assets.icons.dirt3,
-                        DirtVariant::Dirt4 => assets.icons.dirt4,
-                        DirtVariant::Dirt5 => assets.icons.dirt5,
-                    },
-                };
-                assets.tileset.draw_region(
-                    ctx,
-                    region,
-                    DrawParams::new()
-                        .position(TetraVec2::new(x as f32 * 30.0, y as f32 * 30.0))
-                        .scale(TetraVec2::new(3.0, 3.0)),
-                )
+            let window_size = window::get_size(ctx);
+            let (left, top) = (
+                window_size.0 as f32 / 2.0 - 160.0 * self.zoom,
+                window_size.1 as f32 / 2.0 - 160.0 * self.zoom,
+            );
+            for chunk in [
+                (-1, -1),
+                (-1, 0),
+                (-1, 1),
+                (0, -1),
+                (0, 0),
+                (0, 1),
+                (1, -1),
+                (1, 0),
+                (1, 1),
+            ] {
+                let (left, top) = (
+                    left + chunk.0 as f32 * 320.0 * self.zoom,
+                    top + chunk.1 as f32 * 320.0 * self.zoom,
+                );
+                let tiles = &self.world.load_chunk(chunk).tiles;
+                for (i, tile) in tiles.iter().enumerate() {
+                    let (x, y) = (i % 32, i / 32);
+                    let region = match tile {
+                        TileBase::Dirt(variant) => match variant {
+                            DirtVariant::Dirt1 => assets.icons.dirt1,
+                            DirtVariant::Dirt2 => assets.icons.dirt2,
+                            DirtVariant::Dirt3 => assets.icons.dirt3,
+                            DirtVariant::Dirt4 => assets.icons.dirt4,
+                            DirtVariant::Dirt5 => assets.icons.dirt5,
+                        },
+                        TileBase::Boulder(variant) => match variant {
+                            BoulderVariant::One1 => assets.icons.boulder1,
+                            BoulderVariant::One2 => assets.icons.boulder2,
+                            BoulderVariant::One3 => assets.icons.boulder3,
+                            BoulderVariant::Two1 => assets.icons.boulders1,
+                            BoulderVariant::Two2 => assets.icons.boulders2,
+                            BoulderVariant::Three1 => assets.icons.boulders3,
+                            BoulderVariant::Three2 => assets.icons.boulders4,
+                        },
+                    };
+                    assets.tileset.draw_region(
+                        ctx,
+                        region,
+                        DrawParams::new()
+                            .position(TetraVec2::new(
+                                left + x as f32 * 10.0 * self.zoom,
+                                top + y as f32 * 10.0 * self.zoom,
+                            ))
+                            .scale(TetraVec2::new(self.zoom, self.zoom)),
+                    )
+                }
             }
-            let (w, h) = window::get_size(ctx);
             assets.tileset.draw_region(
                 ctx,
                 match self.world.avatar.gender.as_str() {
@@ -102,12 +149,16 @@ impl Scene for Game {
                     _ => assets.icons.queer,
                 },
                 DrawParams::new()
-                    .position(TetraVec2::new(w as f32 / 2.0 - 15.0, h as f32 / 2.0 - 15.0))
-                    .scale(TetraVec2::new(3.0, 3.0))
+                    .position(TetraVec2::new(
+                        left + 160.0 * self.zoom,
+                        top + 160.0 * self.zoom,
+                    ))
+                    .scale(TetraVec2::new(-self.zoom, self.zoom))
                     .color(self.world.avatar.skin_tone.color()),
             );
         }
         self.redraw_sprites(ctx)?;
+        self.dirty = false;
         Ok(())
     }
 

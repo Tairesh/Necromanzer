@@ -25,6 +25,32 @@ impl Distribution<DirtVariant> for Standard {
     }
 }
 
+pub enum BoulderVariant {
+    One1,
+    One2,
+    One3,
+    Two1,
+    Two2,
+    Three1,
+    Three2,
+}
+
+impl Distribution<BoulderVariant> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> BoulderVariant {
+        match rng.gen_range(0..7) {
+            0 => BoulderVariant::One1,
+            1 => BoulderVariant::One2,
+            2 => BoulderVariant::One3,
+            3 => BoulderVariant::Two1,
+            4 => BoulderVariant::Two2,
+            5 => BoulderVariant::Three1,
+            6 => BoulderVariant::Three2,
+            _ => unreachable!(),
+        }
+    }
+}
+
 pub enum TileBase {
     Dirt(DirtVariant),
+    Boulder(BoulderVariant),
 }
