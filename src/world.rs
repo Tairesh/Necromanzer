@@ -1,5 +1,6 @@
-use chunk::Chunk;
+use chunk::{Chunk, ChunkPos};
 use human::character::Character;
+use maptile::{TileBase, TilePos};
 use savefile::save;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -8,7 +9,7 @@ pub struct World {
     path: PathBuf,
     pub meta: WorldMeta,
     pub avatar: Character,
-    chunks: HashMap<(i32, i32), Chunk>,
+    chunks: HashMap<ChunkPos, Chunk>,
 }
 
 #[derive(Debug, Clone)]
@@ -33,9 +34,15 @@ impl World {
             .ok();
     }
 
-    pub fn load_chunk(&mut self, pos: (i32, i32)) -> &Chunk {
+    pub fn load_chunk(&mut self, pos: ChunkPos) -> &Chunk {
         self.chunks
             .entry(pos)
-            .or_insert_with_key(|(x, y)| Chunk::generate(*x, *y))
+            .or_insert_with_key(|pos| Chunk::generate(*pos))
+    }
+
+    pub fn load_tile(&mut self, pos: TilePos) -> &TileBase {
+        let (chunk, pos) = pos.chunk_and_pos();
+        let chunk = self.load_chunk(chunk);
+        &chunk.tiles[pos]
     }
 }

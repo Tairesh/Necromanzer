@@ -1,6 +1,6 @@
 use assets::Assets;
 use colors::Colors;
-use maptile::{BoulderVariant, DirtVariant, TileBase};
+use maptile::{BoulderVariant, DirtVariant, TileBase, TilePos};
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::image::{Bar, Image};
 use sprites::label::Label;
@@ -89,28 +89,17 @@ impl Scene for Game {
         {
             let assets = self.assets.borrow();
             let window_size = window::get_size(ctx);
-            let (left, top) = (
-                window_size.0 as f32 / 2.0 - 160.0 * self.zoom,
-                window_size.1 as f32 / 2.0 - 160.0 * self.zoom,
+            let window_size_in_tiles = (
+                (window_size.0 as f32 / (10.0 * self.zoom)).ceil() as i32,
+                (window_size.1 as f32 / (10.0 * self.zoom)).ceil() as i32,
             );
-            for chunk in [
-                (-1, -1),
-                (-1, 0),
-                (-1, 1),
-                (0, -1),
-                (0, 0),
-                (0, 1),
-                (1, -1),
-                (1, 0),
-                (1, 1),
-            ] {
-                let (left, top) = (
-                    left + chunk.0 as f32 * 320.0 * self.zoom,
-                    top + chunk.1 as f32 * 320.0 * self.zoom,
-                );
-                let tiles = &self.world.load_chunk(chunk).tiles;
-                for (i, tile) in tiles.iter().enumerate() {
-                    let (x, y) = (i % 32, i / 32);
+            let center = (
+                window_size.0 as f32 / 2.0 - 5.0 * self.zoom,
+                window_size.1 as f32 / 2.0 - 5.0 * self.zoom,
+            );
+            for x in (-window_size_in_tiles.0 / 2)..=(window_size_in_tiles.0 / 2) {
+                for y in (-window_size_in_tiles.1 / 2)..=(window_size_in_tiles.1 / 2) {
+                    let tile = self.world.load_tile(TilePos::new(x, y));
                     let region = match tile {
                         TileBase::Dirt(variant) => match variant {
                             DirtVariant::Dirt1 => assets.icons.dirt1,
@@ -134,13 +123,14 @@ impl Scene for Game {
                         region,
                         DrawParams::new()
                             .position(TetraVec2::new(
-                                left + x as f32 * 10.0 * self.zoom,
-                                top + y as f32 * 10.0 * self.zoom,
+                                center.0 + x as f32 * 10.0 * self.zoom,
+                                center.1 + y as f32 * 10.0 * self.zoom,
                             ))
                             .scale(TetraVec2::new(self.zoom, self.zoom)),
                     )
                 }
             }
+
             assets.tileset.draw_region(
                 ctx,
                 match self.world.avatar.gender.as_str() {
@@ -150,8 +140,8 @@ impl Scene for Game {
                 },
                 DrawParams::new()
                     .position(TetraVec2::new(
-                        left + 160.0 * self.zoom,
-                        top + 160.0 * self.zoom,
+                        center.0 + 10.0 * self.zoom, // due to negative x-scale
+                        center.1,
                     ))
                     .scale(TetraVec2::new(-self.zoom, self.zoom))
                     .color(self.world.avatar.skin_tone.color()),
@@ -159,6 +149,15 @@ impl Scene for Game {
         }
         self.redraw_sprites(ctx)?;
         self.dirty = false;
+        Ok(())
+    }
+
+    fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
+        let window_size = window::get_size(ctx);
+        for sprite in self.sprites.iter() {
+            sprite.borrow_mut().positionate(ctx, window_size);
+        }
+        self.dirty = true;
         Ok(())
     }
 
