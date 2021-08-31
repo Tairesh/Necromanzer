@@ -40,11 +40,10 @@ impl SettingsScene {
             settings.borrow().window_mode() == WindowMode::Fullscreen,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                x: Horizontal::AtWindowCenterByLeft { offset: 100.0 },
                 y: AnchorY::Center.to_position(150.0),
             },
         )));
-        let fullscreen_size = fullscreen_btn.borrow_mut().calc_size(ctx);
         let window_btn = Rc::new(RefCell::new(Button::fixed(
             "window_mode:window",
             vec![(Key::W, Some(KeyModifier::Alt))],
@@ -52,7 +51,7 @@ impl SettingsScene {
             settings.borrow().window_mode() == WindowMode::Window,
             assets.clone(),
             Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -2.0 },
+                x: Horizontal::AtWindowCenterByRight { offset: 98.0 },
                 y: AnchorY::Center.to_position(150.0),
             },
         )));
@@ -63,25 +62,11 @@ impl SettingsScene {
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight {
-                    offset: -window_size.x - 10.0,
+                    offset: 90.0 - window_size.x,
                 },
                 y: AnchorY::Center.to_position(145.0),
             },
         )));
-        let borderless_btn = Rc::new(RefCell::new(Button::fixed(
-            "window_mode:borderless",
-            vec![(Key::B, Some(KeyModifier::Alt))],
-            "[Alt+B] Borderless",
-            settings.borrow().window_mode() == WindowMode::Borderless,
-            assets.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft {
-                    offset: fullscreen_size.x + 2.0,
-                },
-                y: AnchorY::Center.to_position(150.0),
-            },
-        )));
-
         let back_btn = Rc::new(RefCell::new(Button::new(
             "back",
             vec![(Key::Escape, None)],
@@ -94,20 +79,8 @@ impl SettingsScene {
         )));
 
         SettingsScene {
-            radio_buttons: vec![
-                window_btn.clone(),
-                fullscreen_btn.clone(),
-                borderless_btn.clone(),
-            ],
-            sprites: vec![
-                bg,
-                title,
-                window_mode,
-                window_btn,
-                fullscreen_btn,
-                borderless_btn,
-                back_btn,
-            ],
+            radio_buttons: vec![window_btn.clone(), fullscreen_btn.clone()],
+            sprites: vec![bg, title, window_mode, window_btn, fullscreen_btn, back_btn],
         }
     }
 }
@@ -123,8 +96,7 @@ impl Scene for SettingsScene {
             match btn_id.strip_prefix("window_mode:").unwrap() {
                 "window" => Some(Transition::ChangeWindowMode(WindowMode::Window)),
                 "fullscreen" => Some(Transition::ChangeWindowMode(WindowMode::Fullscreen)),
-                "borderless" => Some(Transition::ChangeWindowMode(WindowMode::Borderless)),
-                _ => panic!("Unimplemented window mode: {}", btn_id),
+                _ => unreachable!(),
             }
         } else {
             match btn_id {

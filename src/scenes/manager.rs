@@ -127,21 +127,10 @@ impl State for SceneManager {
                                 match wm {
                                     WindowMode::Fullscreen => {
                                         settings.fullscreen = true;
-                                        settings.borderless = false;
                                         window::set_fullscreen(ctx, true)?;
-                                    }
-                                    WindowMode::Borderless => {
-                                        settings.fullscreen = true;
-                                        settings.borderless = true;
-                                        if window::is_fullscreen(ctx) {
-                                            window::set_fullscreen(ctx, false)?;
-                                        }
-                                        window::set_bordered(ctx, false);
-                                        window::maximize(ctx);
                                     }
                                     WindowMode::Window => {
                                         settings.fullscreen = false;
-                                        settings.borderless = false;
                                         if window::is_fullscreen(ctx) {
                                             window::set_fullscreen(ctx, false)?;
                                         }

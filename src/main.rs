@@ -20,7 +20,7 @@ extern crate tetra;
 use assets::Assets;
 use scenes::main_menu::MainMenu;
 use scenes::manager::{Scene, SceneManager};
-use settings::{Settings, WindowMode};
+use settings::Settings;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::ImageData;
@@ -45,13 +45,14 @@ fn main() -> tetra::Result {
         settings.borrow().width as i32,
         settings.borrow().height as i32,
     );
-    ctx.show_mouse(true).vsync(true).key_repeat(true);
-    let mut ctx = match settings.borrow().window_mode() {
-        WindowMode::Fullscreen => ctx.fullscreen(true),
-        WindowMode::Borderless => ctx.resizable(true).maximized(true).borderless(true),
-        WindowMode::Window => ctx.resizable(true),
+    ctx.show_mouse(true)
+        .vsync(true)
+        .key_repeat(true)
+        .resizable(true);
+    if settings.borrow().fullscreen {
+        ctx.fullscreen(true);
     }
-    .build()?;
+    let mut ctx = ctx.build()?;
     let mut icon = ImageData::from_file_data(include_bytes!("../res/img/zombie.png"))?;
     window::set_icon(&mut ctx, &mut icon)?;
     window::set_minimum_size(&mut ctx, 1024, 768)?;

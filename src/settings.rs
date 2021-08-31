@@ -7,7 +7,6 @@ const PATH: &str = "settings.json";
 #[derive(Hash, Eq, PartialEq, Copy, Clone)]
 pub enum WindowMode {
     Fullscreen,
-    Borderless,
     Window,
 }
 
@@ -16,7 +15,6 @@ pub struct Settings {
     pub width: u32,
     pub height: u32,
     pub fullscreen: bool,
-    pub borderless: bool,
     pub show_fps: bool,
     pub music_enabled: bool,
     pub music_volume: u8,
@@ -28,7 +26,6 @@ impl Settings {
             width: 1024,
             height: 768,
             fullscreen: false,
-            borderless: false,
             show_fps: false,
             music_enabled: true,
             music_volume: 64,
@@ -76,10 +73,10 @@ impl Settings {
     }
 
     pub fn window_mode(&self) -> WindowMode {
-        match (self.fullscreen, self.borderless) {
-            (true, true) => WindowMode::Borderless,
-            (true, false) => WindowMode::Fullscreen,
-            _ => WindowMode::Window,
+        if self.fullscreen {
+            WindowMode::Fullscreen
+        } else {
+            WindowMode::Window
         }
     }
 }
