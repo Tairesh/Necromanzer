@@ -1,5 +1,7 @@
-use human::character::Character;
+use avatar::Avatar;
+use std::collections::hash_map::DefaultHasher;
 use std::fs::{create_dir, remove_file, File};
+use std::hash::{Hash, Hasher};
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
@@ -30,14 +32,14 @@ impl SaveFile {
             .replace("\\", "");
         let file_name = name.replace(" ", "_");
         let path: PathBuf = ["save", (file_name + ".save").as_str()].iter().collect();
+        let mut hasher = DefaultHasher::new();
+        seed.hash(&mut hasher);
+        let seed = hasher.finish();
         SaveFile {
             path,
             version: CARGO_VERSION.to_string(),
             time: SystemTime::now(),
-            meta: WorldMeta {
-                name,
-                seed: seed.to_string(),
-            },
+            meta: WorldMeta { name, seed },
             avatar_data: String::new(),
         }
     }
@@ -49,10 +51,7 @@ impl SaveFile {
         if name.is_empty() {
             return None;
         }
-        let seed = lines.next()?.ok()?;
-        if seed.is_empty() {
-            return None;
-        }
+        let seed = lines.next()?.ok()?.parse::<u64>().ok()?;
         let version = lines.next()?.ok()?;
         if version.is_empty() {
             return None;
@@ -77,7 +76,7 @@ impl SaveFile {
         create(&self.path, &self.meta)
     }
 
-    pub fn load_avatar(&self) -> Character {
+    pub fn load_avatar(&self) -> Avatar {
         serde_json::from_str(self.avatar_data.as_str()).unwrap()
     }
 }

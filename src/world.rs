@@ -1,6 +1,8 @@
+use avatar::Avatar;
 use chunk::{Chunk, ChunkPos};
-use human::character::Character;
 use maptile::{TileBase, TilePos};
+use rand::rngs::StdRng;
+use rand::SeedableRng;
 use savefile::save;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -8,18 +10,18 @@ use std::path::PathBuf;
 pub struct World {
     path: PathBuf,
     pub meta: WorldMeta,
-    pub avatar: Character,
+    pub avatar: Avatar,
     chunks: HashMap<ChunkPos, Chunk>,
 }
 
 #[derive(Debug, Clone)]
 pub struct WorldMeta {
     pub name: String,
-    pub seed: String,
+    pub seed: u64,
 }
 
 impl World {
-    pub fn new(path: PathBuf, meta: WorldMeta, avatar: Character) -> Self {
+    pub fn new(path: PathBuf, meta: WorldMeta, avatar: Avatar) -> Self {
         Self {
             path,
             meta,
@@ -35,9 +37,11 @@ impl World {
     }
 
     pub fn load_chunk(&mut self, pos: ChunkPos) -> &Chunk {
-        self.chunks
-            .entry(pos)
-            .or_insert_with_key(|pos| Chunk::generate(*pos))
+        let seed = self.meta.seed;
+        self.chunks.entry(pos).or_insert_with_key(|pos| {
+            let mut rng = StdRng::seed_from_u64(seed);
+            Chunk::generate(&mut rng, *pos)
+        })
     }
 
     pub fn load_tile(&mut self, pos: TilePos) -> &TileBase {

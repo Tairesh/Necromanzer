@@ -1,8 +1,10 @@
 use assets::Assets;
+use avatar::Avatar;
 use colors::Colors;
 use human::character::Character;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
+use maptile::TilePos;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use savefile::SaveFile;
@@ -334,10 +336,11 @@ impl Scene for CreateCharacter {
                     let age = self.age_input.borrow().value().parse::<u8>().unwrap();
                     let character =
                         Character::new(name, gender, age, self.main_hand, self.skin_tone);
+                    let avatar = Avatar::new(character, TilePos::new(0, 0));
                     let mut world = World::new(
                         self.savefile.path.clone(),
                         self.savefile.meta.clone(),
-                        character,
+                        avatar,
                     );
                     world.save();
                     Some(Transition::Replace(Box::new(Game::new(

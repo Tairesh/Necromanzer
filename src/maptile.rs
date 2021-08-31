@@ -1,5 +1,5 @@
 use chunk::{Chunk, ChunkPos};
-use rand::distributions::{Distribution, Standard};
+use rand::distributions::Distribution;
 use rand::Rng;
 
 pub enum DirtVariant {
@@ -10,7 +10,8 @@ pub enum DirtVariant {
     Dirt5,
 }
 
-impl Distribution<DirtVariant> for Standard {
+pub struct DirtDistribution {}
+impl Distribution<DirtVariant> for DirtDistribution {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> DirtVariant {
         if rng.gen_bool(0.9) {
             DirtVariant::Dirt3
@@ -36,7 +37,8 @@ pub enum BoulderVariant {
     Three2,
 }
 
-impl Distribution<BoulderVariant> for Standard {
+pub struct BoulderDistribution {}
+impl Distribution<BoulderVariant> for BoulderDistribution {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> BoulderVariant {
         match rng.gen_range(0..7) {
             0 => BoulderVariant::One1,
@@ -56,7 +58,7 @@ pub enum TileBase {
     Boulder(BoulderVariant),
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct TilePos {
     x: i32,
     y: i32,
@@ -84,6 +86,16 @@ impl TilePos {
         let topleft = (chunk.x() * Chunk::SIZE, chunk.y() * Chunk::SIZE);
         let pos = ((self.x - topleft.0) * Chunk::SIZE + self.y - topleft.1) as usize;
         (chunk, pos)
+    }
+
+    pub fn add(&self, dx: i32, dy: i32) -> Self {
+        Self::new(self.x + dx, self.y + dy)
+    }
+
+    pub fn translate(&mut self, dx: i32, dy: i32) -> &Self {
+        self.x += dx;
+        self.y += dy;
+        self
     }
 }
 

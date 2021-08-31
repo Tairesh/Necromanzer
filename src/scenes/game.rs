@@ -1,6 +1,6 @@
 use assets::Assets;
 use colors::Colors;
-use maptile::{BoulderVariant, DirtVariant, TileBase, TilePos};
+use maptile::{BoulderVariant, DirtVariant, TileBase};
 use scenes::manager::{update_sprites, Scene, Transition};
 use sprites::image::{Bar, Image};
 use sprites::label::Label;
@@ -9,7 +9,7 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::DrawParams;
-use tetra::input::MouseButton;
+use tetra::input::{Key, MouseButton};
 use tetra::{graphics, input, window, Context, TetraVec2};
 use world::World;
 
@@ -30,20 +30,20 @@ impl Game {
             Image::new(assets.hat.clone(), Position::zeroed()).with_scale(TetraVec2::new(4.0, 4.0)),
         ));
         let name = Rc::new(RefCell::new(Label::new(
-            world.avatar.name.as_str(),
+            world.avatar.character.name.as_str(),
             assets.header2.clone(),
             Colors::LIGHT_YELLOW,
             Position::new(174.0, 55.0, AnchorX::Center, AnchorY::Top),
         )));
         let ava = Rc::new(RefCell::new(Image::icon(
             assets.tileset.clone(),
-            match world.avatar.gender.as_str() {
+            match world.avatar.character.gender.as_str() {
                 "Female" => assets.icons.female,
                 "Male" => assets.icons.male,
                 _ => assets.icons.queer,
             },
             TetraVec2::new(6.0, 6.0),
-            world.avatar.skin_tone.color(),
+            world.avatar.character.skin_tone.color(),
             Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
         )));
 
@@ -66,6 +66,18 @@ impl Scene for Game {
             } else if self.zoom > 10.0 {
                 self.zoom = 10.0;
             }
+        }
+        if input::is_key_down(ctx, Key::Up) {
+            self.world.avatar.pos.translate(0, -1);
+        }
+        if input::is_key_down(ctx, Key::Down) {
+            self.world.avatar.pos.translate(0, 1);
+        }
+        if input::is_key_down(ctx, Key::Left) {
+            self.world.avatar.pos.translate(-1, 0);
+        }
+        if input::is_key_down(ctx, Key::Right) {
+            self.world.avatar.pos.translate(1, 0);
         }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             self.world.save();
@@ -90,7 +102,7 @@ impl Scene for Game {
             );
             for x in (-window_size_in_tiles.0 / 2)..=(window_size_in_tiles.0 / 2) {
                 for y in (-window_size_in_tiles.1 / 2)..=(window_size_in_tiles.1 / 2) {
-                    let tile = self.world.load_tile(TilePos::new(x, y));
+                    let tile = self.world.load_tile(self.world.avatar.pos.add(x, y));
                     let region = match tile {
                         TileBase::Dirt(variant) => match variant {
                             DirtVariant::Dirt1 => assets.icons.dirt1,
@@ -124,7 +136,7 @@ impl Scene for Game {
 
             assets.tileset.draw_region(
                 ctx,
-                match self.world.avatar.gender.as_str() {
+                match self.world.avatar.character.gender.as_str() {
                     "Female" => assets.icons.female,
                     "Male" => assets.icons.male,
                     _ => assets.icons.queer,
@@ -135,7 +147,7 @@ impl Scene for Game {
                         center.1,
                     ))
                     .scale(TetraVec2::new(-self.zoom, self.zoom))
-                    .color(self.world.avatar.skin_tone.color()),
+                    .color(self.world.avatar.character.skin_tone.color()),
             );
         }
         self.redraw_sprites(ctx);

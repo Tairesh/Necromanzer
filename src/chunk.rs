@@ -1,5 +1,6 @@
 use arr_macro::arr;
-use maptile::{BoulderVariant, DirtVariant, TileBase};
+use maptile::{BoulderDistribution, DirtDistribution, TileBase};
+use rand::rngs::StdRng;
 use rand::Rng;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -29,12 +30,12 @@ pub struct Chunk {
 impl Chunk {
     pub const SIZE: i32 = 32;
 
-    pub fn generate(_pos: ChunkPos) -> Self {
+    pub fn generate(rng: &mut StdRng, _pos: ChunkPos) -> Self {
         Chunk {
-            tiles: arr![if rand::thread_rng().gen_bool(0.05) {
-                TileBase::Boulder(rand::random::<BoulderVariant>())
+            tiles: arr![if rng.gen_bool(0.05) {
+                TileBase::Boulder(rng.sample(BoulderDistribution{}))
             } else {
-                TileBase::Dirt(rand::random::<DirtVariant>())
+                TileBase::Dirt(rng.sample(DirtDistribution{}))
             }; 1024],
         }
     }

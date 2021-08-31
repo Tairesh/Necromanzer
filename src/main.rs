@@ -1,6 +1,7 @@
 #![windows_subsystem = "windows"]
 
 mod assets;
+mod avatar;
 mod chunk;
 mod colors;
 mod human;
