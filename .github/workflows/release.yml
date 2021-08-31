@@ -20,7 +20,7 @@ jobs:
       timestamp: ${{ steps.get-timestamp.outputs.time }}
       release_already_exists: ${{ steps.tag_check.outputs.exists }}
       version_name: ${{ steps.generate_env_vars.outputs.tag_name }}
-      version_postfix: ${{ steps.generate_env_vars.outputs.build_version }}
+      version_postfix: ${{ steps.generate_env_vars.outputs.version_postfix }}
     steps:
       - uses: actions/checkout@v2
       - name: "Get build timestamp"
@@ -34,9 +34,9 @@ jobs:
         run: |
           cargo_version=$(grep "version = " Cargo.toml | head -n 1 | sed -e "s/version = \"//" -e "s/\"//")
           version_postfix="experimental-${{ steps.get-timestamp.outputs.time }}"
-          echo "::set-output name=tag_name::$cargo_version-$version_postfix"
-          echo "::set-output name=release_name::Necromanzer $cargo_version-$version_postfix"
-          echo "::set-output name=build_version::$version_postfix"
+          echo "::set-output name=tag_name::v$cargo_version-$version_postfix"
+          echo "::set-output name=release_name::Necromanzer v$cargo_version-$version_postfix"
+          echo "::set-output name=version_postfix::$version_postfix"
       - name: "Check if there is existing git tag"
         id: tag_check
         uses: mukunku/tag-exists-action@v1.0.0
@@ -125,7 +125,7 @@ jobs:
       - name: "Set build version"
         shell: bash
         run: |
-          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_name }}\"/" src/main.rs
+          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_postfix }}\"/" src/main.rs
       - name: "Run cargo build"
         run: |
           rustc --version
