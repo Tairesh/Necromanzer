@@ -59,7 +59,7 @@ fn main() -> tetra::Result {
 
     ctx.run(|ctx| {
         let mut scene = MainMenu::new(Rc::new(RefCell::new(Assets::new(ctx)?)), settings.clone());
-        scene.on_open(ctx).ok();
+        scene.on_open(ctx);
         Ok(SceneManager::new(Box::new(scene), settings.clone()))
     })
 }

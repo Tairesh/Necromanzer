@@ -134,13 +134,11 @@ impl Scene for SettingsScene {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
-            Ok(Transition::Pop)
-        } else if let Some(t) = update_sprites(self, ctx) {
-            Ok(t)
+            Some(Transition::Pop)
         } else {
-            Ok(Transition::None)
+            update_sprites(self, ctx)
         }
     }
 

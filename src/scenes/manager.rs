@@ -2,9 +2,10 @@ use settings::{Settings, WindowMode};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
+use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::window::WindowPos;
-use tetra::{time, window, Event, TetraError};
+use tetra::{graphics, time, window, Event, TetraError};
 use tetra::{Context, State};
 use {TITLE, VERSION};
 
@@ -30,18 +31,14 @@ pub trait Scene {
     fn on_button_click(&mut self, _ctx: &mut Context, _btn_id: &str) -> Option<Transition> {
         None
     }
-    fn update(&mut self, _ctx: &mut Context) -> tetra::Result<Transition> {
-        Ok(Transition::None)
+    fn update(&mut self, _ctx: &mut Context) -> Option<Transition> {
+        None
     }
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-        if let Some(sprites) = self.sprites() {
-            if sprites.iter().any(|s| s.borrow().dirty()) {
-                self.redraw_sprites(ctx)?;
-            }
-        }
-        Ok(())
+    fn draw(&mut self, ctx: &mut Context) {
+        graphics::clear(ctx, Color::BLACK);
+        self.redraw_sprites(ctx);
     }
-    fn redraw_sprites(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn redraw_sprites(&mut self, ctx: &mut Context) {
         if let Some(sprites) = self.sprites() {
             for sprite in sprites.iter() {
                 if sprite.borrow().visible() {
@@ -49,29 +46,24 @@ pub trait Scene {
                 }
             }
         }
-        Ok(())
     }
-    fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn on_resize(&mut self, ctx: &mut Context) {
         if let Some(sprites) = self.sprites() {
             let window_size = window::get_size(ctx);
             for sprite in sprites.iter() {
                 sprite.borrow_mut().positionate(ctx, window_size);
             }
-            self.redraw_sprites(ctx)
-        } else {
-            Ok(())
         }
     }
     fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         None
     }
-    fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn on_open(&mut self, ctx: &mut Context) {
         self.on_resize(ctx)
     }
 }
 
 pub enum Transition {
-    None,
     Push(Box<dyn Scene>),
     Pop,
     Replace(Box<dyn Scene>), // pop and push
@@ -107,63 +99,70 @@ impl State for SceneManager {
         }
 
         match self.scenes.last_mut() {
-            Some(active_scene) => match active_scene.update(ctx)? {
-                Transition::None => {}
-                Transition::Push(s) => {
-                    self.scenes.push(s);
-                    self.scenes.last_mut().unwrap().on_open(ctx)?;
-                }
-                Transition::Pop => {
-                    self.scenes.pop();
-                    if let Some(new_scene) = self.scenes.last_mut() {
-                        new_scene.on_open(ctx)?;
-                    }
-                }
-                Transition::Replace(s) => {
-                    self.scenes.pop();
-                    if let Some(new_scene) = self.scenes.last_mut() {
-                        new_scene.on_open(ctx)?;
-                    }
-                    self.scenes.push(s);
-                    self.scenes.last_mut().unwrap().on_open(ctx)?;
-                }
-                Transition::Quit => window::quit(ctx),
-                Transition::ChangeWindowMode(wm) => {
-                    let mut settings = self.settings.borrow_mut();
-                    if wm != settings.window_mode() {
-                        match wm {
-                            WindowMode::Fullscreen => {
-                                settings.fullscreen = true;
-                                settings.borderless = false;
-                                window::set_fullscreen(ctx, true)?;
+            Some(active_scene) => {
+                if let Some(transition) = active_scene.update(ctx) {
+                    match transition {
+                        Transition::Push(s) => {
+                            self.scenes.push(s);
+                            self.scenes.last_mut().unwrap().on_open(ctx);
+                        }
+                        Transition::Pop => {
+                            self.scenes.pop();
+                            if let Some(new_scene) = self.scenes.last_mut() {
+                                new_scene.on_open(ctx);
                             }
-                            WindowMode::Borderless => {
-                                settings.fullscreen = true;
-                                settings.borderless = true;
-                                if window::is_fullscreen(ctx) {
-                                    window::set_fullscreen(ctx, false)?;
-                                }
-                                window::set_bordered(ctx, false);
-                                window::maximize(ctx);
+                        }
+                        Transition::Replace(s) => {
+                            self.scenes.pop();
+                            if let Some(new_scene) = self.scenes.last_mut() {
+                                new_scene.on_open(ctx);
                             }
-                            WindowMode::Window => {
-                                settings.fullscreen = false;
-                                settings.borderless = false;
-                                if window::is_fullscreen(ctx) {
-                                    window::set_fullscreen(ctx, false)?;
+                            self.scenes.push(s);
+                            self.scenes.last_mut().unwrap().on_open(ctx);
+                        }
+                        Transition::Quit => window::quit(ctx),
+                        Transition::ChangeWindowMode(wm) => {
+                            let mut settings = self.settings.borrow_mut();
+                            if wm != settings.window_mode() {
+                                match wm {
+                                    WindowMode::Fullscreen => {
+                                        settings.fullscreen = true;
+                                        settings.borderless = false;
+                                        window::set_fullscreen(ctx, true)?;
+                                    }
+                                    WindowMode::Borderless => {
+                                        settings.fullscreen = true;
+                                        settings.borderless = true;
+                                        if window::is_fullscreen(ctx) {
+                                            window::set_fullscreen(ctx, false)?;
+                                        }
+                                        window::set_bordered(ctx, false);
+                                        window::maximize(ctx);
+                                    }
+                                    WindowMode::Window => {
+                                        settings.fullscreen = false;
+                                        settings.borderless = false;
+                                        if window::is_fullscreen(ctx) {
+                                            window::set_fullscreen(ctx, false)?;
+                                        }
+                                        window::set_bordered(ctx, true);
+                                        window::set_size(
+                                            ctx,
+                                            settings.width as i32,
+                                            settings.height as i32,
+                                        )?;
+                                        window::set_position(
+                                            ctx,
+                                            WindowPos::Centered,
+                                            WindowPos::Centered,
+                                        );
+                                    }
                                 }
-                                window::set_bordered(ctx, true);
-                                window::set_size(
-                                    ctx,
-                                    settings.width as i32,
-                                    settings.height as i32,
-                                )?;
-                                window::set_position(ctx, WindowPos::Centered, WindowPos::Centered);
                             }
                         }
                     }
                 }
-            },
+            }
             None => window::quit(ctx),
         }
 
@@ -172,7 +171,7 @@ impl State for SceneManager {
 
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         match self.scenes.last_mut() {
-            Some(active_scene) => active_scene.draw(ctx)?,
+            Some(active_scene) => active_scene.draw(ctx),
             None => window::quit(ctx),
         }
 
@@ -188,11 +187,6 @@ impl State for SceneManager {
                     window::set_title(ctx, &self.default_title);
                 }
             }
-            Event::FocusGained | Event::Restored => {
-                if let Some(scene) = self.scenes.last_mut() {
-                    scene.redraw_sprites(ctx)?;
-                }
-            }
             Event::Resized { width, height } => {
                 if !settings.fullscreen {
                     settings.width = width as u32;
@@ -204,7 +198,7 @@ impl State for SceneManager {
                     }
                 }
                 if let Some(scene) = self.scenes.last_mut() {
-                    scene.on_resize(ctx)?;
+                    scene.on_resize(ctx);
                 }
             }
             _ => {}

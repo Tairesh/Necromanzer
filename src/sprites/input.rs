@@ -29,7 +29,6 @@ pub struct TextInput {
     is_danger: bool,
     blink: bool,
     last_blinked: Instant,
-    dirty: bool,
     visible: bool,
 }
 
@@ -47,7 +46,6 @@ impl TextInput {
             is_danger: false,
             blink: false,
             last_blinked: Instant::now(),
-            dirty: false,
             visible: true,
         }
     }
@@ -118,7 +116,6 @@ impl TextInput {
     pub fn set_danger(&mut self, danger: bool) {
         if danger != self.is_danger {
             self.is_danger = danger;
-            self.dirty = true;
         }
     }
 
@@ -128,10 +125,6 @@ impl TextInput {
 }
 
 impl Draw for TextInput {
-    fn dirty(&self) -> bool {
-        self.dirty
-    }
-
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         if let Some(bg_color) = self.bg_color() {
@@ -200,7 +193,6 @@ impl Draw for TextInput {
                     .color(self.text_color()),
             );
         }
-        self.dirty = false;
     }
 
     fn visible(&self) -> bool {
@@ -246,12 +238,10 @@ impl Update for TextInput {
             if Instant::now() - self.last_blinked > Duration::new(0, 500_000_000) {
                 self.blink = !self.blink;
                 self.last_blinked = Instant::now();
-                self.dirty = true;
             }
             if input::is_key_pressed(ctx, Key::Backspace) && !self.text.content().is_empty() {
                 self.text.pop();
                 self.is_danger = false;
-                self.dirty = true;
             }
             if let Some(text_input) = input::get_text_input(ctx) {
                 let allow = match self.value_type {
@@ -263,7 +253,6 @@ impl Update for TextInput {
                 if allow {
                     self.text.push_str(text_input);
                     self.is_danger = false;
-                    self.dirty = true;
                 }
             }
             if let ValueType::String { max_length } = self.value_type {
@@ -282,7 +271,6 @@ impl Update for TextInput {
                         self.text.pop();
                     }
                     self.is_danger = false;
-                    self.dirty = true;
                 }
             }
         } else if input::is_mouse_button_pressed(ctx, MouseButton::Left)
@@ -303,7 +291,6 @@ impl Disable for TextInput {
     fn set_disabled(&mut self, disabled: bool) {
         if disabled != self.is_disabled {
             self.is_disabled = disabled;
-            self.dirty = true;
         }
     }
 }
@@ -316,7 +303,6 @@ impl Stringify for TextInput {
     fn set_value(&mut self, value: &str) {
         self.text.set_content(value);
         self.is_danger = false;
-        self.dirty = true;
         self.validate_value();
     }
 }
@@ -324,12 +310,10 @@ impl Stringify for TextInput {
 impl Hover for TextInput {
     fn on_hovered(&mut self) {
         self.is_hovered = true;
-        self.dirty = true;
     }
 
     fn off_hovered(&mut self) {
         self.is_hovered = false;
-        self.dirty = true;
     }
 }
 
@@ -338,7 +322,6 @@ impl Press for TextInput {
         self.is_focused = true;
         self.blink = true;
         self.last_blinked = Instant::now();
-        self.dirty = true;
     }
 
     fn off_pressed(&mut self) {
@@ -348,7 +331,6 @@ impl Press for TextInput {
     fn unpress(&mut self) {
         self.is_focused = false;
         self.blink = false;
-        self.dirty = true;
         self.validate_value();
     }
 }

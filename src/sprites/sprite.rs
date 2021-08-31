@@ -4,10 +4,6 @@ use tetra::math::Rect;
 use tetra::{Context, TetraVec2};
 
 pub trait Draw {
-    /// Need redraw
-    fn dirty(&self) -> bool {
-        false
-    }
     fn draw(&mut self, ctx: &mut Context);
     fn visible(&self) -> bool;
     fn set_visible(&mut self, visible: bool);

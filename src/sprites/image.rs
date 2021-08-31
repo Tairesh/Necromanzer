@@ -135,7 +135,6 @@ pub struct Bar {
     max_width: f32,
     max_value: u32,
     value: u32,
-    dirty: bool,
 }
 
 impl Bar {
@@ -157,7 +156,6 @@ impl Bar {
             max_width,
             max_value,
             value,
-            dirty: false,
         }
     }
 
@@ -179,7 +177,6 @@ impl Bar {
             max_width,
             max_value,
             value,
-            dirty: false,
         }
     }
 
@@ -194,7 +191,6 @@ impl Bar {
             self.image.set_visible(false);
         }
         self.value = value;
-        self.dirty = true;
     }
 
     #[allow(dead_code)]
@@ -204,10 +200,6 @@ impl Bar {
 }
 
 impl Draw for Bar {
-    fn dirty(&self) -> bool {
-        self.dirty
-    }
-
     fn draw(&mut self, ctx: &mut Context) {
         self.image.draw(ctx);
     }
@@ -218,7 +210,6 @@ impl Draw for Bar {
 
     fn set_visible(&mut self, visible: bool) {
         self.image.visible = visible;
-        self.dirty = true;
     }
 }
 

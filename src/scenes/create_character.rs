@@ -429,7 +429,7 @@ impl Scene for CreateCharacter {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
         {
             let mut name_error = self.name_empty.borrow_mut();
             if !self.name_input.borrow().danger() && name_error.visible() {
@@ -437,11 +437,9 @@ impl Scene for CreateCharacter {
             }
         };
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
-            Ok(Transition::Pop)
-        } else if let Some(t) = update_sprites(self, ctx) {
-            Ok(t)
+            Some(Transition::Pop)
         } else {
-            Ok(Transition::None)
+            update_sprites(self, ctx)
         }
     }
 

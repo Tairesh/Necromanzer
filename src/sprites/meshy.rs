@@ -87,7 +87,6 @@ pub struct HoverableMesh {
     rect: Option<TetraRect>,
     visible: bool,
     is_hovered: bool,
-    dirty: bool,
 }
 
 impl HoverableMesh {
@@ -107,16 +106,11 @@ impl HoverableMesh {
             rect: None,
             visible: true,
             is_hovered: false,
-            dirty: false,
         }
     }
 }
 
 impl Draw for HoverableMesh {
-    fn dirty(&self) -> bool {
-        self.dirty
-    }
-
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         self.mesh.draw(
@@ -175,12 +169,10 @@ impl Update for HoverableMesh {
 impl Hover for HoverableMesh {
     fn on_hovered(&mut self) {
         self.is_hovered = true;
-        self.dirty = true;
     }
 
     fn off_hovered(&mut self) {
         self.is_hovered = false;
-        self.dirty = true;
     }
 }
 

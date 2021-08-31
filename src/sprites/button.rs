@@ -27,7 +27,6 @@ pub struct Button {
     is_disabled: bool,
     is_hovered: bool,
     fixable: bool,
-    dirty: bool,
     visible: bool,
 }
 
@@ -52,7 +51,6 @@ impl Button {
             is_hovered: false,
             is_disabled: false,
             fixable: false,
-            dirty: false,
             visible: true,
         }
     }
@@ -130,10 +128,6 @@ impl Button {
 }
 
 impl Draw for Button {
-    fn dirty(&self) -> bool {
-        self.dirty
-    }
-
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         let mut vec = TetraVec2::new(rect.x, rect.y);
@@ -181,7 +175,6 @@ impl Draw for Button {
                 );
             }
         }
-        self.dirty = false;
     }
 
     fn visible(&self) -> bool {
@@ -276,7 +269,6 @@ impl Disable for Button {
     fn set_disabled(&mut self, disabled: bool) {
         if disabled != self.is_disabled {
             self.is_disabled = disabled;
-            self.dirty = true;
         }
     }
 }
@@ -284,19 +276,16 @@ impl Disable for Button {
 impl Hover for Button {
     fn on_hovered(&mut self) {
         self.is_hovered = true;
-        self.dirty = true;
     }
 
     fn off_hovered(&mut self) {
         self.is_hovered = false;
-        self.dirty = true;
     }
 }
 
 impl Press for Button {
     fn on_pressed(&mut self) {
         self.is_pressed = true;
-        self.dirty = true;
     }
 
     fn off_pressed(&mut self) {
@@ -307,7 +296,6 @@ impl Press for Button {
 
     fn unpress(&mut self) {
         self.is_pressed = false;
-        self.dirty = true;
     }
 }
 

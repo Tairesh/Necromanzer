@@ -121,22 +121,18 @@ impl Scene for MainMenu {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
-        if let Some(t) = update_sprites(self, ctx) {
-            Ok(t)
-        } else {
-            Ok(Transition::None)
-        }
+    fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
+        update_sprites(self, ctx)
     }
 
     fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
     }
 
-    fn on_open(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn on_open(&mut self, ctx: &mut Context) {
         self.select_btn
             .borrow_mut()
             .set_disabled(savefiles().is_empty());
-        self.on_resize(ctx)
+        self.on_resize(ctx);
     }
 }

@@ -219,7 +219,7 @@ impl Scene for CreateWorld {
         None
     }
 
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
         {
             let name = self.name_input.borrow();
             let mut name_empty = self.name_empty.borrow_mut();
@@ -237,11 +237,9 @@ impl Scene for CreateWorld {
             }
         }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
-            Ok(Transition::Pop)
-        } else if let Some(t) = update_sprites(self, ctx) {
-            Ok(t)
+            Some(Transition::Pop)
         } else {
-            Ok(Transition::None)
+            update_sprites(self, ctx)
         }
     }
 

@@ -18,7 +18,6 @@ pub struct Game {
     assets: Rc<RefCell<Assets>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
     zoom: f32,
-    dirty: bool,
 }
 
 impl Game {
@@ -53,38 +52,30 @@ impl Game {
             world,
             assets: assets_copy,
             zoom: 2.0,
-            dirty: true,
         }
     }
 }
 
 impl Scene for Game {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
         let scroll = input::get_mouse_wheel_movement(ctx).y;
         if scroll != 0 {
-            self.zoom += scroll as f32 / 2.0;
+            self.zoom += scroll as f32;
             if self.zoom < 1.0 {
                 self.zoom = 1.0;
             } else if self.zoom > 10.0 {
                 self.zoom = 10.0;
-            } else {
-                self.dirty = true;
             }
         }
         if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
             self.world.save();
-            Ok(Transition::Pop)
-        } else if let Some(t) = update_sprites(self, ctx) {
-            Ok(t)
+            Some(Transition::Pop)
         } else {
-            Ok(Transition::None)
+            update_sprites(self, ctx)
         }
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-        if !self.dirty {
-            return Ok(());
-        }
+    fn draw(&mut self, ctx: &mut Context) {
         graphics::clear(ctx, Colors::BLACK);
         {
             let assets = self.assets.borrow();
@@ -147,18 +138,7 @@ impl Scene for Game {
                     .color(self.world.avatar.skin_tone.color()),
             );
         }
-        self.redraw_sprites(ctx)?;
-        self.dirty = false;
-        Ok(())
-    }
-
-    fn on_resize(&mut self, ctx: &mut Context) -> tetra::Result {
-        let window_size = window::get_size(ctx);
-        for sprite in self.sprites.iter() {
-            sprite.borrow_mut().positionate(ctx, window_size);
-        }
-        self.dirty = true;
-        Ok(())
+        self.redraw_sprites(ctx);
     }
 
     fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
