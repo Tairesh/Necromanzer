@@ -1,3 +1,4 @@
+use action::{Action, ActionType};
 use assets::Assets;
 use colors::Colors;
 use maptile::{BoulderVariant, DirtVariant, TileBase};
@@ -76,26 +77,38 @@ impl Scene for Game {
                 self.zoom = 10.0;
             }
         }
-        if input::is_key_down(ctx, Key::Up) {
-            self.world.avatar.pos.translate(0, -1);
+        if self.world.avatar.action.is_none() {
+            let (mut moving_x, mut moving_y) = (0, 0);
+            if input::is_key_down(ctx, Key::Up) {
+                moving_y -= 1;
+            }
+            if input::is_key_down(ctx, Key::Down) {
+                moving_y += 1;
+            }
+            if input::is_key_down(ctx, Key::Left) {
+                moving_x -= 1;
+            }
+            if input::is_key_down(ctx, Key::Right) {
+                moving_x += 1;
+            }
+            if moving_x != 0 || moving_y != 0 {
+                let action = Action::new(
+                    &self.world,
+                    ActionType::Walking(self.world.avatar.pos.add(moving_x, moving_y)),
+                );
+                self.world.avatar.action = Some(action);
+            } else if input::is_key_down(ctx, Key::NumPad5) {
+                self.world.avatar.action = Some(Action::new(&self.world, ActionType::SkippingTime));
+            }
         }
-        if input::is_key_down(ctx, Key::Down) {
-            self.world.avatar.pos.translate(0, 1);
-        }
-        if input::is_key_down(ctx, Key::Left) {
-            self.world.avatar.pos.translate(-1, 0);
-        }
-        if input::is_key_down(ctx, Key::Right) {
-            self.world.avatar.pos.translate(1, 0);
-        }
+        self.world.tick();
         if input::is_key_pressed(ctx, Key::Escape) {
+            self.world.save();
             Some(Transition::Push(Box::new(GameMenu::new(
                 self.assets.clone(),
                 self.settings.clone(),
                 ctx,
             ))))
-            // self.world.save();
-            // Some(Transition::Pop)
         } else {
             update_sprites(self, ctx)
         }

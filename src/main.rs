@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+mod action;
 mod assets;
 mod avatar;
 mod chunk;

@@ -394,7 +394,7 @@ impl Scene for CreateCharacter {
                 None
             }
             "gender_left" | "gender_right" => {
-                let mut input = self.name_input.borrow_mut();
+                let mut input = self.gender_input.borrow_mut();
                 let value = input.value();
                 input.set_value(if value == "Male" { "Female" } else { "Male" });
                 None
