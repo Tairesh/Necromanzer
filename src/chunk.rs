@@ -2,6 +2,7 @@ use arr_macro::arr;
 use maptile::{BoulderDistribution, DirtDistribution, TileBase};
 use rand::rngs::StdRng;
 use rand::Rng;
+use rand::SeedableRng;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ChunkPos {
@@ -30,7 +31,8 @@ pub struct Chunk {
 impl Chunk {
     pub const SIZE: i32 = 32;
 
-    pub fn generate(rng: &mut StdRng, _pos: ChunkPos) -> Self {
+    pub fn generate(seed: u64, _pos: ChunkPos) -> Self {
+        let mut rng = StdRng::seed_from_u64(seed);
         Chunk {
             tiles: arr![if rng.gen_bool(0.05) {
                 TileBase::Boulder(rng.sample(BoulderDistribution{}))

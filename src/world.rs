@@ -1,8 +1,6 @@
 use avatar::Avatar;
 use chunk::{Chunk, ChunkPos};
 use maptile::{TileBase, TilePos};
-use rand::rngs::StdRng;
-use rand::SeedableRng;
 use savefile::save;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -38,10 +36,9 @@ impl World {
 
     pub fn load_chunk(&mut self, pos: ChunkPos) -> &Chunk {
         let seed = self.meta.seed;
-        self.chunks.entry(pos).or_insert_with_key(|pos| {
-            let mut rng = StdRng::seed_from_u64(seed);
-            Chunk::generate(&mut rng, *pos)
-        })
+        self.chunks
+            .entry(pos)
+            .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
     }
 
     pub fn load_tile(&mut self, pos: TilePos) -> &TileBase {
