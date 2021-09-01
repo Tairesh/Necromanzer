@@ -2,10 +2,9 @@ use settings::{Settings, WindowMode};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
-use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::window::WindowPos;
-use tetra::{graphics, time, window, Event, TetraError};
+use tetra::{time, window, Event, TetraError};
 use tetra::{Context, State};
 use {TITLE, VERSION};
 
@@ -35,7 +34,6 @@ pub trait Scene {
         None
     }
     fn draw(&mut self, ctx: &mut Context) {
-        graphics::clear(ctx, Color::BLACK);
         self.redraw_sprites(ctx);
     }
     fn redraw_sprites(&mut self, ctx: &mut Context) {
