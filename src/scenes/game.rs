@@ -12,8 +12,10 @@ use sprites::meshy::JustMesh;
 use sprites::position::{AnchorX, AnchorY, Position};
 use sprites::sprite::{Draw, Positionate, Sprite};
 use std::cell::RefCell;
+use std::collections::VecDeque;
 use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::text::Text;
 use tetra::graphics::{DrawParams, Rectangle};
 use tetra::input::Key;
 use tetra::{graphics, input, window, Context, TetraVec2};
@@ -34,6 +36,7 @@ pub struct Game {
     mode: GameMode,
     examination_text: Label,
     cursor: JustMesh,
+    log: VecDeque<Text>,
 }
 
 impl Game {
@@ -89,6 +92,7 @@ impl Game {
             mode: GameMode::Walking,
             examination_text,
             cursor,
+            log: VecDeque::new(),
         }
     }
 }
@@ -137,6 +141,10 @@ impl Scene for Game {
                         let (moving_x, moving_y) = get_direction_keys_down(ctx);
                         if moving_x == 0 && moving_y == 0 {
                             self.mode = GameMode::Walking;
+                            self.log.push_front(Text::new(
+                                format!("This is {:?}", self.world.load_tile(tile)),
+                                self.assets.borrow().default.clone(),
+                            ))
                         } else {
                             let new_tile = self.world.avatar.pos.add(moving_x, moving_y);
                             if new_tile != tile {
@@ -238,6 +246,24 @@ impl Scene for Game {
             self.cursor.set_scale(TetraVec2::new(self.zoom, self.zoom));
             self.cursor.positionate(ctx, window_size);
             self.cursor.draw(ctx);
+        }
+        for (i, text) in self.log.iter_mut().enumerate() {
+            text.draw(
+                ctx,
+                DrawParams::new()
+                    .position(TetraVec2::new(
+                        10.0,
+                        window_size.1 as f32 - 20.0 - 20.0 * i as f32,
+                    ))
+                    .color(if i == 0 {
+                        Colors::LIGHT_YELLOW
+                    } else {
+                        Colors::GRAY
+                    }),
+            );
+            if i >= 5 {
+                break;
+            }
         }
     }
 

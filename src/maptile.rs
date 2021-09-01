@@ -2,6 +2,7 @@ use chunk::{Chunk, ChunkPos};
 use rand::distributions::Distribution;
 use rand::Rng;
 
+#[derive(Debug)]
 pub enum DirtVariant {
     Dirt1,
     Dirt2,
@@ -27,6 +28,7 @@ impl Distribution<DirtVariant> for DirtDistribution {
     }
 }
 
+#[derive(Debug)]
 pub enum BoulderVariant {
     One1,
     One2,
@@ -53,6 +55,7 @@ impl Distribution<BoulderVariant> for BoulderDistribution {
     }
 }
 
+#[derive(Debug)]
 pub enum TileBase {
     Dirt(DirtVariant),
     Boulder(BoulderVariant),
