@@ -12,6 +12,7 @@ pub struct JustMesh {
     position: Position,
     rect: Option<TetraRect>,
     visible: bool,
+    scale: TetraVec2,
 }
 
 impl JustMesh {
@@ -23,7 +24,12 @@ impl JustMesh {
             position,
             rect: None,
             visible: true,
+            scale: TetraVec2::one(),
         }
+    }
+
+    pub fn set_scale(&mut self, zoom: TetraVec2) {
+        self.scale = zoom;
     }
 }
 
@@ -34,6 +40,7 @@ impl Draw for JustMesh {
             ctx,
             DrawParams::new()
                 .position(TetraVec2::new(rect.x, rect.y))
+                .scale(self.scale)
                 .color(self.color.unwrap_or(Color::WHITE)),
         );
     }
@@ -57,7 +64,7 @@ impl Positionate for JustMesh {
     }
 
     fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
-        self.size
+        self.size * self.scale
     }
 
     fn set_rect(&mut self, rect: Rect<f32, f32>) {

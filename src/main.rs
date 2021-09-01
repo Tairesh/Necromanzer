@@ -6,6 +6,7 @@ mod avatar;
 mod chunk;
 mod colors;
 mod human;
+mod input;
 mod maptile;
 mod savefile;
 mod scenes;

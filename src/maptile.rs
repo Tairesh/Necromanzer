@@ -97,22 +97,26 @@ impl TilePos {
         self.y += dy;
         self
     }
+
+    pub fn diff(&self, other: TilePos) -> (i32, i32) {
+        (self.x - other.x, self.y - other.y)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use chunk::ChunkPos;
-    use maptile::TilePos;
+    use maptile::TileBase;
 
     #[test]
     fn test_pos_to_chunk() {
-        let (chunk, pos) = TilePos::new(0, 0).chunk_and_pos();
+        let (chunk, pos) = TileBase::new(0, 0).chunk_and_pos();
         assert_eq!(chunk, ChunkPos::new(0, 0));
         assert_eq!(pos, 0);
-        let (chunk, pos) = TilePos::new(4, 2).chunk_and_pos();
+        let (chunk, pos) = TileBase::new(4, 2).chunk_and_pos();
         assert_eq!(chunk, ChunkPos::new(0, 0));
         assert_eq!(pos, 4 * 32 + 2);
-        let (chunk, pos) = TilePos::new(-1, -1).chunk_and_pos();
+        let (chunk, pos) = TileBase::new(-1, -1).chunk_and_pos();
         assert_eq!(chunk, ChunkPos::new(-1, -1));
         assert_eq!(pos, 1023);
     }
