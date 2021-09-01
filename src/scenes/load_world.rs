@@ -5,6 +5,7 @@ use savefile::{delete, savefiles, SaveFile};
 use scenes::create_character::CreateCharacter;
 use scenes::game::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
+use settings::Settings;
 use sprites::alert::Alert;
 use sprites::button::Button;
 use sprites::label::Label;
@@ -23,11 +24,16 @@ use CARGO_VERSION;
 
 pub struct LoadWorld {
     assets: Rc<RefCell<Assets>>,
+    settings: Rc<RefCell<Settings>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
 }
 
 impl LoadWorld {
-    pub fn new(assets: Rc<RefCell<Assets>>, ctx: &mut Context) -> Self {
+    pub fn new(
+        assets: Rc<RefCell<Assets>>,
+        settings: Rc<RefCell<Settings>>,
+        ctx: &mut Context,
+    ) -> Self {
         let savefiles = savefiles();
         let mut sprites: Vec<Rc<RefCell<dyn Sprite>>> = Vec::with_capacity(savefiles.len() * 6 + 1);
         let height = savefiles.len() as f32 * 50.0 + 33.0;
@@ -111,7 +117,11 @@ impl LoadWorld {
             ))));
             y += 50.0;
         }
-        LoadWorld { assets, sprites }
+        LoadWorld {
+            assets,
+            settings,
+            sprites,
+        }
     }
 }
 
@@ -126,7 +136,11 @@ impl Scene for LoadWorld {
                 Some(if savefiles().is_empty() {
                     Transition::Pop
                 } else {
-                    Transition::Replace(Box::new(LoadWorld::new(self.assets.clone(), ctx)))
+                    Transition::Replace(Box::new(LoadWorld::new(
+                        self.assets.clone(),
+                        self.settings.clone(),
+                        ctx,
+                    )))
                 })
             }
             (Some("load"), Some(path)) => {
@@ -134,12 +148,14 @@ impl Scene for LoadWorld {
                 Some(if savefile.avatar_data.is_empty() {
                     Transition::Replace(Box::new(CreateCharacter::new(
                         self.assets.clone(),
+                        self.settings.clone(),
                         savefile,
                         ctx,
                     )))
                 } else {
                     Transition::Replace(Box::new(Game::new(
                         self.assets.clone(),
+                        self.settings.clone(),
                         World::new(
                             savefile.path.clone(),
                             savefile.meta.clone(),

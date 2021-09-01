@@ -1,7 +1,9 @@
 use assets::Assets;
 use colors::Colors;
 use maptile::{BoulderVariant, DirtVariant, TileBase};
+use scenes::game_menu::GameMenu;
 use scenes::manager::{update_sprites, Scene, Transition};
+use settings::Settings;
 use sprites::image::{Bar, Image};
 use sprites::label::Label;
 use sprites::position::{AnchorX, AnchorY, Position};
@@ -9,19 +11,25 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::DrawParams;
-use tetra::input::{Key, MouseButton};
+use tetra::input::Key;
 use tetra::{graphics, input, window, Context, TetraVec2};
 use world::World;
 
 pub struct Game {
     world: World,
     assets: Rc<RefCell<Assets>>,
+    settings: Rc<RefCell<Settings>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
     zoom: f32,
 }
 
 impl Game {
-    pub fn new(assets: Rc<RefCell<Assets>>, world: World, _ctx: &mut Context) -> Self {
+    pub fn new(
+        assets: Rc<RefCell<Assets>>,
+        settings: Rc<RefCell<Settings>>,
+        world: World,
+        _ctx: &mut Context,
+    ) -> Self {
         let hp_bar = Rc::new(RefCell::new(Bar::red(100, 50, assets.clone())));
         let mp_bar = Rc::new(RefCell::new(Bar::blue(100, 50, assets.clone())));
         let assets_copy = assets.clone();
@@ -49,6 +57,7 @@ impl Game {
 
         Self {
             sprites: vec![hat, name, ava, hp_bar, mp_bar],
+            settings,
             world,
             assets: assets_copy,
             zoom: 2.0,
@@ -79,9 +88,14 @@ impl Scene for Game {
         if input::is_key_down(ctx, Key::Right) {
             self.world.avatar.pos.translate(1, 0);
         }
-        if input::is_mouse_button_pressed(ctx, MouseButton::X1) {
-            self.world.save();
-            Some(Transition::Pop)
+        if input::is_key_pressed(ctx, Key::Escape) {
+            Some(Transition::Push(Box::new(GameMenu::new(
+                self.assets.clone(),
+                self.settings.clone(),
+                ctx,
+            ))))
+            // self.world.save();
+            // Some(Transition::Pop)
         } else {
             update_sprites(self, ctx)
         }

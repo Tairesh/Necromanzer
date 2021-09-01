@@ -10,6 +10,7 @@ use rand::Rng;
 use savefile::SaveFile;
 use scenes::game::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
+use settings::Settings;
 use sprites::button::Button;
 use sprites::image::Image;
 use sprites::input::TextInput;
@@ -27,6 +28,7 @@ use world::World;
 
 pub struct CreateCharacter {
     assets: Rc<RefCell<Assets>>,
+    settings: Rc<RefCell<Settings>>,
     savefile: SaveFile,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
     name_input: Rc<RefCell<TextInput>>,
@@ -41,7 +43,12 @@ pub struct CreateCharacter {
 }
 
 impl CreateCharacter {
-    pub fn new(assets: Rc<RefCell<Assets>>, savefile: SaveFile, ctx: &mut Context) -> Self {
+    pub fn new(
+        assets: Rc<RefCell<Assets>>,
+        settings: Rc<RefCell<Settings>>,
+        savefile: SaveFile,
+        ctx: &mut Context,
+    ) -> Self {
         let mut sprites: Vec<Rc<RefCell<dyn Sprite>>> = Vec::new();
         sprites.push(Rc::new(RefCell::new(Image::new(
             assets.borrow().bg.clone(),
@@ -306,6 +313,7 @@ impl CreateCharacter {
         ))));
         Self {
             assets,
+            settings,
             savefile,
             sprites,
             name_input,
@@ -345,6 +353,7 @@ impl Scene for CreateCharacter {
                     world.save();
                     Some(Transition::Replace(Box::new(Game::new(
                         self.assets.clone(),
+                        self.settings.clone(),
                         world,
                         ctx,
                     ))))

@@ -64,6 +64,7 @@ pub trait Scene {
 pub enum Transition {
     Push(Box<dyn Scene>),
     Pop,
+    Pop2,                    // two times
     Replace(Box<dyn Scene>), // pop and push
     ChangeWindowMode(WindowMode),
     Quit,
@@ -104,8 +105,11 @@ impl State for SceneManager {
                             self.scenes.push(s);
                             self.scenes.last_mut().unwrap().on_open(ctx);
                         }
-                        Transition::Pop => {
+                        Transition::Pop | Transition::Pop2 => {
                             self.scenes.pop();
+                            if let Transition::Pop2 = transition {
+                                self.scenes.pop();
+                            }
                             if let Some(new_scene) = self.scenes.last_mut() {
                                 new_scene.on_open(ctx);
                             }
