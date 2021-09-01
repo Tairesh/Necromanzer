@@ -109,17 +109,17 @@ impl TilePos {
 #[cfg(test)]
 mod tests {
     use chunk::ChunkPos;
-    use maptile::TileBase;
+    use maptile::TilePos;
 
     #[test]
     fn test_pos_to_chunk() {
-        let (chunk, pos) = TileBase::new(0, 0).chunk_and_pos();
+        let (chunk, pos) = TilePos::new(0, 0).chunk_and_pos();
         assert_eq!(chunk, ChunkPos::new(0, 0));
         assert_eq!(pos, 0);
-        let (chunk, pos) = TileBase::new(4, 2).chunk_and_pos();
+        let (chunk, pos) = TilePos::new(4, 2).chunk_and_pos();
         assert_eq!(chunk, ChunkPos::new(0, 0));
         assert_eq!(pos, 4 * 32 + 2);
-        let (chunk, pos) = TileBase::new(-1, -1).chunk_and_pos();
+        let (chunk, pos) = TilePos::new(-1, -1).chunk_and_pos();
         assert_eq!(chunk, ChunkPos::new(-1, -1));
         assert_eq!(pos, 1023);
     }
