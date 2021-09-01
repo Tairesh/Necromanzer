@@ -39,7 +39,11 @@ impl SaveFile {
             path,
             version: CARGO_VERSION.to_string(),
             time: SystemTime::now(),
-            meta: WorldMeta { name, seed },
+            meta: WorldMeta {
+                name,
+                seed,
+                current_tick: 0.0,
+            },
             avatar_data: String::new(),
         }
     }
@@ -47,11 +51,11 @@ impl SaveFile {
     pub fn load(path: PathBuf) -> Option<Self> {
         let file = File::open(&path).ok()?;
         let mut lines = BufReader::new(&file).lines();
-        let name = lines.next()?.ok()?;
-        if name.is_empty() {
+        let meta = lines.next()?.ok()?;
+        if meta.is_empty() {
             return None;
         }
-        let seed = lines.next()?.ok()?.parse::<u64>().ok()?;
+        let meta = serde_json::from_str(meta.as_str()).ok()?;
         let version = lines.next()?.ok()?;
         if version.is_empty() {
             return None;
@@ -67,7 +71,7 @@ impl SaveFile {
             path,
             version,
             time,
-            meta: WorldMeta { name, seed },
+            meta,
             avatar_data,
         })
     }
@@ -113,9 +117,8 @@ pub fn create(path: &Path, meta: &WorldMeta) -> Result<(), CreateFileError> {
         let mut file =
             File::create(&path).map_err(|e| CreateFileError::SystemError(e.to_string()))?;
         let data = format!(
-            "{}\n{}\n{}\n{}",
-            meta.name,
-            meta.seed,
+            "{}\n{}\n{}",
+            serde_json::to_string(meta).unwrap(),
             CARGO_VERSION,
             time.duration_since(SystemTime::UNIX_EPOCH)
                 .map_err(|e| CreateFileError::SystemError(e.to_string()))?
@@ -135,9 +138,8 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
     let time = SystemTime::now();
     let mut file = File::create(path).map_err(|e| e.to_string())?;
     let data = format!(
-        "{}\n{}\n{}\n{}\n{}",
-        world.meta.name,
-        world.meta.seed,
+        "{}\n{}\n{}\n{}",
+        serde_json::to_string(&world.meta).map_err(|e| e.to_string())?,
         CARGO_VERSION,
         time.duration_since(SystemTime::UNIX_EPOCH)
             .map_err(|e| e.to_string())?

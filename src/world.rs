@@ -5,17 +5,18 @@ use savefile::save;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct WorldMeta {
+    pub name: String,
+    pub seed: u64,
+    pub current_tick: f64,
+}
+
 pub struct World {
     path: PathBuf,
     pub meta: WorldMeta,
     pub avatar: Avatar,
     chunks: HashMap<ChunkPos, Chunk>,
-}
-
-#[derive(Debug, Clone)]
-pub struct WorldMeta {
-    pub name: String,
-    pub seed: u64,
 }
 
 impl World {
