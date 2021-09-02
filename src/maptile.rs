@@ -1,4 +1,5 @@
 use chunk::{Chunk, ChunkPos};
+use direction::Direction;
 use rand::distributions::Distribution;
 use rand::Rng;
 
@@ -67,18 +68,9 @@ pub struct TilePos {
     y: i32,
 }
 
-#[allow(dead_code)]
 impl TilePos {
     pub fn new(x: i32, y: i32) -> Self {
         TilePos { x, y }
-    }
-
-    pub fn x(&self) -> i32 {
-        self.x
-    }
-
-    pub fn y(&self) -> i32 {
-        self.y
     }
 
     pub fn chunk_and_pos(&self) -> (ChunkPos, usize) {
@@ -91,18 +83,12 @@ impl TilePos {
         (chunk, pos)
     }
 
-    pub fn add(&self, dx: i32, dy: i32) -> Self {
+    pub fn add(&self, dir: Direction) -> Self {
+        Self::new(self.x + dir.dx() as i32, self.y + dir.dy() as i32)
+    }
+
+    pub fn add_delta(&self, dx: i32, dy: i32) -> Self {
         Self::new(self.x + dx, self.y + dy)
-    }
-
-    pub fn translate(&mut self, dx: i32, dy: i32) -> &Self {
-        self.x += dx;
-        self.y += dy;
-        self
-    }
-
-    pub fn diff(&self, other: TilePos) -> (i32, i32) {
-        (self.x - other.x, self.y - other.y)
     }
 }
 

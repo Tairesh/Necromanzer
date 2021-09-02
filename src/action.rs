@@ -1,11 +1,11 @@
 use avatar::Avatar;
-use maptile::TilePos;
+use direction::Direction;
 use world::World;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum ActionType {
     SkippingTime,
-    Walking(TilePos),
+    Walking(Direction),
 }
 
 impl ActionType {
@@ -35,8 +35,8 @@ impl Action {
     pub fn act(&self, avatar: &mut Avatar) {
         match self.action {
             ActionType::SkippingTime => {}
-            ActionType::Walking(pos) => {
-                avatar.pos = pos;
+            ActionType::Walking(dir) => {
+                avatar.move_to(dir, false);
             }
         }
         avatar.action = None;

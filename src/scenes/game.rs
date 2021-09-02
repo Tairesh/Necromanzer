@@ -1,8 +1,9 @@
 use action::{Action, ActionType};
 use assets::Assets;
 use colors::Colors;
-use input::{get_direction_keys_down, get_skipping_time_key_down, is_no_key_modifiers};
-use maptile::{BoulderVariant, DirtVariant, TileBase, TilePos};
+use direction::Direction;
+use input::{get_direction_keys_down, is_no_key_modifiers};
+use maptile::{BoulderVariant, DirtVariant, TileBase};
 use scenes::game_menu::GameMenu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
@@ -24,7 +25,7 @@ use world::World;
 #[derive(Debug)]
 enum GameMode {
     Walking,
-    Examining(Option<TilePos>),
+    Examining(Option<Direction>),
 }
 
 pub struct Game {
@@ -121,43 +122,31 @@ impl Scene for Game {
         if self.world.avatar.action.is_none() {
             match self.mode {
                 GameMode::Walking => {
-                    let (moving_x, moving_y) = get_direction_keys_down(ctx);
-                    if moving_x != 0 || moving_y != 0 {
-                        let action = Action::new(
-                            &self.world,
-                            ActionType::Walking(self.world.avatar.pos.add(moving_x, moving_y)),
-                        );
-                        self.world.avatar.action = Some(action);
-                    } else if get_skipping_time_key_down(ctx) {
-                        self.world.avatar.action =
-                            Some(Action::new(&self.world, ActionType::SkippingTime));
+                    if let Some(dir) = get_direction_keys_down(ctx) {
+                        if dir.is_here() {
+                            self.world.avatar.action =
+                                Some(Action::new(&self.world, ActionType::SkippingTime));
+                        } else {
+                            self.world.avatar.action =
+                                Some(Action::new(&self.world, ActionType::Walking(dir)));
+                        }
                     }
                     if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
                         self.mode = GameMode::Examining(None);
                     }
                 }
-                GameMode::Examining(tile) => {
-                    if let Some(tile) = tile {
-                        let (moving_x, moving_y) = get_direction_keys_down(ctx);
-                        if moving_x == 0 && moving_y == 0 {
+                GameMode::Examining(dir) => {
+                    if let Some(dir) = dir {
+                        if get_direction_keys_down(ctx).is_none() {
                             self.mode = GameMode::Walking;
+                            let tile = self.world.avatar.pos.add(dir);
                             self.log.push_front(Text::new(
                                 format!("This is {:?}", self.world.load_tile(tile)),
                                 self.assets.borrow().default.clone(),
                             ))
-                        } else {
-                            let new_tile = self.world.avatar.pos.add(moving_x, moving_y);
-                            if new_tile != tile {
-                                self.mode = GameMode::Examining(Some(new_tile));
-                            }
                         }
-                    } else {
-                        let (moving_x, moving_y) = get_direction_keys_down(ctx);
-                        if moving_x != 0 || moving_y != 0 {
-                            self.mode = GameMode::Examining(Some(
-                                self.world.avatar.pos.add(moving_x, moving_y),
-                            ));
-                        }
+                    } else if let Some(dir) = get_direction_keys_down(ctx) {
+                        self.mode = GameMode::Examining(Some(dir));
                     }
                     if input::is_key_pressed(ctx, Key::Escape) {
                         self.mode = GameMode::Walking;
@@ -176,15 +165,17 @@ impl Scene for Game {
             (window_size.0 as f32 / (10.0 * self.zoom)).ceil() as i32,
             (window_size.1 as f32 / (10.0 * self.zoom)).ceil() as i32,
         );
-        let center = (
+        let center = TetraVec2::new(
             window_size.0 as f32 / 2.0 - 5.0 * self.zoom,
             window_size.1 as f32 / 2.0 - 5.0 * self.zoom,
         );
         {
             let assets = self.assets.borrow();
-            for x in (-window_size_in_tiles.0 / 2)..=(window_size_in_tiles.0 / 2) {
-                for y in (-window_size_in_tiles.1 / 2)..=(window_size_in_tiles.1 / 2) {
-                    let tile = self.world.load_tile(self.world.avatar.pos.add(x, y));
+            for dx in (-window_size_in_tiles.0 / 2)..=(window_size_in_tiles.0 / 2) {
+                for dy in (-window_size_in_tiles.1 / 2)..=(window_size_in_tiles.1 / 2) {
+                    let tile = self
+                        .world
+                        .load_tile(self.world.avatar.pos.add_delta(dx, dy));
                     let region = match tile {
                         TileBase::Dirt(variant) => match variant {
                             DirtVariant::Dirt1 => assets.icons.dirt1,
@@ -208,38 +199,24 @@ impl Scene for Game {
                         region,
                         DrawParams::new()
                             .position(TetraVec2::new(
-                                center.0 + x as f32 * 10.0 * self.zoom,
-                                center.1 + y as f32 * 10.0 * self.zoom,
+                                center.x + dx as f32 * 10.0 * self.zoom,
+                                center.y + dy as f32 * 10.0 * self.zoom,
                             ))
                             .scale(TetraVec2::new(self.zoom, self.zoom)),
                     )
                 }
             }
-
-            assets.tileset.draw_region(
-                ctx,
-                match self.world.avatar.character.gender.as_str() {
-                    "Female" => assets.icons.female,
-                    "Male" => assets.icons.male,
-                    _ => assets.icons.queer,
-                },
-                DrawParams::new()
-                    .position(TetraVec2::new(
-                        center.0 + 10.0 * self.zoom, // due to negative x-scale
-                        center.1,
-                    ))
-                    .scale(TetraVec2::new(-self.zoom, self.zoom))
-                    .color(self.world.avatar.character.skin_tone.color()),
-            );
         }
+        self.world
+            .avatar
+            .draw(ctx, self.assets.clone(), center, self.zoom);
         self.redraw_sprites(ctx);
         if let GameMode::Examining(None) = self.mode {
             self.examination_text.draw(ctx);
-        } else if let GameMode::Examining(Some(pos)) = self.mode {
-            let (dx, dy) = pos.diff(self.world.avatar.pos);
+        } else if let GameMode::Examining(Some(dir)) = self.mode {
             self.cursor.set_position(Position::new(
-                center.0 + dx as f32 * 10.0 * self.zoom,
-                center.1 + dy as f32 * 10.0 * self.zoom,
+                center.x + dir.dx() as f32 * 10.0 * self.zoom,
+                center.y + dir.dy() as f32 * 10.0 * self.zoom,
                 AnchorX::Left,
                 AnchorY::Top,
             ));
