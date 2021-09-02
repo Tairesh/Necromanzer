@@ -1,11 +1,14 @@
 use arr_macro::arr;
+use assets::Assets;
 use human::character::random_character;
 use maptile::{GraveData, Terrain, Tile};
 use rand::distributions::Standard;
 use rand::rngs::StdRng;
 use rand::Rng;
 use rand::SeedableRng;
+use std::cell::RefCell;
 use std::collections::HashSet;
+use std::rc::Rc;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ChunkPos {
@@ -34,7 +37,7 @@ pub struct Chunk {
 impl Chunk {
     pub const SIZE: i32 = 32;
 
-    pub fn generate(seed: u64, _pos: ChunkPos) -> Self {
+    pub fn generate(seed: u64, assets: Rc<RefCell<Assets>>, _pos: ChunkPos) -> Self {
         let mut rng = StdRng::seed_from_u64(seed);
         let mut tiles = arr![Tile::new(if rng.gen_bool(0.05) {
             Terrain::Boulder(rng.sample(Standard))
@@ -64,7 +67,7 @@ impl Chunk {
             tiles[pos].terrain = Terrain::Grave(
                 rng.sample(Standard),
                 GraveData {
-                    character: random_character(&mut rng),
+                    character: random_character(&mut rng, assets.clone()),
                     death_year: rng.gen_range(0..255),
                 },
             );

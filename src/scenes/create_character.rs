@@ -346,6 +346,7 @@ impl Scene for CreateCharacter {
                         Character::new(name, gender, age, self.main_hand, self.skin_tone);
                     let avatar = Avatar::new(character, TilePos::new(0, 0));
                     let mut world = World::new(
+                        self.assets.clone(),
                         self.savefile.path.clone(),
                         self.savefile.meta.clone(),
                         avatar,

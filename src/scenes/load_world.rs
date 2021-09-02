@@ -157,6 +157,7 @@ impl Scene for LoadWorld {
                         self.assets.clone(),
                         self.settings.clone(),
                         World::new(
+                            self.assets.clone(),
                             savefile.path.clone(),
                             savefile.meta.clone(),
                             savefile.load_avatar(),

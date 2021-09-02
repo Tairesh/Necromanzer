@@ -1,9 +1,12 @@
+use assets::Assets;
 use avatar::Avatar;
 use chunk::{Chunk, ChunkPos};
 use maptile::{Tile, TilePos};
 use savefile::save;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::rc::Rc;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct WorldMeta {
@@ -13,6 +16,7 @@ pub struct WorldMeta {
 }
 
 pub struct World {
+    assets: Rc<RefCell<Assets>>,
     path: PathBuf,
     pub meta: WorldMeta,
     pub avatar: Avatar,
@@ -20,8 +24,14 @@ pub struct World {
 }
 
 impl World {
-    pub fn new(path: PathBuf, meta: WorldMeta, avatar: Avatar) -> Self {
+    pub fn new(
+        assets: Rc<RefCell<Assets>>,
+        path: PathBuf,
+        meta: WorldMeta,
+        avatar: Avatar,
+    ) -> Self {
         Self {
+            assets,
             path,
             meta,
             avatar,
@@ -37,9 +47,10 @@ impl World {
 
     pub fn load_chunk(&mut self, pos: ChunkPos) -> &Chunk {
         let seed = self.meta.seed;
+        let assets = self.assets.clone();
         self.chunks
             .entry(pos)
-            .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
+            .or_insert_with_key(|pos| Chunk::generate(seed, assets, *pos))
     }
 
     pub fn load_tile(&mut self, pos: TilePos) -> &Tile {
