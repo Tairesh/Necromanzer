@@ -143,7 +143,7 @@ impl Scene for Game {
                             self.mode = GameMode::Walking;
                             let tile = self.world.avatar.pos.add(dir);
                             self.log.push_front(Text::new(
-                                format!("This is {}", self.world.load_tile(tile).this_is()),
+                                self.world.load_tile(tile).this_is(),
                                 self.assets.borrow().default.clone(),
                             ))
                         }

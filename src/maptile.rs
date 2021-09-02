@@ -98,11 +98,23 @@ impl Tile {
         Self { terrain }
     }
 
-    pub fn this_is(&self) -> &str {
-        match self.terrain {
-            Terrain::Dirt(_) => "dirt",
-            Terrain::Boulder(_) => "boulder",
-            Terrain::Grave(_, _) => "grave",
+    pub fn this_is(&self) -> String {
+        match &self.terrain {
+            Terrain::Dirt(_) => "This is dirt".to_string(),
+            Terrain::Boulder(_) => "This is boulder.".to_string(),
+            Terrain::Grave(_, data) => {
+                format!(
+                    "This is the grave of {}. {} was {} when died in year {}.",
+                    data.character.name,
+                    if data.character.gender == "Male" {
+                        "She"
+                    } else {
+                        "He"
+                    },
+                    data.character.age,
+                    data.death_year,
+                )
+            }
         }
     }
 }
