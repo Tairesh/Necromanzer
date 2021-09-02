@@ -1,6 +1,6 @@
 use avatar::Avatar;
 use direction::Direction;
-use maptile::TileBase;
+use maptile::Terrain;
 use world::World;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -23,7 +23,7 @@ impl ActionType {
             ActionType::Walking(dir) => {
                 let tile = world.avatar.pos.add(*dir);
                 let tile = world.load_tile(tile);
-                matches!(tile, TileBase::Dirt(_))
+                matches!(tile.terrain, Terrain::Dirt(_))
             }
         }
     }

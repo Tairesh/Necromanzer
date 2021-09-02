@@ -3,7 +3,7 @@ use assets::Assets;
 use colors::Colors;
 use direction::Direction;
 use input::{get_direction_keys_down, is_no_key_modifiers};
-use maptile::{BoulderVariant, DirtVariant, TileBase};
+use maptile::{BoulderVariant, DirtVariant, GraveVariant, Terrain};
 use scenes::game_menu::GameMenu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
@@ -178,15 +178,15 @@ impl Scene for Game {
                     let tile = self
                         .world
                         .load_tile(self.world.avatar.pos.add_delta(dx, dy));
-                    let region = match tile {
-                        TileBase::Dirt(variant) => match variant {
+                    let region = match tile.terrain {
+                        Terrain::Dirt(variant) => match variant {
                             DirtVariant::Dirt1 => assets.icons.dirt1,
                             DirtVariant::Dirt2 => assets.icons.dirt2,
                             DirtVariant::Dirt3 => assets.icons.dirt3,
                             DirtVariant::Dirt4 => assets.icons.dirt4,
                             DirtVariant::Dirt5 => assets.icons.dirt5,
                         },
-                        TileBase::Boulder(variant) => match variant {
+                        Terrain::Boulder(variant) => match variant {
                             BoulderVariant::One1 => assets.icons.boulder1,
                             BoulderVariant::One2 => assets.icons.boulder2,
                             BoulderVariant::One3 => assets.icons.boulder3,
@@ -194,6 +194,12 @@ impl Scene for Game {
                             BoulderVariant::Two2 => assets.icons.boulders2,
                             BoulderVariant::Three1 => assets.icons.boulders3,
                             BoulderVariant::Three2 => assets.icons.boulders4,
+                        },
+                        Terrain::Grave(variant, _) => match variant {
+                            GraveVariant::Grave1 => assets.icons.grave1,
+                            GraveVariant::Grave2 => assets.icons.grave2,
+                            GraveVariant::Grave3 => assets.icons.grave3,
+                            GraveVariant::Grave4 => assets.icons.grave4,
                         },
                     };
                     assets.tileset.draw_region(

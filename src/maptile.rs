@@ -1,9 +1,10 @@
 use chunk::{Chunk, ChunkPos};
 use direction::Direction;
-use rand::distributions::Distribution;
+use human::character::Character;
+use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum DirtVariant {
     Dirt1,
     Dirt2,
@@ -12,8 +13,7 @@ pub enum DirtVariant {
     Dirt5,
 }
 
-pub struct DirtDistribution {}
-impl Distribution<DirtVariant> for DirtDistribution {
+impl Distribution<DirtVariant> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> DirtVariant {
         if rng.gen_bool(0.9) {
             DirtVariant::Dirt3
@@ -29,7 +29,7 @@ impl Distribution<DirtVariant> for DirtDistribution {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum BoulderVariant {
     One1,
     One2,
@@ -40,8 +40,7 @@ pub enum BoulderVariant {
     Three2,
 }
 
-pub struct BoulderDistribution {}
-impl Distribution<BoulderVariant> for BoulderDistribution {
+impl Distribution<BoulderVariant> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> BoulderVariant {
         match rng.gen_range(0..7) {
             0 => BoulderVariant::One1,
@@ -56,10 +55,48 @@ impl Distribution<BoulderVariant> for BoulderDistribution {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum GraveVariant {
+    Grave1,
+    Grave2,
+    Grave3,
+    Grave4,
+}
+
+impl Distribution<GraveVariant> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> GraveVariant {
+        match rng.gen_range(0..4) {
+            0 => GraveVariant::Grave1,
+            1 => GraveVariant::Grave2,
+            2 => GraveVariant::Grave3,
+            3 => GraveVariant::Grave4,
+            _ => unreachable!(),
+        }
+    }
+}
+
 #[derive(Debug)]
-pub enum TileBase {
+pub struct GraveData {
+    pub character: Character,
+    pub death_year: u8,
+}
+
+#[derive(Debug)]
+pub enum Terrain {
     Dirt(DirtVariant),
     Boulder(BoulderVariant),
+    Grave(GraveVariant, GraveData),
+}
+
+#[derive(Debug)]
+pub struct Tile {
+    pub terrain: Terrain,
+}
+
+impl Tile {
+    pub fn new(terrain: Terrain) -> Self {
+        Self { terrain }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]

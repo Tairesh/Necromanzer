@@ -27,6 +27,11 @@ pub struct Icons {
     pub boulders3: Rectangle,
     pub boulders4: Rectangle,
 
+    pub grave1: Rectangle,
+    pub grave2: Rectangle,
+    pub grave3: Rectangle,
+    pub grave4: Rectangle,
+
     pub lt: Rectangle,
     pub mt: Rectangle,
     pub plus: Rectangle,
@@ -113,6 +118,11 @@ impl Assets {
                 boulders2: Rectangle::new(40.0, 30.0, 10.0, 10.0),
                 boulders3: Rectangle::new(50.0, 30.0, 10.0, 10.0),
                 boulders4: Rectangle::new(60.0, 30.0, 10.0, 10.0),
+
+                grave1: Rectangle::new(0.0, 80.0, 10.0, 10.0),
+                grave2: Rectangle::new(10.0, 80.0, 10.0, 10.0),
+                grave3: Rectangle::new(20.0, 80.0, 10.0, 10.0),
+                grave4: Rectangle::new(30.0, 80.0, 10.0, 10.0),
 
                 mt: Rectangle::new(0.0, 90.0, 10.0, 10.0),
                 lt: Rectangle::new(10.0, 90.0, 10.0, 10.0),

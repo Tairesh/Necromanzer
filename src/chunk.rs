@@ -1,8 +1,11 @@
 use arr_macro::arr;
-use maptile::{BoulderDistribution, DirtDistribution, TileBase};
+use human::character::random_character;
+use maptile::{GraveData, Terrain, Tile};
+use rand::distributions::Standard;
 use rand::rngs::StdRng;
 use rand::Rng;
 use rand::SeedableRng;
+use std::collections::HashSet;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ChunkPos {
@@ -25,7 +28,7 @@ impl ChunkPos {
 }
 
 pub struct Chunk {
-    pub tiles: [TileBase; (Chunk::SIZE * Chunk::SIZE) as usize], // 32*32
+    pub tiles: [Tile; (Chunk::SIZE * Chunk::SIZE) as usize], // 32*32
 }
 
 impl Chunk {
@@ -33,12 +36,39 @@ impl Chunk {
 
     pub fn generate(seed: u64, _pos: ChunkPos) -> Self {
         let mut rng = StdRng::seed_from_u64(seed);
-        Chunk {
-            tiles: arr![if rng.gen_bool(0.05) {
-                TileBase::Boulder(rng.sample(BoulderDistribution{}))
-            } else {
-                TileBase::Dirt(rng.sample(DirtDistribution{}))
-            }; 1024],
+        let mut tiles = arr![Tile::new(if rng.gen_bool(0.05) {
+            Terrain::Boulder(rng.sample(Standard))
+        } else {
+            Terrain::Dirt(rng.sample(Standard))
+        }); 1024];
+        let count = rng.gen_range(5..20);
+        let mut blocked_tiles = HashSet::with_capacity(100);
+        for _ in 0..count {
+            let mut pos = rng.gen_range(0..1024) as usize;
+            while blocked_tiles.contains(&pos) {
+                pos = rng.gen_range(0..1024) as usize;
+            }
+            blocked_tiles.insert(pos);
+            if pos > 0 {
+                blocked_tiles.insert(pos - 1);
+            }
+            if pos < 1023 {
+                blocked_tiles.insert(pos + 1);
+            }
+            if pos > 31 {
+                blocked_tiles.insert(pos - 32);
+            }
+            if pos < 1023 - 32 {
+                blocked_tiles.insert(pos + 32);
+            }
+            tiles[pos].terrain = Terrain::Grave(
+                rng.sample(Standard),
+                GraveData {
+                    character: random_character(&mut rng),
+                    death_year: rng.gen_range(0..255),
+                },
+            );
         }
+        Chunk { tiles }
     }
 }

@@ -1,6 +1,6 @@
 use avatar::Avatar;
 use chunk::{Chunk, ChunkPos};
-use maptile::{TileBase, TilePos};
+use maptile::{Tile, TilePos};
 use savefile::save;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -42,7 +42,7 @@ impl World {
             .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
     }
 
-    pub fn load_tile(&mut self, pos: TilePos) -> &TileBase {
+    pub fn load_tile(&mut self, pos: TilePos) -> &Tile {
         let (chunk, pos) = pos.chunk_and_pos();
         let chunk = self.load_chunk(chunk);
         &chunk.tiles[pos]
