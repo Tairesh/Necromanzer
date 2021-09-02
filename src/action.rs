@@ -1,5 +1,6 @@
 use avatar::Avatar;
 use direction::Direction;
+use maptile::TileBase;
 use world::World;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -13,6 +14,17 @@ impl ActionType {
         match self {
             ActionType::SkippingTime => 1.0,
             ActionType::Walking(_) => 1.0,
+        }
+    }
+
+    pub fn is_possible(&self, world: &mut World) -> bool {
+        match self {
+            ActionType::SkippingTime => true,
+            ActionType::Walking(dir) => {
+                let tile = world.avatar.pos.add(*dir);
+                let tile = world.load_tile(tile);
+                matches!(tile, TileBase::Dirt(_))
+            }
         }
     }
 }

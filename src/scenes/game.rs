@@ -127,8 +127,10 @@ impl Scene for Game {
                             self.world.avatar.action =
                                 Some(Action::new(&self.world, ActionType::SkippingTime));
                         } else {
-                            self.world.avatar.action =
-                                Some(Action::new(&self.world, ActionType::Walking(dir)));
+                            let action = ActionType::Walking(dir);
+                            if action.is_possible(&mut self.world) {
+                                self.world.avatar.action = Some(Action::new(&self.world, action));
+                            }
                         }
                     }
                     if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
