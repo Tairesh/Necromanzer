@@ -104,15 +104,15 @@ impl Tile {
             Terrain::Boulder(_) => "This is boulder.".to_string(),
             Terrain::Grave(_, data) => {
                 format!(
-                    "This is the grave of {}. {} was {} when died in year {}.",
+                    "This is the grave of {}. {} died in {} at the age of {}.",
                     data.character.name,
                     if data.character.gender == "Male" {
                         "She"
                     } else {
                         "He"
                     },
-                    data.character.age,
                     data.death_year,
+                    data.character.age,
                 )
             }
         }
