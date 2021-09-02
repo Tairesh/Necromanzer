@@ -19,7 +19,7 @@ use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::text::Text;
 use tetra::graphics::{DrawParams, Rectangle};
-use tetra::input::Key;
+use tetra::input::{Key, KeyModifier};
 use tetra::{graphics, input, window, Context, TetraVec2};
 use world::World;
 
@@ -109,6 +109,11 @@ impl Scene for Game {
                     self.settings.clone(),
                     ctx,
                 ))));
+            }
+            if input::is_key_pressed(ctx, Key::C)
+                && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+            {
+                self.log.clear();
             }
         }
         let scroll = input::get_mouse_wheel_movement(ctx).y;
