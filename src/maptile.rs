@@ -97,6 +97,14 @@ impl Tile {
     pub fn new(terrain: Terrain) -> Self {
         Self { terrain }
     }
+
+    pub fn this_is(&self) -> &str {
+        match self.terrain {
+            Terrain::Dirt(_) => "dirt",
+            Terrain::Boulder(_) => "boulder",
+            Terrain::Grave(_, _) => "grave",
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
