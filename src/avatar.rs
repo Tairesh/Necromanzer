@@ -2,6 +2,7 @@ use action::Action;
 use assets::Assets;
 use direction::{Direction, TwoDimDirection};
 use human::character::Character;
+use human::gender::Gender;
 use maptile::TilePos;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -51,10 +52,10 @@ impl Avatar {
         let assets = assets.borrow();
         assets.tileset.draw_region(
             ctx,
-            match self.character.gender.as_str() {
-                "Female" => assets.icons.female,
-                "Male" => assets.icons.male,
-                _ => assets.icons.queer,
+            match self.character.gender {
+                Gender::Female => assets.icons.female,
+                Gender::Male => assets.icons.male,
+                Gender::Custom(_) => assets.icons.queer,
             },
             DrawParams::new()
                 .position(position)

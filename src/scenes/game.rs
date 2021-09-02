@@ -2,6 +2,7 @@ use action::{Action, ActionType};
 use assets::Assets;
 use colors::Colors;
 use direction::Direction;
+use human::gender::Gender;
 use input::{get_direction_keys_down, is_no_key_modifiers};
 use maptile::{BoulderVariant, DirtVariant, GraveVariant, Terrain};
 use scenes::game_menu::GameMenu;
@@ -62,10 +63,10 @@ impl Game {
         )));
         let ava = Rc::new(RefCell::new(Image::icon(
             assets.tileset.clone(),
-            match world.avatar.character.gender.as_str() {
-                "Female" => assets.icons.female,
-                "Male" => assets.icons.male,
-                _ => assets.icons.queer,
+            match world.avatar.character.gender {
+                Gender::Female => assets.icons.female,
+                Gender::Male => assets.icons.male,
+                Gender::Custom(_) => assets.icons.queer,
             },
             TetraVec2::new(6.0, 6.0),
             world.avatar.character.skin_tone.color(),

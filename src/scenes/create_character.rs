@@ -2,6 +2,7 @@ use assets::Assets;
 use avatar::Avatar;
 use colors::Colors;
 use human::character::Character;
+use human::gender::Gender;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 use maptile::TilePos;
@@ -342,8 +343,13 @@ impl Scene for CreateCharacter {
                 } else {
                     let gender = self.gender_input.borrow().value();
                     let age = self.age_input.borrow().value().parse::<u8>().unwrap();
-                    let character =
-                        Character::new(name, gender, age, self.main_hand, self.skin_tone);
+                    let character = Character::new(
+                        name,
+                        Gender::from_string(gender),
+                        age,
+                        self.main_hand,
+                        self.skin_tone,
+                    );
                     let avatar = Avatar::new(character, TilePos::new(0, 0));
                     let mut world = World::new(
                         self.assets.clone(),

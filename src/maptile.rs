@@ -106,11 +106,7 @@ impl Tile {
                 format!(
                     "This is the grave of {}. {} died in {} at the age of {}.",
                     data.character.name,
-                    if data.character.gender == "Male" {
-                        "She"
-                    } else {
-                        "He"
-                    },
+                    data.character.gender.pronounce(),
                     data.death_year,
                     data.character.age,
                 )
