@@ -4,7 +4,6 @@ use maptile::{TileBase, TilePos};
 use savefile::save;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::time::SystemTime;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct WorldMeta {
@@ -18,7 +17,6 @@ pub struct World {
     pub meta: WorldMeta,
     pub avatar: Avatar,
     chunks: HashMap<ChunkPos, Chunk>,
-    last_tick: SystemTime,
 }
 
 impl World {
@@ -28,7 +26,6 @@ impl World {
             meta,
             avatar,
             chunks: HashMap::new(),
-            last_tick: SystemTime::now(),
         }
     }
 
@@ -58,19 +55,12 @@ impl World {
                 action.act(&mut self.avatar);
             }
         }
-        // adding time if it's time
-        let elapsed = SystemTime::now()
-            .duration_since(self.last_tick)
-            .unwrap()
-            .as_millis();
-        if elapsed > 100 {
-            if let Some(action) = &self.avatar.action {
-                let mut amount = action.finish - self.meta.current_tick;
-                if amount > 0.5 {
-                    amount = 0.5;
-                }
-                self.meta.current_tick += amount;
+        if let Some(action) = &self.avatar.action {
+            let mut amount = action.finish - self.meta.current_tick;
+            if amount > 1.0 {
+                amount = 1.0;
             }
+            self.meta.current_tick += amount;
         }
         // println!("{}", self.meta.current_tick);
     }
