@@ -130,7 +130,9 @@ impl Scene for Game {
             GameMode::Walking(last_tick) => {
                 let now = Instant::now();
                 if let Some(dir) = get_direction_keys_down(ctx) {
-                    if now.duration_since(last_tick).as_millis() > 100 {
+                    if now.duration_since(last_tick).as_millis() > 150
+                        || input::is_key_modifier_down(ctx, KeyModifier::Shift)
+                    {
                         if dir.is_here() {
                             self.world.avatar.action =
                                 Some(Action::new(&self.world, ActionType::SkippingTime));
