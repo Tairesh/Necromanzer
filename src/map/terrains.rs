@@ -4,7 +4,7 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use tetra::graphics::Rectangle;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum Terrain {
     Dirt(DirtVariant),
     Boulder(BoulderVariant),
@@ -108,7 +108,7 @@ impl Terrain {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum DirtVariant {
     Dirt1,
     Dirt2,
@@ -133,7 +133,7 @@ impl Distribution<DirtVariant> for Standard {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum BoulderVariant {
     One1,
     One2,
@@ -159,7 +159,7 @@ impl Distribution<BoulderVariant> for Standard {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum GraveVariant {
     Grave1,
     Grave2,
@@ -179,13 +179,13 @@ impl Distribution<GraveVariant> for Standard {
     }
 }
 
-#[derive(Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct GraveData {
     pub character: Character,
     pub death_year: u8,
 }
 
-#[derive(Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum GrassVariant {
     Grass1,
     Grass2,
@@ -225,7 +225,7 @@ impl Distribution<GrassVariant> for Standard {
     }
 }
 
-#[derive(Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum DeadGrassVariant {
     DeadGrass1,
     DeadGrass2,

@@ -1,4 +1,3 @@
-use arr_macro::arr;
 use assets::Assets;
 use human::character::random_character;
 use map::pos::ChunkPos;
@@ -20,8 +19,10 @@ struct ChunkUnique {
     world_seed: u64,
 }
 
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Chunk {
-    pub tiles: [Tile; (Chunk::SIZE * Chunk::SIZE) as usize], // 32*32
+    pub pos: ChunkPos,
+    pub tiles: Vec<Tile>,
 }
 
 impl Chunk {
@@ -34,15 +35,18 @@ impl Chunk {
         seed.hash(&mut hasher);
         let seed = hasher.finish();
         let mut rng = StdRng::seed_from_u64(seed);
-        let mut tiles = arr![Tile::new(if rng.gen_bool(0.01) {
-            Terrain::Boulder(rng.sample(Standard))
-        } else if rng.gen_bool(0.5) {
-            Terrain::Grass(rng.sample(Standard))
-        } else if rng.gen_bool(0.1) {
-            Terrain::DeadGrass(rng.sample(Standard))
-        } else {
-            Terrain::Dirt(rng.sample(Standard))
-        }); 256];
+        let mut tiles = Vec::with_capacity(Chunk::USIZE);
+        for _ in 0..Chunk::USIZE {
+            tiles.push(Tile::new(if rng.gen_bool(0.01) {
+                Terrain::Boulder(rng.sample(Standard))
+            } else if rng.gen_bool(0.5) {
+                Terrain::Grass(rng.sample(Standard))
+            } else if rng.gen_bool(0.1) {
+                Terrain::DeadGrass(rng.sample(Standard))
+            } else {
+                Terrain::Dirt(rng.sample(Standard))
+            }));
+        }
         let count = rng.gen_range(5..20);
         let mut blocked_tiles = HashSet::with_capacity(100);
         for _ in 0..count {
@@ -63,7 +67,7 @@ impl Chunk {
             if pos < Chunk::USIZE - 1 - Chunk::SIZE as usize {
                 blocked_tiles.insert(pos + Chunk::SIZE as usize);
             }
-            tiles[pos].terrain = Terrain::Grave(
+            tiles.get_mut(pos).unwrap().terrain = Terrain::Grave(
                 rng.sample(Standard),
                 GraveData {
                     character: random_character(&mut rng, assets.clone()),
@@ -71,6 +75,6 @@ impl Chunk {
                 },
             );
         }
-        Chunk { tiles }
+        Chunk { pos, tiles }
     }
 }

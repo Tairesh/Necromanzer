@@ -7,7 +7,7 @@ use map::pos::{ChunkPos, TilePos};
 use map::tile::Tile;
 use savefile::save;
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -24,6 +24,7 @@ pub struct World {
     pub meta: WorldMeta,
     pub avatar: Avatar,
     chunks: HashMap<ChunkPos, Chunk>,
+    pub changed: HashSet<ChunkPos>,
 }
 
 impl World {
@@ -32,13 +33,19 @@ impl World {
         path: PathBuf,
         meta: WorldMeta,
         avatar: Avatar,
+        chunks: HashMap<ChunkPos, Chunk>,
     ) -> Self {
+        let mut changed = HashSet::with_capacity(chunks.len());
+        for (chunk, _) in chunks.iter() {
+            changed.insert(*chunk);
+        }
         Self {
             assets,
             path,
             meta,
             avatar,
-            chunks: HashMap::new(),
+            chunks,
+            changed,
         }
     }
 
@@ -48,7 +55,8 @@ impl World {
     }
 
     pub fn save(&mut self) {
-        save(&self.path, self)
+        let path = self.path.clone();
+        save(&path, self)
             .map_err(|e| panic!("Error on saving world to {:?}: {}", self.path, e))
             .ok();
     }
@@ -62,7 +70,7 @@ impl World {
     }
 
     pub fn load_chunk_mut(&mut self, pos: ChunkPos) -> &mut Chunk {
-        // TODO: should track changes for save
+        self.changed.insert(pos);
         let seed = self.meta.seed;
         let assets = self.assets.clone();
         self.chunks

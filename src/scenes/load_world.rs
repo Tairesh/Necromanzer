@@ -145,7 +145,7 @@ impl Scene for LoadWorld {
             }
             (Some("load"), Some(path)) => {
                 let savefile = SaveFile::load(path.parse().unwrap()).unwrap();
-                Some(if savefile.avatar_data.is_empty() {
+                Some(if savefile.units_data.is_empty() {
                     Transition::Replace(Box::new(CreateCharacter::new(
                         self.assets.clone(),
                         self.settings.clone(),
@@ -161,6 +161,7 @@ impl Scene for LoadWorld {
                             savefile.path.clone(),
                             savefile.meta.clone(),
                             savefile.load_avatar(),
+                            savefile.load_chunks(),
                         ),
                         ctx,
                     )))

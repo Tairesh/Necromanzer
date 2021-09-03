@@ -1,5 +1,8 @@
 use avatar::Avatar;
+use map::chunk::Chunk;
+use map::pos::ChunkPos;
 use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
 use std::fs::{create_dir, remove_file, File};
 use std::hash::{Hash, Hasher};
 use std::io::{BufRead, BufReader, Write};
@@ -14,7 +17,8 @@ pub struct SaveFile {
     pub version: String,
     pub time: SystemTime,
     pub meta: WorldMeta,
-    pub avatar_data: String,
+    pub units_data: Vec<String>,
+    pub chunks_data: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -44,7 +48,8 @@ impl SaveFile {
                 seed,
                 current_tick: 0.0,
             },
-            avatar_data: String::new(),
+            units_data: Vec::new(),
+            chunks_data: Vec::new(),
         }
     }
 
@@ -62,17 +67,30 @@ impl SaveFile {
         }
         let time = lines.next()?.ok()?.parse::<u64>().ok()?;
         let time = SystemTime::UNIX_EPOCH + Duration::new(time, 0);
-        let avatar_data = if let Some(line) = lines.next() {
-            line.ok()?
-        } else {
-            String::new()
-        };
+        let mut units_data = Vec::new();
+        loop {
+            let unit = lines.next()?.ok()?;
+            if unit.eq("/units") {
+                break;
+            }
+            units_data.push(unit);
+        }
+        let mut chunks_data = Vec::new();
+        loop {
+            let chunk = lines.next()?.ok()?;
+            if chunk.eq("/chunks") {
+                break;
+            }
+            chunks_data.push(chunk);
+        }
+
         Some(SaveFile {
             path,
             version,
             time,
             meta,
-            avatar_data,
+            units_data,
+            chunks_data,
         })
     }
 
@@ -81,7 +99,16 @@ impl SaveFile {
     }
 
     pub fn load_avatar(&self) -> Avatar {
-        serde_json::from_str(self.avatar_data.as_str()).unwrap()
+        serde_json::from_str(self.units_data.get(0).unwrap().as_str()).unwrap()
+    }
+
+    pub fn load_chunks(&self) -> HashMap<ChunkPos, Chunk> {
+        let mut map = HashMap::with_capacity(self.chunks_data.len());
+        for chunk in self.chunks_data.iter() {
+            let chunk: Chunk = serde_json::from_str(chunk).unwrap();
+            map.insert(chunk.pos, chunk);
+        }
+        map
     }
 }
 
@@ -117,7 +144,7 @@ pub fn create(path: &Path, meta: &WorldMeta) -> Result<(), CreateFileError> {
         let mut file =
             File::create(&path).map_err(|e| CreateFileError::SystemError(e.to_string()))?;
         let data = format!(
-            "{}\n{}\n{}",
+            "{}\n{}\n{}\n/units\n/chunks",
             serde_json::to_string(meta).unwrap(),
             CARGO_VERSION,
             time.duration_since(SystemTime::UNIX_EPOCH)
@@ -130,15 +157,14 @@ pub fn create(path: &Path, meta: &WorldMeta) -> Result<(), CreateFileError> {
     }
 }
 
-pub fn save(path: &Path, world: &World) -> Result<(), String> {
+pub fn save(path: &Path, world: &mut World) -> Result<(), String> {
     let dir = Path::new("save");
     if !dir.exists() {
         create_dir(dir).map_err(|e| e.to_string())?;
     }
     let time = SystemTime::now();
     let mut file = File::create(path).map_err(|e| e.to_string())?;
-    // TODO: should save changed chunks
-    let data = format!(
+    let mut data = format!(
         "{}\n{}\n{}\n{}",
         serde_json::to_string(&world.meta).map_err(|e| e.to_string())?,
         CARGO_VERSION,
@@ -147,6 +173,17 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
             .as_secs(),
         serde_json::to_string(&world.avatar).map_err(|e| e.to_string())?
     );
+    data.push_str("\n/units");
+    for coords in world.changed.clone().iter() {
+        let chunk = world.load_chunk(*coords);
+        data.push('\n');
+        data.push_str(
+            serde_json::to_string(chunk)
+                .map_err(|e| e.to_string())?
+                .as_str(),
+        );
+    }
+    data.push_str("\n/chunks");
     file.write_all(data.as_bytes()).map_err(|e| e.to_string())?;
     Ok(())
 }

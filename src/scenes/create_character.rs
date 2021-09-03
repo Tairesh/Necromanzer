@@ -20,6 +20,7 @@ use sprites::meshy::JustMesh;
 use sprites::position::{AnchorY, Horizontal, Position};
 use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify};
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
 use tetra::graphics::Rectangle;
@@ -356,6 +357,7 @@ impl Scene for CreateCharacter {
                         self.savefile.path.clone(),
                         self.savefile.meta.clone(),
                         avatar,
+                        HashMap::new(),
                     )
                     .init();
                     world.save();

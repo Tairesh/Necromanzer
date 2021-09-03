@@ -1,7 +1,7 @@
 use direction::Direction;
 use map::chunk::Chunk;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct TilePos {
     x: i32,
     y: i32,
@@ -17,7 +17,7 @@ impl TilePos {
             (self.x as f32 / Chunk::SIZE as f32).floor() as i32,
             (self.y as f32 / Chunk::SIZE as f32).floor() as i32,
         );
-        let topleft = (chunk.x() * Chunk::SIZE, chunk.y() * Chunk::SIZE);
+        let topleft = (chunk.x * Chunk::SIZE, chunk.y * Chunk::SIZE);
         let pos = ((self.x - topleft.0) * Chunk::SIZE + self.y - topleft.1) as usize;
         (chunk, pos)
     }
@@ -31,7 +31,7 @@ impl TilePos {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ChunkPos {
     x: i32,
     y: i32,
@@ -40,14 +40,6 @@ pub struct ChunkPos {
 impl ChunkPos {
     pub fn new(x: i32, y: i32) -> Self {
         ChunkPos { x, y }
-    }
-
-    pub fn x(&self) -> i32 {
-        self.x
-    }
-
-    pub fn y(&self) -> i32 {
-        self.y
     }
 }
 

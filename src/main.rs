@@ -15,7 +15,6 @@ mod settings;
 mod sprites;
 mod world;
 
-extern crate arr_macro;
 extern crate chrono;
 extern crate rand;
 extern crate serde;
