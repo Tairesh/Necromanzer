@@ -1,4 +1,3 @@
-use avatar::Avatar;
 use direction::Direction;
 use world::World;
 
@@ -9,7 +8,7 @@ pub enum ActionType {
 }
 
 impl ActionType {
-    pub fn length(&self, _avatar: &Avatar) -> f64 {
+    pub fn length(&self, _world: &World) -> f64 {
         match self {
             ActionType::SkippingTime => 1.0,
             ActionType::Walking(_) => 1.0,
@@ -35,20 +34,20 @@ pub struct Action {
 
 impl Action {
     pub fn new(world: &World, action: ActionType) -> Self {
-        let length = action.length(&world.avatar);
+        let length = action.length(world);
         Self {
             action,
             finish: world.meta.current_tick + length,
         }
     }
 
-    pub fn act(&self, avatar: &mut Avatar) {
+    pub fn act(&self, world: &mut World) {
         match self.action {
             ActionType::SkippingTime => {}
             ActionType::Walking(dir) => {
-                avatar.move_to(dir, false);
+                world.move_avatar(dir);
             }
         }
-        avatar.action = None;
+        world.avatar.action = None;
     }
 }

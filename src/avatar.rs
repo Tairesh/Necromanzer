@@ -1,6 +1,6 @@
 use action::Action;
 use assets::Assets;
-use direction::{Direction, TwoDimDirection};
+use direction::TwoDimDirection;
 use human::character::Character;
 use human::gender::Gender;
 use map::pos::TilePos;
@@ -24,15 +24,6 @@ impl Avatar {
             pos,
             action: None,
             vision: TwoDimDirection::East,
-        }
-    }
-
-    pub fn move_to(&mut self, dir: Direction, is_teleport: bool) {
-        self.pos = self.pos.add(dir);
-        if !is_teleport {
-            if let Some(dir) = dir.as_two_dimensional() {
-                self.vision = dir;
-            }
         }
     }
 

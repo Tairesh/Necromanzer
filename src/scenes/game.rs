@@ -180,9 +180,8 @@ impl Scene for Game {
             let assets = self.assets.borrow();
             for dx in (-window_size_in_tiles.0 / 2)..=(window_size_in_tiles.0 / 2) {
                 for dy in (-window_size_in_tiles.1 / 2)..=(window_size_in_tiles.1 / 2) {
-                    let tile = self
-                        .world
-                        .load_tile(self.world.avatar.pos.add_delta(dx, dy));
+                    let pos = self.world.avatar.pos.add_delta(dx, dy);
+                    let tile = self.world.load_tile(pos);
                     let region = tile.terrain.region(&assets.regions);
                     assets.tileset.draw_region(
                         ctx,
