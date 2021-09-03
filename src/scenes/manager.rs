@@ -70,6 +70,7 @@ pub enum Transition {
     Quit,
 }
 
+// TODO: probably use enum_dispatch instead of Box<Scene>?
 pub struct SceneManager {
     scenes: Vec<Box<dyn Scene>>,
     settings: Rc<RefCell<Settings>>,

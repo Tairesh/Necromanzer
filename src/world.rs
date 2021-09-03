@@ -103,6 +103,6 @@ impl World {
             self.meta.current_tick += 0.1;
             self.act();
         }
-        println!("{}", self.meta.current_tick);
+        // println!("{}", self.meta.current_tick);
     }
 }

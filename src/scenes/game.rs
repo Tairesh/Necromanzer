@@ -14,7 +14,9 @@ use sprites::position::{AnchorX, AnchorY, Position};
 use sprites::sprite::{Draw, Positionate, Sprite};
 use std::cell::RefCell;
 use std::collections::VecDeque;
+use std::ops::Sub;
 use std::rc::Rc;
+use std::time::{Duration, Instant};
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::text::Text;
 use tetra::graphics::{DrawParams, Rectangle};
@@ -24,7 +26,7 @@ use world::World;
 
 #[derive(Debug)]
 enum GameMode {
-    Walking,
+    Walking(Instant),
     Examining(Option<Direction>),
 }
 
@@ -90,7 +92,7 @@ impl Game {
             world,
             assets: assets_copy,
             zoom: 2.0,
-            mode: GameMode::Walking,
+            mode: GameMode::Walking(Instant::now().sub(Duration::from_secs(1))),
             examination_text,
             cursor,
             log: VecDeque::new(),
@@ -100,7 +102,7 @@ impl Game {
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
-        if let GameMode::Walking = self.mode {
+        if let GameMode::Walking(_) = self.mode {
             if input::is_key_pressed(ctx, Key::Escape) {
                 self.world.save();
                 return Some(Transition::Push(Box::new(GameMenu::new(
@@ -124,10 +126,11 @@ impl Scene for Game {
                 self.zoom = 10.0;
             }
         }
-        if self.world.avatar.action.is_none() {
-            match self.mode {
-                GameMode::Walking => {
-                    if let Some(dir) = get_direction_keys_down(ctx) {
+        match self.mode {
+            GameMode::Walking(last_tick) => {
+                let now = Instant::now();
+                if let Some(dir) = get_direction_keys_down(ctx) {
+                    if now.duration_since(last_tick).as_millis() > 100 {
                         if dir.is_here() {
                             self.world.avatar.action =
                                 Some(Action::new(&self.world, ActionType::SkippingTime));
@@ -137,27 +140,28 @@ impl Scene for Game {
                                 self.world.avatar.action = Some(Action::new(&self.world, action));
                             }
                         }
-                    }
-                    if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
-                        self.mode = GameMode::Examining(None);
+                        self.mode = GameMode::Walking(now);
                     }
                 }
-                GameMode::Examining(dir) => {
-                    if let Some(dir) = dir {
-                        if get_direction_keys_down(ctx).is_none() {
-                            self.mode = GameMode::Walking;
-                            let tile = self.world.avatar.pos.add(dir);
-                            self.log.push_front(Text::new(
-                                self.world.load_tile(tile).terrain.this_is(),
-                                self.assets.borrow().default.clone(),
-                            ))
-                        }
-                    } else if let Some(dir) = get_direction_keys_down(ctx) {
-                        self.mode = GameMode::Examining(Some(dir));
+                if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
+                    self.mode = GameMode::Examining(None);
+                }
+            }
+            GameMode::Examining(dir) => {
+                if let Some(dir) = dir {
+                    if get_direction_keys_down(ctx).is_none() {
+                        self.mode = GameMode::Walking(Instant::now());
+                        let tile = self.world.avatar.pos.add(dir);
+                        self.log.push_front(Text::new(
+                            self.world.load_tile(tile).terrain.this_is(),
+                            self.assets.borrow().default.clone(),
+                        ))
                     }
-                    if input::is_key_pressed(ctx, Key::Escape) {
-                        self.mode = GameMode::Walking;
-                    }
+                } else if let Some(dir) = get_direction_keys_down(ctx) {
+                    self.mode = GameMode::Examining(Some(dir));
+                }
+                if input::is_key_pressed(ctx, Key::Escape) {
+                    self.mode = GameMode::Walking(Instant::now());
                 }
             }
         }
