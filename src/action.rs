@@ -11,7 +11,7 @@ impl ActionType {
     pub fn length(&self, _world: &World) -> f64 {
         match self {
             ActionType::SkippingTime => 1.0,
-            ActionType::Walking(_) => 1.0,
+            ActionType::Walking(_) => 10.0,
         }
     }
 

@@ -137,6 +137,7 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
     }
     let time = SystemTime::now();
     let mut file = File::create(path).map_err(|e| e.to_string())?;
+    // TODO: should save changed chunks
     let data = format!(
         "{}\n{}\n{}\n{}",
         serde_json::to_string(&world.meta).map_err(|e| e.to_string())?,

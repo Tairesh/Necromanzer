@@ -56,6 +56,7 @@ impl World {
     }
 
     pub fn load_chunk_mut(&mut self, pos: ChunkPos) -> &mut Chunk {
+        // TODO: should track changes for save
         let seed = self.meta.seed;
         let assets = self.assets.clone();
         self.chunks
@@ -87,21 +88,21 @@ impl World {
         self.load_tile_mut(pos).on_step();
     }
 
-    pub fn tick(&mut self) {
-        // doing actions that should be done
+    /// Doing actions that should be done
+    fn act(&mut self) {
         if let Some(action) = self.avatar.action {
             if action.finish <= self.meta.current_tick {
                 action.act(self);
             }
         }
-        // TODO: should skip time
-        if let Some(action) = &self.avatar.action {
-            let mut amount = action.finish - self.meta.current_tick;
-            if amount > 1.0 {
-                amount = 1.0;
-            }
-            self.meta.current_tick += amount;
+    }
+
+    pub fn tick(&mut self) {
+        self.act();
+        while self.avatar.action.is_some() {
+            self.meta.current_tick += 0.1;
+            self.act();
         }
-        // println!("{}", self.meta.current_tick);
+        println!("{}", self.meta.current_tick);
     }
 }
