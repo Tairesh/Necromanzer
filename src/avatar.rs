@@ -53,9 +53,9 @@ impl Avatar {
         assets.tileset.draw_region(
             ctx,
             match self.character.gender {
-                Gender::Female => assets.icons.female,
-                Gender::Male => assets.icons.male,
-                Gender::Custom(_) => assets.icons.queer,
+                Gender::Female => assets.regions.female,
+                Gender::Male => assets.regions.male,
+                Gender::Custom(_) => assets.regions.queer,
             },
             DrawParams::new()
                 .position(position)

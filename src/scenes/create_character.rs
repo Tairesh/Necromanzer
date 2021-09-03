@@ -108,7 +108,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "gender_left",
             vec![],
-            assets.borrow().icons.lt,
+            assets.borrow().regions.lt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -132,7 +132,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "gender_right",
             vec![],
-            assets.borrow().icons.mt,
+            assets.borrow().regions.mt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -151,7 +151,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "age_minus",
             vec![],
-            assets.borrow().icons.minus,
+            assets.borrow().regions.minus,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -172,7 +172,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "age_plus",
             vec![],
-            assets.borrow().icons.plus,
+            assets.borrow().regions.plus,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -191,7 +191,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "hand_left",
             vec![],
-            assets.borrow().icons.lt,
+            assets.borrow().regions.lt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -211,7 +211,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "hand_right",
             vec![],
-            assets.borrow().icons.mt,
+            assets.borrow().regions.mt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -230,7 +230,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "skin_left",
             vec![],
-            assets.borrow().icons.lt,
+            assets.borrow().regions.lt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -266,7 +266,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "skin_right",
             vec![],
-            assets.borrow().icons.mt,
+            assets.borrow().regions.mt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },

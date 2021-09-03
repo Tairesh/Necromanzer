@@ -1,6 +1,5 @@
 use avatar::Avatar;
 use direction::Direction;
-use maptile::Terrain;
 use world::World;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -22,8 +21,7 @@ impl ActionType {
             ActionType::SkippingTime => true,
             ActionType::Walking(dir) => {
                 let tile = world.avatar.pos.add(*dir);
-                let tile = world.load_tile(tile);
-                matches!(tile.terrain, Terrain::Dirt(_))
+                world.load_tile(tile).is_walkable()
             }
         }
     }

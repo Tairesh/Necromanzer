@@ -4,7 +4,6 @@ use colors::Colors;
 use direction::Direction;
 use human::gender::Gender;
 use input::{get_direction_keys_down, is_no_key_modifiers};
-use maptile::{BoulderVariant, DirtVariant, GraveVariant, Terrain};
 use scenes::game_menu::GameMenu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
@@ -64,9 +63,9 @@ impl Game {
         let ava = Rc::new(RefCell::new(Image::icon(
             assets.tileset.clone(),
             match world.avatar.character.gender {
-                Gender::Female => assets.icons.female,
-                Gender::Male => assets.icons.male,
-                Gender::Custom(_) => assets.icons.queer,
+                Gender::Female => assets.regions.female,
+                Gender::Male => assets.regions.male,
+                Gender::Custom(_) => assets.regions.queer,
             },
             TetraVec2::new(6.0, 6.0),
             world.avatar.character.skin_tone.color(),
@@ -184,30 +183,7 @@ impl Scene for Game {
                     let tile = self
                         .world
                         .load_tile(self.world.avatar.pos.add_delta(dx, dy));
-                    let region = match tile.terrain {
-                        Terrain::Dirt(variant) => match variant {
-                            DirtVariant::Dirt1 => assets.icons.dirt1,
-                            DirtVariant::Dirt2 => assets.icons.dirt2,
-                            DirtVariant::Dirt3 => assets.icons.dirt3,
-                            DirtVariant::Dirt4 => assets.icons.dirt4,
-                            DirtVariant::Dirt5 => assets.icons.dirt5,
-                        },
-                        Terrain::Boulder(variant) => match variant {
-                            BoulderVariant::One1 => assets.icons.boulder1,
-                            BoulderVariant::One2 => assets.icons.boulder2,
-                            BoulderVariant::One3 => assets.icons.boulder3,
-                            BoulderVariant::Two1 => assets.icons.boulders1,
-                            BoulderVariant::Two2 => assets.icons.boulders2,
-                            BoulderVariant::Three1 => assets.icons.boulders3,
-                            BoulderVariant::Three2 => assets.icons.boulders4,
-                        },
-                        Terrain::Grave(variant, _) => match variant {
-                            GraveVariant::Grave1 => assets.icons.grave1,
-                            GraveVariant::Grave2 => assets.icons.grave2,
-                            GraveVariant::Grave3 => assets.icons.grave3,
-                            GraveVariant::Grave4 => assets.icons.grave4,
-                        },
-                    };
+                    let region = tile.region(&assets.regions);
                     assets.tileset.draw_region(
                         ctx,
                         region,
