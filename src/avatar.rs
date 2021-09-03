@@ -3,7 +3,7 @@ use assets::Assets;
 use direction::{Direction, TwoDimDirection};
 use human::character::Character;
 use human::gender::Gender;
-use maptile::TilePos;
+use map::pos::TilePos;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::DrawParams;

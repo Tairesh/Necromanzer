@@ -1,7 +1,9 @@
 use arr_macro::arr;
 use assets::Assets;
 use human::character::random_character;
-use maptile::{GraveData, Terrain, Tile};
+use map::pos::ChunkPos;
+use map::terrains::{GraveData, Terrain};
+use map::tile::Tile;
 use rand::distributions::Standard;
 use rand::rngs::StdRng;
 use rand::Rng;
@@ -11,26 +13,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ChunkPos {
-    x: i32,
-    y: i32,
-}
-
-impl ChunkPos {
-    pub fn new(x: i32, y: i32) -> Self {
-        ChunkPos { x, y }
-    }
-
-    pub fn x(&self) -> i32 {
-        self.x
-    }
-
-    pub fn y(&self) -> i32 {
-        self.y
-    }
-}
 
 #[derive(Hash)]
 struct ChunkUnique {

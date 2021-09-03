@@ -148,7 +148,7 @@ impl Scene for Game {
                             self.mode = GameMode::Walking;
                             let tile = self.world.avatar.pos.add(dir);
                             self.log.push_front(Text::new(
-                                self.world.load_tile(tile).this_is(),
+                                self.world.load_tile(tile).terrain.this_is(),
                                 self.assets.borrow().default.clone(),
                             ))
                         }
@@ -183,7 +183,7 @@ impl Scene for Game {
                     let tile = self
                         .world
                         .load_tile(self.world.avatar.pos.add_delta(dx, dy));
-                    let region = tile.region(&assets.regions);
+                    let region = tile.terrain.region(&assets.regions);
                     assets.tileset.draw_region(
                         ctx,
                         region,

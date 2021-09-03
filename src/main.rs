@@ -3,12 +3,11 @@
 mod action;
 mod assets;
 mod avatar;
-mod chunk;
 mod colors;
 mod direction;
 mod human;
 mod input;
-mod maptile;
+mod map;
 mod savefile;
 mod scenes;
 mod settings;

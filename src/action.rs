@@ -21,7 +21,7 @@ impl ActionType {
             ActionType::SkippingTime => true,
             ActionType::Walking(dir) => {
                 let tile = world.avatar.pos.add(*dir);
-                world.load_tile(tile).is_walkable()
+                world.load_tile(tile).terrain.is_walkable()
             }
         }
     }

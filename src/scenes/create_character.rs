@@ -5,7 +5,7 @@ use human::character::Character;
 use human::gender::Gender;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
-use maptile::TilePos;
+use map::pos::TilePos;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use savefile::SaveFile;

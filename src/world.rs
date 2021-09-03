@@ -1,7 +1,8 @@
 use assets::Assets;
 use avatar::Avatar;
-use chunk::{Chunk, ChunkPos};
-use maptile::{Tile, TilePos};
+use map::chunk::Chunk;
+use map::pos::{ChunkPos, TilePos};
+use map::tile::Tile;
 use savefile::save;
 use std::cell::RefCell;
 use std::collections::HashMap;
