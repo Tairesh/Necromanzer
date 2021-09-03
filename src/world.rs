@@ -1,6 +1,7 @@
 use assets::Assets;
 use avatar::Avatar;
 use direction::Direction;
+use geometry;
 use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};
 use map::tile::Tile;
@@ -41,6 +42,11 @@ impl World {
         }
     }
 
+    pub fn init(mut self) -> Self {
+        self.kill_grass(self.avatar.pos);
+        self
+    }
+
     pub fn save(&mut self) {
         save(&self.path, self)
             .map_err(|e| panic!("Error on saving world to {:?}: {}", self.path, e))
@@ -64,7 +70,7 @@ impl World {
             .or_insert_with_key(|pos| Chunk::generate(seed, assets, *pos))
     }
 
-    // TODO: load bunch of tiles with minimum load_chunk() calls for rendering
+    // TODO: load bunch of tiles with minimum load_chunk() calls for rendering, killing grass, etc.
     pub fn load_tile(&mut self, pos: TilePos) -> &Tile {
         let (chunk, pos) = pos.chunk_and_pos();
         let chunk = self.load_chunk(chunk);
@@ -86,6 +92,15 @@ impl World {
             self.avatar.vision = dir;
         }
         self.load_tile_mut(pos).on_step();
+        self.kill_grass(pos);
+    }
+
+    fn kill_grass(&mut self, around: TilePos) {
+        // TODO: support different radii
+        for (dx, dy) in geometry::CIRCLE13 {
+            let pos = around.add_delta(dx, dy);
+            self.load_tile_mut(pos).kill_grass();
+        }
     }
 
     /// Doing actions that should be done

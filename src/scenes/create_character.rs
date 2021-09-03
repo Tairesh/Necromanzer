@@ -356,7 +356,8 @@ impl Scene for CreateCharacter {
                         self.savefile.path.clone(),
                         self.savefile.meta.clone(),
                         avatar,
-                    );
+                    )
+                    .init();
                     world.save();
                     Some(Transition::Replace(Box::new(Game::new(
                         self.assets.clone(),

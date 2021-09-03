@@ -37,9 +37,9 @@ impl Chunk {
         let mut tiles = arr![Tile::new(if rng.gen_bool(0.01) {
             Terrain::Boulder(rng.sample(Standard))
         } else if rng.gen_bool(0.5) {
-            Terrain::DeadGrass(rng.sample(Standard))
-        } else if rng.gen_bool(0.1) {
             Terrain::Grass(rng.sample(Standard))
+        } else if rng.gen_bool(0.1) {
+            Terrain::DeadGrass(rng.sample(Standard))
         } else {
             Terrain::Dirt(rng.sample(Standard))
         }); 256];

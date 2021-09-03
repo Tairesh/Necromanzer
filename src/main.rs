@@ -5,6 +5,7 @@ mod assets;
 mod avatar;
 mod colors;
 mod direction;
+mod geometry;
 mod human;
 mod input;
 mod map;
