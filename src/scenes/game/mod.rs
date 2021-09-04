@@ -1,10 +1,14 @@
+mod examining;
+mod walking;
+
 use action::{Action, ActionType};
 use assets::Assets;
 use colors::Colors;
 use direction::Direction;
 use enum_dispatch::enum_dispatch;
 use human::gender::Gender;
-use input::{get_direction_keys_down, is_no_key_modifiers};
+use scenes::game::examining::Examining;
+use scenes::game::walking::Walking;
 use scenes::game_menu::GameMenu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
@@ -15,68 +19,10 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::rc::Rc;
-use std::time::Instant;
 use tetra::graphics::text::Text;
 use tetra::graphics::DrawParams;
-use tetra::input::{Key, KeyModifier};
 use tetra::{graphics, input, window, Context, TetraVec2};
 use world::World;
-
-struct Walking {
-    pub last_walk: Instant,
-}
-
-impl Walking {
-    pub fn new() -> Self {
-        Self {
-            last_walk: Instant::now(),
-        }
-    }
-}
-
-impl GameModeTrait for Walking {
-    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult> {
-        let now = Instant::now();
-        if let Some(dir) = get_direction_keys_down(ctx) {
-            if now.duration_since(self.last_walk).as_millis() > 70
-                || input::is_key_modifier_down(ctx, KeyModifier::Shift)
-            {
-                self.last_walk = now;
-                if dir.is_here() {
-                    Some(UpdateResult::SetAvatarAction(ActionType::SkippingTime))
-                } else {
-                    Some(UpdateResult::SetAvatarAction(ActionType::Walking(dir)))
-                }
-            } else {
-                None
-            }
-        } else if input::is_key_pressed(ctx, Key::C)
-            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-        {
-            Some(UpdateResult::ClearLog)
-        } else if input::is_key_pressed(ctx, Key::Escape) {
-            Some(UpdateResult::OpenMenu)
-        } else if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
-            Some(UpdateResult::SwitchGameMode(Examining {}.into()))
-        } else {
-            None
-        }
-    }
-}
-
-struct Examining {}
-
-impl GameModeTrait for Examining {
-    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult> {
-        if let Some(dir) = get_direction_keys_down(ctx) {
-            Some(UpdateResult::Examine(dir))
-        } else if input::is_key_pressed(ctx, Key::Escape) {
-            Some(UpdateResult::ResetGameMode)
-        } else {
-            None
-        }
-    }
-}
 
 enum UpdateResult {
     OpenMenu,
@@ -90,6 +36,7 @@ enum UpdateResult {
 #[enum_dispatch()]
 trait GameModeTrait {
     fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult>;
+    fn draw(&mut self, _ctx: &mut Context, _world: &mut World, _center: TetraVec2, _zoom: f32) {}
 }
 
 #[enum_dispatch(GameModeTrait)]
@@ -166,10 +113,8 @@ impl Scene for Game {
                         tile.terrain.this_is(),
                         self.assets.borrow().default.clone(),
                     ));
-                    self.mode = Walking::new().into();
                 }
                 UpdateResult::OpenMenu => {
-                    self.world.save();
                     return Some(Transition::Push(Box::new(GameMenu::new(
                         self.assets.clone(),
                         self.settings.clone(),
@@ -238,6 +183,7 @@ impl Scene for Game {
             .avatar
             .draw(ctx, self.assets.clone(), center, zoom);
         self.redraw_sprites(ctx);
+        self.mode.draw(ctx, &mut self.world, center, zoom);
         for (i, text) in self.log.iter_mut().enumerate() {
             text.draw(
                 ctx,
@@ -260,5 +206,11 @@ impl Scene for Game {
 
     fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {
         Some(&mut self.sprites)
+    }
+}
+
+impl Drop for Game {
+    fn drop(&mut self) {
+        self.world.save();
     }
 }
