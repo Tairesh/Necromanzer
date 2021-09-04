@@ -5,6 +5,7 @@ use geometry;
 use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};
 use map::tile::Tile;
+use rand::Rng;
 use savefile::save;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -35,10 +36,7 @@ impl World {
         avatar: Avatar,
         chunks: HashMap<ChunkPos, Chunk>,
     ) -> Self {
-        let mut changed = HashSet::with_capacity(chunks.len());
-        for (chunk, _) in chunks.iter() {
-            changed.insert(*chunk);
-        }
+        let changed = chunks.keys().copied().collect();
         Self {
             assets,
             path,
@@ -50,7 +48,7 @@ impl World {
     }
 
     pub fn init(mut self) -> Self {
-        self.kill_grass(self.avatar.pos);
+        self.kill_grass(self.avatar.pos, 13, 0.8);
         self
     }
 
@@ -100,14 +98,20 @@ impl World {
             self.avatar.vision = dir;
         }
         self.load_tile_mut(pos).on_step();
-        self.kill_grass(pos);
     }
 
-    fn kill_grass(&mut self, around: TilePos) {
-        // TODO: support different radii
-        for (dx, dy) in geometry::CIRCLE13 {
-            let pos = around.add_delta(dx, dy);
-            self.load_tile_mut(pos).kill_grass();
+    pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
+        for (dx, dy) in match diameter {
+            7 => geometry::CIRCLE7.iter(),
+            9 => geometry::CIRCLE9.iter(),
+            11 => geometry::CIRCLE11.iter(),
+            13 => geometry::CIRCLE13.iter(),
+            _ => unimplemented!(),
+        } {
+            if rand::thread_rng().gen_bool(probability) {
+                let pos = around.add_delta(*dx, *dy);
+                self.load_tile_mut(pos).kill_grass();
+            }
         }
     }
 
@@ -123,7 +127,12 @@ impl World {
     pub fn tick(&mut self) {
         self.act();
         while self.avatar.action.is_some() {
+            let tick = self.meta.current_tick.floor();
             self.meta.current_tick += 0.1;
+            if self.meta.current_tick - tick >= 1.0 {
+                self.kill_grass(self.avatar.pos, 7, 0.05);
+                self.kill_grass(self.avatar.pos, 13, 0.01);
+            }
             self.act();
         }
         // println!("{}", self.meta.current_tick);
