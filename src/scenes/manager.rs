@@ -3,7 +3,7 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
-use tetra::window::WindowPos;
+use tetra::window::WindowPosition;
 use tetra::{time, window, Event, TetraError};
 use tetra::{Context, State};
 use {TITLE, VERSION};
@@ -137,7 +137,7 @@ impl State for SceneManager {
                                         if window::is_fullscreen(ctx) {
                                             window::set_fullscreen(ctx, false)?;
                                         }
-                                        window::set_bordered(ctx, true);
+                                        window::set_decorated(ctx, true);
                                         window::set_size(
                                             ctx,
                                             settings.width as i32,
@@ -145,8 +145,8 @@ impl State for SceneManager {
                                         )?;
                                         window::set_position(
                                             ctx,
-                                            WindowPos::Centered,
-                                            WindowPos::Centered,
+                                            WindowPosition::Centered(0),
+                                            WindowPosition::Centered(0),
                                         );
                                     }
                                 }
@@ -184,10 +184,6 @@ impl State for SceneManager {
                     settings.width = width as u32;
                     settings.height = height as u32;
                     settings.validate();
-                    if settings.width as i32 != width || settings.height as i32 != height {
-                        window::set_size(ctx, settings.width as i32, settings.height as i32).ok();
-                        window::set_position(ctx, WindowPos::Centered, WindowPos::Centered);
-                    }
                 }
                 if let Some(scene) = self.scenes.last_mut() {
                     scene.on_resize(ctx);
