@@ -7,4 +7,4 @@
 
 Roguelike where you play as a necromancer and construct dark creatures from dead bodies by adding and removing body parts. Concept version written in Python was released at 2020 7DRL Game Jam as [Necromanzer-7DRL](https://tairesh.itch.io/necromanzer-7drl).
 
-https://user-images.githubusercontent.com/1105196/132023965-c5817af4-ff22-46c4-9c38-2c4a6e075cb5.mp4
+https://user-images.githubusercontent.com/1105196/132095982-7e40b26f-4816-4959-ac7e-e3c2487ee19b.mp4
