@@ -2,6 +2,7 @@ use action::{Action, ActionType};
 use assets::Assets;
 use colors::Colors;
 use direction::Direction;
+use enum_dispatch::enum_dispatch;
 use human::gender::Gender;
 use input::{get_direction_keys_down, is_no_key_modifiers};
 use scenes::game_menu::GameMenu;
@@ -9,25 +10,92 @@ use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
 use sprites::image::{Bar, Image};
 use sprites::label::Label;
-use sprites::meshy::JustMesh;
 use sprites::position::{AnchorX, AnchorY, Position};
-use sprites::sprite::{Draw, Positionate, Sprite};
+use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::collections::VecDeque;
-use std::ops::Sub;
 use std::rc::Rc;
-use std::time::{Duration, Instant};
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use std::time::Instant;
 use tetra::graphics::text::Text;
-use tetra::graphics::{DrawParams, Rectangle};
+use tetra::graphics::DrawParams;
 use tetra::input::{Key, KeyModifier};
 use tetra::{graphics, input, window, Context, TetraVec2};
 use world::World;
 
-#[derive(Debug)]
+struct Walking {
+    pub last_walk: Instant,
+}
+
+impl Walking {
+    pub fn new() -> Self {
+        Self {
+            last_walk: Instant::now(),
+        }
+    }
+}
+
+impl GameModeTrait for Walking {
+    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult> {
+        let now = Instant::now();
+        if let Some(dir) = get_direction_keys_down(ctx) {
+            if now.duration_since(self.last_walk).as_millis() > 70
+                || input::is_key_modifier_down(ctx, KeyModifier::Shift)
+            {
+                self.last_walk = now;
+                if dir.is_here() {
+                    Some(UpdateResult::SetAvatarAction(ActionType::SkippingTime))
+                } else {
+                    Some(UpdateResult::SetAvatarAction(ActionType::Walking(dir)))
+                }
+            } else {
+                None
+            }
+        } else if input::is_key_pressed(ctx, Key::C)
+            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+        {
+            Some(UpdateResult::ClearLog)
+        } else if input::is_key_pressed(ctx, Key::Escape) {
+            Some(UpdateResult::OpenMenu)
+        } else if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
+            Some(UpdateResult::SwitchGameMode(Examining {}.into()))
+        } else {
+            None
+        }
+    }
+}
+
+struct Examining {}
+
+impl GameModeTrait for Examining {
+    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult> {
+        if let Some(dir) = get_direction_keys_down(ctx) {
+            Some(UpdateResult::Examine(dir))
+        } else if input::is_key_pressed(ctx, Key::Escape) {
+            Some(UpdateResult::ResetGameMode)
+        } else {
+            None
+        }
+    }
+}
+
+enum UpdateResult {
+    OpenMenu,
+    ClearLog,
+    Examine(Direction),
+    ResetGameMode,
+    SwitchGameMode(GameMode),
+    SetAvatarAction(ActionType),
+}
+
+#[enum_dispatch()]
+trait GameModeTrait {
+    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult>;
+}
+
+#[enum_dispatch(GameModeTrait)]
 enum GameMode {
-    Walking(Instant),
-    Examining(Option<Direction>),
+    Walking,
+    Examining,
 }
 
 pub struct Game {
@@ -35,10 +103,8 @@ pub struct Game {
     assets: Rc<RefCell<Assets>>,
     settings: Rc<RefCell<Settings>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
-    zoom: f32,
+    zoom: i32,
     mode: GameMode,
-    examination_text: Label,
-    cursor: JustMesh,
     log: VecDeque<Text>,
 }
 
@@ -47,7 +113,7 @@ impl Game {
         assets: Rc<RefCell<Assets>>,
         settings: Rc<RefCell<Settings>>,
         world: World,
-        ctx: &mut Context,
+        _ctx: &mut Context,
     ) -> Self {
         let hp_bar = Rc::new(RefCell::new(Bar::red(100, 50, assets.clone())));
         let mp_bar = Rc::new(RefCell::new(Bar::blue(100, 50, assets.clone())));
@@ -73,28 +139,14 @@ impl Game {
             world.avatar.character.skin_tone.color(),
             Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
         )));
-        let examination_text = Label::new(
-            "Use moving keys to select tile for examination",
-            assets.header2.clone(),
-            Colors::LIGHT_YELLOW,
-            Position::horizontal_center(0.0, 200.0, AnchorY::Top),
-        );
-        let cursor = JustMesh::new(
-            Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 10.0, 10.0)).unwrap(),
-            Some(Colors::LIGHT_YELLOW.with_alpha(0.2)),
-            TetraVec2::new(10.0, 10.0),
-            Position::zeroed(),
-        );
 
         Self {
             sprites: vec![hat, name, ava, hp_bar, mp_bar],
             settings,
             world,
             assets: assets_copy,
-            zoom: 2.0,
-            mode: GameMode::Walking(Instant::now().sub(Duration::from_secs(1))),
-            examination_text,
-            cursor,
+            zoom: 2,
+            mode: Walking::new().into(),
             log: VecDeque::new(),
         }
     }
@@ -102,69 +154,48 @@ impl Game {
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
-        if let GameMode::Walking(_) = self.mode {
-            if input::is_key_pressed(ctx, Key::Escape) {
-                self.world.save();
-                return Some(Transition::Push(Box::new(GameMenu::new(
-                    self.assets.clone(),
-                    self.settings.clone(),
-                    ctx,
-                ))));
-            }
-            if input::is_key_pressed(ctx, Key::C)
-                && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-            {
-                self.log.clear();
+        if let Some(mode) = self.mode.update(ctx) {
+            match mode {
+                UpdateResult::ClearLog => {
+                    self.log.clear();
+                }
+                UpdateResult::Examine(dir) => {
+                    let pos = self.world.avatar.pos.add(dir);
+                    let tile = self.world.load_tile(pos);
+                    self.log.push_front(Text::new(
+                        tile.terrain.this_is(),
+                        self.assets.borrow().default.clone(),
+                    ));
+                    self.mode = Walking::new().into();
+                }
+                UpdateResult::OpenMenu => {
+                    self.world.save();
+                    return Some(Transition::Push(Box::new(GameMenu::new(
+                        self.assets.clone(),
+                        self.settings.clone(),
+                        ctx,
+                    ))));
+                }
+                UpdateResult::ResetGameMode => {
+                    self.mode = Walking::new().into();
+                }
+                UpdateResult::SwitchGameMode(mode) => {
+                    self.mode = mode;
+                }
+                UpdateResult::SetAvatarAction(action) => {
+                    if action.is_possible(&mut self.world) {
+                        self.world.avatar.action = Some(Action::new(&self.world, action));
+                    }
+                }
             }
         }
         let scroll = input::get_mouse_wheel_movement(ctx).y;
         if scroll != 0 {
-            self.zoom += scroll as f32;
-            if self.zoom < 1.0 {
-                self.zoom = 1.0;
-            } else if self.zoom > 10.0 {
-                self.zoom = 10.0;
-            }
-        }
-        match self.mode {
-            GameMode::Walking(last_tick) => {
-                let now = Instant::now();
-                if let Some(dir) = get_direction_keys_down(ctx) {
-                    if now.duration_since(last_tick).as_millis() > 70
-                        || input::is_key_modifier_down(ctx, KeyModifier::Shift)
-                    {
-                        if dir.is_here() {
-                            self.world.avatar.action =
-                                Some(Action::new(&self.world, ActionType::SkippingTime));
-                        } else {
-                            let action = ActionType::Walking(dir);
-                            if action.is_possible(&mut self.world) {
-                                self.world.avatar.action = Some(Action::new(&self.world, action));
-                            }
-                        }
-                        self.mode = GameMode::Walking(now);
-                    }
-                }
-                if input::is_key_pressed(ctx, Key::E) && is_no_key_modifiers(ctx) {
-                    self.mode = GameMode::Examining(None);
-                }
-            }
-            GameMode::Examining(dir) => {
-                if let Some(dir) = dir {
-                    if get_direction_keys_down(ctx).is_none() {
-                        self.mode = GameMode::Walking(Instant::now());
-                        let tile = self.world.avatar.pos.add(dir);
-                        self.log.push_front(Text::new(
-                            self.world.load_tile(tile).terrain.this_is(),
-                            self.assets.borrow().default.clone(),
-                        ))
-                    }
-                } else if let Some(dir) = get_direction_keys_down(ctx) {
-                    self.mode = GameMode::Examining(Some(dir));
-                }
-                if input::is_key_pressed(ctx, Key::Escape) {
-                    self.mode = GameMode::Walking(Instant::now());
-                }
+            self.zoom += scroll;
+            if self.zoom < 1 {
+                self.zoom = 1;
+            } else if self.zoom > 10 {
+                self.zoom = 10;
             }
         }
         self.world.tick();
@@ -174,13 +205,14 @@ impl Scene for Game {
     fn draw(&mut self, ctx: &mut Context) {
         graphics::clear(ctx, Colors::BLACK);
         let window_size = window::get_size(ctx);
+        let zoom = self.zoom as f32;
         let window_size_in_tiles = (
-            (window_size.0 as f32 / (10.0 * self.zoom)).ceil() as i32,
-            (window_size.1 as f32 / (10.0 * self.zoom)).ceil() as i32,
+            (window_size.0 as f32 / (10.0 * zoom)).ceil() as i32,
+            (window_size.1 as f32 / (10.0 * zoom as f32)).ceil() as i32,
         );
         let center = TetraVec2::new(
-            window_size.0 as f32 / 2.0 - 5.0 * self.zoom,
-            window_size.1 as f32 / 2.0 - 5.0 * self.zoom,
+            window_size.0 as f32 / 2.0 - 5.0 * zoom,
+            window_size.1 as f32 / 2.0 - 5.0 * zoom,
         );
         {
             let assets = self.assets.borrow();
@@ -194,31 +226,18 @@ impl Scene for Game {
                         region,
                         DrawParams::new()
                             .position(TetraVec2::new(
-                                center.x + dx as f32 * 10.0 * self.zoom,
-                                center.y + dy as f32 * 10.0 * self.zoom,
+                                center.x + dx as f32 * 10.0 * zoom,
+                                center.y + dy as f32 * 10.0 * zoom,
                             ))
-                            .scale(TetraVec2::new(self.zoom, self.zoom)),
+                            .scale(TetraVec2::new(zoom, zoom)),
                     )
                 }
             }
         }
         self.world
             .avatar
-            .draw(ctx, self.assets.clone(), center, self.zoom);
+            .draw(ctx, self.assets.clone(), center, zoom);
         self.redraw_sprites(ctx);
-        if let GameMode::Examining(None) = self.mode {
-            self.examination_text.draw(ctx);
-        } else if let GameMode::Examining(Some(dir)) = self.mode {
-            self.cursor.set_position(Position::new(
-                center.x + dir.dx() as f32 * 10.0 * self.zoom,
-                center.y + dir.dy() as f32 * 10.0 * self.zoom,
-                AnchorX::Left,
-                AnchorY::Top,
-            ));
-            self.cursor.set_scale(TetraVec2::new(self.zoom, self.zoom));
-            self.cursor.positionate(ctx, window_size);
-            self.cursor.draw(ctx);
-        }
         for (i, text) in self.log.iter_mut().enumerate() {
             text.draw(
                 ctx,
@@ -237,14 +256,6 @@ impl Scene for Game {
                 break;
             }
         }
-    }
-
-    fn on_resize(&mut self, ctx: &mut Context) {
-        let window_size = window::get_size(ctx);
-        for sprite in self.sprites.iter() {
-            sprite.borrow_mut().positionate(ctx, window_size);
-        }
-        self.examination_text.positionate(ctx, window_size);
     }
 
     fn sprites(&mut self) -> Option<&mut Vec<Rc<RefCell<dyn Sprite>>>> {

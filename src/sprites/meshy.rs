@@ -27,10 +27,6 @@ impl JustMesh {
             scale: TetraVec2::one(),
         }
     }
-
-    pub fn set_scale(&mut self, zoom: TetraVec2) {
-        self.scale = zoom;
-    }
 }
 
 impl Draw for JustMesh {

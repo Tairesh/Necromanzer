@@ -108,7 +108,8 @@ impl World {
             13 => geometry::CIRCLE13.iter(),
             _ => unimplemented!(),
         } {
-            if rand::thread_rng().gen_bool(probability) {
+            let k = 1.0 - (dx + dy) as f64 / (diameter as f64);
+            if rand::thread_rng().gen_bool(probability * k) {
                 let pos = around.add_delta(*dx, *dy);
                 self.load_tile_mut(pos).kill_grass();
             }
@@ -124,14 +125,18 @@ impl World {
         }
     }
 
+    /// Calls when current_tick passes 1.0 incremention (e.g. 10.0, 11.0, etc.)
+    fn every_tick(&mut self) {
+        self.kill_grass(self.avatar.pos, 13, 0.01);
+    }
+
     pub fn tick(&mut self) {
         self.act();
         while self.avatar.action.is_some() {
             let tick = self.meta.current_tick.floor();
             self.meta.current_tick += 0.1;
             if self.meta.current_tick - tick >= 1.0 {
-                self.kill_grass(self.avatar.pos, 7, 0.05);
-                self.kill_grass(self.avatar.pos, 13, 0.01);
+                self.every_tick();
             }
             self.act();
         }
