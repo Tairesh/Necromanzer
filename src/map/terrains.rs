@@ -1,5 +1,6 @@
 use assets::TilesetRegions;
 use human::character::Character;
+use map::Passage;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use tetra::graphics::Rectangle;
@@ -14,15 +15,22 @@ pub enum Terrain {
 }
 
 impl Terrain {
+    pub fn name(&self) -> &str {
+        match self {
+            Terrain::Dirt(_) => "dirt",
+            Terrain::Boulder(var) => match var {
+                BoulderVariant::Huge => "huge boulder",
+                BoulderVariant::Middle => "boulder",
+                BoulderVariant::Small => "small boulder",
+            },
+            Terrain::Grave(_, _) => "grave",
+            Terrain::Grass(_) => "grass",
+            Terrain::DeadGrass(_) => "dead grass",
+        }
+    }
+
     pub fn this_is(&self) -> String {
         match self {
-            Terrain::Dirt(_) => "This is dirt.".to_string(),
-            Terrain::Boulder(var) => match var {
-                BoulderVariant::Huge => "This is a huge boulder.",
-                BoulderVariant::Middle => "This is a boulder.",
-                BoulderVariant::Small => "This is a small boulder.",
-            }
-            .to_string(),
             Terrain::Grave(_, data) => {
                 format!(
                     "This is the grave of {}. {} died in {} at the age of {}.",
@@ -32,8 +40,7 @@ impl Terrain {
                     data.character.age,
                 )
             }
-            Terrain::Grass(_) => "This is grass.".to_string(),
-            Terrain::DeadGrass(_) => "This is dead grass.".to_string(),
+            _ => format!("This is {}.", self.name()),
         }
     }
 
@@ -91,13 +98,21 @@ impl Terrain {
     }
 
     pub fn is_walkable(&self) -> bool {
+        match self.pass() {
+            Passage::Passable(_) => true,
+            Passage::Unpassable => false,
+        }
+    }
+
+    pub fn pass(&self) -> Passage {
         match self {
-            Terrain::Grave(_, _) => false,
+            Terrain::Grave(_, _) => Passage::Unpassable,
             Terrain::Boulder(variant) => match variant {
-                BoulderVariant::Small => true,
-                BoulderVariant::Middle | BoulderVariant::Huge => false,
+                BoulderVariant::Small => Passage::Passable(30.0),
+                BoulderVariant::Middle | BoulderVariant::Huge => Passage::Unpassable,
             },
-            Terrain::Dirt(_) | Terrain::Grass(_) | Terrain::DeadGrass(_) => true,
+            Terrain::Dirt(_) => Passage::Passable(10.0),
+            Terrain::Grass(_) | Terrain::DeadGrass(_) => Passage::Passable(11.0),
         }
     }
 }

@@ -130,7 +130,13 @@ impl Scene for Game {
             }
             UpdateResult::SetAvatarAction(action) => {
                 if action.is_possible(&mut self.world) {
-                    self.world.avatar.action = Some(Action::new(&self.world, action));
+                    if action.length(&mut self.world) > 20.0 {
+                        self.log.push_front(Text::new(
+                            format!("It takes a long time to {}.", action.name(&mut self.world)),
+                            self.assets.borrow().default.clone(),
+                        ));
+                    }
+                    self.world.avatar.action = Some(Action::new(&mut self.world, action));
                 }
             }
         }
