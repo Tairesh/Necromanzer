@@ -5,15 +5,16 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::DrawParams;
 use tetra::input::MouseButton;
-use tetra::{input, Context, TetraRect, TetraVec2};
+use tetra::{input, Context};
+use {Rect, Vec2};
 
 pub struct Alert {
     assets: Rc<RefCell<Assets>>,
-    scale: TetraVec2,
+    scale: Vec2,
     width: f32,
     height: f32,
     position: Position,
-    rect: Option<TetraRect>,
+    rect: Option<Rect>,
     visible: bool,
 }
 
@@ -21,7 +22,7 @@ impl Alert {
     pub fn new(width: f32, height: f32, assets: Rc<RefCell<Assets>>, position: Position) -> Self {
         Alert {
             assets,
-            scale: TetraVec2::new(3.0, 3.0),
+            scale: Vec2::new(3.0, 3.0),
             width,
             height,
             position,
@@ -41,7 +42,7 @@ impl Draw for Alert {
             self.width / self.scale.x,
             self.height / self.scale.y,
             DrawParams::new()
-                .position(TetraVec2::new(rect.x, rect.y))
+                .position(Vec2::new(rect.x, rect.y))
                 .scale(self.scale),
         )
     }
@@ -64,11 +65,11 @@ impl Positionate for Alert {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
-        TetraVec2::new(self.width, self.height)
+    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
+        Vec2::new(self.width, self.height)
     }
 
-    fn set_rect(&mut self, rect: TetraRect) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }

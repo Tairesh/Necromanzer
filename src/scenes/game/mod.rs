@@ -21,8 +21,9 @@ use std::collections::VecDeque;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
 use tetra::graphics::DrawParams;
-use tetra::{graphics, input, window, Context, TetraVec2};
+use tetra::{graphics, input, window, Context};
 use world::World;
+use Vec2;
 
 enum UpdateResult {
     DoNothing,
@@ -37,7 +38,7 @@ enum UpdateResult {
 #[enum_dispatch()]
 trait GameModeTrait {
     fn update(&mut self, ctx: &mut Context) -> UpdateResult;
-    fn draw(&mut self, _ctx: &mut Context, _world: &mut World, _center: TetraVec2, _zoom: f32) {}
+    fn draw(&mut self, _ctx: &mut Context, _world: &mut World, _center: Vec2, _zoom: f32) {}
 }
 
 #[enum_dispatch(GameModeTrait)]
@@ -68,7 +69,7 @@ impl Game {
         let assets_copy = assets.clone();
         let assets = assets.borrow();
         let hat = Rc::new(RefCell::new(
-            Image::new(assets.hat.clone(), Position::zeroed()).with_scale(TetraVec2::new(4.0, 4.0)),
+            Image::new(assets.hat.clone(), Position::zeroed()).with_scale(Vec2::new(4.0, 4.0)),
         ));
         let name = Rc::new(RefCell::new(Label::new(
             world.avatar.character.name.as_str(),
@@ -83,7 +84,7 @@ impl Game {
                 Gender::Male => assets.regions.male,
                 Gender::Custom(_) => assets.regions.queer,
             },
-            TetraVec2::new(6.0, 6.0),
+            Vec2::new(6.0, 6.0),
             world.avatar.character.skin_tone.color(),
             Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
         )));
@@ -161,7 +162,7 @@ impl Scene for Game {
             (window_size.0 as f32 / (10.0 * zoom)).ceil() as i32,
             (window_size.1 as f32 / (10.0 * zoom as f32)).ceil() as i32,
         );
-        let center = TetraVec2::new(
+        let center = Vec2::new(
             window_size.0 as f32 / 2.0 - 5.0 * zoom,
             window_size.1 as f32 / 2.0 - 5.0 * zoom,
         );
@@ -176,11 +177,11 @@ impl Scene for Game {
                         ctx,
                         region,
                         DrawParams::new()
-                            .position(TetraVec2::new(
+                            .position(Vec2::new(
                                 center.x + dx as f32 * 10.0 * zoom,
                                 center.y + dy as f32 * 10.0 * zoom,
                             ))
-                            .scale(TetraVec2::new(zoom, zoom)),
+                            .scale(Vec2::new(zoom, zoom)),
                     )
                 }
             }
@@ -194,7 +195,7 @@ impl Scene for Game {
             text.draw(
                 ctx,
                 DrawParams::new()
-                    .position(TetraVec2::new(
+                    .position(Vec2::new(
                         10.0,
                         window_size.1 as f32 - 20.0 - 20.0 * i as f32,
                     ))

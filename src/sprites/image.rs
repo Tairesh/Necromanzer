@@ -4,17 +4,17 @@ use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Update};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::{Color, DrawParams, NineSlice, Rectangle, Texture};
-use tetra::math::Rect;
-use tetra::{Context, TetraVec2};
+use tetra::Context;
+use {Rect, Vec2};
 
 pub struct Image {
     texture: Texture,
     region: Option<Rectangle>,
     color: Option<Color>,
     nine_slice: Option<(NineSlice, f32, f32)>,
-    scale: TetraVec2,
+    scale: Vec2,
     position: Position,
-    rect: Option<Rect<f32, f32>>,
+    rect: Option<Rect>,
     visible: bool,
 }
 
@@ -25,7 +25,7 @@ impl Image {
             region: None,
             color: None,
             nine_slice: None,
-            scale: TetraVec2::new(1.0, 1.0),
+            scale: Vec2::new(1.0, 1.0),
             position,
             rect: None,
             visible: true,
@@ -35,7 +35,7 @@ impl Image {
     pub fn icon(
         tileset: Texture,
         region: Rectangle,
-        scale: TetraVec2,
+        scale: Vec2,
         color: Color,
         position: Position,
     ) -> Self {
@@ -45,7 +45,7 @@ impl Image {
             .with_color(color)
     }
 
-    pub fn with_scale(mut self, scale: TetraVec2) -> Self {
+    pub fn with_scale(mut self, scale: Vec2) -> Self {
         self.scale = scale;
         self
     }
@@ -70,7 +70,7 @@ impl Draw for Image {
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         let params = DrawParams::new()
-            .position(TetraVec2::new(rect.x, rect.y))
+            .position(Vec2::new(rect.x, rect.y))
             .scale(self.scale)
             .color(self.color.unwrap_or(Color::WHITE));
         if let Some((nine_slice, width, height)) = &self.nine_slice {
@@ -101,17 +101,17 @@ impl Positionate for Image {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
         let size = if let Some(region) = self.region {
             (region.width, region.height)
         } else {
             let (w, h) = self.texture.size();
             (w as f32, h as f32)
         };
-        TetraVec2::new(size.0 * self.scale.x, size.1 * self.scale.y)
+        Vec2::new(size.0 * self.scale.x, size.1 * self.scale.y)
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }
@@ -146,7 +146,7 @@ impl Bar {
                 assets.borrow().bars.clone(),
                 Position::new(100.0, 8.0, AnchorX::Left, AnchorY::Top),
             )
-            .with_scale(TetraVec2::new(4.0, 4.0))
+            .with_scale(Vec2::new(4.0, 4.0))
             .with_nineslice(
                 assets.borrow().bar_red.clone(),
                 (value as f32 / max_value as f32) * (max_width - min_width) + min_width,
@@ -167,7 +167,7 @@ impl Bar {
                 assets.borrow().bars.clone(),
                 Position::new(100.0, 32.0, AnchorX::Left, AnchorY::Top),
             )
-            .with_scale(TetraVec2::new(4.0, 4.0))
+            .with_scale(Vec2::new(4.0, 4.0))
             .with_nineslice(
                 assets.borrow().bar_blue.clone(),
                 (value as f32 / max_value as f32) * (max_width - min_width) + min_width,
@@ -222,11 +222,11 @@ impl Positionate for Bar {
         self.image.position = position;
     }
 
-    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
         self.image.calc_size(ctx)
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.image.set_rect(rect);
     }
 }

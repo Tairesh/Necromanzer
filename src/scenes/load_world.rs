@@ -18,9 +18,9 @@ use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{Color, Rectangle};
 use tetra::input::{Key, MouseButton};
-use tetra::{input, Context, TetraVec2};
+use tetra::{input, Context};
 use world::World;
-use CARGO_VERSION;
+use {Vec2, CARGO_VERSION};
 
 pub struct LoadWorld {
     assets: Rc<RefCell<Assets>>,
@@ -57,7 +57,7 @@ impl LoadWorld {
                     Colors::TRANSPARENT
                 },
                 Colors::KHAKI.with_alpha(0.6),
-                TetraVec2::new(560.0, 50.0),
+                Vec2::new(560.0, 50.0),
                 Position {
                     x: Horizontal::AtWindowCenterByLeft { offset: -282.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y },

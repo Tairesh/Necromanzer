@@ -42,6 +42,9 @@ lazy_static::lazy_static! {
     };
 }
 
+type Vec2 = tetra::math::Vec2<f32>;
+type Rect = tetra::math::Rect<f32, f32>;
+
 fn main() -> tetra::Result {
     let settings = Rc::new(RefCell::new(Settings::load()?));
     let mut ctx = ContextBuilder::new(

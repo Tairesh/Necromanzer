@@ -9,8 +9,8 @@ use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
 use tetra::graphics::text::Text;
 use tetra::graphics::{Color, DrawParams, Rectangle};
 use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::math::Rect;
-use tetra::{input, Context, TetraVec2};
+use tetra::{input, Context};
+use {Rect, Vec2};
 
 enum ValueType {
     String { max_length: u32 },
@@ -22,7 +22,7 @@ pub struct TextInput {
     position: Position,
     width: f32,
     value_type: ValueType,
-    rect: Option<Rect<f32, f32>>,
+    rect: Option<Rect>,
     is_focused: bool,
     is_disabled: bool,
     is_hovered: bool,
@@ -138,7 +138,7 @@ impl Draw for TextInput {
             bg.draw(
                 ctx,
                 DrawParams::new()
-                    .position(TetraVec2::new(rect.x, rect.y))
+                    .position(Vec2::new(rect.x, rect.y))
                     .color(bg_color),
             );
         }
@@ -153,7 +153,7 @@ impl Draw for TextInput {
         border.draw(
             ctx,
             DrawParams::new()
-                .position(TetraVec2::new(rect.x, rect.y))
+                .position(Vec2::new(rect.x, rect.y))
                 .color(self.border_color()),
         );
         let content = self.text.content().to_string();
@@ -165,12 +165,12 @@ impl Draw for TextInput {
             .map(|r| r.width + 3.0)
             .unwrap_or(-1.0f32);
         let text_pos = if !self.is_focused || self.is_disabled {
-            TetraVec2::new(
+            Vec2::new(
                 rect.x + rect.w / 2.0 - text_width / 2.0,
                 rect.y + rect.h / 2.0 - 18.0,
             )
         } else {
-            TetraVec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 18.0)
+            Vec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 18.0)
         };
         self.text.set_content(content);
         self.text.draw(
@@ -189,7 +189,7 @@ impl Draw for TextInput {
             .draw(
                 ctx,
                 DrawParams::new()
-                    .position(TetraVec2::new(rect.x, rect.y))
+                    .position(Vec2::new(rect.x, rect.y))
                     .color(self.text_color()),
             );
         }
@@ -213,11 +213,11 @@ impl Positionate for TextInput {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
-        TetraVec2::new(self.width, 42.0)
+    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
+        Vec2::new(self.width, 42.0)
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }

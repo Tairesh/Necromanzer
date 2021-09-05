@@ -7,12 +7,12 @@ use std::rc::Rc;
 use tetra::graphics::text::Text;
 use tetra::graphics::{DrawParams, Rectangle};
 use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::math::Rect;
-use tetra::{input, Context, TetraVec2};
+use tetra::{input, Context};
+use {Rect, Vec2};
 
 enum ButtonContent {
     Text(Text),
-    Icon { region: Rectangle, scale: TetraVec2 },
+    Icon { region: Rectangle, scale: Vec2 },
 }
 
 pub struct Button {
@@ -22,7 +22,7 @@ pub struct Button {
     content_height: f32,
     position: Position,
     assets: Rc<RefCell<Assets>>,
-    rect: Option<Rect<f32, f32>>,
+    rect: Option<Rect>,
     is_pressed: bool,
     is_disabled: bool,
     is_hovered: bool,
@@ -87,7 +87,7 @@ impl Button {
         assets: Rc<RefCell<Assets>>,
         position: Position,
     ) -> Self {
-        let icon_scale = TetraVec2::new(3.0, 3.0);
+        let icon_scale = Vec2::new(3.0, 3.0);
         let content = ButtonContent::Icon {
             region,
             scale: icon_scale,
@@ -111,16 +111,16 @@ impl Button {
         self.id.clone()
     }
 
-    fn content_size(&mut self, ctx: &mut Context) -> (TetraVec2, f32) {
+    fn content_size(&mut self, ctx: &mut Context) -> (Vec2, f32) {
         match &mut self.content {
             ButtonContent::Text(text) => (
                 text.get_bounds(ctx)
-                    .map(|b| TetraVec2::new(b.width, self.content_height))
+                    .map(|b| Vec2::new(b.width, self.content_height))
                     .unwrap(),
                 30.0f32,
             ),
             ButtonContent::Icon { region, scale } => (
-                TetraVec2::new(region.width * scale.x, region.height * scale.y),
+                Vec2::new(region.width * scale.x, region.height * scale.y),
                 10.0f32,
             ),
         }
@@ -130,7 +130,7 @@ impl Button {
 impl Draw for Button {
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
-        let mut vec = TetraVec2::new(rect.x, rect.y);
+        let mut vec = Vec2::new(rect.x, rect.y);
         let (content_size, offset_x) = self.content_size(ctx);
         let assets = self.assets.borrow();
 
@@ -148,9 +148,7 @@ impl Draw for Button {
             config,
             (content_size.x + offset_x) / 3.0,
             42.0 / 3.0,
-            DrawParams::new()
-                .position(vec)
-                .scale(TetraVec2::new(3.0, 3.0)),
+            DrawParams::new().position(vec).scale(Vec2::new(3.0, 3.0)),
         );
         vec.x += rect.w / 2.0 - content_size.x / 2.0;
         vec.y += rect.h / 2.0 - content_size.y / 2.0;
@@ -195,12 +193,12 @@ impl Positionate for Button {
         self.position = position;
     }
 
-    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
         let (content_size, offset_x) = self.content_size(ctx);
-        TetraVec2::new(content_size.x + offset_x, 42.0)
+        Vec2::new(content_size.x + offset_x, 42.0)
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }

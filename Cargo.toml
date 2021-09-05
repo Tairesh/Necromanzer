@@ -5,7 +5,7 @@ authors = ["Ilya Agafonov <tairesh.rus@gmail.com>"]
 build = "build.rs"
 
 [dependencies.tetra]
-git = "https://github.com/Tairesh/tetra"
+git = "https://github.com/17cupsofcoffee/tetra"
 default-features = false
 features = ["serde_support","texture_png","texture_jpeg","font_ttf"]
 

@@ -1,12 +1,12 @@
 use colors::Colors;
 use direction::Direction;
-use input;
 use scenes::game::{GameModeTrait, UpdateResult};
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{DrawParams, Rectangle};
 use tetra::input::Key;
-use tetra::{Context, TetraVec2};
+use tetra::Context;
 use world::World;
+use {input, Vec2};
 
 pub(crate) struct Examining {
     mesh: Mesh,
@@ -46,16 +46,16 @@ impl GameModeTrait for Examining {
         }
     }
 
-    fn draw(&mut self, ctx: &mut Context, _world: &mut World, center: TetraVec2, zoom: f32) {
+    fn draw(&mut self, ctx: &mut Context, _world: &mut World, center: Vec2, zoom: f32) {
         if let Some(dir) = self.selected {
             self.mesh.draw(
                 ctx,
                 DrawParams::new()
-                    .position(TetraVec2::new(
+                    .position(Vec2::new(
                         center.x + dir.dx() as f32 * 10.0 * zoom,
                         center.y + dir.dy() as f32 * 10.0 * zoom,
                     ))
-                    .scale(TetraVec2::new(zoom, zoom))
+                    .scale(Vec2::new(zoom, zoom))
                     .color(Colors::LIGHT_YELLOW.with_alpha(0.75)),
             )
         }

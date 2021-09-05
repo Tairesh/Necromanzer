@@ -1,7 +1,7 @@
 use sprites::position::Position;
 use tetra::graphics::Color;
-use tetra::math::Rect;
-use tetra::{Context, TetraVec2};
+use tetra::Context;
+use {Rect, Vec2};
 
 pub trait Draw {
     fn draw(&mut self, ctx: &mut Context);
@@ -12,9 +12,9 @@ pub trait Draw {
 pub trait Positionate {
     fn position(&self) -> Position;
     fn set_position(&mut self, position: Position);
-    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2;
-    fn set_rect(&mut self, rect: Rect<f32, f32>);
-    fn calc_rect(&mut self, owner_size: TetraVec2, window_size: (i32, i32)) -> Rect<f32, f32> {
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2;
+    fn set_rect(&mut self, rect: Rect);
+    fn calc_rect(&mut self, owner_size: Vec2, window_size: (i32, i32)) -> Rect {
         let left_top = self.position().as_vec(owner_size, window_size);
         Rect::new(left_top.x, left_top.y, owner_size.x, owner_size.y)
     }

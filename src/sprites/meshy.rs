@@ -2,21 +2,21 @@ use sprites::position::Position;
 use sprites::sprite::{Colorize, Draw, Hover, Positionate, Sprite, Update};
 use tetra::graphics::mesh::Mesh;
 use tetra::graphics::{Color, DrawParams};
-use tetra::math::Rect;
-use tetra::{input, Context, TetraRect, TetraVec2};
+use tetra::{input, Context};
+use {Rect, Vec2};
 
 pub struct JustMesh {
     mesh: Mesh,
     color: Option<Color>,
-    size: TetraVec2,
+    size: Vec2,
     position: Position,
-    rect: Option<TetraRect>,
+    rect: Option<Rect>,
     visible: bool,
-    scale: TetraVec2,
+    scale: Vec2,
 }
 
 impl JustMesh {
-    pub fn new(mesh: Mesh, color: Option<Color>, size: TetraVec2, position: Position) -> Self {
+    pub fn new(mesh: Mesh, color: Option<Color>, size: Vec2, position: Position) -> Self {
         Self {
             mesh,
             color,
@@ -24,7 +24,7 @@ impl JustMesh {
             position,
             rect: None,
             visible: true,
-            scale: TetraVec2::one(),
+            scale: Vec2::one(),
         }
     }
 }
@@ -35,7 +35,7 @@ impl Draw for JustMesh {
         self.mesh.draw(
             ctx,
             DrawParams::new()
-                .position(TetraVec2::new(rect.x, rect.y))
+                .position(Vec2::new(rect.x, rect.y))
                 .scale(self.scale)
                 .color(self.color.unwrap_or(Color::WHITE)),
         );
@@ -59,11 +59,11 @@ impl Positionate for JustMesh {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
         self.size * self.scale
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }
@@ -85,9 +85,9 @@ pub struct HoverableMesh {
     mesh: Mesh,
     bg_color: Color,
     bg_color_hover: Color,
-    size: TetraVec2,
+    size: Vec2,
     position: Position,
-    rect: Option<TetraRect>,
+    rect: Option<Rect>,
     visible: bool,
     is_hovered: bool,
 }
@@ -97,7 +97,7 @@ impl HoverableMesh {
         mesh: Mesh,
         bg_color: Color,
         bg_color_hover: Color,
-        size: TetraVec2,
+        size: Vec2,
         position: Position,
     ) -> Self {
         Self {
@@ -119,7 +119,7 @@ impl Draw for HoverableMesh {
         self.mesh.draw(
             ctx,
             DrawParams::new()
-                .position(TetraVec2::new(rect.x, rect.y))
+                .position(Vec2::new(rect.x, rect.y))
                 .color(if self.is_hovered {
                     self.bg_color_hover
                 } else {
@@ -146,11 +146,11 @@ impl Positionate for HoverableMesh {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
         self.size
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }

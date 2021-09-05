@@ -7,7 +7,8 @@ use map::pos::TilePos;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::DrawParams;
-use tetra::{Context, TetraVec2};
+use tetra::Context;
+use Vec2;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
@@ -31,14 +32,14 @@ impl Avatar {
         &self,
         ctx: &mut Context,
         assets: Rc<RefCell<Assets>>,
-        mut position: TetraVec2,
+        mut position: Vec2,
         zoom: f32,
     ) {
         let scale = if let TwoDimDirection::East = self.vision {
-            TetraVec2::new(zoom, zoom)
+            Vec2::new(zoom, zoom)
         } else {
             position.x += 10.0 * zoom;
-            TetraVec2::new(-zoom, zoom)
+            Vec2::new(-zoom, zoom)
         };
         let assets = assets.borrow();
         assets.tileset.draw_region(

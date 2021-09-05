@@ -1,5 +1,6 @@
 #![allow(dead_code)]
-use tetra::TetraVec2;
+
+use Vec2;
 
 #[derive(Copy, Clone)]
 pub enum Horizontal {
@@ -97,7 +98,7 @@ impl Position {
         }
     }
 
-    pub fn as_vec(&self, owner_size: TetraVec2, window_size: (i32, i32)) -> TetraVec2 {
+    pub fn as_vec(&self, owner_size: Vec2, window_size: (i32, i32)) -> Vec2 {
         let x = match self.x {
             Horizontal::ByLeft { x } => x,
             Horizontal::ByCenter { x } => x - owner_size.x / 2.0,
@@ -124,6 +125,6 @@ impl Position {
             }
             Vertical::AtWindowBottom { offset } => window_size.1 as f32 - owner_size.y + offset,
         };
-        TetraVec2::new(x, y)
+        Vec2::new(x, y)
     }
 }

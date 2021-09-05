@@ -2,14 +2,14 @@ use sprites::position::Position;
 use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
 use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
-use tetra::math::Rect;
-use tetra::{Context, TetraVec2};
+use tetra::Context;
+use {Rect, Vec2};
 
 pub struct Label {
     text: Text,
     color: Color,
     position: Position,
-    rect: Option<Rect<f32, f32>>,
+    rect: Option<Rect>,
     visible: bool,
 }
 
@@ -41,7 +41,7 @@ impl Draw for Label {
         self.text.draw(
             ctx,
             DrawParams::new()
-                .position(TetraVec2::new(rect.x, rect.y))
+                .position(Vec2::new(rect.x, rect.y))
                 .color(self.color),
         );
     }
@@ -64,12 +64,12 @@ impl Positionate for Label {
         self.position = position;
     }
 
-    fn calc_size(&mut self, ctx: &mut Context) -> TetraVec2 {
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
         let rect = self.text.get_bounds(ctx).unwrap();
-        TetraVec2::new(rect.width, rect.height)
+        Vec2::new(rect.width, rect.height)
     }
 
-    fn set_rect(&mut self, rect: Rect<f32, f32>) {
+    fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
     }
 }

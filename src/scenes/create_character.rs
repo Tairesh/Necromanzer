@@ -25,8 +25,9 @@ use std::rc::Rc;
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
 use tetra::graphics::Rectangle;
 use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::{input, window, Context, TetraVec2};
+use tetra::{input, window, Context};
 use world::World;
+use Vec2;
 
 pub struct CreateCharacter {
     assets: Rc<RefCell<Assets>>,
@@ -247,7 +248,7 @@ impl CreateCharacter {
             )
             .unwrap(),
             Some(Colors::WARM_IVORY),
-            TetraVec2::new(210.0, 42.0),
+            Vec2::new(210.0, 42.0),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 110.0 },
                 y: AnchorY::Center.to_position(400.0),
