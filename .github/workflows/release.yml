@@ -6,11 +6,10 @@ on:
       - main
     paths:
       - '**/*.rs'
-      - '**/*.jpg'
-      - '**/*.png'
       - '**/*.json'
       - '**/*.toml'
       - '**/*.yml'
+      - 'res/*'
 jobs:
   release:
     name: "Create release"
