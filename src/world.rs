@@ -102,15 +102,17 @@ impl World {
 
     pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
         for (dx, dy) in match diameter {
-            7 => geometry::CIRCLE7.iter(),
-            9 => geometry::CIRCLE9.iter(),
-            11 => geometry::CIRCLE11.iter(),
-            13 => geometry::CIRCLE13.iter(),
+            7 => geometry::CIRCLE7.iter().copied(),
+            9 => geometry::CIRCLE9.iter().copied(),
+            11 => geometry::CIRCLE11.iter().copied(),
+            13 => geometry::CIRCLE13.iter().copied(),
             _ => unimplemented!(),
         } {
-            let k = 1.0 - (dx + dy) as f64 / (diameter as f64);
+            let k = (1.0 - (dx as f64).hypot(dy as f64) / ((diameter - 1) as f64 / 2.0))
+                .min(1.0)
+                .max(0.0);
             if rand::thread_rng().gen_bool(probability * k) {
-                let pos = around.add_delta(*dx, *dy);
+                let pos = around.add_delta(dx, dy);
                 self.load_tile_mut(pos).kill_grass();
             }
         }

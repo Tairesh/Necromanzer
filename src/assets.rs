@@ -19,13 +19,9 @@ pub struct TilesetRegions {
     pub dirt4: Rectangle,
     pub dirt5: Rectangle,
 
-    pub boulder1: Rectangle,
-    pub boulder2: Rectangle,
-    pub boulder3: Rectangle,
-    pub boulders1: Rectangle,
-    pub boulders2: Rectangle,
-    pub boulders3: Rectangle,
-    pub boulders4: Rectangle,
+    pub boulder_huge: Rectangle,
+    pub boulder_middle: Rectangle,
+    pub boulder_small: Rectangle,
 
     pub grass1: Rectangle,
     pub grass2: Rectangle,
@@ -143,13 +139,9 @@ impl Assets {
                 dirt4: Rectangle::new(30.0, 20.0, 10.0, 10.0),
                 dirt5: Rectangle::new(40.0, 20.0, 10.0, 10.0),
 
-                boulder1: Rectangle::new(0.0, 30.0, 10.0, 10.0),
-                boulder2: Rectangle::new(10.0, 30.0, 10.0, 10.0),
-                boulder3: Rectangle::new(20.0, 30.0, 10.0, 10.0),
-                boulders1: Rectangle::new(30.0, 30.0, 10.0, 10.0),
-                boulders2: Rectangle::new(40.0, 30.0, 10.0, 10.0),
-                boulders3: Rectangle::new(50.0, 30.0, 10.0, 10.0),
-                boulders4: Rectangle::new(60.0, 30.0, 10.0, 10.0),
+                boulder_huge: Rectangle::new(0.0, 30.0, 10.0, 10.0),
+                boulder_middle: Rectangle::new(10.0, 30.0, 10.0, 10.0),
+                boulder_small: Rectangle::new(20.0, 30.0, 10.0, 10.0),
 
                 grass1: Rectangle::new(0.0, 40.0, 10.0, 10.0),
                 grass2: Rectangle::new(10.0, 40.0, 10.0, 10.0),

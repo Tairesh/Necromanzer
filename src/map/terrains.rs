@@ -18,11 +18,9 @@ impl Terrain {
         match self {
             Terrain::Dirt(_) => "This is dirt.".to_string(),
             Terrain::Boulder(var) => match var {
-                BoulderVariant::One1 | BoulderVariant::One2 | BoulderVariant::One3 => {
-                    "This is a boulder."
-                }
-                BoulderVariant::Two1 | BoulderVariant::Two2 => "This is a couple of boulders.",
-                BoulderVariant::Three1 | BoulderVariant::Three2 => "This is a bunch of boulders.",
+                BoulderVariant::Huge => "This is a huge boulder.",
+                BoulderVariant::Middle => "This is a boulder.",
+                BoulderVariant::Small => "This is a small boulder.",
             }
             .to_string(),
             Terrain::Grave(_, data) => {
@@ -49,13 +47,9 @@ impl Terrain {
                 DirtVariant::Dirt5 => regions.dirt5,
             },
             Terrain::Boulder(variant) => match variant {
-                BoulderVariant::One1 => regions.boulder1,
-                BoulderVariant::One2 => regions.boulder2,
-                BoulderVariant::One3 => regions.boulder3,
-                BoulderVariant::Two1 => regions.boulders1,
-                BoulderVariant::Two2 => regions.boulders2,
-                BoulderVariant::Three1 => regions.boulders3,
-                BoulderVariant::Three2 => regions.boulders4,
+                BoulderVariant::Huge => regions.boulder_huge,
+                BoulderVariant::Middle => regions.boulder_middle,
+                BoulderVariant::Small => regions.boulder_small,
             },
             Terrain::Grave(variant, _) => match variant {
                 GraveVariant::Grave1 => regions.grave1,
@@ -101,9 +95,11 @@ impl Terrain {
     pub fn is_walkable(&self) -> bool {
         match self {
             Terrain::Grave(_, _) => false,
-            Terrain::Dirt(_) | Terrain::Boulder(_) | Terrain::Grass(_) | Terrain::DeadGrass(_) => {
-                true
-            }
+            Terrain::Boulder(variant) => match variant {
+                BoulderVariant::Small => true,
+                BoulderVariant::Middle | BoulderVariant::Huge => false,
+            },
+            Terrain::Dirt(_) | Terrain::Grass(_) | Terrain::DeadGrass(_) => true,
         }
     }
 }
@@ -135,25 +131,17 @@ impl Distribution<DirtVariant> for Standard {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum BoulderVariant {
-    One1,
-    One2,
-    One3,
-    Two1,
-    Two2,
-    Three1,
-    Three2,
+    Huge,
+    Middle,
+    Small,
 }
 
 impl Distribution<BoulderVariant> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> BoulderVariant {
-        match rng.gen_range(0..7) {
-            0 => BoulderVariant::One1,
-            1 => BoulderVariant::One2,
-            2 => BoulderVariant::One3,
-            3 => BoulderVariant::Two1,
-            4 => BoulderVariant::Two2,
-            5 => BoulderVariant::Three1,
-            6 => BoulderVariant::Three2,
+        match rng.gen_range(0..3) {
+            0 => BoulderVariant::Huge,
+            1 => BoulderVariant::Middle,
+            2 => BoulderVariant::Small,
             _ => unreachable!(),
         }
     }
