@@ -29,20 +29,20 @@ impl Examining {
 }
 
 impl GameModeTrait for Examining {
-    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult> {
+    fn update(&mut self, ctx: &mut Context) -> UpdateResult {
         if input::is_key_pressed(ctx, Key::Escape) {
-            Some(UpdateResult::ResetGameMode)
+            UpdateResult::ResetGameMode
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             if self.selected.is_none() {
                 self.selected = Some(dir);
-                Some(UpdateResult::Examine(dir))
+                UpdateResult::Examine(dir)
             } else {
-                None
+                UpdateResult::DoNothing
             }
         } else if self.selected.is_some() {
-            Some(UpdateResult::ResetGameMode)
+            UpdateResult::ResetGameMode
         } else {
-            None
+            UpdateResult::DoNothing
         }
     }
 

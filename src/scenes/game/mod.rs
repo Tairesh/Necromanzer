@@ -25,6 +25,7 @@ use tetra::{graphics, input, window, Context, TetraVec2};
 use world::World;
 
 enum UpdateResult {
+    DoNothing,
     OpenMenu,
     ClearLog,
     Examine(Direction),
@@ -35,7 +36,7 @@ enum UpdateResult {
 
 #[enum_dispatch()]
 trait GameModeTrait {
-    fn update(&mut self, ctx: &mut Context) -> Option<UpdateResult>;
+    fn update(&mut self, ctx: &mut Context) -> UpdateResult;
     fn draw(&mut self, _ctx: &mut Context, _world: &mut World, _center: TetraVec2, _zoom: f32) {}
 }
 
@@ -101,36 +102,35 @@ impl Game {
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
-        if let Some(mode) = self.mode.update(ctx) {
-            match mode {
-                UpdateResult::ClearLog => {
-                    self.log.clear();
-                }
-                UpdateResult::Examine(dir) => {
-                    let pos = self.world.avatar.pos.add(dir);
-                    let tile = self.world.load_tile(pos);
-                    self.log.push_front(Text::new(
-                        tile.terrain.this_is(),
-                        self.assets.borrow().default.clone(),
-                    ));
-                }
-                UpdateResult::OpenMenu => {
-                    return Some(Transition::Push(Box::new(GameMenu::new(
-                        self.assets.clone(),
-                        self.settings.clone(),
-                        ctx,
-                    ))));
-                }
-                UpdateResult::ResetGameMode => {
-                    self.mode = Walking::new().into();
-                }
-                UpdateResult::SwitchGameMode(mode) => {
-                    self.mode = mode;
-                }
-                UpdateResult::SetAvatarAction(action) => {
-                    if action.is_possible(&mut self.world) {
-                        self.world.avatar.action = Some(Action::new(&self.world, action));
-                    }
+        match self.mode.update(ctx) {
+            UpdateResult::DoNothing => {}
+            UpdateResult::ClearLog => {
+                self.log.clear();
+            }
+            UpdateResult::Examine(dir) => {
+                let pos = self.world.avatar.pos.add(dir);
+                let tile = self.world.load_tile(pos);
+                self.log.push_front(Text::new(
+                    tile.terrain.this_is(),
+                    self.assets.borrow().default.clone(),
+                ));
+            }
+            UpdateResult::OpenMenu => {
+                return Some(Transition::Push(Box::new(GameMenu::new(
+                    self.assets.clone(),
+                    self.settings.clone(),
+                    ctx,
+                ))));
+            }
+            UpdateResult::ResetGameMode => {
+                self.mode = Walking::new().into();
+            }
+            UpdateResult::SwitchGameMode(mode) => {
+                self.mode = mode;
+            }
+            UpdateResult::SetAvatarAction(action) => {
+                if action.is_possible(&mut self.world) {
+                    self.world.avatar.action = Some(Action::new(&self.world, action));
                 }
             }
         }
