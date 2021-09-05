@@ -52,10 +52,8 @@ impl Terrain {
                 BoulderVariant::Small => regions.boulder_small,
             },
             Terrain::Grave(variant, _) => match variant {
-                GraveVariant::Grave1 => regions.grave1,
-                GraveVariant::Grave2 => regions.grave2,
-                GraveVariant::Grave3 => regions.grave3,
-                GraveVariant::Grave4 => regions.grave4,
+                GraveVariant::New => regions.grave_new,
+                GraveVariant::Old => regions.grave_old,
             },
             Terrain::Grass(variant) => match variant {
                 GrassVariant::Grass1 => regions.grass1,
@@ -149,20 +147,16 @@ impl Distribution<BoulderVariant> for Standard {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum GraveVariant {
-    Grave1,
-    Grave2,
-    Grave3,
-    Grave4,
+    New,
+    Old,
 }
 
 impl Distribution<GraveVariant> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> GraveVariant {
-        match rng.gen_range(0..4) {
-            0 => GraveVariant::Grave1,
-            1 => GraveVariant::Grave2,
-            2 => GraveVariant::Grave3,
-            3 => GraveVariant::Grave4,
-            _ => unreachable!(),
+        if rng.gen_bool(0.9) {
+            GraveVariant::Old
+        } else {
+            GraveVariant::New
         }
     }
 }

@@ -55,10 +55,8 @@ pub struct TilesetRegions {
     pub dead_grass13: Rectangle,
     pub dead_grass14: Rectangle,
 
-    pub grave1: Rectangle,
-    pub grave2: Rectangle,
-    pub grave3: Rectangle,
-    pub grave4: Rectangle,
+    pub grave_new: Rectangle,
+    pub grave_old: Rectangle,
 
     pub lt: Rectangle,
     pub mt: Rectangle,
@@ -172,10 +170,8 @@ impl Assets {
                 dead_grass13: Rectangle::new(50.0, 70.0, 10.0, 10.0),
                 dead_grass14: Rectangle::new(60.0, 70.0, 10.0, 10.0),
 
-                grave1: Rectangle::new(0.0, 80.0, 10.0, 10.0),
-                grave2: Rectangle::new(10.0, 80.0, 10.0, 10.0),
-                grave3: Rectangle::new(20.0, 80.0, 10.0, 10.0),
-                grave4: Rectangle::new(30.0, 80.0, 10.0, 10.0),
+                grave_new: Rectangle::new(0.0, 80.0, 10.0, 10.0),
+                grave_old: Rectangle::new(10.0, 80.0, 10.0, 10.0),
 
                 mt: Rectangle::new(0.0, 90.0, 10.0, 10.0),
                 lt: Rectangle::new(10.0, 90.0, 10.0, 10.0),
