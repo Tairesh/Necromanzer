@@ -5,6 +5,7 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use tetra::graphics::Rectangle;
 
+// TODO: Create structs TerrainType and load them from jsons
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum Terrain {
     Dirt(DirtVariant),

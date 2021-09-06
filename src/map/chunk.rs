@@ -1,5 +1,6 @@
 use assets::Assets;
 use human::character::random_character;
+use map::item::ItemType;
 use map::pos::ChunkPos;
 use map::terrains::{GraveData, GraveVariant, Terrain};
 use map::tile::Tile;
@@ -67,18 +68,22 @@ impl Chunk {
             if pos < Chunk::USIZE - 1 - Chunk::SIZE as usize {
                 blocked_tiles.insert(pos + Chunk::SIZE as usize);
             }
-            let death_year = rng.gen_range(0..255u8);
-            tiles.get_mut(pos).unwrap().terrain = Terrain::Grave(
-                if death_year < 200 {
-                    GraveVariant::Old
-                } else {
-                    GraveVariant::New
-                },
-                GraveData {
-                    character: random_character(&mut rng, assets.clone()),
-                    death_year,
-                },
-            );
+            if rng.gen_bool(0.1) {
+                tiles.get_mut(pos).unwrap().items.push(ItemType::Shovel);
+            } else {
+                let death_year = rng.gen_range(0..255u8);
+                tiles.get_mut(pos).unwrap().terrain = Terrain::Grave(
+                    if death_year < 200 {
+                        GraveVariant::Old
+                    } else {
+                        GraveVariant::New
+                    },
+                    GraveData {
+                        character: random_character(&mut rng, assets.clone()),
+                        death_year,
+                    },
+                );
+            }
         }
         Chunk { pos, tiles }
     }

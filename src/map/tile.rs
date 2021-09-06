@@ -1,14 +1,19 @@
+use map::item::ItemType;
 use map::terrains::{DeadGrassVariant, DirtVariant, GrassVariant, Terrain};
 use rand::Rng;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Tile {
     pub terrain: Terrain,
+    pub items: Vec<ItemType>,
 }
 
 impl Tile {
     pub fn new(terrain: Terrain) -> Self {
-        Self { terrain }
+        Self {
+            terrain,
+            items: Vec::new(),
+        }
     }
 
     /// Calls when avatar leaves tile
@@ -52,5 +57,9 @@ impl Tile {
                 GrassVariant::Grass14 => DeadGrassVariant::DeadGrass14,
             });
         }
+    }
+
+    pub fn top_item(&self) -> Option<&ItemType> {
+        self.items.first()
     }
 }

@@ -158,6 +158,7 @@ impl Scene for Game {
         graphics::clear(ctx, Colors::BLACK);
         let window_size = window::get_size(ctx);
         let zoom = self.zoom as f32;
+        let scale = Vec2::new(zoom, zoom);
         let window_size_in_tiles = (
             (window_size.0 as f32 / (10.0 * zoom)).ceil() as i32,
             (window_size.1 as f32 / (10.0 * zoom as f32)).ceil() as i32,
@@ -173,16 +174,18 @@ impl Scene for Game {
                     let pos = self.world.avatar.pos.add_delta(dx, dy);
                     let tile = self.world.load_tile(pos);
                     let region = tile.terrain.region(&assets.regions);
-                    assets.tileset.draw_region(
-                        ctx,
-                        region,
-                        DrawParams::new()
-                            .position(Vec2::new(
-                                center.x + dx as f32 * 10.0 * zoom,
-                                center.y + dy as f32 * 10.0 * zoom,
-                            ))
-                            .scale(Vec2::new(zoom, zoom)),
-                    )
+                    let params = DrawParams::new()
+                        .position(Vec2::new(
+                            center.x + dx as f32 * 10.0 * zoom,
+                            center.y + dy as f32 * 10.0 * zoom,
+                        ))
+                        .scale(scale);
+                    assets.tileset.draw_region(ctx, region, params.clone());
+                    if let Some(item) = tile.top_item() {
+                        assets
+                            .tileset
+                            .draw_region(ctx, item.region(&assets.regions), params);
+                    }
                 }
             }
         }
