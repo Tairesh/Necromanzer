@@ -30,6 +30,7 @@ enum UpdateResult {
     OpenMenu,
     ClearLog,
     Examine(Direction),
+    Drop,
     ResetGameMode,
     SwitchGameMode(GameMode),
     SetAvatarAction(ActionType),
@@ -110,11 +111,24 @@ impl Scene for Game {
             }
             UpdateResult::Examine(dir) => {
                 let pos = self.world.avatar.pos.add(dir);
-                let tile = self.world.load_tile(pos);
+                let tile = self.world.load_tile_mut(pos);
                 self.log.push_front(Text::new(
                     tile.terrain.this_is(),
                     self.assets.borrow().default.clone(),
                 ));
+                if let Some(item) = tile.items.pop() {
+                    self.world.avatar.wield.push(item.clone());
+                    self.log.push_front(Text::new(
+                        format!("You wields {:?}", item),
+                        self.assets.borrow().default.clone(),
+                    ));
+                }
+            }
+            UpdateResult::Drop => {
+                let mut items = self.world.avatar.wield.clone();
+                self.world.avatar.wield.clear();
+                let tile = self.world.load_tile_mut(self.world.avatar.pos);
+                tile.items.append(&mut items);
             }
             UpdateResult::OpenMenu => {
                 return Some(Transition::Push(Box::new(GameMenu::new(

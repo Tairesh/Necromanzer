@@ -1,5 +1,6 @@
 use colors::Colors;
 use direction::Direction;
+use geometry::DIR9;
 use scenes::game::{GameModeTrait, UpdateResult};
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{DrawParams, Rectangle};
@@ -9,20 +10,19 @@ use world::World;
 use {input, Vec2};
 
 pub(crate) struct Examining {
-    mesh: Mesh,
+    cursor: Mesh,
     selected: Option<Direction>,
 }
 
 impl Examining {
     pub fn new(ctx: &mut Context) -> Self {
-        let mesh = Mesh::rectangle(
-            ctx,
-            ShapeStyle::Stroke(1.0),
-            Rectangle::new(0.0, 0.0, 10.0, 10.0),
-        )
-        .unwrap();
         Self {
-            mesh,
+            cursor: Mesh::rectangle(
+                ctx,
+                ShapeStyle::Stroke(1.0),
+                Rectangle::new(0.0, 0.0, 10.0, 10.0),
+            )
+            .unwrap(),
             selected: None,
         }
     }
@@ -46,9 +46,9 @@ impl GameModeTrait for Examining {
         }
     }
 
-    fn draw(&mut self, ctx: &mut Context, _world: &mut World, center: Vec2, zoom: f32) {
+    fn draw(&mut self, ctx: &mut Context, world: &mut World, center: Vec2, zoom: f32) {
         if let Some(dir) = self.selected {
-            self.mesh.draw(
+            self.cursor.draw(
                 ctx,
                 DrawParams::new()
                     .position(Vec2::new(
@@ -58,6 +58,23 @@ impl GameModeTrait for Examining {
                     .scale(Vec2::new(zoom, zoom))
                     .color(Colors::LIGHT_YELLOW.with_alpha(0.75)),
             )
+        } else {
+            for (dx, dy) in DIR9 {
+                let pos = world.avatar.pos.add_delta(dx, dy);
+                let tile = world.load_tile(pos);
+                if !tile.items.is_empty() {
+                    self.cursor.draw(
+                        ctx,
+                        DrawParams::new()
+                            .position(Vec2::new(
+                                center.x + dx as f32 * 10.0 * zoom,
+                                center.y + dy as f32 * 10.0 * zoom,
+                            ))
+                            .scale(Vec2::new(zoom, zoom))
+                            .color(Colors::LIGHT_YELLOW.with_alpha(0.75)),
+                    );
+                }
+            }
         }
     }
 }

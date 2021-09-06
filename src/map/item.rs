@@ -2,7 +2,7 @@ use assets::TilesetRegions;
 use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub enum ItemType {
     Shovel,
     Knife,

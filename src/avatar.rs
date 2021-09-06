@@ -3,6 +3,7 @@ use assets::Assets;
 use direction::TwoDimDirection;
 use human::character::Character;
 use human::gender::Gender;
+use map::item::ItemType;
 use map::pos::TilePos;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -16,6 +17,7 @@ pub struct Avatar {
     pub pos: TilePos,
     pub action: Option<Action>,
     pub vision: TwoDimDirection,
+    pub wield: Vec<ItemType>,
 }
 
 impl Avatar {
@@ -25,6 +27,7 @@ impl Avatar {
             pos,
             action: None,
             vision: TwoDimDirection::East,
+            wield: Vec::new(),
         }
     }
 

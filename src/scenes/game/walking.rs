@@ -37,6 +37,8 @@ impl GameModeTrait for Walking {
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
             UpdateResult::ClearLog
+        } else if input::is_key_pressed(ctx, Key::D) && input::is_no_key_modifiers(ctx) {
+            UpdateResult::Drop
         } else if input::is_key_pressed(ctx, Key::Escape) {
             UpdateResult::OpenMenu
         } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {
