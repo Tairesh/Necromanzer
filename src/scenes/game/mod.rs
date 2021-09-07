@@ -21,14 +21,13 @@ use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::rc::Rc;
-use tetra::graphics::text::Text;
-use tetra::graphics::DrawParams;
+use tetra::graphics::text::{Font, Text};
+use tetra::graphics::{Color, DrawParams};
 use tetra::{graphics, input, window, Context};
 use world::World;
 use Vec2;
 
 enum UpdateResult {
-    DoNothing,
     OpenMenu,
     ClearLog,
     Examine(Direction),
@@ -36,11 +35,12 @@ enum UpdateResult {
     ResetGameMode,
     SwitchGameMode(GameMode),
     SetAvatarAction(ActionType),
+    AddLogMessage(String),
 }
 
 #[enum_dispatch()]
 trait GameModeTrait {
-    fn update(&mut self, ctx: &mut Context, world: &mut World) -> UpdateResult;
+    fn update(&mut self, ctx: &mut Context, world: &mut World) -> Vec<UpdateResult>;
     fn draw(&mut self, _ctx: &mut Context, _world: &mut World, _center: Vec2, _zoom: f32) {}
 }
 
@@ -51,6 +51,20 @@ enum GameMode {
     Dropping,
 }
 
+struct LogMessage {
+    pub text: Text,
+    color: Color,
+}
+
+impl LogMessage {
+    pub fn new(text: &str, font: Font, color: Color) -> Self {
+        Self {
+            text: Text::new(text, font),
+            color,
+        }
+    }
+}
+
 pub struct Game {
     world: World,
     assets: Rc<RefCell<Assets>>,
@@ -58,10 +72,12 @@ pub struct Game {
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
     zoom: i32,
     mode: GameMode,
-    log: VecDeque<Text>,
+    log: VecDeque<LogMessage>,
 }
 
 impl Game {
+    const LOG_LIMIT: usize = 5;
+
     pub fn new(
         assets: Rc<RefCell<Assets>>,
         settings: Rc<RefCell<Settings>>,
@@ -100,64 +116,89 @@ impl Game {
             assets: assets_copy,
             zoom: 2,
             mode: Walking::new().into(),
-            log: VecDeque::new(),
+            log: VecDeque::with_capacity(Self::LOG_LIMIT),
         }
+    }
+
+    fn log(&mut self, text: &str) {
+        if self.log.len() >= Self::LOG_LIMIT {
+            self.log.pop_back();
+        }
+        self.log.push_front(LogMessage::new(
+            text,
+            self.assets.borrow().default.clone(),
+            Colors::LIGHT_YELLOW,
+        ));
     }
 }
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
-        match self.mode.update(ctx, &mut self.world) {
-            UpdateResult::DoNothing => {}
-            UpdateResult::ClearLog => {
-                self.log.clear();
-            }
-            UpdateResult::Examine(dir) => {
-                if let Some(dir) = dir.as_two_dimensional() {
-                    self.world.avatar.vision = dir;
+        for upd in self.mode.update(ctx, &mut self.world) {
+            match upd {
+                UpdateResult::ClearLog => {
+                    self.log.clear();
                 }
-                let pos = self.world.avatar.pos.add(dir);
-                let tile = self.world.load_tile_mut(pos);
-                self.log.push_front(Text::new(
-                    tile.terrain.this_is(),
-                    self.assets.borrow().default.clone(),
-                ));
-                if let Some(item) = tile.items.pop() {
-                    self.world.avatar.wield.push(item.clone());
-                    self.log.push_front(Text::new(
-                        format!("You wields {:?}", item),
-                        self.assets.borrow().default.clone(),
-                    ));
-                }
-            }
-            UpdateResult::Drop(dir) => {
-                let mut items = self.world.avatar.wield.clone();
-                self.world.avatar.wield.clear();
-                let tile = self.world.load_tile_mut(self.world.avatar.pos.add(dir));
-                tile.items.append(&mut items);
-            }
-            UpdateResult::OpenMenu => {
-                return Some(Transition::Push(Box::new(GameMenu::new(
-                    self.assets.clone(),
-                    self.settings.clone(),
-                    ctx,
-                ))));
-            }
-            UpdateResult::ResetGameMode => {
-                self.mode = Walking::new().into();
-            }
-            UpdateResult::SwitchGameMode(mode) => {
-                self.mode = mode;
-            }
-            UpdateResult::SetAvatarAction(action) => {
-                if action.is_possible(&mut self.world) {
-                    if action.length(&mut self.world) > 20.0 {
-                        self.log.push_front(Text::new(
-                            format!("It takes a long time to {}.", action.name(&mut self.world)),
-                            self.assets.borrow().default.clone(),
-                        ));
+                UpdateResult::Examine(dir) => {
+                    if let Some(dir) = dir.as_two_dimensional() {
+                        self.world.avatar.vision = dir;
                     }
-                    self.world.avatar.action = Some(Action::new(&mut self.world, action));
+                    let pos = self.world.avatar.pos.add(dir);
+                    let this_is = self.world.load_tile(pos).terrain.this_is();
+                    self.log(this_is.as_str());
+                    let tile = self.world.load_tile_mut(pos);
+                    if let Some(item) = tile.items.pop() {
+                        self.world.avatar.wield.push(item.clone());
+                        self.log(format!("You picked up a {:?}", item).as_str());
+                    }
+                }
+                UpdateResult::Drop(dir) => {
+                    let mut items = self.world.avatar.wield.clone();
+                    if items.is_empty() {
+                        self.log("You have nothing to drop!");
+                    } else {
+                        if items.len() == 1 {
+                            self.log(
+                                format!("You threw away the {:?}.", items.first().unwrap())
+                                    .as_str(),
+                            );
+                        } else {
+                            self.log(
+                                format!("You threw some things ({}) away.", items.len()).as_str(),
+                            );
+                        }
+                        self.world.avatar.wield.clear();
+                        let tile = self.world.load_tile_mut(self.world.avatar.pos.add(dir));
+                        tile.items.append(&mut items);
+                    }
+                }
+                UpdateResult::OpenMenu => {
+                    return Some(Transition::Push(Box::new(GameMenu::new(
+                        self.assets.clone(),
+                        self.settings.clone(),
+                        ctx,
+                    ))));
+                }
+                UpdateResult::ResetGameMode => {
+                    self.mode = Walking::new().into();
+                }
+                UpdateResult::SwitchGameMode(mode) => {
+                    self.mode = mode;
+                }
+                UpdateResult::SetAvatarAction(action) => {
+                    if action.is_possible(&mut self.world) {
+                        if action.length(&mut self.world) > 20.0 {
+                            let text = format!(
+                                "It takes a long time to {}.",
+                                action.name(&mut self.world)
+                            );
+                            self.log(text.as_str());
+                        }
+                        self.world.avatar.action = Some(Action::new(&mut self.world, action));
+                    }
+                }
+                UpdateResult::AddLogMessage(msg) => {
+                    self.log(msg.as_str());
                 }
             }
         }
@@ -222,23 +263,16 @@ impl Scene for Game {
             .draw(ctx, self.assets.clone(), center, zoom);
         self.redraw_sprites(ctx);
         self.mode.draw(ctx, &mut self.world, center, zoom);
-        for (i, text) in self.log.iter_mut().enumerate() {
-            text.draw(
+        for (i, msg) in self.log.iter_mut().enumerate() {
+            msg.text.draw(
                 ctx,
                 DrawParams::new()
                     .position(Vec2::new(
                         10.0,
                         window_size.1 as f32 - 20.0 - 20.0 * i as f32,
                     ))
-                    .color(if i == 0 {
-                        Colors::LIGHT_YELLOW
-                    } else {
-                        Colors::GRAY
-                    }),
+                    .color(if i == 0 { msg.color } else { Colors::GRAY }),
             );
-            if i >= 5 {
-                break;
-            }
         }
     }
 

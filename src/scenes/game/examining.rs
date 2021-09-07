@@ -29,20 +29,20 @@ impl Examining {
 }
 
 impl GameModeTrait for Examining {
-    fn update(&mut self, ctx: &mut Context, _world: &mut World) -> UpdateResult {
+    fn update(&mut self, ctx: &mut Context, _world: &mut World) -> Vec<UpdateResult> {
         if input::is_key_pressed(ctx, Key::Escape) {
-            UpdateResult::ResetGameMode
+            vec![UpdateResult::ResetGameMode]
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             if self.selected.is_none() {
                 self.selected = Some(dir);
-                UpdateResult::Examine(dir)
+                vec![UpdateResult::Examine(dir)]
             } else {
-                UpdateResult::DoNothing
+                vec![]
             }
         } else if self.selected.is_some() {
-            UpdateResult::ResetGameMode
+            vec![UpdateResult::ResetGameMode]
         } else {
-            UpdateResult::DoNothing
+            vec![]
         }
     }
 

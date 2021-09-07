@@ -29,25 +29,31 @@ impl Dropping {
 }
 
 impl GameModeTrait for Dropping {
-    fn update(&mut self, ctx: &mut Context, world: &mut World) -> UpdateResult {
+    fn update(&mut self, ctx: &mut Context, world: &mut World) -> Vec<UpdateResult> {
         if input::is_key_pressed(ctx, Key::Escape) {
-            UpdateResult::ResetGameMode
+            vec![UpdateResult::ResetGameMode]
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let tile = world.load_tile(world.avatar.pos.add(dir));
             if let Passage::Passable(_) = tile.terrain.pass() {
                 if self.selected.is_none() {
                     self.selected = Some(dir);
-                    UpdateResult::Drop(dir)
+                    vec![UpdateResult::Drop(dir)]
                 } else {
-                    UpdateResult::DoNothing
+                    vec![]
                 }
             } else {
-                UpdateResult::DoNothing
+                vec![
+                    UpdateResult::ResetGameMode,
+                    UpdateResult::AddLogMessage(format!(
+                        "You can't put items on the {}!",
+                        tile.terrain.name()
+                    )),
+                ]
             }
         } else if self.selected.is_some() {
-            UpdateResult::ResetGameMode
+            vec![UpdateResult::ResetGameMode]
         } else {
-            UpdateResult::DoNothing
+            vec![]
         }
     }
 
