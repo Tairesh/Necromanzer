@@ -16,7 +16,7 @@ lazy_static = "1.4"
 rand = "0.8"
 chrono = "0.4"
 enum_dispatch = "0.3"
-itertools = "0.8"
+itertools = "0.10"
 
 [build-dependencies]
 winres = "0.1"

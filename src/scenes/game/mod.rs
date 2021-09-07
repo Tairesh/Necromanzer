@@ -149,13 +149,10 @@ impl Scene for Game {
                     let tile = self.world.load_tile(pos);
                     let mut this_is = tile.terrain.this_is();
                     if !tile.items.is_empty() {
-                        #[allow(unstable_name_collisions)]
-                        let items: String = tile
-                            .items
-                            .iter()
-                            .map(|item| item.name())
-                            .intersperse(", ")
-                            .collect();
+                        // TODO: use the std version when stable (see https://github.com/rust-lang/rust/issues/79524)
+                        let items: String =
+                            Itertools::intersperse(tile.items.iter().map(|item| item.name()), ", ")
+                                .collect();
                         this_is += " Here you see: ";
                         this_is += items.as_str();
                     }
