@@ -1,3 +1,4 @@
+mod dropping;
 mod examining;
 mod walking;
 
@@ -7,6 +8,7 @@ use colors::Colors;
 use direction::Direction;
 use enum_dispatch::enum_dispatch;
 use human::gender::Gender;
+use scenes::game::dropping::Dropping;
 use scenes::game::examining::Examining;
 use scenes::game::walking::Walking;
 use scenes::game_menu::GameMenu;
@@ -30,7 +32,7 @@ enum UpdateResult {
     OpenMenu,
     ClearLog,
     Examine(Direction),
-    Drop,
+    Drop(Direction),
     ResetGameMode,
     SwitchGameMode(GameMode),
     SetAvatarAction(ActionType),
@@ -38,7 +40,7 @@ enum UpdateResult {
 
 #[enum_dispatch()]
 trait GameModeTrait {
-    fn update(&mut self, ctx: &mut Context) -> UpdateResult;
+    fn update(&mut self, ctx: &mut Context, world: &mut World) -> UpdateResult;
     fn draw(&mut self, _ctx: &mut Context, _world: &mut World, _center: Vec2, _zoom: f32) {}
 }
 
@@ -46,6 +48,7 @@ trait GameModeTrait {
 enum GameMode {
     Walking,
     Examining,
+    Dropping,
 }
 
 pub struct Game {
@@ -104,7 +107,7 @@ impl Game {
 
 impl Scene for Game {
     fn update(&mut self, ctx: &mut Context) -> Option<Transition> {
-        match self.mode.update(ctx) {
+        match self.mode.update(ctx, &mut self.world) {
             UpdateResult::DoNothing => {}
             UpdateResult::ClearLog => {
                 self.log.clear();
@@ -127,10 +130,10 @@ impl Scene for Game {
                     ));
                 }
             }
-            UpdateResult::Drop => {
+            UpdateResult::Drop(dir) => {
                 let mut items = self.world.avatar.wield.clone();
                 self.world.avatar.wield.clear();
-                let tile = self.world.load_tile_mut(self.world.avatar.pos);
+                let tile = self.world.load_tile_mut(self.world.avatar.pos.add(dir));
                 tile.items.append(&mut items);
             }
             UpdateResult::OpenMenu => {
