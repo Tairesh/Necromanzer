@@ -110,6 +110,9 @@ impl Scene for Game {
                 self.log.clear();
             }
             UpdateResult::Examine(dir) => {
+                if let Some(dir) = dir.as_two_dimensional() {
+                    self.world.avatar.vision = dir;
+                }
                 let pos = self.world.avatar.pos.add(dir);
                 let tile = self.world.load_tile_mut(pos);
                 self.log.push_front(Text::new(
