@@ -1,6 +1,7 @@
 use colors::Colors;
 use direction::Direction;
 use geometry::DIR9;
+use itertools::Itertools;
 use scenes::game::{GameModeTrait, UpdateResult};
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{DrawParams, Rectangle};
@@ -29,13 +30,27 @@ impl Examining {
 }
 
 impl GameModeTrait for Examining {
-    fn update(&mut self, ctx: &mut Context, _world: &mut World) -> Vec<UpdateResult> {
+    fn update(&mut self, ctx: &mut Context, world: &mut World) -> Vec<UpdateResult> {
         if input::is_key_pressed(ctx, Key::Escape) {
             vec![UpdateResult::ResetGameMode]
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             if self.selected.is_none() {
                 self.selected = Some(dir);
-                vec![UpdateResult::Examine(dir)]
+                if let Some(dir) = dir.as_two_dimensional() {
+                    world.avatar.vision = dir;
+                }
+                let pos = world.avatar.pos.add(dir);
+                let tile = world.load_tile(pos);
+                let mut this_is = tile.terrain.this_is();
+                if !tile.items.is_empty() {
+                    // TODO: use the std version when stable (see https://github.com/rust-lang/rust/issues/79524)
+                    let items: String =
+                        Itertools::intersperse(tile.items.iter().map(|item| item.name()), ", ")
+                            .collect();
+                    this_is += " Here you see: ";
+                    this_is += items.as_str();
+                }
+                vec![UpdateResult::AddLogMessage(this_is)]
             } else {
                 vec![]
             }

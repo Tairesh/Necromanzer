@@ -8,7 +8,6 @@ use colors::Colors;
 use direction::Direction;
 use enum_dispatch::enum_dispatch;
 use human::gender::Gender;
-use itertools::Itertools;
 use scenes::game::dropping::Dropping;
 use scenes::game::examining::Examining;
 use scenes::game::walking::Walking;
@@ -31,7 +30,6 @@ use Vec2;
 enum UpdateResult {
     OpenMenu,
     ClearLog,
-    Examine(Direction),
     Drop(Direction),
     ResetGameMode,
     SwitchGameMode(GameMode),
@@ -139,29 +137,6 @@ impl Scene for Game {
             match upd {
                 UpdateResult::ClearLog => {
                     self.log.clear();
-                }
-                UpdateResult::Examine(dir) => {
-                    // TODO: move this to Examining gamemode
-                    if let Some(dir) = dir.as_two_dimensional() {
-                        self.world.avatar.vision = dir;
-                    }
-                    let pos = self.world.avatar.pos.add(dir);
-                    let tile = self.world.load_tile(pos);
-                    let mut this_is = tile.terrain.this_is();
-                    if !tile.items.is_empty() {
-                        // TODO: use the std version when stable (see https://github.com/rust-lang/rust/issues/79524)
-                        let items: String =
-                            Itertools::intersperse(tile.items.iter().map(|item| item.name()), ", ")
-                                .collect();
-                        this_is += " Here you see: ";
-                        this_is += items.as_str();
-                    }
-                    self.log(this_is.as_str());
-                    // let tile = self.world.load_tile_mut(pos);
-                    // if let Some(item) = tile.items.pop() {
-                    //     self.world.avatar.wield.push(item.clone());
-                    //     self.log(format!("You picked up a {:?}", item).as_str());
-                    // }
                 }
                 UpdateResult::Drop(dir) => {
                     // TODO: move this to Dropping gamemode and make an Action (for time consuming)
