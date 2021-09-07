@@ -70,7 +70,7 @@ pub struct Game {
     settings: Rc<RefCell<Settings>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
     zoom: i32,
-    mode: GameMode,
+    mode: GameMode, // TODO: make gamemodes like Dropping and Wielding separate scenes (they should have sprites)
     log: VecDeque<LogMessage>,
 }
 
