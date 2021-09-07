@@ -1,6 +1,6 @@
 use assets::Assets;
 use human::character::random_character;
-use map::item::ItemType;
+use map::item::{Item, ItemType};
 use map::pos::ChunkPos;
 use map::terrains::{GraveData, GraveVariant, Terrain};
 use map::tile::Tile;
@@ -69,7 +69,11 @@ impl Chunk {
                 blocked_tiles.insert(pos + Chunk::SIZE as usize);
             }
             if rng.gen_bool(0.1) {
-                tiles.get_mut(pos).unwrap().items.push(ItemType::Shovel);
+                tiles
+                    .get_mut(pos)
+                    .unwrap()
+                    .items
+                    .push(Item::new(ItemType::Shovel));
             } else {
                 let death_year = rng.gen_range(0..255u8);
                 tiles.get_mut(pos).unwrap().terrain = Terrain::Grave(

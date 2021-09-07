@@ -17,6 +17,7 @@ mod world;
 
 extern crate chrono;
 extern crate enum_dispatch;
+extern crate itertools;
 extern crate rand;
 extern crate serde;
 extern crate tetra;

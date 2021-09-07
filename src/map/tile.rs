@@ -1,11 +1,11 @@
-use map::item::ItemType;
+use map::item::Item;
 use map::terrains::{DeadGrassVariant, DirtVariant, GrassVariant, Terrain};
 use rand::Rng;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Tile {
     pub terrain: Terrain,
-    pub items: Vec<ItemType>,
+    pub items: Vec<Item>,
 }
 
 impl Tile {
@@ -59,7 +59,7 @@ impl Tile {
         }
     }
 
-    pub fn top_item(&self) -> Option<&ItemType> {
+    pub fn top_item(&self) -> Option<&Item> {
         self.items.first()
     }
 }

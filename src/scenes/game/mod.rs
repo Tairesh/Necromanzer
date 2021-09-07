@@ -8,6 +8,7 @@ use colors::Colors;
 use direction::Direction;
 use enum_dispatch::enum_dispatch;
 use human::gender::Gender;
+use itertools::Itertools;
 use scenes::game::dropping::Dropping;
 use scenes::game::examining::Examining;
 use scenes::game::walking::Walking;
@@ -140,19 +141,33 @@ impl Scene for Game {
                     self.log.clear();
                 }
                 UpdateResult::Examine(dir) => {
+                    // TODO: move this to Examining gamemode
                     if let Some(dir) = dir.as_two_dimensional() {
                         self.world.avatar.vision = dir;
                     }
                     let pos = self.world.avatar.pos.add(dir);
-                    let this_is = self.world.load_tile(pos).terrain.this_is();
-                    self.log(this_is.as_str());
-                    let tile = self.world.load_tile_mut(pos);
-                    if let Some(item) = tile.items.pop() {
-                        self.world.avatar.wield.push(item.clone());
-                        self.log(format!("You picked up a {:?}", item).as_str());
+                    let tile = self.world.load_tile(pos);
+                    let mut this_is = tile.terrain.this_is();
+                    if !tile.items.is_empty() {
+                        #[allow(unstable_name_collisions)]
+                        let items: String = tile
+                            .items
+                            .iter()
+                            .map(|item| item.name())
+                            .intersperse(", ")
+                            .collect();
+                        this_is += " Here you see: ";
+                        this_is += items.as_str();
                     }
+                    self.log(this_is.as_str());
+                    // let tile = self.world.load_tile_mut(pos);
+                    // if let Some(item) = tile.items.pop() {
+                    //     self.world.avatar.wield.push(item.clone());
+                    //     self.log(format!("You picked up a {:?}", item).as_str());
+                    // }
                 }
                 UpdateResult::Drop(dir) => {
+                    // TODO: move this to Dropping gamemode and make an Action (for time consuming)
                     let mut items = self.world.avatar.wield.clone();
                     if items.is_empty() {
                         self.log("You have nothing to drop!");
@@ -186,6 +201,7 @@ impl Scene for Game {
                     self.mode = mode;
                 }
                 UpdateResult::SetAvatarAction(action) => {
+                    // TODO: Move this to Walking gamemode
                     if action.is_possible(&mut self.world) {
                         if action.length(&mut self.world) > 20.0 {
                             let text = format!(
@@ -249,7 +265,7 @@ impl Scene for Game {
                 if let Some(item) = tile.top_item() {
                     assets
                         .tileset
-                        .draw_region(ctx, item.region(&assets.regions), params.clone());
+                        .draw_region(ctx, item.region(), params.clone());
                     if tile.items.len() > 1 {
                         assets
                             .tileset
