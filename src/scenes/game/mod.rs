@@ -183,29 +183,30 @@ impl Scene for Game {
         );
         {
             let assets = self.assets.borrow();
-            for dx in (-window_size_in_tiles.0 / 2)..=(window_size_in_tiles.0 / 2) {
-                for dy in (-window_size_in_tiles.1 / 2)..=(window_size_in_tiles.1 / 2) {
-                    let pos = self.world.avatar.pos.add_delta(dx, dy);
-                    let tile = self.world.load_tile(pos);
-                    let region = tile.terrain.region(&assets.regions);
-                    let params = DrawParams::new()
-                        .position(Vec2::new(
-                            center.x + dx as f32 * 10.0 * zoom,
-                            center.y + dy as f32 * 10.0 * zoom,
-                        ))
-                        .scale(scale);
-                    assets.tileset.draw_region(ctx, region, params.clone());
-                    if let Some(item) = tile.top_item() {
-                        assets.tileset.draw_region(
-                            ctx,
-                            item.region(&assets.regions),
-                            params.clone(),
-                        );
-                        if tile.items.len() > 1 {
-                            assets
-                                .tileset
-                                .draw_region(ctx, assets.regions.highlight, params);
-                        }
+            let center_tile = self.world.avatar.pos;
+            let left_top =
+                center_tile.add_delta(-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
+            let right_bottom =
+                center_tile.add_delta(window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
+            for (pos, tile) in self.world.tiles_between(left_top, right_bottom).into_iter() {
+                let dx = pos.x - center_tile.x;
+                let dy = pos.y - center_tile.y;
+                let region = tile.terrain.region(&assets.regions);
+                let params = DrawParams::new()
+                    .position(Vec2::new(
+                        center.x + dx as f32 * 10.0 * zoom,
+                        center.y + dy as f32 * 10.0 * zoom,
+                    ))
+                    .scale(scale);
+                assets.tileset.draw_region(ctx, region, params.clone());
+                if let Some(item) = tile.top_item() {
+                    assets
+                        .tileset
+                        .draw_region(ctx, item.region(&assets.regions), params.clone());
+                    if tile.items.len() > 1 {
+                        assets
+                            .tileset
+                            .draw_region(ctx, assets.regions.highlight, params);
                     }
                 }
             }

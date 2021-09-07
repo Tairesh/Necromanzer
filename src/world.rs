@@ -75,8 +75,6 @@ impl World {
             .entry(pos)
             .or_insert_with_key(|pos| Chunk::generate(seed, assets, *pos))
     }
-
-    // TODO: load bunch of tiles with minimum load_chunk() calls for rendering, killing grass, etc.
     pub fn load_tile(&mut self, pos: TilePos) -> &Tile {
         let (chunk, pos) = pos.chunk_and_pos();
         let chunk = self.load_chunk(chunk);
@@ -87,6 +85,36 @@ impl World {
         let (chunk, pos) = pos.chunk_and_pos();
         let chunk = self.load_chunk_mut(chunk);
         &mut chunk.tiles[pos]
+    }
+
+    pub fn tiles_between(
+        &mut self,
+        left_top: TilePos,
+        right_bottom: TilePos,
+    ) -> Vec<(TilePos, &Tile)> {
+        let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.chunk_and_pos();
+        let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.chunk_and_pos();
+
+        // TODO: Find a way to get rid of this shit
+        for x in lt_x..=rb_x {
+            for y in lt_y..=rb_y {
+                let pos = ChunkPos::new(x, y);
+                self.load_chunk(pos);
+            }
+        }
+
+        let mut tiles =
+            Vec::with_capacity(((rb_x - lt_x + 1) * (rb_y - lt_y + 1)) as usize * Chunk::USIZE);
+        for x in lt_x..=rb_x {
+            for y in lt_y..=rb_y {
+                let pos = ChunkPos::new(x, y);
+                let chunk = self.chunks.get(&pos).unwrap();
+                for (i, tile) in chunk.tiles.iter().enumerate() {
+                    tiles.push((TilePos::from(pos, i), tile));
+                }
+            }
+        }
+        tiles
     }
 
     pub fn move_avatar(&mut self, dir: Direction) {
