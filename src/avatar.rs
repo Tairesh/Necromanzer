@@ -17,7 +17,7 @@ pub struct Avatar {
     pub pos: TilePos,
     pub action: Option<Action>,
     pub vision: TwoDimDirection,
-    pub wield: Vec<Item>,
+    pub wield: Vec<Item>, // TODO: custom struct with hands counter
 }
 
 impl Avatar {

@@ -11,13 +11,13 @@ use std::rc::Rc;
 use tetra::input::{Key, MouseButton};
 use tetra::{input, Context};
 
-pub struct GameMenu {
+pub struct Menu {
     assets: Rc<RefCell<Assets>>,
     settings: Rc<RefCell<Settings>>,
     sprites: Vec<Rc<RefCell<dyn Sprite>>>,
 }
 
-impl GameMenu {
+impl Menu {
     pub fn new(
         assets: Rc<RefCell<Assets>>,
         settings: Rc<RefCell<Settings>>,
@@ -67,7 +67,7 @@ impl GameMenu {
     }
 }
 
-impl Scene for GameMenu {
+impl Scene for Menu {
     fn on_button_click(&mut self, ctx: &mut Context, btn_id: &str) -> Option<Transition> {
         match btn_id {
             "back" => Some(Transition::Pop),

@@ -97,6 +97,8 @@ pub struct Assets {
 }
 
 impl Assets {
+    pub const TILE_SIZE: i32 = 10;
+
     pub fn new(ctx: &mut Context) -> tetra::Result<Self> {
         let mut male_names = Vec::with_capacity(259);
         let mut female_names = Vec::with_capacity(199);

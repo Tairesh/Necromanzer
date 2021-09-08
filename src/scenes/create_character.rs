@@ -9,7 +9,7 @@ use map::pos::TilePos;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use savefile::SaveFile;
-use scenes::game::Game;
+use scenes::game::scene::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
 use sprites::button::Button;

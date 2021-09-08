@@ -16,7 +16,7 @@ pub struct SaveFile {
     pub path: PathBuf,
     pub version: String,
     pub time: SystemTime,
-    pub meta: WorldMeta,
+    pub meta: WorldMeta, // TODO: also save view params like current zoom, etc. ptbly through struct like GameView
     pub units_data: Vec<String>,
     pub chunks_data: Vec<String>,
 }

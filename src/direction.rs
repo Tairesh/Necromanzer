@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum Direction {
     Here,
@@ -48,5 +50,58 @@ impl Direction {
 
     pub fn is_here(&self) -> bool {
         matches!(self, Direction::Here)
+    }
+
+    pub fn as_str(&self) -> &str {
+        match self {
+            Direction::Here => "here",
+            Direction::North => "N",
+            Direction::NorthEast => "NE",
+            Direction::East => "E",
+            Direction::SouthEast => "SE",
+            Direction::South => "S",
+            Direction::SouthWest => "SW",
+            Direction::West => "W",
+            Direction::NorthWest => "NW",
+        }
+    }
+}
+
+impl From<&str> for Direction {
+    fn from(s: &str) -> Self {
+        match s {
+            "N" => Direction::North,
+            "NE" => Direction::NorthEast,
+            "NW" => Direction::NorthWest,
+            "S" => Direction::South,
+            "SE" => Direction::SouthEast,
+            "SW" => Direction::SouthWest,
+            "E" => Direction::East,
+            "W" => Direction::West,
+            _ => Direction::Here,
+        }
+    }
+}
+
+impl From<(i32, i32)> for Direction {
+    fn from((dx, dy): (i32, i32)) -> Self {
+        let zero = 0;
+        match dx.cmp(&zero) {
+            Ordering::Less => match dy.cmp(&zero) {
+                Ordering::Less => Direction::NorthWest,
+                Ordering::Equal => Direction::West,
+                Ordering::Greater => Direction::SouthWest,
+            },
+            Ordering::Equal => match dy.cmp(&zero) {
+                Ordering::Less => Direction::North,
+                Ordering::Equal => Direction::Here,
+                Ordering::Greater => Direction::South,
+            },
+            Ordering::Greater => match dy.cmp(&zero) {
+                Ordering::Less => Direction::NorthEast,
+                Ordering::Equal => Direction::East,
+                Ordering::Greater => Direction::SouthEast,
+            },
+        }
     }
 }

@@ -1,6 +1,11 @@
 use direction::Direction;
-use tetra::input::{self, Key, KeyModifier};
+use tetra::input::{self, Key, KeyModifier, MouseButton};
+use tetra::math::Vec2;
 use tetra::Context;
+
+pub fn get_mouse_wheel_movement(ctx: &Context) -> Vec2<i32> {
+    input::get_mouse_wheel_movement(ctx)
+}
 
 pub fn is_key_modifier_down(ctx: &Context, key_modifier: KeyModifier) -> bool {
     input::is_key_modifier_down(ctx, key_modifier)
@@ -8,6 +13,10 @@ pub fn is_key_modifier_down(ctx: &Context, key_modifier: KeyModifier) -> bool {
 
 pub fn is_key_pressed(ctx: &Context, key: Key) -> bool {
     input::is_key_pressed(ctx, key)
+}
+
+pub fn is_mouse_button_pressed(ctx: &Context, button: MouseButton) -> bool {
+    input::is_mouse_button_pressed(ctx, button)
 }
 
 pub fn is_no_key_modifiers(ctx: &Context) -> bool {

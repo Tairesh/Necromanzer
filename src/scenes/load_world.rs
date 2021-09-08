@@ -3,7 +3,7 @@ use chrono::{DateTime, Local};
 use colors::Colors;
 use savefile::{delete, savefiles, SaveFile};
 use scenes::create_character::CreateCharacter;
-use scenes::game::Game;
+use scenes::game::scene::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
 use sprites::alert::Alert;

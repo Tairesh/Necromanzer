@@ -12,6 +12,7 @@ impl TilePos {
         TilePos { x, y }
     }
 
+    // TODO: probably use From trait?
     pub fn from(chunk: ChunkPos, pos: usize) -> Self {
         let left_top = chunk.left_top();
         let dx = pos as i32 / Chunk::SIZE;
@@ -29,6 +30,7 @@ impl TilePos {
         (chunk, pos)
     }
 
+    // TODO: use Add trait instead this shit
     pub fn add(&self, dir: Direction) -> Self {
         Self::new(self.x + dir.dx() as i32, self.y + dir.dy() as i32)
     }
