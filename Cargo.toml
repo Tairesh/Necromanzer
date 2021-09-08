@@ -2,6 +2,8 @@
 name = "necromanzer"
 version = "0.1.0"
 authors = ["Ilya Agafonov <tairesh.rus@gmail.com>"]
+repository = "https://github.com/Tairesh/Necromanzer"
+license-file = "LICENSE"
 build = "build.rs"
 
 [dependencies.tetra]
