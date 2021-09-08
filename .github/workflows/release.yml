@@ -162,7 +162,7 @@ jobs:
           pip3 install dmgbuild
       - name: "Set build version"
         run: |
-          sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_postfix }}\"/" src/main.rs
+          sed -i '' 's/BUILD_VERSION: \&str = "dirty"/BUILD_VERSION: \&str = "${{ needs.release.outputs.version_postfix }}"/' src/main.rs
       - name: "Run cargo build"
         run: |
           rustc --version
