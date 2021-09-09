@@ -6,7 +6,6 @@ use geometry::DIR9;
 use human::gender::Gender;
 use itertools::Itertools;
 use scenes::game::menu::Menu;
-use scenes::game::wielding::Wielding;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
 use sprites::image::{Bar, Image};
@@ -43,6 +42,7 @@ impl LogMessage {
 enum GameMode {
     Default,
     Examining,
+    Wielding,
 }
 
 pub struct Game {
@@ -144,11 +144,12 @@ impl Game {
                 self.log(format!("You threw away the {}.", name).as_str());
             }
         } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
-            return Some(Transition::Push(Box::new(Wielding::new(
-                self.assets.clone(),
-                self.world.clone(),
-                ctx,
-            ))));
+            // return Some(Transition::Push(Box::new(Wielding::new(
+            //     self.assets.clone(),
+            //     self.world.clone(),
+            //     ctx,
+            // ))));
+            self.mode = GameMode::Wielding;
         } else if input::is_key_pressed(ctx, Key::C)
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
@@ -215,6 +216,35 @@ impl Game {
         }
         None
     }
+    fn update_wielding(&mut self, ctx: &mut Context) -> Option<Transition> {
+        if input::is_key_pressed(ctx, Key::Escape) {
+            self.mode = GameMode::Default;
+            self.selected = None;
+        }
+        if let Some(dir) = input::get_direction_keys_down(ctx) {
+            if self.selected.is_none() {
+                self.selected = Some(dir);
+                if let Some(dir) = dir.as_two_dimensional() {
+                    self.world.borrow_mut().avatar.vision = dir;
+                }
+                let pos = self.world.borrow().avatar.pos.add(dir);
+                let mut world = self.world.borrow_mut();
+                let msg = if let Some(item) = world.load_tile_mut(pos).items.pop() {
+                    let msg = format!("You have picked up the {}.", item.name());
+                    world.avatar.wield.push(item);
+                    msg
+                } else {
+                    "Nothing to pick up here!".to_string()
+                };
+                drop(world);
+                self.log(msg.as_str());
+            }
+        } else if self.selected.is_some() {
+            self.mode = GameMode::Default;
+            self.selected = None;
+        }
+        None
+    }
 }
 
 impl Scene for Game {
@@ -231,6 +261,7 @@ impl Scene for Game {
         if let Some(t) = match self.mode {
             GameMode::Default => self.update_default(ctx),
             GameMode::Examining => self.update_examining(ctx),
+            GameMode::Wielding => self.update_wielding(ctx),
         } {
             return Some(t);
         }
@@ -290,17 +321,7 @@ impl Scene for Game {
             .borrow()
             .avatar
             .draw(ctx, self.assets.clone(), center, zoom);
-        if let Some(dir) = self.selected {
-            let delta =
-                Vec2::new(dir.dx() as f32, dir.dy() as f32) * Assets::TILE_SIZE as f32 * zoom;
-            self.cursor.draw(
-                ctx,
-                DrawParams::new()
-                    .scale(scale)
-                    .position(center + delta)
-                    .color(Colors::LIGHT_YELLOW.with_alpha(0.7)),
-            )
-        } else if let GameMode::Examining = self.mode {
+        if let GameMode::Wielding = self.mode {
             for (dx, dy) in DIR9 {
                 let pos = self.world.borrow().avatar.pos.add_delta(dx, dy);
                 let mut world = self.world.borrow_mut();
@@ -317,8 +338,18 @@ impl Scene for Game {
                 }
             }
         }
+        if let Some(dir) = self.selected {
+            let delta =
+                Vec2::new(dir.dx() as f32, dir.dy() as f32) * Assets::TILE_SIZE as f32 * zoom;
+            self.cursor.draw(
+                ctx,
+                DrawParams::new()
+                    .scale(scale)
+                    .position(center + delta)
+                    .color(Colors::LIGHT_YELLOW.with_alpha(0.7)),
+            )
+        }
         self.redraw_sprites(ctx);
-        // self.mode.draw(ctx, &mut self.world, center, zoom);
         for (i, msg) in self.log.iter_mut().enumerate() {
             msg.text.draw(
                 ctx,

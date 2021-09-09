@@ -51,9 +51,11 @@ impl Direction {
     pub fn is_here(&self) -> bool {
         matches!(self, Direction::Here)
     }
+}
 
-    pub fn as_str(&self) -> &str {
-        match self {
+impl From<Direction> for &str {
+    fn from(d: Direction) -> &'static str {
+        match d {
             Direction::Here => "here",
             Direction::North => "N",
             Direction::NorthEast => "NE",

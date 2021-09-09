@@ -57,5 +57,19 @@ impl Avatar {
                 .scale(scale)
                 .color(self.character.skin_tone.color()),
         );
+        if let Some(item) = self.wield.get(0) {
+            let offset = if let TwoDimDirection::East = self.vision {
+                Vec2::new(15.0 * zoom, 10.0 * zoom)
+            } else {
+                Vec2::new(-15.0 * zoom, 10.0 * zoom)
+            };
+            assets.tileset.draw_region(
+                ctx,
+                item.region(),
+                DrawParams::new()
+                    .position(position + offset)
+                    .scale(scale * -1.0),
+            );
+        }
     }
 }
