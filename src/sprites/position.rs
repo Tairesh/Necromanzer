@@ -70,6 +70,14 @@ impl Position {
         }
     }
 
+    pub fn by_left_top(x: f32, y: f32) -> Position {
+        Position::new(x, y, AnchorX::Left, AnchorY::Top)
+    }
+
+    pub fn by_right_top(x: f32, y: f32) -> Position {
+        Position::new(x, y, AnchorX::Right, AnchorY::Top)
+    }
+
     pub fn zeroed() -> Position {
         Position {
             x: Horizontal::ByLeft { x: 0.0 },

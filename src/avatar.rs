@@ -1,13 +1,10 @@
 use action::Action;
-use assets::Assets;
 use direction::TwoDimDirection;
 use human::character::Character;
 use human::gender::Gender;
 use map::item::Item;
 use map::pos::TilePos;
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::graphics::DrawParams;
+use tetra::graphics::{DrawParams, Rectangle, Texture};
 use tetra::Context;
 use Vec2;
 
@@ -34,23 +31,23 @@ impl Avatar {
     pub fn draw(
         &self,
         ctx: &mut Context,
-        assets: Rc<RefCell<Assets>>,
+        tileset: &Texture,
         mut position: Vec2,
         zoom: f32,
+        rotate: bool,
     ) {
-        let scale = if let TwoDimDirection::East = self.vision {
+        let scale = if !rotate || matches!(self.vision, TwoDimDirection::East) {
             Vec2::new(zoom, zoom)
         } else {
             position.x += 10.0 * zoom;
             Vec2::new(-zoom, zoom)
         };
-        let assets = assets.borrow();
-        assets.tileset.draw_region(
+        tileset.draw_region(
             ctx,
             match self.character.gender {
-                Gender::Female => assets.regions.female,
-                Gender::Male => assets.regions.male,
-                Gender::Custom(_) => assets.regions.queer,
+                Gender::Female => Rectangle::new(0.0, 0.0, 10.0, 10.0),
+                Gender::Male => Rectangle::new(10.0, 0.0, 10.0, 10.0),
+                Gender::Custom(_) => Rectangle::new(20.0, 0.0, 10.0, 10.0),
             },
             DrawParams::new()
                 .position(position)
@@ -58,12 +55,12 @@ impl Avatar {
                 .color(self.character.skin_tone.color()),
         );
         if let Some(item) = self.wield.get(0) {
-            let offset = if let TwoDimDirection::East = self.vision {
+            let offset = if !rotate || matches!(self.vision, TwoDimDirection::East) {
                 Vec2::new(15.0 * zoom, 10.0 * zoom)
             } else {
                 Vec2::new(-15.0 * zoom, 10.0 * zoom)
             };
-            assets.tileset.draw_region(
+            tileset.draw_region(
                 ctx,
                 item.region(),
                 DrawParams::new()

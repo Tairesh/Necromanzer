@@ -201,7 +201,7 @@ impl CreateCharacter {
             },
         ))));
         let hand_label = Rc::new(RefCell::new(Label::new(
-            "Left",
+            "Right",
             assets.borrow().header2.clone(),
             Colors::DARK_BROWN,
             Position {
@@ -326,7 +326,7 @@ impl CreateCharacter {
             hand_label,
             skin_mesh,
             skin_label,
-            main_hand: MainHand::Left,
+            main_hand: MainHand::Right,
             skin_tone: SkinTone::WarmIvory,
         }
     }

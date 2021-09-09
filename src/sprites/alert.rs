@@ -30,6 +30,11 @@ impl Alert {
             visible: true,
         }
     }
+
+    pub fn with_scale(mut self, scale: Vec2) -> Self {
+        self.scale = scale;
+        self
+    }
 }
 
 impl Draw for Alert {

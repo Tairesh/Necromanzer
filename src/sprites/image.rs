@@ -32,31 +32,8 @@ impl Image {
         }
     }
 
-    pub fn icon(
-        tileset: Texture,
-        region: Rectangle,
-        scale: Vec2,
-        color: Color,
-        position: Position,
-    ) -> Self {
-        Self::new(tileset, position)
-            .with_region(region)
-            .with_scale(scale)
-            .with_color(color)
-    }
-
     pub fn with_scale(mut self, scale: Vec2) -> Self {
         self.scale = scale;
-        self
-    }
-
-    pub fn with_region(mut self, region: Rectangle) -> Self {
-        self.region = Some(region);
-        self
-    }
-
-    pub fn with_color(mut self, color: Color) -> Self {
-        self.color = Some(color);
         self
     }
 

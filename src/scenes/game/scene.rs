@@ -3,13 +3,14 @@ use assets::Assets;
 use colors::Colors;
 use direction::Direction;
 use geometry::DIR9;
-use human::gender::Gender;
+use human::main_hand::MainHand;
 use itertools::Itertools;
 use scenes::game::menu::Menu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
+use sprites::alert::Alert;
 use sprites::image::{Bar, Image};
-use sprites::label::Label;
+use sprites::label::{ItemDisplay, Label};
 use sprites::position::{AnchorX, AnchorY, Position};
 use sprites::sprite::Sprite;
 use std::cell::RefCell;
@@ -56,6 +57,7 @@ pub struct Game {
     mode: GameMode,
     cursor: Mesh,
     selected: Option<Direction>,
+    item_display: Rc<RefCell<ItemDisplay>>,
 }
 
 impl Game {
@@ -69,31 +71,56 @@ impl Game {
     ) -> Self {
         let hp_bar = Rc::new(RefCell::new(Bar::red(100, 50, assets.clone())));
         let mp_bar = Rc::new(RefCell::new(Bar::blue(100, 50, assets.clone())));
+        let bg = Rc::new(RefCell::new(
+            Alert::new(
+                250.0,
+                90.0,
+                assets.clone(),
+                Position::by_left_top(0.0, 68.0),
+            )
+            .with_scale(Vec2::new(4.0, 4.0)),
+        ));
         let assets_copy = assets.clone();
         let assets = assets.borrow();
         let hat = Rc::new(RefCell::new(
             Image::new(assets.hat.clone(), Position::zeroed()).with_scale(Vec2::new(4.0, 4.0)),
         ));
-        let name = Rc::new(RefCell::new(Label::new(
+        let name_label = Rc::new(RefCell::new(Label::new(
             world.avatar.character.name.as_str(),
             assets.header2.clone(),
             Colors::LIGHT_YELLOW,
             Position::new(174.0, 55.0, AnchorX::Center, AnchorY::Top),
         )));
-        let ava = Rc::new(RefCell::new(Image::icon(
-            assets.tileset.clone(),
-            match world.avatar.character.gender {
-                Gender::Female => assets.regions.female,
-                Gender::Male => assets.regions.male,
-                Gender::Custom(_) => assets.regions.queer,
+        let hands_label = Rc::new(RefCell::new(Label::new(
+            if matches!(world.avatar.character.main_hand, MainHand::Left) {
+                "Left hand:\nRight hand:"
+            } else {
+                "Right hand:\nLeft hand:"
             },
-            Vec2::new(6.0, 6.0),
-            world.avatar.character.skin_tone.color(),
-            Position::new(52.0, 52.0, AnchorX::Center, AnchorY::Center),
+            assets.default.clone(),
+            Colors::LIGHT_YELLOW,
+            Position::by_left_top(30.0, 98.0),
+        )));
+        let item_display = Rc::new(RefCell::new(ItemDisplay::new(
+            world.avatar.wield.get(0),
+            assets.default.clone(),
+            Colors::LIGHT_YELLOW,
+            assets.tileset.clone(),
+            Vec2::new(2.0, 2.0),
+            Position::by_right_top(220.0, 98.0),
         )));
 
         Self {
-            sprites: vec![hat, name, ava, hp_bar, mp_bar],
+            sprites: vec![
+                bg,
+                hat,
+                name_label,
+                hands_label,
+                item_display.clone(),
+                hp_bar,
+                mp_bar,
+            ],
+            item_display,
             settings,
             world: Rc::new(RefCell::new(world)),
             assets: assets_copy,
@@ -141,14 +168,12 @@ impl Game {
                 let name = item.name().to_string();
                 world.load_tile_mut(pos).items.push(item);
                 drop(world);
+                self.item_display
+                    .borrow_mut()
+                    .set_item(self.world.borrow().avatar.wield.first(), ctx);
                 self.log(format!("You threw away the {}.", name).as_str());
             }
         } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
-            // return Some(Transition::Push(Box::new(Wielding::new(
-            //     self.assets.clone(),
-            //     self.world.clone(),
-            //     ctx,
-            // ))));
             self.mode = GameMode::Wielding;
         } else if input::is_key_pressed(ctx, Key::C)
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
@@ -237,6 +262,9 @@ impl Game {
                     "Nothing to pick up here!".to_string()
                 };
                 drop(world);
+                self.item_display
+                    .borrow_mut()
+                    .set_item(self.world.borrow().avatar.wield.first(), ctx);
                 self.log(msg.as_str());
             }
         } else if self.selected.is_some() {
@@ -320,7 +348,7 @@ impl Scene for Game {
         self.world
             .borrow()
             .avatar
-            .draw(ctx, self.assets.clone(), center, zoom);
+            .draw(ctx, &self.assets.borrow().tileset, center, zoom, true);
         if let GameMode::Wielding = self.mode {
             for (dx, dy) in DIR9 {
                 let pos = self.world.borrow().avatar.pos.add_delta(dx, dy);
@@ -350,6 +378,13 @@ impl Scene for Game {
             )
         }
         self.redraw_sprites(ctx);
+        self.world.borrow().avatar.draw(
+            ctx,
+            &self.assets.borrow().tileset,
+            Vec2::new(20.0, 20.0),
+            6.0,
+            false,
+        );
         for (i, msg) in self.log.iter_mut().enumerate() {
             msg.text.draw(
                 ctx,
