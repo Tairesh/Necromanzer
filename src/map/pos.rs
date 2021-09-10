@@ -1,5 +1,6 @@
 use direction::Direction;
 use map::chunk::Chunk;
+use std::ops::Add;
 
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct TilePos {
@@ -29,13 +30,28 @@ impl TilePos {
         let pos = ((self.x - left_top.x) * Chunk::SIZE + self.y - left_top.y) as usize;
         (chunk, pos)
     }
+}
 
-    // TODO: use Add trait instead this shit
-    pub fn add(&self, dir: Direction) -> Self {
+impl Add<Direction> for TilePos {
+    type Output = TilePos;
+
+    fn add(self, dir: Direction) -> Self::Output {
         Self::new(self.x + dir.dx() as i32, self.y + dir.dy() as i32)
     }
+}
 
-    pub fn add_delta(&self, dx: i32, dy: i32) -> Self {
+impl Add<&Direction> for TilePos {
+    type Output = TilePos;
+
+    fn add(self, dir: &Direction) -> Self::Output {
+        Self::new(self.x + dir.dx() as i32, self.y + dir.dy() as i32)
+    }
+}
+
+impl Add<(i32, i32)> for TilePos {
+    type Output = TilePos;
+
+    fn add(self, (dx, dy): (i32, i32)) -> Self::Output {
         Self::new(self.x + dx, self.y + dy)
     }
 }

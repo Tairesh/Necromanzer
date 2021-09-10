@@ -120,12 +120,11 @@ impl World {
     pub fn move_avatar(&mut self, dir: Direction) {
         let pos = self.avatar.pos;
         self.load_tile_mut(pos).off_step();
-        let pos = pos.add(dir);
-        self.avatar.pos = pos;
+        self.avatar.pos = pos + dir;
         if let Some(dir) = dir.as_two_dimensional() {
             self.avatar.vision = dir;
         }
-        self.load_tile_mut(pos).on_step();
+        self.load_tile_mut(self.avatar.pos).on_step();
     }
 
     pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
@@ -140,7 +139,7 @@ impl World {
                 .min(1.0)
                 .max(0.0);
             if rand::thread_rng().gen_bool(probability * k) {
-                let pos = around.add_delta(dx, dy);
+                let pos = around + (dx, dy);
                 self.load_tile_mut(pos).kill_grass();
             }
         }

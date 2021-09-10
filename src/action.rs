@@ -15,7 +15,7 @@ impl ActionType {
         match self {
             ActionType::SkippingTime => "skip time".to_string(),
             ActionType::Walking(dir) => {
-                let pos = world.borrow().avatar.pos.add(*dir);
+                let pos = world.borrow().avatar.pos + dir;
                 format!(
                     "walk through {}",
                     world.borrow_mut().load_tile(pos).terrain.name()
@@ -29,7 +29,7 @@ impl ActionType {
             ActionType::SkippingTime => 1.0,
             ActionType::Walking(dir) => {
                 // TODO: check avatar perks for calculating speed
-                let pos = world.borrow().avatar.pos.add(*dir);
+                let pos = world.borrow().avatar.pos + dir;
                 match world.borrow_mut().load_tile(pos).terrain.pass() {
                     Passage::Passable(length) => length as f64,
                     Passage::Unpassable => 0.0,
@@ -42,7 +42,7 @@ impl ActionType {
         match self {
             ActionType::SkippingTime => true,
             ActionType::Walking(dir) => {
-                let tile = world.borrow().avatar.pos.add(*dir);
+                let tile = world.borrow().avatar.pos + dir;
                 world.borrow_mut().load_tile(tile).terrain.is_walkable()
             }
         }

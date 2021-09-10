@@ -220,7 +220,7 @@ impl Game {
                 if let Some(dir) = dir.as_two_dimensional() {
                     self.world.borrow_mut().avatar.vision = dir;
                 }
-                let pos = self.world.borrow().avatar.pos.add(dir);
+                let pos = self.world.borrow().avatar.pos + dir;
                 let mut world = self.world.borrow_mut();
                 let tile = world.load_tile(pos);
                 let mut this_is = tile.terrain.this_is();
@@ -252,7 +252,7 @@ impl Game {
                 if let Some(dir) = dir.as_two_dimensional() {
                     self.world.borrow_mut().avatar.vision = dir;
                 }
-                let pos = self.world.borrow().avatar.pos.add(dir);
+                let pos = self.world.borrow().avatar.pos + dir;
                 let mut world = self.world.borrow_mut();
                 let msg = if let Some(item) = world.load_tile_mut(pos).items.pop() {
                     let msg = format!("You have picked up the {}.", item.name());
@@ -313,10 +313,9 @@ impl Scene for Game {
         {
             let assets = self.assets.borrow();
             let center_tile = self.world.borrow().avatar.pos;
-            let left_top =
-                center_tile.add_delta(-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
+            let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
             let right_bottom =
-                center_tile.add_delta(window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
+                center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
             for (pos, tile) in self
                 .world
                 .borrow_mut()
@@ -351,7 +350,7 @@ impl Scene for Game {
             .draw(ctx, &self.assets.borrow().tileset, center, zoom, true);
         if let GameMode::Wielding = self.mode {
             for (dx, dy) in DIR9 {
-                let pos = self.world.borrow().avatar.pos.add_delta(dx, dy);
+                let pos = self.world.borrow().avatar.pos + (dx, dy);
                 let mut world = self.world.borrow_mut();
                 let tile = world.load_tile(pos);
                 if !tile.items.is_empty() {
