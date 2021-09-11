@@ -5,6 +5,7 @@ use direction::Direction;
 use geometry::DIR9;
 use human::main_hand::MainHand;
 use itertools::Itertools;
+use map::tile::Tile;
 use scenes::game::menu::Menu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
@@ -44,6 +45,24 @@ enum GameMode {
     Default,
     Examining,
     Wielding,
+    Dropping,
+}
+
+impl GameMode {
+    pub fn draw_cursors(&self) -> bool {
+        match self {
+            GameMode::Default => false,
+            GameMode::Examining | GameMode::Wielding | GameMode::Dropping => true,
+        }
+    }
+
+    pub fn cursor_here(&self, tile: &Tile) -> bool {
+        match self {
+            GameMode::Wielding => !tile.items.is_empty(),
+            GameMode::Dropping => tile.terrain.is_walkable(),
+            GameMode::Examining | GameMode::Default => false,
+        }
+    }
 }
 
 pub struct Game {
@@ -149,6 +168,15 @@ impl Game {
         ));
     }
 
+    fn select(&mut self, dir: Direction) {
+        if self.selected.is_none() {
+            self.selected = Some(dir);
+            if let Some(dir) = dir.as_two_dimensional() {
+                self.world.borrow_mut().avatar.vision = dir;
+            }
+        }
+    }
+
     fn update_default(&mut self, ctx: &mut Context) -> Option<Transition> {
         if input::is_key_pressed(ctx, Key::Escape) {
             return Some(Transition::Push(Box::new(Menu::new(
@@ -163,7 +191,7 @@ impl Game {
                 self.log("You have nothing to drop!");
             } else {
                 let mut world = self.world.borrow_mut();
-                let action = ActionType::Dropping;
+                let action = ActionType::Dropping(Direction::Here);
                 if action.is_possible(&mut world) {
                     let length = action.length(&mut world);
                     let finish = world.meta.current_tick + length;
@@ -172,6 +200,14 @@ impl Game {
                     drop(world);
                     self.log("You can't put items here!");
                 }
+            }
+        } else if input::is_key_pressed(ctx, Key::D)
+            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+        {
+            if self.world.borrow().avatar.wield.is_empty() {
+                self.log("You have nothing to drop!");
+            } else {
+                self.mode = GameMode::Dropping;
             }
         } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
             self.mode = GameMode::Wielding;
@@ -202,6 +238,7 @@ impl Game {
         }
         None
     }
+
     fn update_examining(&mut self, ctx: &mut Context) -> Option<Transition> {
         if input::is_key_pressed(ctx, Key::Escape) {
             self.mode = GameMode::Default;
@@ -209,11 +246,8 @@ impl Game {
         }
         if let Some(dir) = input::get_direction_keys_down(ctx) {
             if self.selected.is_none() {
+                self.select(dir);
                 let mut world = self.world.borrow_mut();
-                self.selected = Some(dir);
-                if let Some(dir) = dir.as_two_dimensional() {
-                    world.avatar.vision = dir;
-                }
                 let pos = world.avatar.pos + dir;
                 let tile = world.load_tile(pos);
                 let mut this_is = tile.terrain.this_is();
@@ -234,18 +268,14 @@ impl Game {
         }
         None
     }
+
     fn update_wielding(&mut self, ctx: &mut Context) -> Option<Transition> {
         if input::is_key_pressed(ctx, Key::Escape) {
             self.mode = GameMode::Default;
             self.selected = None;
         }
         if let Some(dir) = input::get_direction_keys_down(ctx) {
-            if self.selected.is_none() {
-                self.selected = Some(dir);
-                if let Some(dir) = dir.as_two_dimensional() {
-                    self.world.borrow_mut().avatar.vision = dir;
-                }
-            }
+            self.select(dir);
         } else if let Some(dir) = self.selected {
             let action = ActionType::Wielding(dir);
             let mut world = self.world.borrow_mut();
@@ -256,6 +286,30 @@ impl Game {
             } else {
                 drop(world);
                 self.log("Nothing to pick up here!");
+            }
+            self.mode = GameMode::Default;
+            self.selected = None;
+        }
+        None
+    }
+
+    fn update_dropping(&mut self, ctx: &mut Context) -> Option<Transition> {
+        if input::is_key_pressed(ctx, Key::Escape) {
+            self.mode = GameMode::Default;
+            self.selected = None;
+        }
+        if let Some(dir) = input::get_direction_keys_down(ctx) {
+            self.select(dir);
+        } else if let Some(dir) = self.selected {
+            let action = ActionType::Dropping(dir);
+            let mut world = self.world.borrow_mut();
+            if action.is_possible(&mut world) {
+                let length = action.length(&mut world);
+                let finish = world.meta.current_tick + length;
+                world.avatar.action = Some(Action::new(finish, action));
+            } else {
+                drop(world);
+                self.log("You can't drop items here!");
             }
             self.mode = GameMode::Default;
             self.selected = None;
@@ -279,6 +333,7 @@ impl Scene for Game {
             GameMode::Default => self.update_default(ctx),
             GameMode::Examining => self.update_examining(ctx),
             GameMode::Wielding => self.update_wielding(ctx),
+            GameMode::Dropping => self.update_dropping(ctx),
         } {
             return Some(t);
         }
@@ -351,12 +406,11 @@ impl Scene for Game {
             .borrow()
             .avatar
             .draw(ctx, &self.assets.borrow().tileset, center, zoom, true);
-        if let GameMode::Wielding = self.mode {
+        if self.mode.draw_cursors() {
+            let mut world = self.world.borrow_mut();
             for (dx, dy) in DIR9 {
-                let pos = self.world.borrow().avatar.pos + (dx, dy);
-                let mut world = self.world.borrow_mut();
-                let tile = world.load_tile(pos);
-                if !tile.items.is_empty() {
+                let pos = world.avatar.pos + (dx, dy);
+                if self.mode.cursor_here(world.load_tile(pos)) {
                     let delta = Vec2::new(dx as f32, dy as f32) * Assets::TILE_SIZE as f32 * zoom;
                     self.cursor.draw(
                         ctx,

@@ -8,7 +8,7 @@ pub enum ActionType {
     SkippingTime,
     Walking(Direction),
     Wielding(Direction),
-    Dropping,
+    Dropping(Direction),
 }
 
 impl ActionType {
@@ -26,7 +26,7 @@ impl ActionType {
                     world.load_tile(pos).items.first().unwrap().name()
                 )
             }
-            ActionType::Dropping => {
+            ActionType::Dropping(_) => {
                 format!("drop the {}", world.avatar.wield.first().unwrap().name())
             }
         }
@@ -51,9 +51,14 @@ impl ActionType {
                     0.0
                 }
             }
-            ActionType::Dropping => {
+            ActionType::Dropping(dir) => {
                 if let Some(item) = world.avatar.wield.last() {
                     item.item_type.drop_time()
+                        * if matches!(dir, Direction::Here) {
+                            1.0
+                        } else {
+                            1.5
+                        }
                 } else {
                     0.0
                 }
@@ -72,8 +77,8 @@ impl ActionType {
                 let pos = world.avatar.pos + dir;
                 !world.load_tile(pos).items.is_empty()
             }
-            ActionType::Dropping => {
-                let pos = world.avatar.pos;
+            ActionType::Dropping(dir) => {
+                let pos = world.avatar.pos + dir;
                 world.load_tile(pos).terrain.is_walkable()
             }
         }
@@ -103,9 +108,9 @@ impl Action {
                     world.avatar.wield.push(item);
                 }
             }
-            ActionType::Dropping => {
+            ActionType::Dropping(dir) => {
                 if let Some(item) = world.avatar.wield.pop() {
-                    world.load_tile_mut(world.avatar.pos).items.push(item);
+                    world.load_tile_mut(world.avatar.pos + dir).items.push(item);
                 }
             }
         }
