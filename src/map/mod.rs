@@ -1,7 +1,7 @@
 pub mod chunk;
 pub mod item;
 pub mod pos;
-mod terrains;
+pub mod terrains;
 pub mod tile;
 
 #[derive(Debug)]

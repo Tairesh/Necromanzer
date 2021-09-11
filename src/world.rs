@@ -161,11 +161,13 @@ impl World {
 
     pub fn tick(&mut self) {
         self.act();
-        while self.avatar.action.is_some() {
+        let mut spend = 0;
+        while self.avatar.action.is_some() && spend < 100 {
             let tick = self.meta.current_tick.floor();
             self.meta.current_tick += 0.1;
             if self.meta.current_tick - tick >= 1.0 {
                 self.every_tick();
+                spend += 1;
             }
             self.act();
         }

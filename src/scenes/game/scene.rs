@@ -5,6 +5,7 @@ use direction::Direction;
 use geometry::DIR9;
 use human::main_hand::MainHand;
 use itertools::Itertools;
+use map::terrains::Terrain;
 use map::tile::Tile;
 use scenes::game::menu::Menu;
 use scenes::manager::{update_sprites, Scene, Transition};
@@ -46,13 +47,16 @@ enum GameMode {
     Examining,
     Wielding,
     Dropping,
+    Digging,
 }
 
 impl GameMode {
     pub fn draw_cursors(&self) -> bool {
         match self {
             GameMode::Default => false,
-            GameMode::Examining | GameMode::Wielding | GameMode::Dropping => true,
+            GameMode::Examining | GameMode::Wielding | GameMode::Dropping | GameMode::Digging => {
+                true
+            }
         }
     }
 
@@ -60,6 +64,7 @@ impl GameMode {
         match self {
             GameMode::Wielding => !tile.items.is_empty(),
             GameMode::Dropping => tile.terrain.is_walkable(),
+            GameMode::Digging => matches!(tile.terrain, Terrain::Grave(..)),
             GameMode::Examining | GameMode::Default => false,
         }
     }
@@ -77,6 +82,7 @@ pub struct Game {
     cursor: Mesh,
     selected: Option<Direction>,
     item_display: Rc<RefCell<ItemDisplay>>,
+    action_text: Option<Text>,
 }
 
 impl Game {
@@ -154,6 +160,7 @@ impl Game {
             )
             .unwrap(),
             selected: None,
+            action_text: None,
         }
     }
 
@@ -215,6 +222,8 @@ impl Game {
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
             self.log.clear();
+        } else if input::is_key_pressed(ctx, Key::G) && input::is_no_key_modifiers(ctx) {
+            self.mode = GameMode::Digging;
         }
         let now = Instant::now();
         if let Some(dir) = input::get_direction_keys_down(ctx) {
@@ -316,6 +325,51 @@ impl Game {
         }
         None
     }
+
+    fn update_digging(&mut self, ctx: &mut Context) -> Option<Transition> {
+        if input::is_key_pressed(ctx, Key::Escape) {
+            self.mode = GameMode::Default;
+            self.selected = None;
+        }
+        if let Some(dir) = input::get_direction_keys_down(ctx) {
+            self.select(dir);
+        } else if let Some(dir) = self.selected {
+            let action = ActionType::Digging(dir);
+            let mut world = self.world.borrow_mut();
+            if action.is_possible(&mut world) {
+                let length = action.length(&mut world);
+                let finish = world.meta.current_tick + length;
+                world.avatar.action = Some(Action::new(finish, action));
+            } else {
+                drop(world);
+                self.log("You can't dig here!");
+            }
+            self.mode = GameMode::Default;
+            self.selected = None;
+        }
+
+        None
+    }
+
+    fn draw_action_loader(&mut self, ctx: &mut Context, center: Vec2) {
+        if self.action_text.is_none() {
+            let text = Text::new(
+                self.world.borrow().avatar.action.unwrap().action.verb(),
+                self.assets.borrow().default.clone(),
+            );
+            self.action_text = Some(text);
+        }
+        let text = self.action_text.as_mut().unwrap();
+        let bounds = text.get_bounds(ctx).unwrap();
+        text.draw(
+            ctx,
+            center
+                - Vec2::new(
+                    bounds.width / 2.0 - Assets::TILE_SIZE as f32 * self.zoom as f32 / 2.0,
+                    bounds.height,
+                ),
+        );
+    }
 }
 
 impl Scene for Game {
@@ -334,6 +388,7 @@ impl Scene for Game {
             GameMode::Examining => self.update_examining(ctx),
             GameMode::Wielding => self.update_wielding(ctx),
             GameMode::Dropping => self.update_dropping(ctx),
+            GameMode::Digging => self.update_digging(ctx),
         } {
             return Some(t);
         }
@@ -406,6 +461,11 @@ impl Scene for Game {
             .borrow()
             .avatar
             .draw(ctx, &self.assets.borrow().tileset, center, zoom, true);
+        if self.world.borrow().avatar.action.is_some() {
+            self.draw_action_loader(ctx, center);
+        } else {
+            self.action_text = None;
+        }
         if self.mode.draw_cursors() {
             let mut world = self.world.borrow_mut();
             for (dx, dy) in DIR9 {
@@ -417,7 +477,7 @@ impl Scene for Game {
                         DrawParams::new()
                             .position(center + delta)
                             .scale(scale)
-                            .color(Colors::LIGHT_CORAL.with_alpha(0.7)),
+                            .color(Colors::LIGHT_GREEN.with_alpha(0.7)),
                     );
                 }
             }

@@ -1,4 +1,5 @@
 use direction::Direction;
+use map::terrains::{DirtVariant, Terrain};
 use map::Passage;
 use std::cell::RefMut;
 use world::World;
@@ -9,6 +10,7 @@ pub enum ActionType {
     Walking(Direction),
     Wielding(Direction),
     Dropping(Direction),
+    Digging(Direction),
 }
 
 impl ActionType {
@@ -29,6 +31,20 @@ impl ActionType {
             ActionType::Dropping(_) => {
                 format!("drop the {}", world.avatar.wield.first().unwrap().name())
             }
+            ActionType::Digging(dir) => {
+                let pos = world.avatar.pos + dir;
+                format!("dig the {}", world.load_tile(pos).terrain.name())
+            }
+        }
+    }
+
+    pub fn verb(&self) -> &str {
+        match self {
+            ActionType::SkippingTime => "waiting",
+            ActionType::Walking(_) => "walking",
+            ActionType::Wielding(_) => "picking up",
+            ActionType::Dropping(_) => "dropping",
+            ActionType::Digging(_) => "digging",
         }
     }
 
@@ -63,6 +79,10 @@ impl ActionType {
                     0.0
                 }
             }
+            ActionType::Digging(_) => {
+                // TODO: check tool quality, avatar perks and tile terrain
+                1000.0
+            }
         }
     }
 
@@ -80,6 +100,10 @@ impl ActionType {
             ActionType::Dropping(dir) => {
                 let pos = world.avatar.pos + dir;
                 world.load_tile(pos).terrain.is_walkable()
+            }
+            ActionType::Digging(dir) => {
+                let pos = world.avatar.pos + dir;
+                matches!(world.load_tile(pos).terrain, Terrain::Grave(..))
             }
         }
     }
@@ -112,6 +136,10 @@ impl Action {
                 if let Some(item) = world.avatar.wield.pop() {
                     world.load_tile_mut(world.avatar.pos + dir).items.push(item);
                 }
+            }
+            ActionType::Digging(dir) => {
+                world.load_tile_mut(world.avatar.pos + dir).terrain =
+                    Terrain::Dirt(DirtVariant::Dirt5);
             }
         }
         world.avatar.action = None;
