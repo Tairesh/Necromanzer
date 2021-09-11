@@ -300,7 +300,10 @@ impl Stringify for TextInput {
         self.text.content().to_string()
     }
 
-    fn set_value(&mut self, value: &str) {
+    fn set_value<C>(&mut self, value: C)
+    where
+        C: Into<String>,
+    {
         self.text.set_content(value);
         self.is_danger = false;
         self.validate_value();

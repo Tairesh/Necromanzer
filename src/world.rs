@@ -16,7 +16,7 @@ use std::rc::Rc;
 pub struct WorldMeta {
     pub name: String,
     pub seed: u64,
-    pub current_tick: f64,
+    pub current_tick: u64,
 }
 
 pub struct World {
@@ -159,16 +159,15 @@ impl World {
         self.kill_grass(self.avatar.pos, 13, 0.01);
     }
 
+    pub const SPEND_LIMIT: u32 = 100;
+
     pub fn tick(&mut self) {
         self.act();
         let mut spend = 0;
-        while self.avatar.action.is_some() && spend < 100 {
-            let tick = self.meta.current_tick.floor();
-            self.meta.current_tick += 0.1;
-            if self.meta.current_tick - tick >= 1.0 {
-                self.every_tick();
-                spend += 1;
-            }
+        while self.avatar.action.is_some() && spend < World::SPEND_LIMIT {
+            self.meta.current_tick += 1;
+            self.every_tick();
+            spend += 1;
             self.act();
         }
         // println!("{}", self.meta.current_tick);

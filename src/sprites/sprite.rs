@@ -43,7 +43,9 @@ pub trait Colorize {
 
 pub trait Stringify {
     fn value(&self) -> String;
-    fn set_value(&mut self, value: &str);
+    fn set_value<C>(&mut self, value: C)
+    where
+        C: Into<String>;
 }
 
 pub trait Hover {

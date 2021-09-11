@@ -15,7 +15,10 @@ pub struct Label {
 }
 
 impl Label {
-    pub fn new(text: &str, font: Font, color: Color, position: Position) -> Self {
+    pub fn new<C>(text: C, font: Font, color: Color, position: Position) -> Self
+    where
+        C: Into<String>,
+    {
         Label {
             text: Text::new(text, font),
             color,
@@ -25,7 +28,10 @@ impl Label {
         }
     }
 
-    pub fn hidden(text: &str, font: Font, color: Color, position: Position) -> Self {
+    pub fn hidden<C>(text: C, font: Font, color: Color, position: Position) -> Self
+    where
+        C: Into<String>,
+    {
         Label {
             text: Text::new(text, font),
             color,
@@ -90,7 +96,10 @@ impl Stringify for Label {
         self.text.content().to_string()
     }
 
-    fn set_value(&mut self, value: &str) {
+    fn set_value<C>(&mut self, value: C)
+    where
+        C: Into<String>,
+    {
         self.text.set_content(value);
     }
 }

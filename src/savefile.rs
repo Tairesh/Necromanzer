@@ -46,7 +46,7 @@ impl SaveFile {
             meta: WorldMeta {
                 name,
                 seed,
-                current_tick: 0.0,
+                current_tick: 0,
             },
             units_data: Vec::new(),
             chunks_data: Vec::new(),

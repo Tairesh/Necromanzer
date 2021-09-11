@@ -14,7 +14,7 @@ use sprites::alert::Alert;
 use sprites::image::{Bar, Image};
 use sprites::label::{ItemDisplay, Label};
 use sprites::position::{AnchorX, AnchorY, Position};
-use sprites::sprite::Sprite;
+use sprites::sprite::{Sprite, Stringify};
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::rc::Rc;
@@ -83,6 +83,7 @@ pub struct Game {
     selected: Option<Direction>,
     item_display: Rc<RefCell<ItemDisplay>>,
     action_text: Option<Text>,
+    current_time: Rc<RefCell<Label>>,
 }
 
 impl Game {
@@ -134,6 +135,12 @@ impl Game {
             Vec2::new(2.0, 2.0),
             Position::by_right_top(220.0, 98.0),
         )));
+        let current_time = Rc::new(RefCell::new(Label::new(
+            format!("{}", world.meta.current_tick),
+            assets.default2.clone(),
+            Colors::LIGHT_YELLOW,
+            Position::by_right_top(window::get_width(ctx) as f32 - 5.0, 0.0),
+        )));
 
         Self {
             sprites: vec![
@@ -144,8 +151,10 @@ impl Game {
                 item_display.clone(),
                 hp_bar,
                 mp_bar,
+                current_time.clone(),
             ],
             item_display,
+            current_time,
             settings,
             world: Rc::new(RefCell::new(world)),
             assets: assets_copy,
@@ -233,8 +242,9 @@ impl Game {
                 self.last_walk = now;
                 let mut world = self.world.borrow_mut();
                 if dir.is_here() {
-                    let finish = world.meta.current_tick + 1.0;
-                    world.avatar.action = Some(Action::new(finish, ActionType::SkippingTime));
+                    let action = ActionType::SkippingTime;
+                    let finish = world.meta.current_tick + action.length(&mut world);
+                    world.avatar.action = Some(Action::new(finish, action));
                 } else {
                     let action = ActionType::Walking(dir);
                     if action.is_possible(&mut world) {
@@ -398,14 +408,17 @@ impl Scene for Game {
                 let starting_tick = world.meta.current_tick;
                 let action = world.avatar.action.unwrap().action.name(&mut world);
                 world.tick();
-                (world.meta.current_tick - starting_tick, action)
+                ((world.meta.current_tick - starting_tick) as u32, action)
             };
-            if delta > 20.0 {
+            if delta > 20 && delta < World::SPEND_LIMIT {
                 self.log(format!("It takes a long time to {}.", action).as_str());
             }
             self.item_display
                 .borrow_mut()
                 .set_item(self.world.borrow_mut().avatar.wield.first(), ctx);
+            self.current_time
+                .borrow_mut()
+                .set_value(format!("{}", self.world.borrow().meta.current_tick));
         }
         update_sprites(self, ctx)
     }

@@ -48,40 +48,40 @@ impl ActionType {
         }
     }
 
-    pub fn length(&self, world: &mut RefMut<World>) -> f64 {
+    pub fn length(&self, world: &mut RefMut<World>) -> u64 {
         match self {
-            ActionType::SkippingTime => 1.0,
+            ActionType::SkippingTime => 1,
             ActionType::Walking(dir) => {
                 // TODO: check avatar perks for calculating speed
                 let pos = world.avatar.pos + dir;
                 match world.load_tile(pos).terrain.pass() {
-                    Passage::Passable(length) => length as f64,
-                    Passage::Unpassable => 0.0,
+                    Passage::Passable(length) => length.round() as u64,
+                    Passage::Unpassable => 0,
                 }
             }
             ActionType::Wielding(dir) => {
                 let pos = world.avatar.pos + dir;
                 if let Some(item) = world.load_tile(pos).items.last().map(|i| i.item_type) {
-                    item.wield_time(&world.avatar)
+                    item.wield_time(&world.avatar).round() as u64
                 } else {
-                    0.0
+                    0
                 }
             }
             ActionType::Dropping(dir) => {
                 if let Some(item) = world.avatar.wield.last() {
-                    item.item_type.drop_time()
-                        * if matches!(dir, Direction::Here) {
-                            1.0
-                        } else {
-                            1.5
-                        }
+                    let k = if matches!(dir, Direction::Here) {
+                        1.0
+                    } else {
+                        1.5
+                    };
+                    (item.item_type.drop_time() * k).round() as u64
                 } else {
-                    0.0
+                    0
                 }
             }
             ActionType::Digging(_) => {
                 // TODO: check tool quality, avatar perks and tile terrain
-                1000.0
+                1000
             }
         }
     }
@@ -112,11 +112,11 @@ impl ActionType {
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Action {
     pub action: ActionType,
-    pub finish: f64,
+    pub finish: u64,
 }
 
 impl Action {
-    pub fn new(finish: f64, action: ActionType) -> Self {
+    pub fn new(finish: u64, action: ActionType) -> Self {
         Self { action, finish }
     }
 
