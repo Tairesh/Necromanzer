@@ -5,6 +5,7 @@ use direction::Direction;
 use geometry::DIR9;
 use human::main_hand::MainHand;
 use itertools::Itertools;
+use map::item::ItemType;
 use map::terrains::Terrain;
 use map::tile::Tile;
 use scenes::game::menu::Menu;
@@ -14,7 +15,7 @@ use sprites::alert::Alert;
 use sprites::image::{Bar, Image};
 use sprites::label::{ItemDisplay, Label};
 use sprites::position::{AnchorX, AnchorY, Position};
-use sprites::sprite::{Sprite, Stringify};
+use sprites::sprite::{Positionate, Sprite, Stringify};
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::rc::Rc;
@@ -139,7 +140,7 @@ impl Game {
             format!("{}", world.meta.current_tick),
             assets.default2.clone(),
             Colors::LIGHT_YELLOW,
-            Position::by_right_top(window::get_width(ctx) as f32 - 5.0, 0.0),
+            Position::by_right_top(window::get_width(ctx) as f32 - 10.0, 0.0),
         )));
 
         Self {
@@ -232,7 +233,18 @@ impl Game {
         {
             self.log.clear();
         } else if input::is_key_pressed(ctx, Key::G) && input::is_no_key_modifiers(ctx) {
-            self.mode = GameMode::Digging;
+            if self
+                .world
+                .borrow()
+                .avatar
+                .wield
+                .iter()
+                .any(|i| matches!(i.item_type, ItemType::Shovel))
+            {
+                self.mode = GameMode::Digging;
+            } else {
+                self.log("You can't dig without a shovel");
+            }
         }
         let now = Instant::now();
         if let Some(dir) = input::get_direction_keys_down(ctx) {
@@ -419,6 +431,9 @@ impl Scene for Game {
             self.current_time
                 .borrow_mut()
                 .set_value(format!("{}", self.world.borrow().meta.current_tick));
+            self.current_time
+                .borrow_mut()
+                .positionate(ctx, window::get_size(ctx));
         }
         update_sprites(self, ctx)
     }
