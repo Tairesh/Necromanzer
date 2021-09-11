@@ -162,16 +162,16 @@ impl Game {
             if self.world.borrow().avatar.wield.is_empty() {
                 self.log("You have nothing to drop!");
             } else {
-                let pos = self.world.borrow().avatar.pos;
                 let mut world = self.world.borrow_mut();
-                let item = world.avatar.wield.pop().unwrap();
-                let name = item.name().to_string();
-                world.load_tile_mut(pos).items.push(item);
-                drop(world);
-                self.item_display
-                    .borrow_mut()
-                    .set_item(self.world.borrow().avatar.wield.first(), ctx);
-                self.log(format!("You threw away the {}.", name).as_str());
+                let action = ActionType::Dropping;
+                if action.is_possible(&mut world) {
+                    let length = action.length(&mut world);
+                    let finish = world.meta.current_tick + length;
+                    world.avatar.action = Some(Action::new(finish, action));
+                } else {
+                    drop(world);
+                    self.log("You can't put items here!");
+                }
             }
         } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
             self.mode = GameMode::Wielding;
@@ -186,23 +186,16 @@ impl Game {
                 || input::is_key_modifier_down(ctx, KeyModifier::Shift)
             {
                 self.last_walk = now;
+                let mut world = self.world.borrow_mut();
                 if dir.is_here() {
-                    let finish = self.world.borrow().meta.current_tick + 1.0;
-                    self.world.borrow_mut().avatar.action =
-                        Some(Action::new(finish, ActionType::SkippingTime));
+                    let finish = world.meta.current_tick + 1.0;
+                    world.avatar.action = Some(Action::new(finish, ActionType::SkippingTime));
                 } else {
                     let action = ActionType::Walking(dir);
-                    if action.is_possible(self.world.clone()) {
-                        let length = action.length(self.world.clone());
-                        if length > 20.0 {
-                            let text = format!(
-                                "It takes a long time to {}.",
-                                action.name(self.world.clone())
-                            );
-                            self.log(text.as_str());
-                        }
-                        let finish = self.world.borrow().meta.current_tick + length;
-                        self.world.borrow_mut().avatar.action = Some(Action::new(finish, action));
+                    if action.is_possible(&mut world) {
+                        let length = action.length(&mut world);
+                        let finish = world.meta.current_tick + length;
+                        world.avatar.action = Some(Action::new(finish, action));
                     }
                 }
             }
@@ -216,12 +209,12 @@ impl Game {
         }
         if let Some(dir) = input::get_direction_keys_down(ctx) {
             if self.selected.is_none() {
+                let mut world = self.world.borrow_mut();
                 self.selected = Some(dir);
                 if let Some(dir) = dir.as_two_dimensional() {
-                    self.world.borrow_mut().avatar.vision = dir;
+                    world.avatar.vision = dir;
                 }
-                let pos = self.world.borrow().avatar.pos + dir;
-                let mut world = self.world.borrow_mut();
+                let pos = world.avatar.pos + dir;
                 let tile = world.load_tile(pos);
                 let mut this_is = tile.terrain.this_is();
                 if !tile.items.is_empty() {
@@ -252,22 +245,18 @@ impl Game {
                 if let Some(dir) = dir.as_two_dimensional() {
                     self.world.borrow_mut().avatar.vision = dir;
                 }
-                let pos = self.world.borrow().avatar.pos + dir;
-                let mut world = self.world.borrow_mut();
-                let msg = if let Some(item) = world.load_tile_mut(pos).items.pop() {
-                    let msg = format!("You have picked up the {}.", item.name());
-                    world.avatar.wield.push(item);
-                    msg
-                } else {
-                    "Nothing to pick up here!".to_string()
-                };
-                drop(world);
-                self.item_display
-                    .borrow_mut()
-                    .set_item(self.world.borrow().avatar.wield.first(), ctx);
-                self.log(msg.as_str());
             }
-        } else if self.selected.is_some() {
+        } else if let Some(dir) = self.selected {
+            let action = ActionType::Wielding(dir);
+            let mut world = self.world.borrow_mut();
+            if action.is_possible(&mut world) {
+                let length = action.length(&mut world);
+                let finish = world.meta.current_tick + length;
+                world.avatar.action = Some(Action::new(finish, action));
+            } else {
+                drop(world);
+                self.log("Nothing to pick up here!");
+            }
             self.mode = GameMode::Default;
             self.selected = None;
         }
@@ -293,7 +282,21 @@ impl Scene for Game {
         } {
             return Some(t);
         }
-        self.world.borrow_mut().tick();
+        if self.world.borrow_mut().avatar.action.is_some() {
+            let (delta, action) = {
+                let mut world = self.world.borrow_mut();
+                let starting_tick = world.meta.current_tick;
+                let action = world.avatar.action.unwrap().action.name(&mut world);
+                world.tick();
+                (world.meta.current_tick - starting_tick, action)
+            };
+            if delta > 20.0 {
+                self.log(format!("It takes a long time to {}.", action).as_str());
+            }
+            self.item_display
+                .borrow_mut()
+                .set_item(self.world.borrow_mut().avatar.wield.first(), ctx);
+        }
         update_sprites(self, ctx)
     }
 

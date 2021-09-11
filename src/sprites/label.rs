@@ -138,15 +138,21 @@ impl ItemDisplay {
     }
 
     pub fn set_item(&mut self, item: Option<&Item>, ctx: &mut Context) {
-        if let Some(item) = item {
-            self.text.set_content(item.name());
-            self.region = item.region();
-            self.icon = true;
+        let (name, region) = if let Some(item) = item {
+            (item.name(), Some(item.region()))
         } else {
-            self.text.set_content("(empty)");
-            self.icon = false;
+            ("(empty)", None)
         };
-        self.positionate(ctx, window::get_size(ctx));
+        if name != self.text.content() || region.is_some() != self.icon {
+            if let Some(region) = region {
+                self.icon = true;
+                self.region = region;
+            } else {
+                self.icon = false;
+            }
+            self.text.set_content(name);
+            self.positionate(ctx, window::get_size(ctx));
+        }
     }
 }
 

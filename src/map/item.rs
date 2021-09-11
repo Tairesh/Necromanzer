@@ -1,3 +1,5 @@
+use avatar::Avatar;
+use human::main_hand::MainHand;
 use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding
@@ -25,11 +27,27 @@ impl ItemType {
             ItemType::Axe => "axe",
         }
     }
+
+    pub fn wield_time(&self, avatar: &Avatar) -> f64 {
+        let k = match avatar.character.main_hand {
+            MainHand::Left => 1.1,
+            MainHand::Right | MainHand::Ambidexter => 1.0,
+        };
+        k * match self {
+            ItemType::Shovel => 30.0,
+            ItemType::Knife => 20.0,
+            ItemType::Axe => 25.0,
+        }
+    }
+
+    pub fn drop_time(&self) -> f64 {
+        10.0
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Item {
-    item_type: ItemType,
+    pub item_type: ItemType,
 }
 
 impl Item {
