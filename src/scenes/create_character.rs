@@ -395,9 +395,7 @@ impl Scene for CreateCharacter {
                 let window_size = window::get_size(ctx);
                 hand.positionate(ctx, window_size);
                 self.skin_tone = rand::random::<SkinTone>();
-                self.skin_mesh
-                    .borrow_mut()
-                    .set_color(self.skin_tone.color());
+                self.skin_mesh.borrow_mut().set_color(self.skin_tone.into());
                 let mut label = self.skin_label.borrow_mut();
                 label.set_value(self.skin_tone.name());
                 label.set_color(self.skin_tone.text_color());
@@ -439,9 +437,7 @@ impl Scene for CreateCharacter {
                 } else {
                     self.skin_tone.prev()
                 };
-                self.skin_mesh
-                    .borrow_mut()
-                    .set_color(self.skin_tone.color());
+                self.skin_mesh.borrow_mut().set_color(self.skin_tone.into());
                 let mut label = self.skin_label.borrow_mut();
                 label.set_value(self.skin_tone.name());
                 label.set_color(self.skin_tone.text_color());

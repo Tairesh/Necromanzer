@@ -63,7 +63,7 @@ impl Avatar {
             DrawParams::new()
                 .position(position)
                 .scale(scale)
-                .color(skin_tone.color()),
+                .color(skin_tone.into()),
         );
         if let Some(item) = self.wield.get(0) {
             let offset = if !rotate || matches!(self.vision, TwoDimDirection::East) {

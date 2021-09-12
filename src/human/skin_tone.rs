@@ -1,9 +1,19 @@
 use colors::Colors;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
+use std::convert::TryFrom;
 use tetra::graphics::Color;
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    num_enum::IntoPrimitive,
+    num_enum::TryFromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+)]
+#[repr(u8)]
 pub enum SkinTone {
     PaleIvory,
     WarmIvory,
@@ -24,8 +34,48 @@ pub enum SkinTone {
 }
 
 impl SkinTone {
+    pub const COUNT: u8 = 16;
+
     pub fn name(&self) -> &str {
+        (*self).into()
+    }
+
+    pub fn next(&self) -> Self {
+        let mut i: u8 = (*self).into();
+        if i < Self::COUNT - 1 {
+            i += 1;
+        } else {
+            i = 0;
+        }
+        Self::try_from(i).unwrap()
+    }
+
+    pub fn prev(&self) -> Self {
+        let mut i: u8 = (*self).into();
+        if i > 0 {
+            i -= 1;
+        } else {
+            i = Self::COUNT - 1;
+        }
+        Self::try_from(i).unwrap()
+    }
+
+    pub fn text_color(&self) -> Color {
         match self {
+            SkinTone::Almond
+            | SkinTone::Umber
+            | SkinTone::Bronze
+            | SkinTone::Golden
+            | SkinTone::Espresso
+            | SkinTone::Chocolate => Colors::LIGHT_YELLOW,
+            _ => Colors::DARK_BROWN,
+        }
+    }
+}
+
+impl From<SkinTone> for &str {
+    fn from(s: SkinTone) -> Self {
+        match s {
             SkinTone::PaleIvory => "Pale Ivory",
             SkinTone::WarmIvory => "Warm Ivory",
             SkinTone::Sand => "Sandy",
@@ -44,51 +94,11 @@ impl SkinTone {
             SkinTone::Chocolate => "Chocolate",
         }
     }
+}
 
-    pub fn next(&self) -> Self {
-        match self {
-            SkinTone::PaleIvory => SkinTone::WarmIvory,
-            SkinTone::WarmIvory => SkinTone::Sand,
-            SkinTone::Sand => SkinTone::RoseBeige,
-            SkinTone::RoseBeige => SkinTone::Sienna,
-            SkinTone::Sienna => SkinTone::Limestone,
-            SkinTone::Limestone => SkinTone::Beige,
-            SkinTone::Beige => SkinTone::Amber,
-            SkinTone::Amber => SkinTone::Honey,
-            SkinTone::Honey => SkinTone::Band,
-            SkinTone::Band => SkinTone::Almond,
-            SkinTone::Almond => SkinTone::Umber,
-            SkinTone::Umber => SkinTone::Bronze,
-            SkinTone::Bronze => SkinTone::Golden,
-            SkinTone::Golden => SkinTone::Espresso,
-            SkinTone::Espresso => SkinTone::Chocolate,
-            SkinTone::Chocolate => SkinTone::PaleIvory,
-        }
-    }
-
-    pub fn prev(&self) -> Self {
-        match self {
-            SkinTone::PaleIvory => SkinTone::Chocolate,
-            SkinTone::WarmIvory => SkinTone::PaleIvory,
-            SkinTone::Sand => SkinTone::WarmIvory,
-            SkinTone::RoseBeige => SkinTone::Sand,
-            SkinTone::Sienna => SkinTone::RoseBeige,
-            SkinTone::Limestone => SkinTone::Sienna,
-            SkinTone::Beige => SkinTone::Limestone,
-            SkinTone::Amber => SkinTone::Beige,
-            SkinTone::Honey => SkinTone::Amber,
-            SkinTone::Band => SkinTone::Honey,
-            SkinTone::Almond => SkinTone::Band,
-            SkinTone::Umber => SkinTone::Almond,
-            SkinTone::Bronze => SkinTone::Umber,
-            SkinTone::Golden => SkinTone::Bronze,
-            SkinTone::Espresso => SkinTone::Golden,
-            SkinTone::Chocolate => SkinTone::Espresso,
-        }
-    }
-
-    pub fn color(&self) -> Color {
-        match self {
+impl From<SkinTone> for Color {
+    fn from(s: SkinTone) -> Self {
+        match s {
             SkinTone::PaleIvory => Colors::PALE_IVORY,
             SkinTone::WarmIvory => Colors::WARM_IVORY,
             SkinTone::Sand => Colors::SAND,
@@ -105,18 +115,6 @@ impl SkinTone {
             SkinTone::Golden => Colors::GOLDEN,
             SkinTone::Espresso => Colors::ESPRESSO,
             SkinTone::Chocolate => Colors::CHOCOLATE,
-        }
-    }
-
-    pub fn text_color(&self) -> Color {
-        match self {
-            SkinTone::Almond
-            | SkinTone::Umber
-            | SkinTone::Bronze
-            | SkinTone::Golden
-            | SkinTone::Espresso
-            | SkinTone::Chocolate => Colors::LIGHT_YELLOW,
-            _ => Colors::DARK_BROWN,
         }
     }
 }
