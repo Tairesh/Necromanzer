@@ -1,3 +1,4 @@
+use human::body::{Body, Freshness};
 use map::item::{Item, ItemType};
 use map::terrains::{DeadGrassVariant, DirtVariant, GrassVariant, Terrain};
 use rand::Rng;
@@ -67,7 +68,14 @@ impl Tile {
         let mut items = vec![];
         if let Terrain::Grave(_, data) = &self.terrain {
             items.push(Item::new(ItemType::GraveStone(data.character.clone())));
-            items.push(Item::new(ItemType::Corpse(data.character.clone())));
+            let freshness = match data.death_year {
+                253..=255 => Freshness::Rotten,
+                _ => Freshness::Skeletal,
+            };
+            items.push(Item::new(ItemType::Corpse(
+                data.character.clone(),
+                Body::human(&data.character, freshness),
+            )));
         }
         self.terrain = Terrain::Pit;
         items

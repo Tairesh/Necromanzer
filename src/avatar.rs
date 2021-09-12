@@ -1,9 +1,10 @@
 use action::Action;
 use assets::TilesetRegions;
 use direction::TwoDimDirection;
+use human::body::{Body, Freshness};
 use human::character::Character;
 use human::gender::Gender;
-use map::item::Item;
+use map::item::{Item, ItemType};
 use map::pos::TilePos;
 use tetra::graphics::{DrawParams, Rectangle, Texture};
 use tetra::Context;
@@ -12,6 +13,7 @@ use Vec2;
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
     pub character: Character,
+    pub body: Body,
     pub pos: TilePos,
     pub action: Option<Action>,
     pub vision: TwoDimDirection,
@@ -21,6 +23,7 @@ pub struct Avatar {
 impl Avatar {
     pub fn new(character: Character, pos: TilePos) -> Self {
         Avatar {
+            body: Body::human(&character, Freshness::Fresh),
             character,
             pos,
             action: None,
@@ -44,9 +47,15 @@ impl Avatar {
             position.x += 10.0 * zoom;
             Vec2::new(-zoom, zoom)
         };
+        let torso = self.body.parts.get("torso").unwrap();
+        let (gender, skin_tone) = if let ItemType::HumanTorso(part) = &torso.item_type {
+            (part.gender.clone(), part.skin_tone)
+        } else {
+            (self.character.gender.clone(), self.character.skin_tone)
+        };
         tileset.draw_region(
             ctx,
-            match self.character.gender {
+            match gender {
                 Gender::Female => Rectangle::new(0.0, 0.0, 10.0, 10.0),
                 Gender::Male => Rectangle::new(10.0, 0.0, 10.0, 10.0),
                 Gender::Custom(_) => Rectangle::new(20.0, 0.0, 10.0, 10.0),
@@ -54,7 +63,7 @@ impl Avatar {
             DrawParams::new()
                 .position(position)
                 .scale(scale)
-                .color(self.character.skin_tone.color()),
+                .color(skin_tone.color()),
         );
         if let Some(item) = self.wield.get(0) {
             let offset = if !rotate || matches!(self.vision, TwoDimDirection::East) {

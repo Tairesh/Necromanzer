@@ -17,6 +17,7 @@ pub struct Character {
     pub skin_tone: SkinTone,
 }
 
+// TODO: impl Distribution<Character> for Standard
 pub fn random_character<R: Rng + ?Sized>(rng: &mut R, assets: Rc<RefCell<Assets>>) -> Character {
     let gender = rng.sample(Standard);
     let assets = assets.borrow();
@@ -37,15 +38,18 @@ pub fn random_character<R: Rng + ?Sized>(rng: &mut R, assets: Rc<RefCell<Assets>
 }
 
 impl Character {
-    pub fn new(
-        name: String,
+    pub fn new<S>(
+        name: S,
         gender: Gender,
         age: u8,
         main_hand: MainHand,
         skin_tone: SkinTone,
-    ) -> Self {
+    ) -> Self
+    where
+        S: Into<String>,
+    {
         Self {
-            name,
+            name: name.into(),
             gender,
             age,
             main_hand,

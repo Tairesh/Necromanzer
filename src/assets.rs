@@ -61,6 +61,7 @@ pub struct TilesetRegions {
     pub grave_old: Rectangle,
     pub grave_stone: Rectangle,
     pub corpse: Rectangle,
+    pub flesh: Rectangle,
 
     pub shovel: Rectangle,
     pub knife: Rectangle,
@@ -186,6 +187,7 @@ impl Assets {
                 grave_old: Rectangle::new(10.0, 60.0, 10.0, 10.0),
                 grave_stone: Rectangle::new(20.0, 60.0, 10.0, 10.0),
                 corpse: Rectangle::new(30.0, 60.0, 10.0, 10.0),
+                flesh: Rectangle::new(40.0, 60.0, 10.0, 10.0),
 
                 shovel: Rectangle::new(0.0, 70.0, 10.0, 10.0),
                 knife: Rectangle::new(10.0, 70.0, 10.0, 10.0),
