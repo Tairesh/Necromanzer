@@ -16,6 +16,7 @@ jobs:
       - name: "Install dependencies"
         run: |
           sudo apt install -y libsdl2-dev
+          rustup update
       - name: "Build"
         run: |
           rustc --version

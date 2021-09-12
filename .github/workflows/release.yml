@@ -74,6 +74,7 @@ jobs:
       - name: "Install dependencies"
         run: |
           sudo apt install -y libsdl2-dev
+          rustup update
       - name: "Set build version"
         run: |
           sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_postfix }}\"/" src/main.rs
@@ -127,6 +128,7 @@ jobs:
           sed -i "s/BUILD_VERSION: \&str = \"dirty\"/BUILD_VERSION: \&str = \"${{ needs.release.outputs.version_postfix }}\"/" src/main.rs
       - name: "Run cargo build"
         run: |
+          rustup update
           rustc --version
           cargo build --release
       - name: "Copy folders"
@@ -160,6 +162,7 @@ jobs:
         run: |
           HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install sdl2
           pip3 install dmgbuild
+          rustup update
       - name: "Set build version"
         run: |
           sed -i '' 's/BUILD_VERSION: \&str = "dirty"/BUILD_VERSION: \&str = "${{ needs.release.outputs.version_postfix }}"/' src/main.rs
