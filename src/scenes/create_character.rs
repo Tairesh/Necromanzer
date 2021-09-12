@@ -6,6 +6,7 @@ use human::gender::Gender;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 use map::pos::TilePos;
+use rand::distributions::Standard;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use savefile::SaveFile;
@@ -372,29 +373,30 @@ impl Scene for CreateCharacter {
             }
             "randomize" => {
                 let mut gender = self.gender_input.borrow_mut();
-                gender.set_value(if rand::random::<bool>() {
-                    "Male"
-                } else {
-                    "Female"
-                });
+                let mut rng = rand::thread_rng();
+                gender.set_value(if rng.gen_bool(0.49) { "Male" } else { "Female" });
                 let assets = self.assets.borrow();
-                let name = *match gender.value().as_str() {
-                    "Male" => &assets.male_names,
-                    "Female" => &assets.female_names,
-                    _ => &assets.names,
-                }
-                .choose(&mut rand::thread_rng())
-                .unwrap();
+                let name = format!(
+                    "{} {}",
+                    *match gender.value().as_str() {
+                        "Male" => &assets.names.male_names,
+                        "Female" => &assets.names.female_names,
+                        _ => &assets.names.names,
+                    }
+                    .choose(&mut rng)
+                    .unwrap(),
+                    (&assets.names.names).choose(&mut rng).unwrap()
+                );
                 self.name_input.borrow_mut().set_value(name);
                 self.age_input
                     .borrow_mut()
-                    .set_value(format!("{}", rand::thread_rng().gen_range(16..=99)).as_str());
-                self.main_hand = rand::random::<MainHand>();
+                    .set_value(format!("{}", rng.gen_range(16..=99)).as_str());
+                self.main_hand = rng.sample(Standard);
                 let mut hand = self.hand_label.borrow_mut();
                 hand.set_value(self.main_hand.name());
                 let window_size = window::get_size(ctx);
                 hand.positionate(ctx, window_size);
-                self.skin_tone = rand::random::<SkinTone>();
+                self.skin_tone = rng.sample(Standard);
                 self.skin_mesh.borrow_mut().set_color(self.skin_tone.into());
                 let mut label = self.skin_label.borrow_mut();
                 label.set_value(self.skin_tone.name());

@@ -73,6 +73,12 @@ pub struct TilesetRegions {
     pub minus: Rectangle,
 }
 
+pub struct Names {
+    pub male_names: Vec<&'static str>,
+    pub female_names: Vec<&'static str>,
+    pub names: Vec<&'static str>,
+}
+
 pub struct Assets {
     pub default: Font,
     pub default2: Font,
@@ -95,9 +101,7 @@ pub struct Assets {
     pub bar_red: NineSlice,
     pub bar_blue: NineSlice,
 
-    pub male_names: Vec<&'static str>,
-    pub female_names: Vec<&'static str>,
-    pub names: Vec<&'static str>,
+    pub names: Names,
 }
 
 impl Assets {
@@ -239,9 +243,11 @@ impl Assets {
             bars: Texture::from_file_data(ctx, include_bytes!("../res/img/bars.png"))?,
             bar_red: NineSlice::new(Rectangle::new(0.0, 0.0, 7.0, 3.0), 1.0, 4.0, 0.0, 0.0),
             bar_blue: NineSlice::new(Rectangle::new(0.0, 3.0, 7.0, 3.0), 1.0, 4.0, 0.0, 0.0),
-            male_names,
-            female_names,
-            names,
+            names: Names {
+                male_names,
+                female_names,
+                names,
+            },
         })
     }
 }

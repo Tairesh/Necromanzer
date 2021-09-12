@@ -50,6 +50,7 @@ impl CreateWorld {
             *assets
                 .borrow()
                 .names
+                .names
                 .choose(&mut rand::thread_rng())
                 .unwrap(),
             250.0,
@@ -179,6 +180,7 @@ impl Scene for CreateWorld {
                     *self
                         .assets
                         .borrow()
+                        .names
                         .names
                         .choose(&mut rand::thread_rng())
                         .unwrap(),

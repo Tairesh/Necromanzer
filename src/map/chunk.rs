@@ -83,7 +83,7 @@ impl Chunk {
                         GraveVariant::New
                     },
                     GraveData {
-                        character: random_character(&mut rng, assets.clone()),
+                        character: random_character(&mut rng, &assets.borrow().names),
                         death_year,
                     },
                 );
