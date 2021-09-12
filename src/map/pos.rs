@@ -56,6 +56,14 @@ impl Add<(i32, i32)> for TilePos {
     }
 }
 
+impl Add<&(i32, i32)> for TilePos {
+    type Output = TilePos;
+
+    fn add(self, (dx, dy): &(i32, i32)) -> Self::Output {
+        Self::new(self.x + dx, self.y + dy)
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ChunkPos {
     pub x: i32,

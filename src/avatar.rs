@@ -1,4 +1,5 @@
 use action::Action;
+use assets::TilesetRegions;
 use direction::TwoDimDirection;
 use human::character::Character;
 use human::gender::Gender;
@@ -32,6 +33,7 @@ impl Avatar {
         &self,
         ctx: &mut Context,
         tileset: &Texture,
+        regions: &TilesetRegions,
         mut position: Vec2,
         zoom: f32,
         rotate: bool,
@@ -62,7 +64,7 @@ impl Avatar {
             };
             tileset.draw_region(
                 ctx,
-                item.region(),
+                item.item_type.region(regions),
                 DrawParams::new()
                     .position(position + offset)
                     .scale(scale * -1.0),

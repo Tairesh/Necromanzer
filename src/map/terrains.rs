@@ -13,6 +13,7 @@ pub enum Terrain {
     Grave(GraveVariant, GraveData),
     Grass(GrassVariant),
     DeadGrass(DeadGrassVariant),
+    Pit,
 }
 
 impl Terrain {
@@ -27,6 +28,7 @@ impl Terrain {
             Terrain::Grave(_, _) => "grave",
             Terrain::Grass(_) => "grass",
             Terrain::DeadGrass(_) => "dead grass",
+            Terrain::Pit => "pit",
         }
     }
 
@@ -41,7 +43,7 @@ impl Terrain {
                     data.character.age,
                 )
             }
-            _ => format!("This is {}.", self.name()),
+            _ => format!("That is a {}.", self.name()),
         }
     }
 
@@ -95,6 +97,7 @@ impl Terrain {
                 DeadGrassVariant::DeadGrass13 => regions.dead_grass13,
                 DeadGrassVariant::DeadGrass14 => regions.dead_grass14,
             },
+            Terrain::Pit => regions.pit,
         }
     }
 
@@ -107,13 +110,22 @@ impl Terrain {
 
     pub fn pass(&self) -> Passage {
         match self {
-            Terrain::Grave(_, _) => Passage::Unpassable,
+            Terrain::Grave(_, _) | Terrain::Pit => Passage::Unpassable,
             Terrain::Boulder(variant) => match variant {
                 BoulderVariant::Small => Passage::Passable(30.0),
                 BoulderVariant::Middle | BoulderVariant::Huge => Passage::Unpassable,
             },
             Terrain::Dirt(_) => Passage::Passable(10.0),
             Terrain::Grass(_) | Terrain::DeadGrass(_) => Passage::Passable(11.0),
+        }
+    }
+
+    pub fn is_diggable(&self) -> bool {
+        match self {
+            Terrain::Dirt(_) | Terrain::Grave(_, _) | Terrain::Grass(_) | Terrain::DeadGrass(_) => {
+                true
+            }
+            _ => false,
         }
     }
 }

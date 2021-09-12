@@ -23,6 +23,7 @@ pub struct TilesetRegions {
     pub boulder_huge: Rectangle,
     pub boulder_middle: Rectangle,
     pub boulder_small: Rectangle,
+    pub pit: Rectangle,
 
     pub grass1: Rectangle,
     pub grass2: Rectangle,
@@ -58,6 +59,8 @@ pub struct TilesetRegions {
 
     pub grave_new: Rectangle,
     pub grave_old: Rectangle,
+    pub grave_stone: Rectangle,
+    pub corpse: Rectangle,
 
     pub shovel: Rectangle,
     pub knife: Rectangle,
@@ -148,6 +151,7 @@ impl Assets {
                 boulder_huge: Rectangle::new(50.0, 10.0, 10.0, 10.0),
                 boulder_middle: Rectangle::new(60.0, 10.0, 10.0, 10.0),
                 boulder_small: Rectangle::new(70.0, 10.0, 10.0, 10.0),
+                pit: Rectangle::new(80.0, 10.0, 10.0, 10.0),
 
                 grass1: Rectangle::new(0.0, 20.0, 10.0, 10.0),
                 grass2: Rectangle::new(10.0, 20.0, 10.0, 10.0),
@@ -180,6 +184,8 @@ impl Assets {
 
                 grave_new: Rectangle::new(0.0, 60.0, 10.0, 10.0),
                 grave_old: Rectangle::new(10.0, 60.0, 10.0, 10.0),
+                grave_stone: Rectangle::new(20.0, 60.0, 10.0, 10.0),
+                corpse: Rectangle::new(30.0, 60.0, 10.0, 10.0),
 
                 shovel: Rectangle::new(0.0, 70.0, 10.0, 10.0),
                 knife: Rectangle::new(10.0, 70.0, 10.0, 10.0),

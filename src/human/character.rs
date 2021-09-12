@@ -8,7 +8,7 @@ use rand::Rng;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Character {
     pub name: String,
     pub gender: Gender,

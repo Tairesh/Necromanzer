@@ -1,4 +1,4 @@
-use map::item::Item;
+use map::item::{Item, ItemType};
 use map::terrains::{DeadGrassVariant, DirtVariant, GrassVariant, Terrain};
 use rand::Rng;
 
@@ -61,5 +61,15 @@ impl Tile {
 
     pub fn top_item(&self) -> Option<&Item> {
         self.items.first()
+    }
+
+    pub fn dig(&mut self) -> Vec<Item> {
+        let mut items = vec![];
+        if let Terrain::Grave(_, data) = &self.terrain {
+            items.push(Item::new(ItemType::GraveStone(data.character.clone())));
+            items.push(Item::new(ItemType::Corpse(data.character.clone())));
+        }
+        self.terrain = Terrain::Pit;
+        items
     }
 }

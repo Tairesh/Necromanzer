@@ -1,30 +1,37 @@
+use assets::TilesetRegions;
 use avatar::Avatar;
+use human::character::Character;
 use human::main_hand::MainHand;
 use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding
-#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub enum ItemType {
     Shovel,
     Knife,
     Axe,
+    Corpse(Character),
+    GraveStone(Character),
 }
 
 impl ItemType {
-    pub fn region(&self) -> Rectangle {
-        // TODO: should be a better way to define it
+    pub fn region(&self, regions: &TilesetRegions) -> Rectangle {
         match self {
-            ItemType::Shovel => Rectangle::new(0.0, 70.0, 10.0, 10.0),
-            ItemType::Knife => Rectangle::new(10.0, 70.0, 10.0, 10.0),
-            ItemType::Axe => Rectangle::new(20.0, 70.0, 10.0, 10.0),
+            ItemType::Shovel => regions.shovel,
+            ItemType::Knife => regions.knife,
+            ItemType::Axe => regions.axe,
+            ItemType::Corpse(..) => regions.corpse,
+            ItemType::GraveStone(..) => regions.grave_stone,
         }
     }
 
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> String {
         match self {
-            ItemType::Shovel => "shovel",
-            ItemType::Knife => "knife",
-            ItemType::Axe => "axe",
+            ItemType::Shovel => "shovel".to_string(),
+            ItemType::Knife => "knife".to_string(),
+            ItemType::Axe => "axe".to_string(),
+            ItemType::Corpse(c) => format!("corpse of {}", c.name),
+            ItemType::GraveStone(_) => "gravestone".to_string(),
         }
     }
 
@@ -37,6 +44,14 @@ impl ItemType {
             ItemType::Shovel => 30.0,
             ItemType::Knife => 20.0,
             ItemType::Axe => 25.0,
+            ItemType::Corpse(c) => {
+                if c.age < 16 {
+                    50.0
+                } else {
+                    100.0
+                }
+            }
+            ItemType::GraveStone(_) => 200.0,
         }
     }
 
@@ -53,13 +68,5 @@ pub struct Item {
 impl Item {
     pub fn new(item_type: ItemType) -> Self {
         Self { item_type }
-    }
-
-    pub fn region(&self) -> Rectangle {
-        self.item_type.region()
-    }
-
-    pub fn name(&self) -> &str {
-        self.item_type.name()
     }
 }

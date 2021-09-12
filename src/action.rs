@@ -1,6 +1,7 @@
 use direction::Direction;
-use map::terrains::{DirtVariant, Terrain};
+use geometry::DIR8;
 use map::Passage;
+use rand::seq::SliceRandom;
 use std::cell::RefMut;
 use world::World;
 
@@ -25,11 +26,14 @@ impl ActionType {
                 let pos = world.avatar.pos + dir;
                 format!(
                     "pick up the {}",
-                    world.load_tile(pos).items.first().unwrap().name()
+                    world.load_tile(pos).items.last().unwrap().item_type.name()
                 )
             }
             ActionType::Dropping(_) => {
-                format!("drop the {}", world.avatar.wield.first().unwrap().name())
+                format!(
+                    "drop the {}",
+                    world.avatar.wield.last().unwrap().item_type.name()
+                )
             }
             ActionType::Digging(dir) => {
                 let pos = world.avatar.pos + dir;
@@ -61,7 +65,12 @@ impl ActionType {
             }
             ActionType::Wielding(dir) => {
                 let pos = world.avatar.pos + dir;
-                if let Some(item) = world.load_tile(pos).items.last().map(|i| i.item_type) {
+                if let Some(item) = world
+                    .load_tile(pos)
+                    .items
+                    .last()
+                    .map(|i| i.item_type.clone())
+                {
                     item.wield_time(&world.avatar).round() as u64
                 } else {
                     0
@@ -103,7 +112,7 @@ impl ActionType {
             }
             ActionType::Digging(dir) => {
                 let pos = world.avatar.pos + dir;
-                matches!(world.load_tile(pos).terrain, Terrain::Grave(..))
+                world.load_tile(pos).terrain.is_diggable()
             }
         }
     }
@@ -138,8 +147,23 @@ impl Action {
                 }
             }
             ActionType::Digging(dir) => {
-                world.load_tile_mut(world.avatar.pos + dir).terrain =
-                    Terrain::Dirt(DirtVariant::Dirt5);
+                let pos = world.avatar.pos + dir;
+                let items = world.load_tile_mut(pos).dig();
+                if !items.is_empty() {
+                    let mut rng = rand::thread_rng();
+                    let places: Vec<(i32, i32)> = DIR8
+                        .iter()
+                        .filter(|d| {
+                            pos + *d != world.avatar.pos
+                                && world.load_tile(pos + *d).terrain.is_walkable()
+                        })
+                        .copied()
+                        .collect();
+                    for item in items {
+                        let delta = places.choose(&mut rng).unwrap();
+                        world.load_tile_mut(pos + delta).items.push(item);
+                    }
+                }
             }
         }
         world.avatar.action = None;

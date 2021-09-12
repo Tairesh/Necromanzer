@@ -1,3 +1,4 @@
+use assets::TilesetRegions;
 use map::item::Item;
 use sprites::position::Position;
 use sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
@@ -125,13 +126,14 @@ impl ItemDisplay {
         font: Font,
         color: Color,
         tileset: Texture,
+        regions: &TilesetRegions,
         scale: Vec2,
         position: Position,
     ) -> Self {
         let (name, region) = if let Some(item) = item {
-            (item.name(), item.region())
+            (item.item_type.name(), item.item_type.region(regions))
         } else {
-            ("(empty)", Rectangle::default())
+            ("(empty)".to_string(), Rectangle::default())
         };
         Self {
             text: Text::new(name, font),
@@ -146,11 +148,11 @@ impl ItemDisplay {
         }
     }
 
-    pub fn set_item(&mut self, item: Option<&Item>, ctx: &mut Context) {
+    pub fn set_item(&mut self, item: Option<&Item>, ctx: &mut Context, regions: &TilesetRegions) {
         let (name, region) = if let Some(item) = item {
-            (item.name(), Some(item.region()))
+            (item.item_type.name(), Some(item.item_type.region(regions)))
         } else {
-            ("(empty)", None)
+            ("(empty)".to_string(), None)
         };
         if name != self.text.content() || region.is_some() != self.icon {
             if let Some(region) = region {

@@ -6,7 +6,6 @@ use geometry::DIR9;
 use human::main_hand::MainHand;
 use itertools::Itertools;
 use map::item::ItemType;
-use map::terrains::Terrain;
 use map::tile::Tile;
 use scenes::game::menu::Menu;
 use scenes::manager::{update_sprites, Scene, Transition};
@@ -65,7 +64,7 @@ impl GameMode {
         match self {
             GameMode::Wielding => !tile.items.is_empty(),
             GameMode::Dropping => tile.terrain.is_walkable(),
-            GameMode::Digging => matches!(tile.terrain, Terrain::Grave(..)),
+            GameMode::Digging => tile.terrain.is_diggable(),
             GameMode::Examining | GameMode::Default => false,
         }
     }
@@ -133,6 +132,7 @@ impl Game {
             assets.default.clone(),
             Colors::LIGHT_YELLOW,
             assets.tileset.clone(),
+            &assets.regions,
             Vec2::new(2.0, 2.0),
             Position::by_right_top(220.0, 98.0),
         )));
@@ -284,9 +284,11 @@ impl Game {
                 let mut this_is = tile.terrain.this_is();
                 if !tile.items.is_empty() {
                     // TODO: use the std version when stable (see https://github.com/rust-lang/rust/issues/79524)
-                    let items: String =
-                        Itertools::intersperse(tile.items.iter().map(|item| item.name()), ", ")
-                            .collect();
+                    let items: String = Itertools::intersperse(
+                        tile.items.iter().map(|item| item.item_type.name()),
+                        ", ".to_string(),
+                    )
+                    .collect();
                     this_is += " Here you see: ";
                     this_is += items.as_str();
                 }
@@ -425,9 +427,11 @@ impl Scene for Game {
             if delta > 20 && delta < World::SPEND_LIMIT {
                 self.log(format!("It takes a long time to {}.", action).as_str());
             }
-            self.item_display
-                .borrow_mut()
-                .set_item(self.world.borrow_mut().avatar.wield.first(), ctx);
+            self.item_display.borrow_mut().set_item(
+                self.world.borrow_mut().avatar.wield.first(),
+                ctx,
+                &self.assets.borrow().regions,
+            );
             self.current_time
                 .borrow_mut()
                 .set_value(format!("{}", self.world.borrow().meta.current_tick));
@@ -474,9 +478,11 @@ impl Scene for Game {
                     .scale(scale);
                 assets.tileset.draw_region(ctx, region, params.clone());
                 if let Some(item) = tile.top_item() {
-                    assets
-                        .tileset
-                        .draw_region(ctx, item.region(), params.clone());
+                    assets.tileset.draw_region(
+                        ctx,
+                        item.item_type.region(&assets.regions),
+                        params.clone(),
+                    );
                     if tile.items.len() > 1 {
                         assets
                             .tileset
@@ -485,10 +491,14 @@ impl Scene for Game {
                 }
             }
         }
-        self.world
-            .borrow()
-            .avatar
-            .draw(ctx, &self.assets.borrow().tileset, center, zoom, true);
+        self.world.borrow().avatar.draw(
+            ctx,
+            &self.assets.borrow().tileset,
+            &self.assets.borrow().regions,
+            center,
+            zoom,
+            true,
+        );
         if self.world.borrow().avatar.action.is_some() {
             self.draw_action_loader(ctx, center);
         } else {
@@ -525,6 +535,7 @@ impl Scene for Game {
         self.world.borrow().avatar.draw(
             ctx,
             &self.assets.borrow().tileset,
+            &self.assets.borrow().regions,
             Vec2::new(20.0, 20.0),
             6.0,
             false,
