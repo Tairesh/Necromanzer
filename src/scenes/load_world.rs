@@ -41,7 +41,8 @@ impl LoadWorld {
         sprites.push(Rc::new(RefCell::new(Alert::new(
             600.0,
             height,
-            assets.clone(),
+            assets.borrow().alert.clone(),
+            assets.borrow().alert_nineslice.clone(),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },

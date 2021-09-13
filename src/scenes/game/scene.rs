@@ -101,7 +101,8 @@ impl Game {
             Alert::new(
                 250.0,
                 90.0,
-                assets.clone(),
+                assets.borrow().alert.clone(),
+                assets.borrow().alert_nineslice.clone(),
                 Position::by_left_top(0.0, 68.0),
             )
             .with_scale(Vec2::new(4.0, 4.0)),

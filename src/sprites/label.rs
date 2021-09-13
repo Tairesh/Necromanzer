@@ -97,10 +97,7 @@ impl Stringify for Label {
         self.text.content().to_string()
     }
 
-    fn set_value<C>(&mut self, value: C)
-    where
-        C: Into<String>,
-    {
+    fn set_value<C: Into<String>>(&mut self, value: C) {
         self.text.set_content(value);
     }
 }

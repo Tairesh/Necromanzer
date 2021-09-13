@@ -1,15 +1,13 @@
-use assets::Assets;
 use sprites::position::Position;
 use sprites::sprite::{Draw, Positionate, Sprite, Update};
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::graphics::DrawParams;
+use tetra::graphics::{DrawParams, NineSlice, Texture};
 use tetra::input::MouseButton;
 use tetra::{input, Context};
 use {Rect, Vec2};
 
 pub struct Alert {
-    assets: Rc<RefCell<Assets>>,
+    texture: Texture,
+    nineslice: NineSlice,
     scale: Vec2,
     width: f32,
     height: f32,
@@ -19,9 +17,16 @@ pub struct Alert {
 }
 
 impl Alert {
-    pub fn new(width: f32, height: f32, assets: Rc<RefCell<Assets>>, position: Position) -> Self {
+    pub fn new(
+        width: f32,
+        height: f32,
+        texture: Texture,
+        nineslice: NineSlice,
+        position: Position,
+    ) -> Self {
         Alert {
-            assets,
+            texture,
+            nineslice,
             scale: Vec2::new(3.0, 3.0),
             width,
             height,
@@ -39,11 +44,10 @@ impl Alert {
 
 impl Draw for Alert {
     fn draw(&mut self, ctx: &mut Context) {
-        let assets = self.assets.borrow();
         let rect = self.rect.unwrap();
-        assets.alert.draw_nine_slice(
+        self.texture.draw_nine_slice(
             ctx,
-            &assets.alert_nineslice,
+            &self.nineslice,
             self.width / self.scale.x,
             self.height / self.scale.y,
             DrawParams::new()

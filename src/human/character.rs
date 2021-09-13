@@ -37,16 +37,13 @@ pub fn random_character<R: Rng + ?Sized>(rng: &mut R, names: &Names) -> Characte
 }
 
 impl Character {
-    pub fn new<S>(
+    pub fn new<S: Into<String>>(
         name: S,
         gender: Gender,
         age: u8,
         main_hand: MainHand,
         skin_tone: SkinTone,
-    ) -> Self
-    where
-        S: Into<String>,
-    {
+    ) -> Self {
         Self {
             name: name.into(),
             gender,
