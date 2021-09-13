@@ -130,6 +130,34 @@ impl ItemType {
     pub fn drop_time(&self) -> f64 {
         10.0
     }
+
+    pub fn body_part(&self) -> Option<&BodyPart> {
+        match self {
+            ItemType::Shovel
+            | ItemType::Knife
+            | ItemType::Axe
+            | ItemType::Corpse(_, _)
+            | ItemType::GraveStone(_) => None,
+            ItemType::HumanHead(b)
+            | ItemType::HumanEye(b)
+            | ItemType::HumanNose(b)
+            | ItemType::HumanMouth(b)
+            | ItemType::HumanBrain(b)
+            | ItemType::HumanTorso(b)
+            | ItemType::HumanHeart(b)
+            | ItemType::HumanStomach(b)
+            | ItemType::HumanLung(b)
+            | ItemType::HumanKidney(b)
+            | ItemType::HumanLeftArm(b)
+            | ItemType::HumanRightArm(b)
+            | ItemType::HumanLeftHand(b)
+            | ItemType::HumanRightHand(b)
+            | ItemType::HumanLeftLeg(b)
+            | ItemType::HumanRightLeg(b)
+            | ItemType::HumanLeftFoot(b)
+            | ItemType::HumanRightFoot(b) => Some(b),
+        }
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]

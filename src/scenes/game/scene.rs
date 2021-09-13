@@ -7,6 +7,7 @@ use human::main_hand::MainHand;
 use itertools::Itertools;
 use map::item::ItemType;
 use map::tile::Tile;
+use scenes::game::body_view::BodyView;
 use scenes::game::menu::Menu;
 use scenes::manager::{update_sprites, Scene, Transition};
 use settings::Settings;
@@ -246,6 +247,15 @@ impl Game {
             } else {
                 self.log("You can't dig without a shovel");
             }
+        } else if input::is_key_pressed(ctx, Key::Num2)
+            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+        {
+            return Some(Transition::Push(Box::new(BodyView::new(
+                self.assets.clone(),
+                &self.world.borrow().avatar.character,
+                &self.world.borrow().avatar.body,
+                ctx,
+            ))));
         }
         let now = Instant::now();
         if let Some(dir) = input::get_direction_keys_down(ctx) {

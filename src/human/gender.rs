@@ -1,5 +1,7 @@
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
+use serde::Serializer;
+use std::fmt::{Display, Formatter};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub enum Gender {
@@ -9,6 +11,7 @@ pub enum Gender {
 }
 
 impl Gender {
+    // TODO: impl From<String> for Gender
     pub fn from_string(value: String) -> Self {
         match value.as_str() {
             "Male" => Gender::Male,
@@ -23,6 +26,16 @@ impl Gender {
             Gender::Female => "She",
             Gender::Custom(_) => "They",
         }
+    }
+}
+
+impl Display for Gender {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.collect_str(match self {
+            Gender::Male => "Male",
+            Gender::Female => "Female",
+            Gender::Custom(s) => s,
+        })
     }
 }
 

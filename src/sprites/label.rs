@@ -16,10 +16,7 @@ pub struct Label {
 }
 
 impl Label {
-    pub fn new<C>(text: C, font: Font, color: Color, position: Position) -> Self
-    where
-        C: Into<String>,
-    {
+    pub fn new<C: Into<String>>(text: C, font: Font, color: Color, position: Position) -> Self {
         Label {
             text: Text::new(text, font),
             color,
@@ -29,10 +26,7 @@ impl Label {
         }
     }
 
-    pub fn hidden<C>(text: C, font: Font, color: Color, position: Position) -> Self
-    where
-        C: Into<String>,
-    {
+    pub fn hidden<C: Into<String>>(text: C, font: Font, color: Color, position: Position) -> Self {
         Label {
             text: Text::new(text, font),
             color,
