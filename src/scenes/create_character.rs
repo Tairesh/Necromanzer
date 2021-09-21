@@ -82,7 +82,7 @@ impl CreateCharacter {
         let name_input = Rc::new(RefCell::new(TextInput::new(
             "",
             300.0,
-            assets.clone(),
+            assets.borrow().header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(200.0),
@@ -125,7 +125,7 @@ impl CreateCharacter {
                 "Female"
             },
             210.0,
-            assets.clone(),
+            assets.borrow().header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: AnchorY::Center.to_position(250.0),
@@ -165,7 +165,7 @@ impl CreateCharacter {
             18,
             (16, 99),
             210.0,
-            assets.clone(),
+            assets.borrow().header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: AnchorY::Center.to_position(300.0),

@@ -1,12 +1,9 @@
-use assets::Assets;
 use colors::Colors;
 use sprites::position::Position;
 use sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Stringify, Update};
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::time::{Duration, Instant};
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
-use tetra::graphics::text::Text;
+use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams, Rectangle};
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
@@ -19,6 +16,7 @@ enum ValueType {
 
 pub struct TextInput {
     text: Text,
+    text_with_spaces: Text,
     position: Position,
     width: f32,
     value_type: ValueType,
@@ -30,13 +28,17 @@ pub struct TextInput {
     blink: bool,
     last_blinked: Instant,
     visible: bool,
+    bg: Option<Mesh>,
+    border: Option<Mesh>,
+    cursor: Option<Mesh>,
 }
 
 impl TextInput {
-    pub fn new(value: &str, width: f32, assets: Rc<RefCell<Assets>>, position: Position) -> Self {
+    pub fn new(value: &str, width: f32, font: Font, position: Position) -> Self {
         Self {
             value_type: ValueType::String { max_length: 16 },
-            text: Text::new(value, assets.borrow().header2.clone()),
+            text: Text::new(value, font.clone()),
+            text_with_spaces: Text::new(value.replace(" ", "_"), font),
             position,
             width,
             rect: None,
@@ -47,17 +49,14 @@ impl TextInput {
             blink: false,
             last_blinked: Instant::now(),
             visible: true,
+            bg: None,
+            border: None,
+            cursor: None,
         }
     }
 
-    pub fn int(
-        value: u32,
-        clamps: (u32, u32),
-        width: f32,
-        assets: Rc<RefCell<Assets>>,
-        position: Position,
-    ) -> Self {
-        let mut s = Self::new(format!("{}", value).as_str(), width, assets, position);
+    pub fn int(value: u32, clamps: (u32, u32), width: f32, font: Font, position: Position) -> Self {
+        let mut s = Self::new(format!("{}", value).as_str(), width, font, position);
         s.value_type = ValueType::Unsigned {
             min: clamps.0,
             max: clamps.1,
@@ -128,39 +127,21 @@ impl Draw for TextInput {
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
         if let Some(bg_color) = self.bg_color() {
-            let bg = Mesh::rounded_rectangle(
-                ctx,
-                ShapeStyle::Fill,
-                Rectangle::new(0.0, 0.0, rect.w, rect.h),
-                BorderRadii::new(5.0),
-            )
-            .unwrap();
-            bg.draw(
+            self.bg.as_ref().unwrap().draw(
                 ctx,
                 DrawParams::new()
                     .position(Vec2::new(rect.x, rect.y))
                     .color(bg_color),
             );
         }
-
-        let border = Mesh::rounded_rectangle(
-            ctx,
-            ShapeStyle::Stroke(2.0),
-            Rectangle::new(0.0, 0.0, rect.w, rect.h),
-            BorderRadii::new(5.0),
-        )
-        .unwrap();
-        border.draw(
+        self.border.as_ref().unwrap().draw(
             ctx,
             DrawParams::new()
                 .position(Vec2::new(rect.x, rect.y))
                 .color(self.border_color()),
         );
-        let content = self.text.content().to_string();
-        let content_with_spaces = content.replace(" ", "_");
-        self.text.set_content(content_with_spaces);
         let text_width = self
-            .text
+            .text_with_spaces
             .get_bounds(ctx)
             .map(|r| r.width + 3.0)
             .unwrap_or(-1.0f32);
@@ -172,7 +153,6 @@ impl Draw for TextInput {
         } else {
             Vec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 18.0)
         };
-        self.text.set_content(content);
         self.text.draw(
             ctx,
             DrawParams::new()
@@ -180,16 +160,13 @@ impl Draw for TextInput {
                 .color(self.text_color()),
         );
         if self.blink && self.is_focused {
-            Mesh::rectangle(
-                ctx,
-                ShapeStyle::Fill,
-                Rectangle::new(text_width + 10.0, rect.h / 2.0 - 15.0, 10.0, 30.0),
-            )
-            .unwrap()
-            .draw(
+            self.cursor.as_ref().unwrap().draw(
                 ctx,
                 DrawParams::new()
-                    .position(Vec2::new(rect.x, rect.y))
+                    .position(Vec2::new(
+                        rect.x + text_width + 10.0,
+                        rect.y + rect.h / 2.0 - 15.0,
+                    ))
                     .color(self.text_color()),
             );
         }
@@ -213,8 +190,30 @@ impl Positionate for TextInput {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
-        Vec2::new(self.width, 42.0)
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
+        let (w, h) = (self.width, 42.0);
+        self.bg = Some(
+            Mesh::rounded_rectangle(
+                ctx,
+                ShapeStyle::Fill,
+                Rectangle::new(0.0, 0.0, w, h),
+                BorderRadii::new(5.0),
+            )
+            .unwrap(),
+        );
+        self.border = Some(
+            Mesh::rounded_rectangle(
+                ctx,
+                ShapeStyle::Stroke(2.0),
+                Rectangle::new(0.0, 0.0, w, h),
+                BorderRadii::new(5.0),
+            )
+            .unwrap(),
+        );
+        self.cursor = Some(
+            Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 10.0, 30.0)).unwrap(),
+        );
+        Vec2::new(w, h)
     }
 
     fn set_rect(&mut self, rect: Rect) {
@@ -241,6 +240,7 @@ impl Update for TextInput {
             }
             if input::is_key_pressed(ctx, Key::Backspace) && !self.text.content().is_empty() {
                 self.text.pop();
+                self.text_with_spaces.pop();
                 self.is_danger = false;
             }
             if let Some(text_input) = input::get_text_input(ctx) {
@@ -252,6 +252,8 @@ impl Update for TextInput {
                 };
                 if allow {
                     self.text.push_str(text_input);
+                    self.text_with_spaces
+                        .push_str(text_input.to_string().replace(" ", "_").as_str());
                     self.is_danger = false;
                 }
             }
@@ -269,6 +271,7 @@ impl Update for TextInput {
                     self.text.push_str(clipboard.as_str());
                     while self.text.content().len() as u32 > max_length {
                         self.text.pop();
+                        self.text_with_spaces.pop();
                     }
                     self.is_danger = false;
                 }
@@ -302,6 +305,8 @@ impl Stringify for TextInput {
 
     fn set_value<C: Into<String>>(&mut self, value: C) {
         self.text.set_content(value);
+        self.text_with_spaces
+            .set_content(self.text.content().replace(" ", "_"));
         self.is_danger = false;
         self.validate_value();
     }

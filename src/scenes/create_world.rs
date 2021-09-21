@@ -54,7 +54,7 @@ impl CreateWorld {
                 .choose(&mut rand::thread_rng())
                 .unwrap(),
             250.0,
-            assets.clone(),
+            assets.borrow().header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(200.0),
@@ -90,7 +90,7 @@ impl CreateWorld {
         let seed_input = Rc::new(RefCell::new(TextInput::new(
             random_seed().as_str(),
             250.0,
-            assets.clone(),
+            assets.borrow().header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(270.0),
