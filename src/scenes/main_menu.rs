@@ -1,4 +1,5 @@
 use assets::Assets;
+use chrono::{Datelike, Local};
 use colors::Colors;
 use savefile::savefiles;
 use scenes::create_world::CreateWorld;
@@ -26,8 +27,13 @@ pub struct MainMenu {
 
 impl MainMenu {
     pub fn new(assets: Rc<RefCell<Assets>>, settings: Rc<RefCell<Settings>>) -> Self {
+        let date = Local::now();
         let bg = Rc::new(RefCell::new(Image::new(
-            assets.borrow().bg.clone(),
+            if date.day() >= 19 && date.day() <= 31 && date.month() == 10 {
+                assets.borrow().halloween.clone()
+            } else {
+                assets.borrow().bg.clone()
+            },
             Position::center(),
         )));
         let logo = Rc::new(RefCell::new(Image::new(

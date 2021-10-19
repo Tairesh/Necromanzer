@@ -87,6 +87,7 @@ pub struct Assets {
 
     pub logo: Texture,
     pub bg: Texture,
+    pub halloween: Texture,
     pub tileset: Texture,
     pub regions: TilesetRegions,
     pub button: Texture,
@@ -134,6 +135,7 @@ impl Assets {
             header2: Font::from_vector_file_data(ctx, avqest, 32.0)?,
             logo: Texture::from_file_data(ctx, include_bytes!("../res/img/logo.png"))?,
             bg: Texture::from_file_data(ctx, include_bytes!("../res/img/bg.jpg"))?,
+            halloween: Texture::from_file_data(ctx, include_bytes!("../res/img/halloween.jpg"))?,
             tileset: Texture::from_file_data(ctx, include_bytes!("../res/img/tileset.png"))?,
             regions: TilesetRegions {
                 female: Rectangle::new(0.0, 0.0, 10.0, 10.0),
