@@ -108,7 +108,9 @@ impl TextInput {
             } else if val > max {
                 val = max;
             }
-            self.text.set_content(format!("{}", val));
+            self.text.set_content(val.to_string());
+            self.text_with_spaces
+                .set_content(self.text.content().replace(" ", "_"));
         }
     }
 
@@ -145,6 +147,7 @@ impl Draw for TextInput {
             .get_bounds(ctx)
             .map(|r| r.width + 3.0)
             .unwrap_or(-1.0f32);
+        // TODO: fix line height
         let text_pos = if !self.is_focused || self.is_disabled {
             Vec2::new(
                 rect.x + rect.w / 2.0 - text_width / 2.0,
@@ -153,6 +156,7 @@ impl Draw for TextInput {
         } else {
             Vec2::new(rect.x + 7.0, rect.y + rect.h / 2.0 - 18.0)
         };
+        // TODO: horizontal scroll if text width is bigger than sprite width
         self.text.draw(
             ctx,
             DrawParams::new()
@@ -242,6 +246,9 @@ impl Update for TextInput {
                 self.text.pop();
                 self.text_with_spaces.pop();
                 self.is_danger = false;
+            }
+            if input::is_key_pressed(ctx, Key::Enter) {
+                self.off_pressed();
             }
             if let Some(text_input) = input::get_text_input(ctx) {
                 let allow = match self.value_type {

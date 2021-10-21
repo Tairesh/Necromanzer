@@ -2,13 +2,9 @@ use assets::Assets;
 use avatar::Avatar;
 use colors::Colors;
 use human::character::Character;
-use human::gender::Gender;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 use map::pos::TilePos;
-use rand::distributions::Standard;
-use rand::seq::SliceRandom;
-use rand::Rng;
 use savefile::SaveFile;
 use scenes::game::scene::Game;
 use scenes::manager::{update_sprites, Scene, Transition};
@@ -344,15 +340,10 @@ impl Scene for CreateCharacter {
                     self.name_empty.borrow_mut().set_visible(true);
                     None
                 } else {
-                    let gender = self.gender_input.borrow().value();
+                    let gender = self.gender_input.borrow().value().into();
                     let age = self.age_input.borrow().value().parse::<u8>().unwrap();
-                    let character = Character::new(
-                        name,
-                        Gender::from_string(gender),
-                        age,
-                        self.main_hand,
-                        self.skin_tone,
-                    );
+                    let character =
+                        Character::new(name, gender, age, self.main_hand, self.skin_tone);
                     let avatar = Avatar::new(character, TilePos::new(0, 0));
                     let mut world = World::new(
                         self.assets.clone(),
@@ -372,31 +363,19 @@ impl Scene for CreateCharacter {
                 }
             }
             "randomize" => {
-                let mut gender = self.gender_input.borrow_mut();
                 let mut rng = rand::thread_rng();
-                gender.set_value(if rng.gen_bool(0.49) { "Male" } else { "Female" });
-                let assets = self.assets.borrow();
-                let name = format!(
-                    "{} {}",
-                    *match gender.value().as_str() {
-                        "Male" => &assets.names.male_names,
-                        "Female" => &assets.names.female_names,
-                        _ => &assets.names.names,
-                    }
-                    .choose(&mut rng)
-                    .unwrap(),
-                    (&assets.names.names).choose(&mut rng).unwrap()
-                );
-                self.name_input.borrow_mut().set_value(name);
+                let character = Character::random(&mut rng, &self.assets.borrow().names);
+                self.gender_input.borrow_mut().set_value(character.gender);
+                self.name_input.borrow_mut().set_value(character.name);
                 self.age_input
                     .borrow_mut()
-                    .set_value(format!("{}", rng.gen_range(16..=99)).as_str());
-                self.main_hand = rng.sample(Standard);
+                    .set_value(character.age.to_string());
+                self.main_hand = character.main_hand;
                 let mut hand = self.hand_label.borrow_mut();
                 hand.set_value(self.main_hand.name());
                 let window_size = window::get_size(ctx);
                 hand.positionate(ctx, window_size);
-                self.skin_tone = rng.sample(Standard);
+                self.skin_tone = character.skin_tone;
                 self.skin_mesh.borrow_mut().set_color(self.skin_tone.into());
                 let mut label = self.skin_label.borrow_mut();
                 label.set_value(self.skin_tone.name());

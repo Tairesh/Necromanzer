@@ -38,7 +38,7 @@ impl Terrain {
                 format!(
                     "This is the grave of {}. {} died in {} at the age of {}.",
                     data.character.name,
-                    data.character.gender.pronounce(),
+                    data.character.gender.pronounce().0,
                     data.death_year,
                     data.character.age,
                 )

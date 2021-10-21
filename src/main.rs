@@ -5,6 +5,7 @@ mod assets;
 mod avatar;
 mod colors;
 mod direction;
+mod enums;
 mod geometry;
 mod human;
 mod input;
@@ -21,6 +22,7 @@ extern crate num_enum;
 extern crate rand;
 extern crate serde;
 extern crate tetra;
+extern crate variant_count;
 
 use assets::Assets;
 use scenes::main_menu::MainMenu;

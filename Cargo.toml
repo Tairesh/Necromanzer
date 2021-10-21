@@ -19,6 +19,7 @@ rand = "0.8"
 chrono = "0.4"
 itertools = "0.10"
 num_enum = "0.5"
+variant_count = "1.1"
 
 [build-dependencies]
 winres = "0.1"

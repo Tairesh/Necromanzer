@@ -1,5 +1,5 @@
 use assets::Assets;
-use human::character::random_character;
+use human::character::Character;
 use map::item::{Item, ItemType};
 use map::pos::ChunkPos;
 use map::terrains::{GraveData, GraveVariant, Terrain};
@@ -83,7 +83,7 @@ impl Chunk {
                         GraveVariant::New
                     },
                     GraveData {
-                        character: random_character(&mut rng, &assets.borrow().names),
+                        character: Character::random(&mut rng, &assets.borrow().names),
                         death_year,
                     },
                 );
