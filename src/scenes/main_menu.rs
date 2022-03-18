@@ -1,5 +1,4 @@
 use assets::Assets;
-use chrono::{Datelike, Local};
 use colors::Colors;
 use savefile::savefiles;
 use scenes::create_world::CreateWorld;
@@ -16,6 +15,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
 use tetra::Context;
+use time::{Month, OffsetDateTime};
 use VERSION;
 
 pub struct MainMenu {
@@ -27,9 +27,9 @@ pub struct MainMenu {
 
 impl MainMenu {
     pub fn new(assets: Rc<RefCell<Assets>>, settings: Rc<RefCell<Settings>>) -> Self {
-        let date = Local::now();
+        let date = OffsetDateTime::now_utc().to_offset(settings.borrow().offset.unwrap());
         let bg = Rc::new(RefCell::new(Image::new(
-            if date.day() >= 19 && date.day() <= 31 && date.month() == 10 {
+            if date.day() >= 19 && date.day() <= 31 && date.month() == Month::October {
                 assets.borrow().images.halloween.clone()
             } else {
                 assets.borrow().images.bg.clone()

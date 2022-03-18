@@ -1,5 +1,4 @@
 use assets::Assets;
-use chrono::{DateTime, Local};
 use colors::Colors;
 use savefile::{delete, savefiles, SaveFile};
 use scenes::create_character::CreateCharacter;
@@ -19,8 +18,13 @@ use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{Color, Rectangle};
 use tetra::input::{Key, MouseButton};
 use tetra::{input, Context};
+use time::format_description::FormatItem;
+use time::OffsetDateTime;
 use world::World;
 use {Vec2, CARGO_VERSION};
+
+const DATETIME_FORMAT: &[FormatItem] =
+    time::macros::format_description!("[year].[month].[day] [hour]:[minute]:[second]");
 
 pub struct LoadWorld {
     assets: Rc<RefCell<Assets>>,
@@ -86,9 +90,10 @@ impl LoadWorld {
                     y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
             ))));
-            let time: DateTime<Local> = savefile.time.into();
+            let time =
+                OffsetDateTime::from(savefile.time).to_offset(settings.borrow().offset.unwrap());
             sprites.push(Rc::new(RefCell::new(Label::new(
-                time.format("%Y.%m.%d %H:%M:%S").to_string().as_str(),
+                time.format(&DATETIME_FORMAT).unwrap(),
                 assets.borrow().fonts.default.clone(),
                 Colors::LIGHT_YELLOW,
                 Position {

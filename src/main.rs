@@ -16,12 +16,12 @@ mod settings;
 mod sprites;
 mod world;
 
-extern crate chrono;
 extern crate itertools;
 extern crate num_enum;
 extern crate rand;
 extern crate serde;
 extern crate tetra;
+extern crate time;
 extern crate variant_count;
 
 use assets::Assets;
@@ -37,6 +37,7 @@ use tetra::ContextBuilder;
 const TITLE: &str = "Necromanzer";
 const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
 const BUILD_VERSION: &str = "dirty";
+// TODO: use env!() like in spaceage
 lazy_static::lazy_static! {
     static ref VERSION: String = if BUILD_VERSION == "stable" {
         format!("v{}", CARGO_VERSION)

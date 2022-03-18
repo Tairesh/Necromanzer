@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use time::UtcOffset;
 
 const PATH: &str = "settings.json";
 
@@ -18,6 +19,8 @@ pub struct Settings {
     pub show_fps: bool,
     pub music_enabled: bool,
     pub music_volume: u8,
+    #[serde(skip)]
+    pub offset: Option<UtcOffset>,
 }
 
 impl Settings {
@@ -29,6 +32,7 @@ impl Settings {
             show_fps: false,
             music_enabled: true,
             music_volume: 64,
+            offset: None,
         }
     }
 
@@ -44,6 +48,10 @@ impl Settings {
             settings = Settings::default();
             serde_json::to_writer(&File::create(path).unwrap(), &settings).unwrap();
         }
+
+        // TODO: move this out of Settings
+        let offset = UtcOffset::current_local_offset().unwrap();
+        settings.offset = Some(offset);
 
         Ok(settings)
     }
