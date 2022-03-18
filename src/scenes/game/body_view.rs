@@ -30,8 +30,8 @@ impl BodyView {
         sprites.push(Rc::new(RefCell::new(Alert::new(
             600.0,
             400.0,
-            assets.alert.clone(),
-            assets.alert_nineslice.clone(),
+            assets.alert_asset.texture.clone(),
+            assets.alert_asset.nineslice.clone(),
             Position::center(),
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
@@ -39,7 +39,7 @@ impl BodyView {
                 "{} ({}, {})",
                 &character.name, &character.gender, &character.age
             ),
-            assets.header2.clone(),
+            assets.fonts.header2.clone(),
             Colors::LIGHT_YELLOW,
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -280.0 },
@@ -62,7 +62,7 @@ impl BodyView {
             };
             sprites.push(Rc::new(RefCell::new(Label::new(
                 key,
-                assets.default.clone(),
+                assets.fonts.default.clone(),
                 Colors::LIGHT_GREEN,
                 Position {
                     x,
@@ -72,7 +72,7 @@ impl BodyView {
             if let Some(body_part) = part.item_type.body_part() {
                 sprites.push(Rc::new(RefCell::new(Label::new(
                     part.item_type.name(),
-                    assets.default2.clone(),
+                    assets.fonts.default2.clone(),
                     body_part.skin_tone.into(),
                     Position {
                         x,

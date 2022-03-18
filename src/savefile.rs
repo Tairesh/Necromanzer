@@ -31,10 +31,10 @@ impl SaveFile {
     pub fn new(name: &str, seed: &str) -> Self {
         let name = name
             .trim()
-            .replace("\n", "")
-            .replace("/", "")
-            .replace("\\", "");
-        let file_name = name.replace(" ", "_");
+            .replace('\n', "")
+            .replace('/', "")
+            .replace('\\', "");
+        let file_name = name.replace(' ', "_");
         let path: PathBuf = ["save", (file_name + ".save").as_str()].iter().collect();
         let mut hasher = DefaultHasher::new();
         seed.hash(&mut hasher);

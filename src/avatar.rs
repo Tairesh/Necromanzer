@@ -1,12 +1,12 @@
 use action::Action;
-use assets::TilesetRegions;
+use assets::Tileset;
 use direction::TwoDimDirection;
 use human::body::{Body, Freshness};
 use human::character::Character;
 use human::gender::Gender;
 use map::item::{Item, ItemType};
 use map::pos::TilePos;
-use tetra::graphics::{DrawParams, Rectangle, Texture};
+use tetra::graphics::{DrawParams, Rectangle};
 use tetra::Context;
 use Vec2;
 
@@ -35,8 +35,7 @@ impl Avatar {
     pub fn draw(
         &self,
         ctx: &mut Context,
-        tileset: &Texture,
-        regions: &TilesetRegions,
+        tileset: &Tileset,
         mut position: Vec2,
         zoom: f32,
         rotate: bool,
@@ -53,7 +52,7 @@ impl Avatar {
         } else {
             (self.character.gender.clone(), self.character.skin_tone)
         };
-        tileset.draw_region(
+        tileset.texture.draw_region(
             ctx,
             match gender {
                 Gender::Female => Rectangle::new(0.0, 0.0, 10.0, 10.0),
@@ -71,9 +70,9 @@ impl Avatar {
             } else {
                 Vec2::new(-15.0 * zoom, 10.0 * zoom)
             };
-            tileset.draw_region(
+            tileset.texture.draw_region(
                 ctx,
-                item.item_type.region(regions),
+                item.item_type.region(tileset),
                 DrawParams::new()
                     .position(position + offset)
                     .scale(scale * -1.0),

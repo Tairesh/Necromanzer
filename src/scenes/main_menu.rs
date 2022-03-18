@@ -30,19 +30,19 @@ impl MainMenu {
         let date = Local::now();
         let bg = Rc::new(RefCell::new(Image::new(
             if date.day() >= 19 && date.day() <= 31 && date.month() == 10 {
-                assets.borrow().halloween.clone()
+                assets.borrow().images.halloween.clone()
             } else {
-                assets.borrow().bg.clone()
+                assets.borrow().images.bg.clone()
             },
             Position::center(),
         )));
         let logo = Rc::new(RefCell::new(Image::new(
-            assets.borrow().logo.clone(),
+            assets.borrow().images.logo.clone(),
             Position::horizontal_center(0.0, 50.0, AnchorY::Top),
         )));
         let version = Rc::new(RefCell::new(Label::new(
             &*VERSION,
-            assets.borrow().default.clone(),
+            assets.borrow().fonts.default.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, 69.69, AnchorY::Top),
         )));

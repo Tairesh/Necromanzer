@@ -26,8 +26,8 @@ impl Menu {
         let alert = Rc::new(RefCell::new(Alert::new(
             200.0,
             190.0,
-            assets.borrow().alert.clone(),
-            assets.borrow().alert_nineslice.clone(),
+            assets.borrow().alert_asset.texture.clone(),
+            assets.borrow().alert_asset.nineslice.clone(),
             Position::center(),
         )));
         let back_btn = Rc::new(RefCell::new(Button::new(

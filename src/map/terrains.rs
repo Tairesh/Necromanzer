@@ -1,4 +1,4 @@
-use assets::TilesetRegions;
+use assets::Tileset;
 use human::character::Character;
 use map::Passage;
 use rand::distributions::{Distribution, Standard};
@@ -47,57 +47,57 @@ impl Terrain {
         }
     }
 
-    pub fn region(&self, regions: &TilesetRegions) -> Rectangle {
+    pub fn region(&self, tileset: &Tileset) -> Rectangle {
         match self {
             Terrain::Dirt(variant) => match variant {
-                DirtVariant::Dirt1 => regions.dirt1,
-                DirtVariant::Dirt2 => regions.dirt2,
-                DirtVariant::Dirt3 => regions.dirt3,
-                DirtVariant::Dirt4 => regions.dirt4,
-                DirtVariant::Dirt5 => regions.dirt5,
+                DirtVariant::Dirt1 => tileset.dirt1,
+                DirtVariant::Dirt2 => tileset.dirt2,
+                DirtVariant::Dirt3 => tileset.dirt3,
+                DirtVariant::Dirt4 => tileset.dirt4,
+                DirtVariant::Dirt5 => tileset.dirt5,
             },
             Terrain::Boulder(variant) => match variant {
-                BoulderVariant::Huge => regions.boulder_huge,
-                BoulderVariant::Middle => regions.boulder_middle,
-                BoulderVariant::Small => regions.boulder_small,
+                BoulderVariant::Huge => tileset.boulder_huge,
+                BoulderVariant::Middle => tileset.boulder_middle,
+                BoulderVariant::Small => tileset.boulder_small,
             },
             Terrain::Grave(variant, _) => match variant {
-                GraveVariant::New => regions.grave_new,
-                GraveVariant::Old => regions.grave_old,
+                GraveVariant::New => tileset.grave_new,
+                GraveVariant::Old => tileset.grave_old,
             },
             Terrain::Grass(variant) => match variant {
-                GrassVariant::Grass1 => regions.grass1,
-                GrassVariant::Grass2 => regions.grass2,
-                GrassVariant::Grass3 => regions.grass3,
-                GrassVariant::Grass4 => regions.grass4,
-                GrassVariant::Grass5 => regions.grass5,
-                GrassVariant::Grass6 => regions.grass6,
-                GrassVariant::Grass7 => regions.grass7,
-                GrassVariant::Grass8 => regions.grass8,
-                GrassVariant::Grass9 => regions.grass9,
-                GrassVariant::Grass10 => regions.grass10,
-                GrassVariant::Grass11 => regions.grass11,
-                GrassVariant::Grass12 => regions.grass12,
-                GrassVariant::Grass13 => regions.grass13,
-                GrassVariant::Grass14 => regions.grass14,
+                GrassVariant::Grass1 => tileset.grass1,
+                GrassVariant::Grass2 => tileset.grass2,
+                GrassVariant::Grass3 => tileset.grass3,
+                GrassVariant::Grass4 => tileset.grass4,
+                GrassVariant::Grass5 => tileset.grass5,
+                GrassVariant::Grass6 => tileset.grass6,
+                GrassVariant::Grass7 => tileset.grass7,
+                GrassVariant::Grass8 => tileset.grass8,
+                GrassVariant::Grass9 => tileset.grass9,
+                GrassVariant::Grass10 => tileset.grass10,
+                GrassVariant::Grass11 => tileset.grass11,
+                GrassVariant::Grass12 => tileset.grass12,
+                GrassVariant::Grass13 => tileset.grass13,
+                GrassVariant::Grass14 => tileset.grass14,
             },
             Terrain::DeadGrass(variant) => match variant {
-                DeadGrassVariant::DeadGrass1 => regions.dead_grass1,
-                DeadGrassVariant::DeadGrass2 => regions.dead_grass2,
-                DeadGrassVariant::DeadGrass3 => regions.dead_grass3,
-                DeadGrassVariant::DeadGrass4 => regions.dead_grass4,
-                DeadGrassVariant::DeadGrass5 => regions.dead_grass5,
-                DeadGrassVariant::DeadGrass6 => regions.dead_grass6,
-                DeadGrassVariant::DeadGrass7 => regions.dead_grass7,
-                DeadGrassVariant::DeadGrass8 => regions.dead_grass8,
-                DeadGrassVariant::DeadGrass9 => regions.dead_grass9,
-                DeadGrassVariant::DeadGrass10 => regions.dead_grass10,
-                DeadGrassVariant::DeadGrass11 => regions.dead_grass11,
-                DeadGrassVariant::DeadGrass12 => regions.dead_grass12,
-                DeadGrassVariant::DeadGrass13 => regions.dead_grass13,
-                DeadGrassVariant::DeadGrass14 => regions.dead_grass14,
+                DeadGrassVariant::DeadGrass1 => tileset.dead_grass1,
+                DeadGrassVariant::DeadGrass2 => tileset.dead_grass2,
+                DeadGrassVariant::DeadGrass3 => tileset.dead_grass3,
+                DeadGrassVariant::DeadGrass4 => tileset.dead_grass4,
+                DeadGrassVariant::DeadGrass5 => tileset.dead_grass5,
+                DeadGrassVariant::DeadGrass6 => tileset.dead_grass6,
+                DeadGrassVariant::DeadGrass7 => tileset.dead_grass7,
+                DeadGrassVariant::DeadGrass8 => tileset.dead_grass8,
+                DeadGrassVariant::DeadGrass9 => tileset.dead_grass9,
+                DeadGrassVariant::DeadGrass10 => tileset.dead_grass10,
+                DeadGrassVariant::DeadGrass11 => tileset.dead_grass11,
+                DeadGrassVariant::DeadGrass12 => tileset.dead_grass12,
+                DeadGrassVariant::DeadGrass13 => tileset.dead_grass13,
+                DeadGrassVariant::DeadGrass14 => tileset.dead_grass14,
             },
-            Terrain::Pit => regions.pit,
+            Terrain::Pit => tileset.pit,
         }
     }
 

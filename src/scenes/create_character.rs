@@ -51,24 +51,24 @@ impl CreateCharacter {
     ) -> Self {
         let mut sprites: Vec<Rc<RefCell<dyn Sprite>>> = Vec::new();
         sprites.push(Rc::new(RefCell::new(Image::new(
-            assets.borrow().bg.clone(),
+            assets.borrow().images.bg.clone(),
             Position::center(),
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
             "Create new character:",
-            assets.borrow().header1.clone(),
+            assets.borrow().fonts.header1.clone(),
             Colors::DARK_GREEN,
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
             format!("New adventurer in the «{}» world", savefile.meta.name).as_str(),
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, 100.0, AnchorY::Top),
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
             "Name:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
@@ -78,7 +78,7 @@ impl CreateCharacter {
         let name_input = Rc::new(RefCell::new(TextInput::new(
             "",
             300.0,
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: AnchorY::Center.to_position(200.0),
@@ -87,7 +87,7 @@ impl CreateCharacter {
         sprites.push(name_input.clone());
         let name_empty = Rc::new(RefCell::new(Label::hidden(
             "Character name shall not be empty!",
-            assets.borrow().default.clone(),
+            assets.borrow().fonts.default.clone(),
             Colors::RED,
             Position {
                 x: Horizontal::AtWindowCenter { offset: 110.0 },
@@ -97,7 +97,7 @@ impl CreateCharacter {
         sprites.push(name_empty.clone());
         sprites.push(Rc::new(RefCell::new(Label::new(
             "Gender:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
@@ -107,7 +107,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "gender_left",
             vec![],
-            assets.borrow().regions.lt,
+            assets.borrow().tileset.lt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -121,7 +121,7 @@ impl CreateCharacter {
                 "Female"
             },
             210.0,
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: AnchorY::Center.to_position(250.0),
@@ -131,7 +131,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "gender_right",
             vec![],
-            assets.borrow().regions.mt,
+            assets.borrow().tileset.mt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -140,7 +140,7 @@ impl CreateCharacter {
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
             "Age:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
@@ -150,7 +150,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "age_minus",
             vec![],
-            assets.borrow().regions.minus,
+            assets.borrow().tileset.minus,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -161,7 +161,7 @@ impl CreateCharacter {
             18,
             (16, 99),
             210.0,
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: AnchorY::Center.to_position(300.0),
@@ -171,7 +171,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "age_plus",
             vec![],
-            assets.borrow().regions.plus,
+            assets.borrow().tileset.plus,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -180,7 +180,7 @@ impl CreateCharacter {
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
             "Main hand:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
@@ -190,7 +190,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "hand_left",
             vec![],
-            assets.borrow().regions.lt,
+            assets.borrow().tileset.lt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -199,7 +199,7 @@ impl CreateCharacter {
         ))));
         let hand_label = Rc::new(RefCell::new(Label::new(
             "Right",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenter { offset: 110.0 },
@@ -210,7 +210,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "hand_right",
             vec![],
-            assets.borrow().regions.mt,
+            assets.borrow().tileset.mt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -219,7 +219,7 @@ impl CreateCharacter {
         ))));
         sprites.push(Rc::new(RefCell::new(Label::new(
             "Skin tone:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
@@ -229,7 +229,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "skin_left",
             vec![],
-            assets.borrow().regions.lt,
+            assets.borrow().tileset.lt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -254,7 +254,7 @@ impl CreateCharacter {
         sprites.push(skin_mesh.clone());
         let skin_label = Rc::new(RefCell::new(Label::new(
             "Warm Ivory",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenter { offset: 110.0 },
@@ -265,7 +265,7 @@ impl CreateCharacter {
         sprites.push(Rc::new(RefCell::new(Button::icon(
             "skin_right",
             vec![],
-            assets.borrow().regions.mt,
+            assets.borrow().tileset.mt,
             assets.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },

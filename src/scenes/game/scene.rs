@@ -102,8 +102,8 @@ impl Game {
             Alert::new(
                 250.0,
                 90.0,
-                assets.borrow().alert.clone(),
-                assets.borrow().alert_nineslice.clone(),
+                assets.borrow().alert_asset.texture.clone(),
+                assets.borrow().alert_asset.nineslice.clone(),
                 Position::by_left_top(0.0, 68.0),
             )
             .with_scale(Vec2::new(4.0, 4.0)),
@@ -111,11 +111,12 @@ impl Game {
         let assets_copy = assets.clone();
         let assets = assets.borrow();
         let hat = Rc::new(RefCell::new(
-            Image::new(assets.hat.clone(), Position::zeroed()).with_scale(Vec2::new(4.0, 4.0)),
+            Image::new(assets.images.hat.clone(), Position::zeroed())
+                .with_scale(Vec2::new(4.0, 4.0)),
         ));
         let name_label = Rc::new(RefCell::new(Label::new(
             world.avatar.character.name.as_str(),
-            assets.header2.clone(),
+            assets.fonts.header2.clone(),
             Colors::LIGHT_YELLOW,
             Position::new(174.0, 55.0, AnchorX::Center, AnchorY::Top),
         )));
@@ -125,22 +126,21 @@ impl Game {
             } else {
                 "Right hand:\nLeft hand:"
             },
-            assets.default.clone(),
+            assets.fonts.default.clone(),
             Colors::LIGHT_YELLOW,
             Position::by_left_top(30.0, 98.0),
         )));
         let item_display = Rc::new(RefCell::new(ItemDisplay::new(
             world.avatar.wield.get(0),
-            assets.default.clone(),
+            assets.fonts.default.clone(),
             Colors::LIGHT_YELLOW,
-            assets.tileset.clone(),
-            &assets.regions,
+            &assets.tileset,
             Vec2::new(2.0, 2.0),
             Position::by_right_top(220.0, 98.0),
         )));
         let current_time = Rc::new(RefCell::new(Label::new(
             format!("{}", world.meta.current_tick),
-            assets.default2.clone(),
+            assets.fonts.default2.clone(),
             Colors::LIGHT_YELLOW,
             Position::by_right_top(window::get_width(ctx) as f32 - 10.0, 0.0),
         )));
@@ -182,7 +182,7 @@ impl Game {
         }
         self.log.push_front(LogMessage::new(
             text,
-            self.assets.borrow().default.clone(),
+            self.assets.borrow().fonts.default.clone(),
             Colors::LIGHT_YELLOW,
         ));
     }
@@ -390,7 +390,7 @@ impl Game {
         if self.action_text.is_none() {
             let text = Text::new(
                 self.world.borrow().avatar.action.unwrap().action.verb(),
-                self.assets.borrow().default.clone(),
+                self.assets.borrow().fonts.default.clone(),
             );
             self.action_text = Some(text);
         }
@@ -441,7 +441,7 @@ impl Scene for Game {
             self.item_display.borrow_mut().set_item(
                 self.world.borrow_mut().avatar.wield.first(),
                 ctx,
-                &self.assets.borrow().regions,
+                &self.assets.borrow().tileset,
             );
             self.current_time
                 .borrow_mut()
@@ -480,36 +480,36 @@ impl Scene for Game {
             {
                 let dx = pos.x - center_tile.x;
                 let dy = pos.y - center_tile.y;
-                let region = tile.terrain.region(&assets.regions);
+                let region = tile.terrain.region(&assets.tileset);
                 let params = DrawParams::new()
                     .position(Vec2::new(
                         center.x + dx as f32 * Assets::TILE_SIZE as f32 * zoom,
                         center.y + dy as f32 * Assets::TILE_SIZE as f32 * zoom,
                     ))
                     .scale(scale);
-                assets.tileset.draw_region(ctx, region, params.clone());
+                assets
+                    .tileset
+                    .texture
+                    .draw_region(ctx, region, params.clone());
                 if let Some(item) = tile.top_item() {
-                    assets.tileset.draw_region(
+                    assets.tileset.texture.draw_region(
                         ctx,
-                        item.item_type.region(&assets.regions),
+                        item.item_type.region(&assets.tileset),
                         params.clone(),
                     );
                     if tile.items.len() > 1 {
                         assets
                             .tileset
-                            .draw_region(ctx, assets.regions.highlight, params);
+                            .texture
+                            .draw_region(ctx, assets.tileset.highlight, params);
                     }
                 }
             }
         }
-        self.world.borrow().avatar.draw(
-            ctx,
-            &self.assets.borrow().tileset,
-            &self.assets.borrow().regions,
-            center,
-            zoom,
-            true,
-        );
+        self.world
+            .borrow()
+            .avatar
+            .draw(ctx, &self.assets.borrow().tileset, center, zoom, true);
         if self.world.borrow().avatar.action.is_some() {
             self.draw_action_loader(ctx, center);
         } else {
@@ -546,7 +546,6 @@ impl Scene for Game {
         self.world.borrow().avatar.draw(
             ctx,
             &self.assets.borrow().tileset,
-            &self.assets.borrow().regions,
             Vec2::new(20.0, 20.0),
             6.0,
             false,

@@ -41,8 +41,8 @@ impl LoadWorld {
         sprites.push(Rc::new(RefCell::new(Alert::new(
             600.0,
             height,
-            assets.borrow().alert.clone(),
-            assets.borrow().alert_nineslice.clone(),
+            assets.borrow().alert_asset.texture.clone(),
+            assets.borrow().alert_asset.nineslice.clone(),
             Position {
                 x: Horizontal::AtWindowCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },
@@ -66,7 +66,7 @@ impl LoadWorld {
             ))));
             sprites.push(Rc::new(RefCell::new(Label::new(
                 savefile.meta.name.as_str(),
-                assets.borrow().header2.clone(),
+                assets.borrow().fonts.header2.clone(),
                 Colors::LIGHT_YELLOW,
                 Position {
                     x: Horizontal::AtWindowCenterByLeft { offset: -280.0 },
@@ -75,7 +75,7 @@ impl LoadWorld {
             ))));
             sprites.push(Rc::new(RefCell::new(Label::new(
                 savefile.version.as_str(),
-                assets.borrow().default.clone(),
+                assets.borrow().fonts.default.clone(),
                 if savefile.version.as_str() == CARGO_VERSION {
                     Colors::GREEN
                 } else {
@@ -89,7 +89,7 @@ impl LoadWorld {
             let time: DateTime<Local> = savefile.time.into();
             sprites.push(Rc::new(RefCell::new(Label::new(
                 time.format("%Y.%m.%d %H:%M:%S").to_string().as_str(),
-                assets.borrow().default.clone(),
+                assets.borrow().fonts.default.clone(),
                 Colors::LIGHT_YELLOW,
                 Position {
                     x: Horizontal::AtWindowCenterByLeft { offset: -220.0 },

@@ -62,7 +62,7 @@ impl Button {
         assets: Rc<RefCell<Assets>>,
         position: Position,
     ) -> Self {
-        let content = ButtonContent::Text(Text::new(text, assets.borrow().default.clone()));
+        let content = ButtonContent::Text(Text::new(text, assets.borrow().fonts.default.clone()));
         Self::create(id, keys, content, 20.0, assets, position)
     }
 
@@ -135,15 +135,15 @@ impl Draw for Button {
         let assets = self.assets.borrow();
 
         let config = if self.is_disabled {
-            &assets.button_disabled
+            &assets.button_asset.disabled
         } else if self.is_pressed {
-            &assets.button_pressed
+            &assets.button_asset.pressed
         } else if self.is_hovered {
-            &assets.button_hovered
+            &assets.button_asset.hovered
         } else {
-            &assets.button_default
+            &assets.button_asset.default
         };
-        assets.button.draw_nine_slice(
+        assets.button_asset.texture.draw_nine_slice(
             ctx,
             config,
             (content_size.x + offset_x) / 3.0,
@@ -166,7 +166,7 @@ impl Draw for Button {
                 );
             }
             ButtonContent::Icon { region, scale } => {
-                assets.tileset.draw_region(
+                assets.tileset.texture.draw_region(
                     ctx,
                     *region,
                     DrawParams::new().position(vec).scale(*scale),

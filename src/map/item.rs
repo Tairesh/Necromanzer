@@ -1,4 +1,4 @@
-use assets::TilesetRegions;
+use assets::Tileset;
 use avatar::Avatar;
 use human::body::{Body, BodyPart};
 use human::character::Character;
@@ -35,13 +35,13 @@ pub enum ItemType {
 }
 
 impl ItemType {
-    pub fn region(&self, regions: &TilesetRegions) -> Rectangle {
+    pub fn region(&self, tileset: &Tileset) -> Rectangle {
         match self {
-            ItemType::Shovel => regions.shovel,
-            ItemType::Knife => regions.knife,
-            ItemType::Axe => regions.axe,
-            ItemType::Corpse(_, _) => regions.corpse,
-            ItemType::GraveStone(_) => regions.grave_stone,
+            ItemType::Shovel => tileset.shovel,
+            ItemType::Knife => tileset.knife,
+            ItemType::Axe => tileset.axe,
+            ItemType::Corpse(_, _) => tileset.corpse,
+            ItemType::GraveStone(_) => tileset.grave_stone,
             ItemType::HumanHead(_)
             | ItemType::HumanEye(_)
             | ItemType::HumanNose(_)
@@ -59,7 +59,7 @@ impl ItemType {
             | ItemType::HumanLeftLeg(_)
             | ItemType::HumanRightLeg(_)
             | ItemType::HumanLeftFoot(_)
-            | ItemType::HumanRightFoot(_) => regions.flesh,
+            | ItemType::HumanRightFoot(_) => tileset.flesh,
         }
     }
 

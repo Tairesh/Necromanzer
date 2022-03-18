@@ -24,12 +24,12 @@ impl SettingsScene {
         ctx: &mut Context,
     ) -> Self {
         let bg = Rc::new(RefCell::new(Image::new(
-            assets.borrow().bg.clone(),
+            assets.borrow().images.bg.clone(),
             Position::center(),
         )));
         let title = Rc::new(RefCell::new(Label::new(
             "Settings",
-            assets.borrow().header1.clone(),
+            assets.borrow().fonts.header1.clone(),
             Colors::DARK_GREEN,
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
         )));
@@ -58,7 +58,7 @@ impl SettingsScene {
         let window_size = window_btn.borrow_mut().calc_size(ctx);
         let window_mode = Rc::new(RefCell::new(Label::new(
             "Window mode:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight {

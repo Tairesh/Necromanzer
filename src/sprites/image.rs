@@ -120,12 +120,12 @@ impl Bar {
         let max_width = 50.0;
         Self {
             image: Image::new(
-                assets.borrow().bars.clone(),
+                assets.borrow().bars_asset.bars.clone(),
                 Position::new(100.0, 8.0, AnchorX::Left, AnchorY::Top),
             )
             .with_scale(Vec2::new(4.0, 4.0))
             .with_nineslice(
-                assets.borrow().bar_red.clone(),
+                assets.borrow().bars_asset.bar_red.clone(),
                 (value as f32 / max_value as f32) * (max_width - min_width) + min_width,
                 3.0,
             ),
@@ -141,12 +141,12 @@ impl Bar {
         let max_width = 43.0;
         Self {
             image: Image::new(
-                assets.borrow().bars.clone(),
+                assets.borrow().bars_asset.bars.clone(),
                 Position::new(100.0, 32.0, AnchorX::Left, AnchorY::Top),
             )
             .with_scale(Vec2::new(4.0, 4.0))
             .with_nineslice(
-                assets.borrow().bar_blue.clone(),
+                assets.borrow().bars_asset.bar_blue.clone(),
                 (value as f32 / max_value as f32) * (max_width - min_width) + min_width,
                 3.0,
             ),

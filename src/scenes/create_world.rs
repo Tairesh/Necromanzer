@@ -28,18 +28,18 @@ pub struct CreateWorld {
 impl CreateWorld {
     pub fn new(assets: Rc<RefCell<Assets>>, ctx: &mut Context) -> Self {
         let bg = Rc::new(RefCell::new(Image::new(
-            assets.borrow().bg.clone(),
+            assets.borrow().images.bg.clone(),
             Position::center(),
         )));
         let title = Rc::new(RefCell::new(Label::new(
             "Create new world:",
-            assets.borrow().header1.clone(),
+            assets.borrow().fonts.header1.clone(),
             Colors::DARK_GREEN,
             Position::horizontal_center(0.0, 20.0, AnchorY::Top),
         )));
         let name_label = Rc::new(RefCell::new(Label::new(
             "World name:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
@@ -54,7 +54,7 @@ impl CreateWorld {
                 .choose(&mut rand::thread_rng())
                 .unwrap(),
             250.0,
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(200.0),
@@ -62,7 +62,7 @@ impl CreateWorld {
         )));
         let name_error = Rc::new(RefCell::new(Label::hidden(
             "Savefile with this name already exists",
-            assets.borrow().default.clone(),
+            assets.borrow().fonts.default.clone(),
             Colors::DARK_RED,
             Position {
                 x: Horizontal::AtWindowCenter { offset: 125.0 },
@@ -71,7 +71,7 @@ impl CreateWorld {
         )));
         let name_empty = Rc::new(RefCell::new(Label::hidden(
             "World name shall not be empty!",
-            assets.borrow().default.clone(),
+            assets.borrow().fonts.default.clone(),
             Colors::DARK_RED,
             Position {
                 x: Horizontal::AtWindowCenter { offset: 125.0 },
@@ -80,7 +80,7 @@ impl CreateWorld {
         )));
         let seed_label = Rc::new(RefCell::new(Label::new(
             "World seed:",
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
@@ -90,7 +90,7 @@ impl CreateWorld {
         let seed_input = Rc::new(RefCell::new(TextInput::new(
             random_seed().as_str(),
             250.0,
-            assets.borrow().header2.clone(),
+            assets.borrow().fonts.header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
                 y: AnchorY::Center.to_position(270.0),
@@ -98,7 +98,7 @@ impl CreateWorld {
         )));
         let seed_error = Rc::new(RefCell::new(Label::hidden(
             "Seed shall not be empty!",
-            assets.borrow().default.clone(),
+            assets.borrow().fonts.default.clone(),
             Colors::DARK_RED,
             Position {
                 x: Horizontal::AtWindowCenter { offset: 125.0 },
