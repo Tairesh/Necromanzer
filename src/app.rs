@@ -1,14 +1,21 @@
+use assets::Assets;
 use settings::game::GameSettings;
+use std::rc::Rc;
 use tetra::input::Key;
 use tetra::{Context, Event, State, TetraError};
 
 pub struct App {
+    #[allow(dead_code)]
+    assets: Rc<Assets>,
     settings: GameSettings,
 }
 
 impl App {
     pub fn new(ctx: &mut Context, settings: GameSettings) -> tetra::Result<Self> {
-        let mut app = Self { settings };
+        let mut app = Self {
+            settings,
+            assets: Rc::new(Assets::load(ctx)?),
+        };
         app.on_open(ctx);
         Ok(app)
     }

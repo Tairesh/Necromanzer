@@ -4,6 +4,7 @@ extern crate serde_json;
 extern crate tetra;
 
 mod app;
+mod assets;
 mod settings;
 mod window;
 
