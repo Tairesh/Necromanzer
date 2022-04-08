@@ -1,11 +1,19 @@
 #![windows_subsystem = "windows"]
 
+extern crate num_enum;
+extern crate rand;
+extern crate serde;
 extern crate serde_json;
 extern crate tetra;
 
 mod app;
 mod assets;
+mod colors;
+mod geometry;
+mod input;
+mod scenes;
 mod settings;
+mod sprites;
 mod window;
 
 const NAME: &str = "NecromanZer";
