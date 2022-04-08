@@ -1,8 +1,12 @@
 use assets::Assets;
+use colors::Colors;
 use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::Transition;
 use settings::game::GameSettings;
+use sprites::label::Label;
+use sprites::position::Position;
+use sprites::sprite::{Draw, Stringify};
 use tetra::input::Key;
 use tetra::{window, Context, Event, State};
 
@@ -10,17 +14,25 @@ pub struct App {
     pub assets: Assets,
     pub settings: GameSettings,
     scenes: Vec<Box<dyn Scene>>,
+    fps_counter: Label,
 }
 
 impl App {
     pub fn new(ctx: &mut Context, settings: GameSettings) -> tetra::Result<Self> {
+        let assets = Assets::load(ctx)?;
+        let fps_counter = Label::new(
+            "00",
+            assets.fonts.default.clone(),
+            Colors::BLACK,
+            Position::by_right_top(-10.0, 10.0),
+        );
         let mut app = Self {
             settings,
-            assets: Assets::load(ctx)?,
+            assets,
             scenes: vec![],
+            fps_counter,
         };
-        app.scenes.push(GameScene::MainMenu.to_impl(&app, ctx));
-        app.on_open(ctx);
+        app.push_scene(ctx, GameScene::MainMenu);
         Ok(app)
     }
 
@@ -127,7 +139,13 @@ impl State for App {
             scene.after_draw(ctx);
         }
         if self.settings.show_fps {
-            // TODO: draw fps sprite
+            if self.settings.show_fps {
+                let fps = (tetra::time::get_fps(ctx).round() as u8).to_string();
+                if !self.fps_counter.value().eq(&fps) {
+                    self.fps_counter.update(fps, ctx, window::get_size(ctx));
+                }
+            }
+            self.fps_counter.draw(ctx);
         }
         Ok(())
     }
