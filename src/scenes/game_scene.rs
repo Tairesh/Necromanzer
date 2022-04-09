@@ -18,7 +18,7 @@ pub enum GameScene {
 impl GameScene {
     pub fn to_impl(&self, app: &App, ctx: &mut Context) -> Box<dyn Scene> {
         match self {
-            GameScene::MainMenu => Box::new(MainMenu::new(ctx, &app.assets)),
+            GameScene::MainMenu => Box::new(MainMenu::new(ctx, &app.assets, &app.settings)),
         }
     }
 }

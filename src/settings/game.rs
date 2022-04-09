@@ -1,3 +1,4 @@
+use settings::time::TimeSettings;
 use settings::window::WindowSettings;
 use std::fs::File;
 use std::io::BufReader;
@@ -8,6 +9,8 @@ const PATH: &str = "./settings.json";
 #[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
 pub struct GameSettings {
     pub window_settings: WindowSettings,
+    #[serde(skip)]
+    pub time_settings: TimeSettings,
     pub show_fps: bool,
 }
 

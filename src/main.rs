@@ -5,6 +5,7 @@ extern crate rand;
 extern crate serde;
 extern crate serde_json;
 extern crate tetra;
+extern crate time;
 
 mod app;
 mod assets;

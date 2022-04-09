@@ -1,6 +1,7 @@
 use assets::Assets;
 use scenes::bg;
 use scenes::scene::Scene;
+use settings::game::GameSettings;
 use sprites::image::Image;
 use sprites::position::{Position, Vertical};
 use sprites::sprite::Sprite;
@@ -13,8 +14,8 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(_ctx: &mut Context, assets: &Assets) -> Self {
-        let bg = bg(assets);
+    pub fn new(_ctx: &mut Context, assets: &Assets, settings: &GameSettings) -> Self {
+        let bg = bg(assets, settings);
         let logo = Rc::new(RefCell::new(Image::new(
             assets.images.logo.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByBottom { offset: -100.0 }),
