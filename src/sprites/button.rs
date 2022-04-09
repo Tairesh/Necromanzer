@@ -120,6 +120,14 @@ impl Button {
         self
     }
 
+    pub fn custom_event(&self) -> Option<&String> {
+        if let Transition::CustomEvent(s) = &self.on_click {
+            Some(s)
+        } else {
+            None
+        }
+    }
+
     fn content_size(&mut self, ctx: &mut Context) -> Vec2 {
         match &mut self.content {
             ButtonContent::Text(text, height) => text

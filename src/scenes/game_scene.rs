@@ -8,7 +8,7 @@ pub enum GameScene {
     MainMenu,
     #[allow(dead_code)]
     Empty,
-    // Settings,
+    Settings,
     // CreateWorld,
     // LoadWorld,
     // CreateCharacter(SaveFile),
@@ -22,6 +22,9 @@ impl GameScene {
                 Box::new(implements::MainMenu::new(ctx, &app.assets, &app.settings))
             }
             GameScene::Empty => Box::new(implements::Empty {}),
+            GameScene::Settings => {
+                Box::new(implements::Settings::new(ctx, &app.assets, &app.settings))
+            }
         }
     }
 }

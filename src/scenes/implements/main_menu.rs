@@ -9,7 +9,7 @@ use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
 use sprites::position::{Position, Vertical};
-use sprites::sprite::Sprite;
+use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
@@ -17,7 +17,7 @@ use tetra::Context;
 use VERSION;
 
 pub struct MainMenu {
-    sprites: Vec<Rc<RefCell<dyn Sprite>>>,
+    sprites: BunchOfSprites,
     select_btn: Rc<RefCell<Button>>,
 }
 
@@ -59,7 +59,7 @@ impl MainMenu {
             assets.fonts.default.clone(),
             assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 100.0 }),
-            Transition::Push(GameScene::Empty),
+            Transition::Push(GameScene::Settings),
         )));
         let exit_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::X, None)],
@@ -86,7 +86,7 @@ impl MainMenu {
 }
 
 impl Scene for MainMenu {
-    fn sprites(&mut self) -> Option<&Vec<Rc<RefCell<dyn Sprite>>>> {
+    fn sprites(&self) -> SomeSprites {
         Some(&self.sprites)
     }
 }

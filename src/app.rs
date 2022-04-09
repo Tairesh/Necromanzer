@@ -3,12 +3,13 @@ use colors::Colors;
 use scenes;
 use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
-use scenes::transition::Transition;
+use scenes::transition::{SettingsChange, SomeTransitions, Transition};
 use settings::game::GameSettings;
 use sprites::label::Label;
 use sprites::position::Position;
 use sprites::sprite::{Draw, Positionate, Stringify};
 use tetra::input::Key;
+use tetra::window::WindowPosition;
 use tetra::{window, Context, Event, State};
 
 pub struct App {
@@ -72,9 +73,11 @@ impl App {
         self.on_open(ctx);
     }
 
-    fn exec_transitions(&mut self, ctx: &mut Context, transitions: Vec<Transition>) {
-        for transition in transitions {
-            self.transit(ctx, transition);
+    fn exec_transitions(&mut self, ctx: &mut Context, transitions: SomeTransitions) {
+        if let Some(transitions) = transitions {
+            for transition in transitions {
+                self.transit(ctx, transition);
+            }
         }
     }
 
@@ -85,12 +88,38 @@ impl App {
             Transition::Replace(s) => self.replace_scene(ctx, s),
             Transition::CustomEvent(event) => {
                 if let Some(scene) = self.current_scene() {
-                    for t in scene.custom_event(ctx, event.as_str()) {
-                        self.transit(ctx, t);
-                    }
+                    let transitions = scene.custom_event(ctx, event.as_str());
+                    self.exec_transitions(ctx, transitions);
                 }
             }
             Transition::Quit => window::quit(ctx),
+            Transition::ChangeSettings(s) => match s {
+                SettingsChange::FullscreenMode => {
+                    if !window::is_fullscreen(ctx) {
+                        self.settings.window_settings.fullscreen = true;
+                        window::set_fullscreen(ctx, true).ok();
+                    }
+                }
+                SettingsChange::WindowMode => {
+                    if window::is_fullscreen(ctx) {
+                        self.settings.window_settings.fullscreen = false;
+                        window::set_fullscreen(ctx, false).ok();
+                        window::set_decorated(ctx, true);
+                        window::set_size(
+                            ctx,
+                            self.settings.window_settings.width as i32,
+                            self.settings.window_settings.height as i32,
+                        )
+                        .ok();
+                        let current_monitor = window::get_current_monitor(ctx).unwrap_or(0);
+                        window::set_position(
+                            ctx,
+                            WindowPosition::Centered(current_monitor),
+                            WindowPosition::Centered(current_monitor),
+                        );
+                    }
+                }
+            },
         }
     }
 }
@@ -99,8 +128,12 @@ impl State for App {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         // TODO: find a way to optimize this shit
         if let Some(scene) = self.current_scene() {
-            let mut transitions = scene.update(ctx);
-            let focused = scenes::scene::is_there_focused_sprite(scene);
+            let mut transitions = if let Some(t) = scene.update(ctx) {
+                t
+            } else {
+                vec![]
+            };
+            let focused = scene.is_there_focused_sprite();
             if let Some(sprites) = scene.sprites() {
                 // creating same big useless vec of Rects EVERY frame
                 let mut blocked = Vec::with_capacity(sprites.len());
@@ -114,7 +147,7 @@ impl State for App {
                     }
                 }
             }
-            self.exec_transitions(ctx, transitions);
+            self.exec_transitions(ctx, Some(transitions));
         } else {
             self.transit(ctx, Transition::Quit);
         }

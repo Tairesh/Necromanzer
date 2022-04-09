@@ -5,7 +5,7 @@ pub mod scene;
 pub mod transition;
 
 use assets::Assets;
-use scenes::transition::Transition;
+use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
 use sprites::image::Image;
 use sprites::position::Position;
@@ -15,9 +15,9 @@ use tetra::input::{Key, MouseButton};
 use tetra::Event;
 use time::{Month, OffsetDateTime};
 
-pub(crate) fn easy_back(event: Event, focused: bool) -> Vec<Transition> {
+pub(crate) fn easy_back(event: Event, focused: bool) -> SomeTransitions {
     if focused {
-        return vec![];
+        return None;
     }
     match event {
         Event::MouseButtonPressed {
@@ -25,8 +25,8 @@ pub(crate) fn easy_back(event: Event, focused: bool) -> Vec<Transition> {
         }
         | Event::KeyPressed {
             key: Key::Escape | Key::Backspace,
-        } => vec![Transition::Pop],
-        _ => vec![],
+        } => Some(vec![Transition::Pop]),
+        _ => None,
     }
 }
 
