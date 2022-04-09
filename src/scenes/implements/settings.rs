@@ -1,9 +1,8 @@
-use assets::Assets;
+use app::App;
 use colors::Colors;
 use scenes::scene::Scene;
 use scenes::transition::{SettingsChange, SomeTransitions, Transition};
 use scenes::{bg, easy_back};
-use settings::game::GameSettings;
 use sprites::button::Button;
 use sprites::label::Label;
 use sprites::position::{Horizontal, Position, Vertical};
@@ -24,7 +23,9 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn new(ctx: &mut Context, assets: &Assets, settings: &GameSettings) -> Self {
+    pub fn new(app: &App, ctx: &mut Context) -> Self {
+        let assets = &app.assets;
+        let settings = &app.settings;
         let bg = bg(assets, settings);
         let title = Rc::new(RefCell::new(Label::new(
             "Settings",
@@ -67,7 +68,7 @@ impl Settings {
                 x: Horizontal::AtWindowCenterByRight {
                     offset: 90.0 - window_btn_size.x,
                 },
-                y: Vertical::ByCenter { y: 150.0 },
+                y: Vertical::ByCenter { y: 145.0 },
             },
         )));
         let back_btn = Rc::new(RefCell::new(Button::text(

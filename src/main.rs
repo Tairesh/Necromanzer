@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+extern crate core;
 extern crate num_enum;
 extern crate rand;
 extern crate serde;
@@ -12,6 +13,7 @@ mod assets;
 mod colors;
 mod geometry;
 mod input;
+mod savefile;
 mod scenes;
 mod settings;
 mod sprites;

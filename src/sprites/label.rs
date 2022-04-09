@@ -23,7 +23,7 @@ impl Label {
         color: Color,
         position: Position,
     ) -> Self {
-        Label {
+        Self {
             text: Text::new(text, font.font),
             color,
             position,
@@ -39,13 +39,9 @@ impl Label {
         color: Color,
         position: Position,
     ) -> Self {
-        Label {
-            text: Text::new(text, font.font),
-            color,
-            position,
-            rect: None,
+        Self {
             visible: false,
-            line_height: font.line_height,
+            ..Self::new(text, font, color, position)
         }
     }
 

@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct Names {
     pub male_names: Vec<&'static str>,
     pub female_names: Vec<&'static str>,

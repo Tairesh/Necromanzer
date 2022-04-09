@@ -83,23 +83,25 @@ impl TextInput {
 
     fn border_color(&self) -> Color {
         if self.is_danger {
-            Colors::RED
+            Colors::DARK_RED
         } else if self.is_disabled {
-            Colors::GRAY
+            Colors::DARK_GRAY
         } else if self.is_focused {
-            Colors::ORANGE_RED
+            Colors::DARK_GREEN
         } else {
-            Colors::DARK_ORANGE_RED
+            Colors::DARK_BROWN
         }
     }
 
     fn bg_color(&self) -> Option<Color> {
         if self.is_danger && self.is_focused {
-            Some(Colors::DARK_RED.with_alpha(0.8))
+            Some(Colors::RED.with_alpha(0.8))
         } else if self.is_disabled {
             Some(Colors::DARK_GRAY.with_alpha(0.8))
-        } else if self.is_focused || self.is_hovered {
-            Some(Colors::SPACE_VIOLET.with_alpha(0.8))
+        } else if self.is_focused {
+            Some(Colors::DARK_GREEN.with_alpha(0.8))
+        } else if self.is_hovered {
+            Some(Colors::DARK_BROWN.with_alpha(0.2))
         } else {
             None
         }
@@ -111,7 +113,7 @@ impl TextInput {
         } else if self.is_focused {
             Colors::LIGHT_YELLOW
         } else {
-            Colors::ORANGE_RED
+            Colors::DARK_BROWN
         }
     }
 
@@ -271,7 +273,7 @@ impl Update for TextInput {
                 self.text_with_spaces.pop();
                 self.is_danger = false;
             }
-            if input::is_key_pressed(ctx, Key::Enter) {
+            if input::is_key_pressed(ctx, Key::Enter) || input::is_key_pressed(ctx, Key::Escape) {
                 self.set_focused(false);
             }
             if let Some(text_input) = input::get_text_input(ctx) {

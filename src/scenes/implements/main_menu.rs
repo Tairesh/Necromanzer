@@ -1,10 +1,9 @@
-use assets::Assets;
+use app::App;
 use colors::Colors;
 use scenes::bg;
 use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::Transition;
-use settings::game::GameSettings;
 use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
@@ -13,7 +12,6 @@ use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
-use tetra::Context;
 use VERSION;
 
 pub struct MainMenu {
@@ -22,8 +20,9 @@ pub struct MainMenu {
 }
 
 impl MainMenu {
-    pub fn new(_ctx: &mut Context, assets: &Assets, settings: &GameSettings) -> Self {
-        let bg = bg(assets, settings);
+    pub fn new(app: &App) -> Self {
+        let assets = &app.assets;
+        let bg = bg(assets, &app.settings);
         let logo = Rc::new(RefCell::new(Image::new(
             assets.images.logo.clone(),
             Position::horizontal_center(0.0, Vertical::ByTop { y: 50.0 }),
@@ -51,7 +50,7 @@ impl MainMenu {
             assets.fonts.default.clone(),
             assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 50.0 }),
-            Transition::Push(GameScene::Empty),
+            Transition::Push(GameScene::CreateWorld),
         )));
         let settings_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::S, None)],
