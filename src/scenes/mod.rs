@@ -5,10 +5,12 @@ pub mod scene;
 pub mod transition;
 
 use assets::Assets;
+use colors::Colors;
 use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
 use sprites::image::Image;
-use sprites::position::Position;
+use sprites::label::Label;
+use sprites::position::{Position, Vertical};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, MouseButton};
@@ -39,5 +41,14 @@ pub(crate) fn bg(assets: &Assets, settings: &GameSettings) -> Rc<RefCell<Image>>
             assets.images.bg.clone()
         },
         Position::center(),
+    )))
+}
+
+pub(crate) fn title(title: &str, assets: &Assets) -> Rc<RefCell<Label>> {
+    Rc::new(RefCell::new(Label::new(
+        title,
+        assets.fonts.header1.clone(),
+        Colors::DARK_GREEN,
+        Position::horizontal_center(0.0, Vertical::ByTop { y: 20.0 }),
     )))
 }

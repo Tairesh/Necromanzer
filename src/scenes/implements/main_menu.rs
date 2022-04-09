@@ -1,5 +1,6 @@
 use app::App;
 use colors::Colors;
+use savefile::savefiles_exists;
 use scenes::bg;
 use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
@@ -8,10 +9,12 @@ use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
 use sprites::position::{Position, Vertical};
+use sprites::sprite::Disable;
 use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
+use tetra::Context;
 use VERSION;
 
 pub struct MainMenu {
@@ -40,7 +43,7 @@ impl MainMenu {
                 assets.fonts.default.clone(),
                 assets.button.clone(),
                 Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 0.0 }),
-                Transition::Push(GameScene::Empty),
+                Transition::Push(GameScene::LoadWorld),
             )
             .with_disabled(true),
         ));
@@ -85,6 +88,12 @@ impl MainMenu {
 }
 
 impl Scene for MainMenu {
+    fn on_open(&mut self, _ctx: &mut Context) {
+        if savefiles_exists() {
+            self.select_btn.borrow_mut().set_disabled(false);
+        }
+    }
+
     fn sprites(&self) -> SomeSprites {
         Some(&self.sprites)
     }

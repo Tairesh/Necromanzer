@@ -7,12 +7,17 @@ extern crate serde;
 extern crate serde_json;
 extern crate tetra;
 extern crate time;
+extern crate variant_count;
 
 mod app;
 mod assets;
+mod avatar;
 mod colors;
+mod enums;
 mod geometry;
+mod human;
 mod input;
+mod map;
 mod savefile;
 mod scenes;
 mod settings;

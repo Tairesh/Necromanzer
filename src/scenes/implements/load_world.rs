@@ -1,0 +1,156 @@
+use app::App;
+use colors::Colors;
+use geometry::Vec2;
+use savefile::{savefiles, savefiles_exists};
+use scenes::easy_back;
+use scenes::game_scene::GameScene;
+use scenes::scene::Scene;
+use scenes::transition::{SomeTransitions, Transition};
+use sprites::alert::Alert;
+use sprites::button::Button;
+use sprites::label::Label;
+use sprites::meshy::HoverableMesh;
+use sprites::position::{Horizontal, Position, Vertical};
+use sprites::sprite::Positionate;
+use sprites::{BunchOfSprites, SomeSprites};
+use std::cell::RefCell;
+use std::path::PathBuf;
+use std::rc::Rc;
+use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::Rectangle;
+use tetra::{Context, Event};
+use time::format_description::FormatItem;
+use time::OffsetDateTime;
+use {savefile, VERSION};
+
+const DATETIME_FORMAT: &[FormatItem] =
+    time::macros::format_description!("[year].[month].[day] [hour]:[minute]:[second]");
+
+pub struct LoadWorld {
+    sprites: BunchOfSprites,
+}
+
+impl LoadWorld {
+    pub fn new(app: &App, ctx: &mut Context) -> Self {
+        let savefiles = savefiles();
+        let mut sprites: BunchOfSprites = Vec::with_capacity(savefiles.len() * 6 + 1);
+        let height = savefiles.len() as f32 * 50.0 + 33.0;
+        let mut y = -height / 2.0;
+
+        sprites.push(Rc::new(RefCell::new(Alert::new(
+            600.0,
+            height,
+            app.assets.alert.texture.clone(),
+            app.assets.alert.nineslice.clone(),
+            Position {
+                x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
+                y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },
+            },
+        ))));
+        for (i, savefile) in savefiles.iter().enumerate() {
+            sprites.push(Rc::new(RefCell::new(HoverableMesh::new(
+                Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 564.0, 50.0))
+                    .unwrap(),
+                if i % 2 == 1 {
+                    Colors::DARK_GRAY.with_alpha(0.3)
+                } else {
+                    Colors::TRANSPARENT
+                },
+                Colors::KHAKI.with_alpha(0.6),
+                Vec2::new(560.0, 50.0),
+                Position {
+                    x: Horizontal::AtWindowCenterByLeft { offset: -282.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y },
+                },
+            ))));
+            sprites.push(Rc::new(RefCell::new(Label::new(
+                savefile.name.as_str(),
+                app.assets.fonts.header2.clone(),
+                Colors::LIGHT_YELLOW,
+                Position {
+                    x: Horizontal::AtWindowCenterByLeft { offset: -280.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y - 2.0 },
+                },
+            ))));
+            let version_label = Rc::new(RefCell::new(Label::new(
+                savefile.version.as_str(),
+                app.assets.fonts.default.clone(),
+                if savefile.version.as_str() == VERSION {
+                    Colors::GREEN
+                } else {
+                    Colors::RED
+                },
+                Position {
+                    x: Horizontal::AtWindowCenterByLeft { offset: -275.0 },
+                    y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
+                },
+            )));
+            let version_label_size = version_label.borrow_mut().calc_size(ctx);
+            sprites.push(version_label);
+            let time =
+                OffsetDateTime::from(savefile.time).to_offset(app.settings.time_settings.offset);
+            sprites.push(Rc::new(RefCell::new(Label::new(
+                time.format(&DATETIME_FORMAT).unwrap(),
+                app.assets.fonts.default.clone(),
+                Colors::LIGHT_YELLOW,
+                Position {
+                    x: Horizontal::AtWindowCenterByLeft {
+                        offset: -270.0 + version_label_size.x,
+                    },
+                    y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
+                },
+            ))));
+            sprites.push(Rc::new(RefCell::new(Button::text(
+                vec![],
+                "Load",
+                app.assets.fonts.default.clone(),
+                app.assets.button.clone(),
+                Position {
+                    x: Horizontal::AtWindowCenterByRight { offset: 190.0 },
+                    y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
+                },
+                Transition::CustomEvent(format!("load:{}", savefile.path.to_str().unwrap())),
+            ))));
+            sprites.push(Rc::new(RefCell::new(Button::text(
+                vec![],
+                "Delete",
+                app.assets.fonts.default.clone(),
+                app.assets.button.clone(),
+                Position {
+                    x: Horizontal::AtWindowCenterByRight { offset: 275.0 },
+                    y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
+                },
+                Transition::CustomEvent(format!("del:{}", savefile.path.to_str().unwrap())),
+            ))));
+            y += 50.0;
+        }
+
+        Self { sprites }
+    }
+}
+
+impl Scene for LoadWorld {
+    fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
+        easy_back(event, false)
+    }
+
+    fn sprites(&self) -> SomeSprites {
+        Some(&self.sprites)
+    }
+
+    fn custom_event(&mut self, _ctx: &mut Context, event: &str) -> SomeTransitions {
+        let mut parts = event.split(':');
+        match (parts.next(), parts.next()) {
+            (Some("del"), Some(path)) => {
+                let path = path.parse::<PathBuf>().unwrap();
+                savefile::delete(&path);
+                if savefiles_exists() {
+                    Some(vec![Transition::Pop])
+                } else {
+                    Some(vec![Transition::Replace(GameScene::LoadWorld)])
+                }
+            }
+            _ => None,
+        }
+    }
+}

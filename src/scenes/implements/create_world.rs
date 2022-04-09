@@ -6,7 +6,7 @@ use rand::{thread_rng, Rng};
 use savefile;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
-use scenes::{bg, easy_back};
+use scenes::{bg, easy_back, title};
 use sprites::button::Button;
 use sprites::input::TextInput;
 use sprites::label::Label;
@@ -40,12 +40,7 @@ impl CreateWorld {
         let mut rng = thread_rng();
 
         let bg = bg(&app.assets, &app.settings);
-        let title = Rc::new(RefCell::new(Label::new(
-            "Create new world:",
-            app.assets.fonts.header1.clone(),
-            Colors::DARK_GREEN,
-            Position::horizontal_center(0.0, Vertical::ByTop { y: 20.0 }),
-        )));
+        let title = title("Create new world:", &app.assets);
 
         let name_label = Rc::new(RefCell::new(Label::new(
             "World name:",

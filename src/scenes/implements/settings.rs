@@ -2,7 +2,7 @@ use app::App;
 use colors::Colors;
 use scenes::scene::Scene;
 use scenes::transition::{SettingsChange, SomeTransitions, Transition};
-use scenes::{bg, easy_back};
+use scenes::{bg, easy_back, title};
 use sprites::button::Button;
 use sprites::label::Label;
 use sprites::position::{Horizontal, Position, Vertical};
@@ -27,12 +27,7 @@ impl Settings {
         let assets = &app.assets;
         let settings = &app.settings;
         let bg = bg(assets, settings);
-        let title = Rc::new(RefCell::new(Label::new(
-            "Settings",
-            assets.fonts.header1.clone(),
-            Colors::DARK_GREEN,
-            Position::horizontal_center(0.0, Vertical::ByTop { y: 20.0 }),
-        )));
+        let title = title("Settings", &app.assets);
 
         let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
             vec![(Key::F, Some(KeyModifier::Alt))],

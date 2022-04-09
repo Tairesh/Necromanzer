@@ -74,7 +74,7 @@ impl From<Point> for Direction {
     }
 }
 
-#[derive(Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum TwoDimDirection {
     East,
     West,

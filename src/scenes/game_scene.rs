@@ -10,7 +10,7 @@ pub enum GameScene {
     Empty,
     Settings,
     CreateWorld,
-    // LoadWorld,
+    LoadWorld,
     // CreateCharacter(SaveFile),
     // GameMenu,
 }
@@ -22,6 +22,7 @@ impl GameScene {
             GameScene::Empty => Box::new(implements::Empty {}),
             GameScene::Settings => Box::new(implements::Settings::new(app, ctx)),
             GameScene::CreateWorld => Box::new(implements::CreateWorld::new(app, ctx)),
+            GameScene::LoadWorld => Box::new(implements::LoadWorld::new(app, ctx)),
         }
     }
 }

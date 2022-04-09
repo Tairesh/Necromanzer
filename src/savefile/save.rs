@@ -1,3 +1,4 @@
+use savefile::meta::Meta;
 use savefile::SAVEFILES_FOLDER;
 use std::fs::File;
 use std::io::Write;
@@ -50,6 +51,6 @@ fn name_to_path(name: &str) -> PathBuf {
 }
 
 fn make_data(name: &str, seed: &str) -> Result<String, SaveError> {
-    // TODO: create initial things and save it through JSON
-    Ok(format!("{}\n{}", name, seed))
+    let metadata = Meta::new(name, seed);
+    serde_json::to_string(&metadata).map_err(SaveError::from)
 }
