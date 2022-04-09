@@ -15,9 +15,9 @@ use tetra::input::{Key, MouseButton};
 use tetra::Event;
 use time::{Month, OffsetDateTime};
 
-pub(crate) fn easy_back(event: Event, focused: bool) -> Option<Transition> {
+pub(crate) fn easy_back(event: Event, focused: bool) -> Vec<Transition> {
     if focused {
-        return None;
+        return vec![];
     }
     match event {
         Event::MouseButtonPressed {
@@ -25,8 +25,8 @@ pub(crate) fn easy_back(event: Event, focused: bool) -> Option<Transition> {
         }
         | Event::KeyPressed {
             key: Key::Escape | Key::Backspace,
-        } => Some(Transition::Pop),
-        _ => None,
+        } => vec![Transition::Pop],
+        _ => vec![],
     }
 }
 

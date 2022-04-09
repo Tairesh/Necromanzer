@@ -1,6 +1,7 @@
 use assets::Assets;
 use colors::Colors;
 use scenes::bg;
+use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::Transition;
 use settings::game::GameSettings;
@@ -40,7 +41,7 @@ impl MainMenu {
                 assets.fonts.default.clone(),
                 assets.button.clone(),
                 Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 0.0 }),
-                Transition::Quit,
+                Transition::Push(GameScene::Empty),
             )
             .with_disabled(true),
         ));
@@ -50,7 +51,7 @@ impl MainMenu {
             assets.fonts.default.clone(),
             assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 50.0 }),
-            Transition::Quit,
+            Transition::Push(GameScene::Empty),
         )));
         let settings_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::S, None)],
@@ -58,7 +59,7 @@ impl MainMenu {
             assets.fonts.default.clone(),
             assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 100.0 }),
-            Transition::Quit,
+            Transition::Push(GameScene::Empty),
         )));
         let exit_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::X, None)],
