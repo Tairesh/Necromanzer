@@ -1,12 +1,13 @@
 use assets::Assets;
 use colors::Colors;
+use scenes;
 use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::Transition;
 use settings::game::GameSettings;
 use sprites::label::Label;
 use sprites::position::Position;
-use sprites::sprite::{Draw, Stringify};
+use sprites::sprite::{Draw, Positionate, Stringify};
 use tetra::input::Key;
 use tetra::{window, Context, Event, State};
 
@@ -50,12 +51,9 @@ impl App {
     fn on_resize(&mut self, ctx: &mut Context) {
         if let Some(scene) = self.current_scene() {
             let window_size = window::get_size(ctx);
-            if let Some(sprites) = scene.sprites() {
-                for sprite in sprites.iter() {
-                    sprite.borrow_mut().positionate(ctx, window_size);
-                }
-            }
-            scene.on_resize(ctx);
+            scenes::scene::reposition_all_sprites(scene, ctx, window_size);
+            scene.on_resize(ctx, window_size);
+            self.fps_counter.positionate(ctx, window_size);
         }
     }
 
@@ -72,6 +70,12 @@ impl App {
     fn push_scene(&mut self, ctx: &mut Context, scene: GameScene) {
         self.scenes.push(scene.to_impl(self, ctx));
         self.on_open(ctx);
+    }
+
+    fn exec_transitions(&mut self, ctx: &mut Context, transitions: Vec<Transition>) {
+        for transition in transitions {
+            self.transit(ctx, transition);
+        }
     }
 
     fn transit(&mut self, ctx: &mut Context, transition: Transition) {
@@ -93,31 +97,24 @@ impl App {
 
 impl State for App {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+        // TODO: find a way to optimize this shit
         if let Some(scene) = self.current_scene() {
-            let mut button_clicked = None;
-            let focused = scene
-                .sprites()
-                .map(|sprites| sprites.iter().any(|s| s.borrow().focused()))
-                .unwrap_or(false);
+            let mut transitions = scene.update(ctx);
+            let focused = scenes::scene::is_there_focused_sprite(scene);
             if let Some(sprites) = scene.sprites() {
+                // creating same big useless vec of Rects EVERY frame
                 let mut blocked = Vec::with_capacity(sprites.len());
                 for sprite in sprites.iter().rev() {
                     let mut sprite = sprite.borrow_mut();
                     if let Some(transition) = sprite.update(ctx, focused, &blocked) {
-                        button_clicked = Some(transition);
+                        transitions.push(transition);
                     }
                     if sprite.visible() && sprite.block_mouse() {
                         blocked.push(sprite.rect());
                     }
                 }
             }
-            if let Some(t) = button_clicked {
-                self.transit(ctx, t);
-            } else {
-                for t in scene.update(ctx, focused) {
-                    self.transit(ctx, t);
-                }
-            }
+            self.exec_transitions(ctx, transitions);
         } else {
             self.transit(ctx, Transition::Quit);
         }
@@ -139,11 +136,9 @@ impl State for App {
             scene.after_draw(ctx);
         }
         if self.settings.show_fps {
-            if self.settings.show_fps {
-                let fps = (tetra::time::get_fps(ctx).round() as u8).to_string();
-                if !self.fps_counter.value().eq(&fps) {
-                    self.fps_counter.update(fps, ctx, window::get_size(ctx));
-                }
+            let fps = (tetra::time::get_fps(ctx).round() as u8).to_string();
+            if !self.fps_counter.value().eq(&fps) {
+                self.fps_counter.set_value(fps);
             }
             self.fps_counter.draw(ctx);
         }
@@ -164,13 +159,8 @@ impl State for App {
         }
 
         if let Some(scene) = self.current_scene() {
-            let focused = scene
-                .sprites()
-                .map(|sprites| sprites.iter().any(|s| s.borrow().focused()))
-                .unwrap_or(false);
-            for t in scene.event(ctx, event, focused) {
-                self.transit(ctx, t);
-            }
+            let transitions = scene.event(ctx, event);
+            self.exec_transitions(ctx, transitions);
         }
 
         Ok(())
