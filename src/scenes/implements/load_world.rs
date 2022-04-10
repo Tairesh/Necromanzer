@@ -28,6 +28,7 @@ const DATETIME_FORMAT: &[FormatItem] =
 
 pub struct LoadWorld {
     sprites: BunchOfSprites,
+    paths: Vec<PathBuf>,
 }
 
 impl LoadWorld {
@@ -109,7 +110,7 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByRight { offset: 190.0 },
                     y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
                 },
-                Transition::CustomEvent(format!("load:{}", savefile.path.to_str().unwrap())),
+                Transition::CustomEvent((i * 2) as u8),
             ))));
             sprites.push(Rc::new(RefCell::new(Button::text(
                 vec![],
@@ -120,12 +121,15 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByRight { offset: 275.0 },
                     y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
                 },
-                Transition::CustomEvent(format!("del:{}", savefile.path.to_str().unwrap())),
+                Transition::CustomEvent((i * 2 + 1) as u8),
             ))));
             y += 50.0;
         }
 
-        Self { sprites }
+        Self {
+            sprites,
+            paths: savefiles.into_iter().map(|s| s.path).collect(),
+        }
     }
 }
 
@@ -138,19 +142,24 @@ impl Scene for LoadWorld {
         Some(&self.sprites)
     }
 
-    fn custom_event(&mut self, _ctx: &mut Context, event: &str) -> SomeTransitions {
-        let mut parts = event.split(':');
-        match (parts.next(), parts.next()) {
-            (Some("del"), Some(path)) => {
-                let path = path.parse::<PathBuf>().unwrap();
-                savefile::delete(&path);
-                if savefiles_exists() {
-                    Some(vec![Transition::Pop])
-                } else {
-                    Some(vec![Transition::Replace(GameScene::LoadWorld)])
-                }
+    fn custom_event(&mut self, _ctx: &mut Context, event: u8) -> SomeTransitions {
+        let i = (event / 2) as usize;
+        let path = self.paths.get(i)?;
+        if event % 2 == 0 {
+            // load
+            if let Some(meta) = savefile::load(path) {
+                Some(vec![Transition::Replace(GameScene::CreateCharacter(meta))])
+            } else {
+                panic!("Can't load savefile: {}", path.to_str().unwrap())
             }
-            _ => None,
+        } else {
+            // delete
+            savefile::delete(path);
+            if savefiles_exists() {
+                Some(vec![Transition::Pop])
+            } else {
+                Some(vec![Transition::Replace(GameScene::LoadWorld)])
+            }
         }
     }
 }

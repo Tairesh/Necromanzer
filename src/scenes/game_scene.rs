@@ -1,4 +1,5 @@
 use app::App;
+use savefile::Meta;
 use scenes::implements;
 use scenes::scene::Scene;
 use tetra::Context;
@@ -11,7 +12,7 @@ pub enum GameScene {
     Settings,
     CreateWorld,
     LoadWorld,
-    // CreateCharacter(SaveFile),
+    CreateCharacter(Meta),
     // GameMenu,
 }
 
@@ -23,6 +24,9 @@ impl GameScene {
             GameScene::Settings => Box::new(implements::Settings::new(app, ctx)),
             GameScene::CreateWorld => Box::new(implements::CreateWorld::new(app, ctx)),
             GameScene::LoadWorld => Box::new(implements::LoadWorld::new(app, ctx)),
+            GameScene::CreateCharacter(meta) => {
+                Box::new(implements::CreateCharacter::new(meta.clone(), app, ctx))
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ use assets::Assets;
 use colors::Colors;
 use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
+use sprites::button::Button;
 use sprites::image::Image;
 use sprites::label::Label;
 use sprites::position::{Position, Vertical};
@@ -50,5 +51,16 @@ pub(crate) fn title(title: &str, assets: &Assets) -> Rc<RefCell<Label>> {
         assets.fonts.header1.clone(),
         Colors::DARK_GREEN,
         Position::horizontal_center(0.0, Vertical::ByTop { y: 20.0 }),
+    )))
+}
+
+pub(crate) fn back_btn(position: Position, assets: &Assets) -> Rc<RefCell<Button>> {
+    Rc::new(RefCell::new(Button::text(
+        vec![(Key::Escape, None)],
+        "[Esc] Back",
+        assets.fonts.default.clone(),
+        assets.button.clone(),
+        position,
+        Transition::Pop,
     )))
 }

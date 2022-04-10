@@ -2,8 +2,10 @@ mod load;
 mod meta;
 mod save;
 
+pub use savefile::load::load;
 pub use savefile::load::savefiles;
 pub use savefile::load::savefiles_exists;
+pub use savefile::meta::Meta;
 pub use savefile::save::create;
 pub use savefile::save::SaveError;
 use std::path::Path;

@@ -23,7 +23,7 @@ impl From<std::io::Error> for SaveError {
     }
 }
 
-pub fn create(name: &str, seed: &str) -> Result<(), SaveError> {
+pub fn create(name: &str, seed: &str) -> Result<PathBuf, SaveError> {
     make_dir()?;
     let name = name.trim().replace('\n', "");
     let path = name_to_path(name.as_str());
@@ -33,6 +33,7 @@ pub fn create(name: &str, seed: &str) -> Result<(), SaveError> {
     let mut file = File::create(&path).map_err(SaveError::from)?;
     file.write_all(make_data(name.as_str(), seed)?.as_bytes())
         .map_err(|e| e.into())
+        .map(|_| path)
 }
 
 fn make_dir() -> Result<(), SaveError> {

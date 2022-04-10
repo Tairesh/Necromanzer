@@ -6,7 +6,7 @@ pub enum Transition {
     Push(GameScene),
     Pop,
     Replace(GameScene), // pop and push
-    CustomEvent(String),
+    CustomEvent(u8),
     ChangeSettings(SettingsChange),
     Quit,
 }

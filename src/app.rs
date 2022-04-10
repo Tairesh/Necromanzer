@@ -88,7 +88,7 @@ impl App {
             Transition::Replace(s) => self.replace_scene(ctx, s),
             Transition::CustomEvent(event) => {
                 if let Some(scene) = self.current_scene() {
-                    let transitions = scene.custom_event(ctx, event.as_str());
+                    let transitions = scene.custom_event(ctx, event);
                     self.exec_transitions(ctx, transitions);
                 }
             }

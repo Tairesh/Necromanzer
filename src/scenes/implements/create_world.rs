@@ -4,9 +4,10 @@ use colors::Colors;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use savefile;
+use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
-use scenes::{bg, easy_back, title};
+use scenes::{back_btn, bg, easy_back, title};
 use sprites::button::Button;
 use sprites::input::TextInput;
 use sprites::label::Label;
@@ -18,8 +19,8 @@ use std::rc::Rc;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
-const RANDOMIZE_EVENT: &str = "r";
-const CREATE_EVENT: &str = "c";
+const RANDOMIZE_EVENT: u8 = 1;
+const CREATE_EVENT: u8 = 2;
 
 fn random_seed<R: Rng + ?Sized>(rng: &mut R) -> String {
     rng.next_u32().to_string()
@@ -117,22 +118,18 @@ impl CreateWorld {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
                 y: Vertical::ByCenter { y: 500.0 },
             },
-            Transition::CustomEvent(RANDOMIZE_EVENT.to_string()),
+            Transition::CustomEvent(RANDOMIZE_EVENT),
         )));
         let randomize_size = randomize_btn.borrow_mut().calc_size(ctx);
-        let back_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::Escape, None)],
-            "[Esc] Back",
-            app.assets.fonts.default.clone(),
-            app.assets.button.clone(),
+        let back_btn = back_btn(
             Position {
                 x: Horizontal::AtWindowCenterByRight {
                     offset: -randomize_size.x / 2.0 - 2.0,
                 },
                 y: Vertical::ByCenter { y: 500.0 },
             },
-            Transition::Pop,
-        )));
+            &app.assets,
+        );
         let create_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::Enter, Some(KeyModifier::Alt))],
             "[Alt+Enter] Create",
@@ -144,7 +141,7 @@ impl CreateWorld {
                 },
                 y: Vertical::ByCenter { y: 500.0 },
             },
-            Transition::CustomEvent(CREATE_EVENT.to_string()),
+            Transition::CustomEvent(CREATE_EVENT),
         )));
 
         Self {
@@ -173,6 +170,24 @@ impl CreateWorld {
 }
 
 impl Scene for CreateWorld {
+    fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
+        let name = self.name_input.borrow();
+        let mut name_empty = self.name_empty.borrow_mut();
+        let mut name_error = self.name_error.borrow_mut();
+        let seed = self.seed_input.borrow();
+        let mut seed_error = self.seed_error.borrow_mut();
+        if !name.danger() && name_empty.visible() {
+            name_empty.set_visible(false);
+        }
+        if !name.danger() && name_error.visible() {
+            name_error.set_visible(false);
+        }
+        if !seed.danger() && seed_error.visible() {
+            seed_error.set_visible(false);
+        }
+        None
+    }
+
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
         let focused = self.is_there_focused_sprite();
         easy_back(event, focused)
@@ -182,7 +197,7 @@ impl Scene for CreateWorld {
         Some(&self.sprites)
     }
 
-    fn custom_event(&mut self, _ctx: &mut Context, event: &str) -> SomeTransitions {
+    fn custom_event(&mut self, _ctx: &mut Context, event: u8) -> SomeTransitions {
         match event {
             RANDOMIZE_EVENT => {
                 let mut rng = rand::thread_rng();
@@ -207,7 +222,9 @@ impl Scene for CreateWorld {
                     None
                 } else {
                     match savefile::create(name.as_str(), seed.as_str()) {
-                        Ok(_) => Some(vec![Transition::Pop]),
+                        Ok(path) => Some(vec![Transition::Replace(GameScene::CreateCharacter(
+                            savefile::load(&path).expect("Can't load newly created savefile!"),
+                        ))]),
                         Err(err) => match err {
                             savefile::SaveError::SystemError(err) => {
                                 panic!("Can't write savefile: {}", err)

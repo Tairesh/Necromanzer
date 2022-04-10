@@ -2,7 +2,7 @@ use app::App;
 use colors::Colors;
 use scenes::scene::Scene;
 use scenes::transition::{SettingsChange, SomeTransitions, Transition};
-use scenes::{bg, easy_back, title};
+use scenes::{back_btn, bg, easy_back, title};
 use sprites::button::Button;
 use sprites::label::Label;
 use sprites::position::{Horizontal, Position, Vertical};
@@ -13,8 +13,8 @@ use std::rc::Rc;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
-const WINDOW_MODE_EVENT: &str = "w";
-const FULLSCREEN_MODE_EVENT: &str = "f";
+const WINDOW_MODE_EVENT: u8 = 1;
+const FULLSCREEN_MODE_EVENT: u8 = 2;
 
 pub struct Settings {
     sprites: BunchOfSprites,
@@ -39,7 +39,7 @@ impl Settings {
                 x: Horizontal::AtWindowCenterByLeft { offset: 100.0 },
                 y: Vertical::ByCenter { y: 150.0 },
             },
-            Transition::CustomEvent(FULLSCREEN_MODE_EVENT.to_string()),
+            Transition::CustomEvent(FULLSCREEN_MODE_EVENT),
         )));
         let window_btn = Rc::new(RefCell::new(Button::fixed(
             vec![(Key::W, Some(KeyModifier::Alt))],
@@ -51,7 +51,7 @@ impl Settings {
                 x: Horizontal::AtWindowCenterByRight { offset: 98.0 },
                 y: Vertical::ByCenter { y: 150.0 },
             },
-            Transition::CustomEvent(WINDOW_MODE_EVENT.to_string()),
+            Transition::CustomEvent(WINDOW_MODE_EVENT),
         )));
         let window_btn_size = window_btn.borrow_mut().calc_size(ctx);
 
@@ -66,14 +66,10 @@ impl Settings {
                 y: Vertical::ByCenter { y: 145.0 },
             },
         )));
-        let back_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::Escape, None)],
-            "[Esc] Back",
-            assets.fonts.default.clone(),
-            assets.button.clone(),
+        let back_btn = back_btn(
             Position::horizontal_center(0.0, Vertical::AtWindowBottomByBottom { offset: -200.0 }),
-            Transition::Pop,
-        )));
+            assets,
+        );
 
         Self {
             sprites: vec![
@@ -99,7 +95,7 @@ impl Scene for Settings {
         Some(&self.sprites)
     }
 
-    fn custom_event(&mut self, _ctx: &mut Context, event: &str) -> SomeTransitions {
+    fn custom_event(&mut self, _ctx: &mut Context, event: u8) -> SomeTransitions {
         match event {
             FULLSCREEN_MODE_EVENT => {
                 self.window_btn.borrow_mut().unpress();

@@ -8,20 +8,26 @@ use assets;
 use assets::prepared_font::PreparedFont;
 use geometry::{Rect, Vec2};
 use tetra::graphics::text::Text;
-use tetra::graphics::DrawParams;
+use tetra::graphics::{DrawParams, Rectangle, Texture};
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::Context;
 
 enum ButtonContent {
     Text(Text, f32),
+    Icon {
+        region: Rectangle,
+        scale: Vec2,
+        tileset: Texture,
+    },
     Empty(Vec2),
 }
 
 impl ButtonContent {
     pub const fn offset_x(&self) -> f32 {
         match self {
-            ButtonContent::Text(..) => 20.0,
+            ButtonContent::Text(..) => 30.0,
             ButtonContent::Empty(..) => 0.0,
+            ButtonContent::Icon { .. } => 10.0,
         }
     }
 }
@@ -50,7 +56,7 @@ pub struct Button {
 
 impl Button {
     fn new(
-        keys: Vec<(Key, Option<KeyModifier>)>,
+        keys: Vec<(Key, Option<KeyModifier>)>, // TODO: create type or struct
         content: ButtonContent,
         asset: assets::button::Button,
         position: Position,
@@ -115,13 +121,34 @@ impl Button {
         }
     }
 
+    pub fn icon(
+        keys: Vec<(Key, Option<KeyModifier>)>,
+        region: Rectangle,
+        tileset: Texture,
+        asset: assets::button::Button,
+        position: Position,
+        on_click: Transition,
+    ) -> Self {
+        Self::new(
+            keys,
+            ButtonContent::Icon {
+                region,
+                scale: Vec2::new(3.0, 3.0),
+                tileset,
+            },
+            asset,
+            position,
+            on_click,
+        )
+    }
+
     pub fn with_disabled(mut self, val: bool) -> Self {
         self.is_disabled = val;
         self
     }
 
-    pub fn custom_event(&self) -> Option<&String> {
-        if let Transition::CustomEvent(s) = &self.on_click {
+    pub fn custom_event(&self) -> Option<u8> {
+        if let Transition::CustomEvent(s) = self.on_click {
             Some(s)
         } else {
             None
@@ -135,6 +162,9 @@ impl Button {
                 .map(|b| Vec2::new(b.width, *height))
                 .unwrap(),
             ButtonContent::Empty(size) => *size,
+            ButtonContent::Icon { region, scale, .. } => {
+                Vec2::new(region.width * scale.x, region.height * scale.y)
+            }
         }
     }
 
@@ -172,14 +202,25 @@ impl Draw for Button {
         );
 
         vec += Vec2::new(rect.w, rect.h) / 2.0 - content_size / 2.0;
-        if self.is_pressed {
-            vec.y += 2.0;
+        if !self.is_pressed {
+            vec.y -= 2.0;
         }
-        if let ButtonContent::Text(text, _) = &mut self.content {
-            text.draw(
-                ctx,
-                DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
-            );
+        match &mut self.content {
+            ButtonContent::Text(text, _) => {
+                text.draw(
+                    ctx,
+                    DrawParams::new().position(vec).color(Colors::LIGHT_YELLOW),
+                );
+            }
+            ButtonContent::Icon {
+                region,
+                scale,
+                tileset,
+            } => {
+                vec.y -= 1.0;
+                tileset.draw_region(ctx, *region, DrawParams::new().position(vec).scale(*scale));
+            }
+            ButtonContent::Empty(_) => {}
         }
     }
 

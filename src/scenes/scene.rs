@@ -16,7 +16,7 @@ pub trait Scene {
     fn sprites(&self) -> SomeSprites {
         None
     }
-    fn custom_event(&mut self, _ctx: &mut Context, _event: &str) -> SomeTransitions {
+    fn custom_event(&mut self, _ctx: &mut Context, _event: u8) -> SomeTransitions {
         None
     }
 
