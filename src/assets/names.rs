@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Names {
     pub male_names: Vec<&'static str>,
     pub female_names: Vec<&'static str>,
@@ -35,7 +35,7 @@ impl Names {
 
 #[cfg(test)]
 mod tests {
-    use assets::names::Names;
+    use super::Names;
 
     #[test]
     fn names_load() {

@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use assets::Assets;
+use assets::game_data::GameData;
 use human::character::Character;
 use map::item::{Item, ItemType};
 use map::pos::ChunkPos;
@@ -9,16 +9,14 @@ use rand::distributions::Standard;
 use rand::rngs::StdRng;
 use rand::Rng;
 use rand::SeedableRng;
-use std::cell::RefCell;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
-use std::rc::Rc;
 
 #[derive(Hash)]
 struct ChunkUnique {
     pos: ChunkPos,
-    world_seed: u64,
+    world_seed: String,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -28,10 +26,10 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    pub const SIZE: i32 = 16;
+    pub const SIZE: i32 = 32;
     pub const USIZE: usize = (Chunk::SIZE * Chunk::SIZE) as usize;
 
-    pub fn generate(world_seed: u64, assets: Rc<RefCell<Assets>>, pos: ChunkPos) -> Self {
+    pub fn generate(world_seed: String, game_data: &GameData, pos: ChunkPos) -> Self {
         let mut hasher = DefaultHasher::new();
         let seed = ChunkUnique { pos, world_seed };
         seed.hash(&mut hasher);
@@ -49,7 +47,7 @@ impl Chunk {
                 Terrain::Dirt(rng.sample(Standard))
             }));
         }
-        let count = rng.gen_range(5..20);
+        let count: usize = rng.gen_range(5..20);
         let mut blocked_tiles = HashSet::with_capacity(100);
         for _ in 0..count {
             let mut pos = rng.gen_range(0..Chunk::USIZE) as usize;
@@ -84,7 +82,7 @@ impl Chunk {
                         GraveVariant::New
                     },
                     GraveData {
-                        character: Character::random(&mut rng, &assets.borrow().names),
+                        character: Character::random(&mut rng, game_data),
                         death_year,
                     },
                 );

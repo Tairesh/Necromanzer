@@ -1,5 +1,5 @@
 use app::App;
-use assets::names::Names;
+use assets::game_data::GameData;
 use colors::Colors;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
@@ -27,7 +27,7 @@ fn random_seed<R: Rng + ?Sized>(rng: &mut R) -> String {
 }
 
 pub struct CreateWorld {
-    names: Names,
+    game_data: Rc<GameData>,
     sprites: BunchOfSprites,
     name_input: Rc<RefCell<TextInput>>,
     name_empty: Rc<RefCell<Label>>,
@@ -53,7 +53,7 @@ impl CreateWorld {
             },
         )));
         let name_input = Rc::new(RefCell::new(TextInput::new(
-            *app.assets.names.names.choose(&mut rng).unwrap(),
+            *app.assets.game_data.names.names.choose(&mut rng).unwrap(),
             250.0,
             app.assets.fonts.header2.clone(),
             Position {
@@ -145,7 +145,7 @@ impl CreateWorld {
         )));
 
         Self {
-            names: app.assets.names.clone(),
+            game_data: app.assets.game_data.clone(),
             sprites: vec![
                 bg,
                 title,
@@ -203,7 +203,7 @@ impl Scene for CreateWorld {
                 let mut rng = rand::thread_rng();
                 self.name_input
                     .borrow_mut()
-                    .set_value(*self.names.names.choose(&mut rng).unwrap());
+                    .set_value(*self.game_data.names.names.choose(&mut rng).unwrap());
                 self.seed_input
                     .borrow_mut()
                     .set_value(random_seed(&mut rng).as_str());

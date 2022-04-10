@@ -1,7 +1,7 @@
 use tetra::graphics::{NineSlice, Rectangle, Texture};
 use tetra::Context;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Alert {
     pub texture: Texture,
     pub nineslice: NineSlice,

@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 use assets::tileset::Tileset;
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
@@ -7,11 +8,17 @@ use human::character::Character;
 use human::gender::Gender;
 use map::item::{Item, ItemType};
 use map::pos::TilePos;
-use tetra::graphics::{DrawParams, Rectangle};
+use tetra::graphics::DrawParams;
 use tetra::Context;
+use world::World;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct Action {}
+pub struct Action {
+    pub finish: u128,
+}
+impl Action {
+    pub fn act(&self, _world: &World) {}
+}
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
@@ -58,9 +65,9 @@ impl Avatar {
         tileset.texture.draw_region(
             ctx,
             match gender {
-                Gender::Female => Rectangle::new(0.0, 0.0, 10.0, 10.0),
-                Gender::Male => Rectangle::new(10.0, 0.0, 10.0, 10.0),
-                Gender::Custom(_) => Rectangle::new(20.0, 0.0, 10.0, 10.0),
+                Gender::Female => tileset.female,
+                Gender::Male => tileset.male,
+                Gender::Custom(_) => tileset.queer,
             },
             DrawParams::new()
                 .position(position)

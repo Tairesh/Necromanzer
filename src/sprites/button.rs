@@ -1,12 +1,14 @@
 #![allow(dead_code)]
+
 use crate::colors::Colors;
 use crate::input;
 use crate::scenes::transition::Transition;
 use crate::sprites::position::Position;
 use crate::sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Update};
-use assets;
+use assets::button::Button as ButtonAsset;
 use assets::prepared_font::PreparedFont;
 use geometry::{Rect, Vec2};
+use std::rc::Rc;
 use tetra::graphics::text::Text;
 use tetra::graphics::{DrawParams, Rectangle, Texture};
 use tetra::input::{Key, KeyModifier, MouseButton};
@@ -44,7 +46,7 @@ pub struct Button {
     content: ButtonContent,
     on_click: Transition,
     position: Position,
-    asset: assets::button::Button,
+    asset: Rc<ButtonAsset>,
     scale: Vec2,
     rect: Option<Rect>,
     is_pressed: bool,
@@ -58,7 +60,7 @@ impl Button {
     fn new(
         keys: Vec<(Key, Option<KeyModifier>)>, // TODO: create type or struct
         content: ButtonContent,
-        asset: assets::button::Button,
+        asset: Rc<ButtonAsset>,
         position: Position,
         on_click: Transition,
     ) -> Self {
@@ -82,7 +84,7 @@ impl Button {
         keys: Vec<(Key, Option<KeyModifier>)>,
         text: &str,
         font: PreparedFont,
-        asset: assets::button::Button,
+        asset: Rc<ButtonAsset>,
         position: Position,
         on_click: Transition,
     ) -> Self {
@@ -97,7 +99,7 @@ impl Button {
 
     pub fn empty(
         keys: Vec<(Key, Option<KeyModifier>)>,
-        asset: assets::button::Button,
+        asset: Rc<ButtonAsset>,
         size: Vec2,
         position: Position,
         on_click: Transition,
@@ -109,7 +111,7 @@ impl Button {
         keys: Vec<(Key, Option<KeyModifier>)>,
         text: &str,
         font: PreparedFont,
-        asset: assets::button::Button,
+        asset: Rc<ButtonAsset>,
         state: bool,
         position: Position,
         on_click: Transition,
@@ -125,7 +127,7 @@ impl Button {
         keys: Vec<(Key, Option<KeyModifier>)>,
         region: Rectangle,
         tileset: Texture,
-        asset: assets::button::Button,
+        asset: Rc<ButtonAsset>,
         position: Position,
         on_click: Transition,
     ) -> Self {

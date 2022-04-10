@@ -2,6 +2,7 @@ use assets::prepared_font::PreparedFont;
 use tetra::graphics::text::Font;
 use tetra::Context;
 
+#[derive(Debug)]
 pub struct Fonts {
     pub default: PreparedFont,
     pub default2: PreparedFont,

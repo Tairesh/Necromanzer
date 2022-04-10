@@ -41,8 +41,7 @@ impl LoadWorld {
         sprites.push(Rc::new(RefCell::new(Alert::new(
             600.0,
             height,
-            app.assets.alert.texture.clone(),
-            app.assets.alert.nineslice.clone(),
+            app.assets.alert.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },
@@ -150,7 +149,7 @@ impl Scene for LoadWorld {
             if let Some(meta) = savefile::load(path) {
                 Some(vec![Transition::Replace(GameScene::CreateCharacter(meta))])
             } else {
-                panic!("Can't load savefile: {}", path.to_str().unwrap())
+                panic!("Can't load savefile: {:?}", path)
             }
         } else {
             // delete

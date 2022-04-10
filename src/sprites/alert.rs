@@ -1,15 +1,17 @@
 #![allow(dead_code)]
+
 use crate::scenes::transition::Transition;
 use crate::sprites::position::Position;
 use crate::sprites::sprite::{Draw, Positionate, Sprite, Update};
+use assets::alert::Alert as AlertAsset;
 use geometry::{Rect, Vec2};
-use tetra::graphics::{DrawParams, NineSlice, Texture};
+use std::rc::Rc;
+use tetra::graphics::DrawParams;
 use tetra::input::{Key, MouseButton};
 use tetra::{input, Context};
 
 pub struct Alert {
-    texture: Texture,
-    nineslice: NineSlice,
+    asset: Rc<AlertAsset>,
     scale: Vec2,
     width: f32,
     height: f32,
@@ -19,16 +21,9 @@ pub struct Alert {
 }
 
 impl Alert {
-    pub fn new(
-        width: f32,
-        height: f32,
-        texture: Texture,
-        nineslice: NineSlice,
-        position: Position,
-    ) -> Self {
+    pub fn new(width: f32, height: f32, asset: Rc<AlertAsset>, position: Position) -> Self {
         Alert {
-            texture,
-            nineslice,
+            asset,
             scale: Vec2::new(3.0, 3.0),
             width,
             height,
@@ -47,9 +42,9 @@ impl Alert {
 impl Draw for Alert {
     fn draw(&mut self, ctx: &mut Context) {
         let rect = self.rect.unwrap();
-        self.texture.draw_nine_slice(
+        self.asset.texture.draw_nine_slice(
             ctx,
-            &self.nineslice,
+            &self.asset.nineslice,
             self.width / self.scale.x,
             self.height / self.scale.y,
             DrawParams::new()

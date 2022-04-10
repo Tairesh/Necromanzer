@@ -1,12 +1,15 @@
 use app::App;
-use assets::names::Names;
+use assets::game_data::GameData;
+use avatar::Avatar;
 use colors::Colors;
 use geometry::Vec2;
 use human::character::Character;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
+use map::pos::TilePos;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use savefile::Meta;
+use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
@@ -18,6 +21,7 @@ use sprites::position::{Horizontal, Position, Vertical};
 use sprites::sprite::{Colorize, Draw, Positionate, Stringify};
 use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::rc::Rc;
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
@@ -25,6 +29,7 @@ use tetra::graphics::Rectangle;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 use variant_count::VariantCount;
+use world::World;
 
 #[derive(IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone)]
 #[repr(u8)]
@@ -42,7 +47,7 @@ enum Events {
 }
 
 pub struct CreateCharacter {
-    names: Names,
+    game_data: Rc<GameData>,
     meta: Meta,
     sprites: BunchOfSprites,
     name_input: Rc<RefCell<TextInput>>,
@@ -314,7 +319,7 @@ impl CreateCharacter {
         )));
 
         Self {
-            names: app.assets.names.clone(),
+            game_data: app.assets.game_data.clone(),
             meta,
             sprites: vec![
                 bg,
@@ -425,7 +430,7 @@ impl Scene for CreateCharacter {
             }
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
-                let character = Character::random(&mut rng, &self.names);
+                let character = Character::random(&mut rng, &self.game_data);
                 self.gender_input.borrow_mut().set_value(character.gender);
                 self.name_input.borrow_mut().set_value(character.name);
                 self.age_input
@@ -444,7 +449,30 @@ impl Scene for CreateCharacter {
                 label.positionate(ctx, window_size);
                 None
             }
-            Events::Create => None,
+            Events::Create => {
+                let name = self.name_input.borrow().value();
+                if name.is_empty() {
+                    self.name_input.borrow_mut().set_danger(true);
+                    self.name_empty.borrow_mut().set_visible(true);
+                    None
+                } else {
+                    let gender = self.gender_input.borrow().value().into();
+                    let age = self.age_input.borrow().value().parse::<u8>().unwrap();
+                    let character =
+                        Character::new(name, gender, age, self.main_hand, self.skin_tone);
+                    // TODO: find available starting pos in the world
+                    let avatar = Avatar::new(character, TilePos::new(0, 0));
+                    let mut world = World::new(
+                        self.meta.clone(),
+                        avatar,
+                        HashMap::new(),
+                        self.game_data.clone(),
+                    )
+                    .init();
+                    world.save();
+                    Some(vec![Transition::Replace(GameScene::Empty)])
+                }
+            }
         }
     }
 }

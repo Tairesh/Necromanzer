@@ -23,6 +23,7 @@ mod scenes;
 mod settings;
 mod sprites;
 mod window;
+mod world;
 
 const NAME: &str = "NecromanZer";
 const VERSION: &str = concat!(

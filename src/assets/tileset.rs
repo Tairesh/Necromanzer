@@ -1,6 +1,7 @@
 use tetra::graphics::{Rectangle, Texture};
 use tetra::Context;
 
+#[derive(Debug)]
 pub struct Tileset {
     pub texture: Texture,
 

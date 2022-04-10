@@ -1,6 +1,7 @@
 use tetra::graphics::Texture;
 use tetra::Context;
 
+#[derive(Debug)]
 pub struct Images {
     pub logo: Texture,
     pub bg: Texture,

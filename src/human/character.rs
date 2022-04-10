@@ -1,5 +1,6 @@
 #![allow(dead_code)]
-use assets::names::Names;
+
+use assets::game_data::GameData;
 use human::gender::Gender;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
@@ -34,18 +35,18 @@ impl Character {
         }
     }
 
-    pub fn random<R: Rng + ?Sized>(rng: &mut R, names: &Names) -> Character {
+    pub fn random<R: Rng + ?Sized>(rng: &mut R, game_data: &GameData) -> Character {
         let gender = rng.sample(Standard);
         let name = format!(
             "{} {}",
             match gender {
-                Gender::Male => &names.male_names,
-                Gender::Female => &names.female_names,
-                Gender::Custom(_) => &names.names,
+                Gender::Male => &game_data.names.male_names,
+                Gender::Female => &game_data.names.female_names,
+                Gender::Custom(_) => &game_data.names.names,
             }
             .choose(rng)
             .unwrap(),
-            names.names.choose(rng).unwrap()
+            game_data.names.male_names.choose(rng).unwrap()
         );
         Character::new(
             name,
