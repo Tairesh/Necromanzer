@@ -4,6 +4,7 @@ mod meta;
 mod save;
 
 pub use savefile::game_view::GameView;
+pub use savefile::load::have_avatar;
 pub use savefile::load::load;
 pub use savefile::load::load_world;
 pub use savefile::load::savefiles;

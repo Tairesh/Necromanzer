@@ -25,7 +25,7 @@ impl App {
         let fps_counter = Label::new(
             "00",
             assets.fonts.default.clone(),
-            Colors::BLACK,
+            Colors::LIME,
             Position::by_right_top(-10.0, 10.0),
         );
         let mut app = Self {

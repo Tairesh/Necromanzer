@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use actions::Action;
 use assets::tileset::Tileset;
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
@@ -10,15 +11,6 @@ use map::item::{Item, ItemType};
 use map::pos::TilePos;
 use tetra::graphics::DrawParams;
 use tetra::Context;
-use world::World;
-
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct Action {
-    pub finish: u128,
-}
-impl Action {
-    pub fn act(&self, _world: &World) {}
-}
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
@@ -28,6 +20,7 @@ pub struct Avatar {
     pub action: Option<Action>,
     pub vision: TwoDimDirection,
     pub wield: Vec<Item>, // TODO: custom struct with hands counter
+    pub stamina: u8,
 }
 
 impl Avatar {
@@ -39,6 +32,7 @@ impl Avatar {
             action: None,
             vision: TwoDimDirection::East,
             wield: Vec::new(),
+            stamina: 100,
         }
     }
 

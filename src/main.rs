@@ -9,6 +9,7 @@ extern crate tetra;
 extern crate time;
 extern crate variant_count;
 
+mod actions;
 mod app;
 mod assets;
 mod avatar;

@@ -147,7 +147,11 @@ impl Scene for LoadWorld {
         if event % 2 == 0 {
             // load
             if let Some(meta) = savefile::load(path) {
-                Some(vec![Transition::Replace(GameScene::CreateCharacter(meta))])
+                if savefile::have_avatar(path) {
+                    Some(vec![Transition::Replace(GameScene::Game(meta))])
+                } else {
+                    Some(vec![Transition::Replace(GameScene::CreateCharacter(meta))])
+                }
             } else {
                 panic!("Can't load savefile: {:?}", path)
             }

@@ -2,17 +2,18 @@ use app::App;
 use assets::game_data::GameData;
 use assets::tileset::Tileset;
 use colors::Colors;
-use geometry::direction::{Direction, DIR9};
+use geometry::direction::{Direction, TwoDimDirection, DIR9};
 use geometry::Vec2;
 use input;
 use scenes::game_mode::GameMode;
+use scenes::implements::game_modes;
 use scenes::scene::Scene;
 use scenes::transition::SomeTransitions;
 use sprites::label::Label;
-use sprites::position::Position;
-use sprites::sprite::{Positionate, Stringify};
+use sprites::position::{Position, Vertical};
 use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
+use std::convert::TryFrom;
 use std::rc::Rc;
 use std::time::Instant;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
@@ -21,16 +22,16 @@ use tetra::Context;
 use world::World;
 
 pub struct Game {
-    sprites: BunchOfSprites,
-    world: World,
-    game_data: Rc<GameData>,
+    pub sprites: BunchOfSprites,
+    pub world: World,
+    pub game_data: Rc<GameData>,
     // TODO: logger
-    last_walk: Instant,
-    mode: GameMode,
-    cursor: Mesh,
-    selected: Option<Direction>,
-    current_time_label: Rc<RefCell<Label>>,
-    tileset: Rc<Tileset>,
+    pub last_walk: Instant,
+    pub mode: GameMode,
+    pub cursor: Mesh,
+    pub selected: Option<Direction>,
+    pub current_time_label: Rc<RefCell<Label>>,
+    pub tileset: Rc<Tileset>,
 }
 
 impl Game {
@@ -45,7 +46,7 @@ impl Game {
             format!("{}", world.meta.current_tick),
             app.assets.fonts.default2.clone(),
             Colors::WHITE_SMOKE,
-            Position::by_right_top(-5.0, 5.0),
+            Position::horizontal_center(0.0, Vertical::ByTop { y: 5.0 }),
         )));
         Self {
             sprites: vec![name_label, current_time_label.clone()],
@@ -69,6 +70,15 @@ impl Game {
             tileset: app.assets.tileset.clone(),
         }
     }
+
+    pub fn select(&mut self, dir: Direction) {
+        if self.selected.is_none() {
+            self.selected = Some(dir);
+            if let Ok(dir) = TwoDimDirection::try_from(dir) {
+                self.world.avatar.vision = dir;
+            }
+        }
+    }
 }
 
 impl Scene for Game {
@@ -82,34 +92,33 @@ impl Scene for Game {
                 self.world.game_view.zoom = 10;
             }
         }
-        // if let Some(t) = match self.mode {
-        //     GameMode::Default => self.update_default(ctx),
-        //     GameMode::Examining => self.update_examining(ctx),
-        //     GameMode::Wielding => self.update_wielding(ctx),
-        //     GameMode::Dropping => self.update_dropping(ctx),
-        //     GameMode::Digging => self.update_digging(ctx),
-        // } {
-        //     return Some(t);
-        // }
+        if let Some(t) = match self.mode {
+            GameMode::Default => game_modes::default::update(self, ctx),
+            GameMode::Examining => game_modes::examining::update(self, ctx),
+            GameMode::Wielding => game_modes::wielding::update(self, ctx),
+            GameMode::Dropping => game_modes::dropping::update(self, ctx),
+            GameMode::Digging => game_modes::digging::update(self, ctx),
+        } {
+            return Some(t);
+        }
         if self.world.avatar.action.is_some() {
-            // let (delta, action) = {
-            //     let starting_tick = self.world.meta.current_tick;
-            //     let action = self.world.avatar.action.unwrap().action.name(&mut world);
-            //     self.world.tick();
-            //     (
-            //         (self.world.meta.current_tick - starting_tick) as u32,
-            //         action,
-            //     )
-            // };
-            // if delta > 20 && delta < World::SPEND_LIMIT {
-            //     self.log(format!("It takes a long time to {}.", action).as_str());
-            // }
-            self.current_time_label
-                .borrow_mut()
-                .set_value(format!("{}", self.world.meta.current_tick));
-            self.current_time_label
-                .borrow_mut()
-                .positionate(ctx, tetra::window::get_size(ctx));
+            let (delta, action) = {
+                let starting_tick = self.world.meta.current_tick;
+                let action = self.world.avatar.action.unwrap().action.name(&self.world);
+                self.world.tick();
+                (
+                    (self.world.meta.current_tick - starting_tick) as u32,
+                    action,
+                )
+            };
+            if delta > 20 && delta < World::SPEND_LIMIT {
+                println!("It takes a long time to {}.", action.as_str());
+            }
+            self.current_time_label.borrow_mut().update(
+                format!("{}", self.world.meta.current_tick),
+                ctx,
+                tetra::window::get_size(ctx),
+            )
         }
         None
     }

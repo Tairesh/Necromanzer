@@ -73,6 +73,17 @@ pub fn load(path: &Path) -> Option<Meta> {
         .map(|s: Meta| s.with_path(path))
 }
 
+pub fn have_avatar(path: &Path) -> bool {
+    if let Ok(file) = File::open(path) {
+        let mut lines = BufReader::new(&file).lines();
+        lines.next();
+        lines.next();
+        lines.next().is_some()
+    } else {
+        false
+    }
+}
+
 pub fn load_world(path: &Path, game_data: Rc<GameData>) -> Result<World, LoadError> {
     let file = File::open(path)?;
     let mut lines = BufReader::new(&file).lines();

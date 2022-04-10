@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use actions::ActionResult;
 use assets::game_data::GameData;
 use avatar::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
@@ -74,6 +75,12 @@ impl World {
             .or_insert_with_key(|pos| Chunk::generate(seed, &game_data, *pos))
     }
 
+    pub fn get_tile(&self, pos: TilePos) -> Option<&Tile> {
+        let (chunk, pos) = pos.chunk_and_pos();
+        let chunk = self.get_chunk(chunk)?;
+        Some(&chunk.tiles[pos])
+    }
+
     pub fn load_tile(&mut self, pos: TilePos) -> &Tile {
         let (chunk, pos) = pos.chunk_and_pos();
         let chunk = self.load_chunk(chunk);
@@ -146,9 +153,18 @@ impl World {
 
     /// Doing actions that should be done
     fn act(&mut self) {
-        if let Some(action) = &self.avatar.action {
+        if let Some(action) = self.avatar.action {
             if action.finish <= self.meta.current_tick {
-                action.act(self);
+                if let Some(result) = action.act(self) {
+                    match result {
+                        ActionResult::LogMessage(msg) => {
+                            println!("{}", msg);
+                        }
+                    }
+                }
+            }
+            if self.meta.current_tick == action.finish {
+                self.avatar.action = None;
             }
         }
     }
