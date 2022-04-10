@@ -5,6 +5,7 @@ use scenes::game_scene::GameScene;
 pub enum Transition {
     Push(GameScene),
     Pop,
+    GoMainMenu,         // pop until one
     Replace(GameScene), // pop and push
     CustomEvent(u8),
     ChangeSettings(SettingsChange),

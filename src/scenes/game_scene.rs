@@ -15,7 +15,7 @@ pub enum GameScene {
     LoadWorld,
     CreateCharacter(Meta),
     Game(Meta),
-    // GameMenu,
+    GameMenu,
 }
 
 impl GameScene {
@@ -33,6 +33,7 @@ impl GameScene {
                 let world = savefile::load_world(&meta.path, app.assets.game_data.clone()).unwrap();
                 Box::new(implements::Game::new(world, app, ctx))
             }
+            GameScene::GameMenu => Box::new(implements::GameMenu::new(app)),
         }
     }
 }

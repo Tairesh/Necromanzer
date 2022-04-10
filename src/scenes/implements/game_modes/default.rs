@@ -12,7 +12,7 @@ use tetra::Context;
 
 pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     if input::is_key_pressed(ctx, Key::Escape) {
-        return Some(vec![Transition::Push(GameScene::Empty)]);
+        return Some(vec![Transition::Push(GameScene::GameMenu)]);
     } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {
         game.mode = GameMode::Examining;
     } else if input::is_key_pressed(ctx, Key::D) && input::is_no_key_modifiers(ctx) {

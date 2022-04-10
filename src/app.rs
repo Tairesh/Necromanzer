@@ -120,6 +120,11 @@ impl App {
                     }
                 }
             },
+            Transition::GoMainMenu => {
+                while self.scenes.len() > 1 {
+                    self.pop_scene(ctx);
+                }
+            }
         }
     }
 }

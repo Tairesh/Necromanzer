@@ -40,7 +40,7 @@ impl Game {
             world.avatar.character.name.as_str(),
             app.assets.fonts.header2.clone(),
             Colors::WHITE_SMOKE,
-            Position::by_left_top(40.0, 1.0),
+            Position::by_left_top(50.0, 1.0),
         )));
         let current_time_label = Rc::new(RefCell::new(Label::new(
             format!("{}", world.meta.current_tick),
