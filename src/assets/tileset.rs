@@ -3,6 +3,7 @@ use tetra::Context;
 
 #[derive(Debug)]
 pub struct Tileset {
+    pub tile_size: i32,
     pub texture: Texture,
 
     pub male: Rectangle,
@@ -78,6 +79,7 @@ pub struct Tileset {
 impl Tileset {
     pub fn load(ctx: &mut Context) -> tetra::Result<Self> {
         Ok(Self {
+            tile_size: 10, // TODO: support custom tilesets
             texture: Texture::from_encoded(ctx, include_bytes!("../../inc/img/tileset.png"))?,
 
             female: Rectangle::new(0.0, 0.0, 10.0, 10.0),

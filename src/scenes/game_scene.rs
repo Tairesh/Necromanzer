@@ -1,4 +1,5 @@
 use app::App;
+use savefile;
 use savefile::Meta;
 use scenes::implements;
 use scenes::scene::Scene;
@@ -13,11 +14,12 @@ pub enum GameScene {
     CreateWorld,
     LoadWorld,
     CreateCharacter(Meta),
+    Game(Meta),
     // GameMenu,
 }
 
 impl GameScene {
-    pub fn to_impl(&self, app: &App, ctx: &mut Context) -> Box<dyn Scene> {
+    pub fn into_impl(self, app: &App, ctx: &mut Context) -> Box<dyn Scene> {
         match self {
             GameScene::MainMenu => Box::new(implements::MainMenu::new(app)),
             GameScene::Empty => Box::new(implements::Empty {}),
@@ -25,7 +27,11 @@ impl GameScene {
             GameScene::CreateWorld => Box::new(implements::CreateWorld::new(app, ctx)),
             GameScene::LoadWorld => Box::new(implements::LoadWorld::new(app, ctx)),
             GameScene::CreateCharacter(meta) => {
-                Box::new(implements::CreateCharacter::new(meta.clone(), app, ctx))
+                Box::new(implements::CreateCharacter::new(meta, app, ctx))
+            }
+            GameScene::Game(meta) => {
+                let world = savefile::load_world(&meta.path, app.assets.game_data.clone()).unwrap();
+                Box::new(implements::Game::new(world, app, ctx))
             }
         }
     }

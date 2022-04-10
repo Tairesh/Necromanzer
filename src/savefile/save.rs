@@ -67,6 +67,12 @@ fn make_data_form_world(world: &World) -> Result<String, SaveError> {
     let mut data = serde_json::to_string(&world.meta).map_err(SaveError::from)?;
     data.push('\n');
     data.push_str(
+        serde_json::to_string(&world.game_view)
+            .map_err(SaveError::from)?
+            .as_str(),
+    );
+    data.push('\n');
+    data.push_str(
         serde_json::to_string(&world.avatar)
             .map_err(SaveError::from)?
             .as_str(),

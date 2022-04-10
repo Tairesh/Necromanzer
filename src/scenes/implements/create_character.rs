@@ -8,7 +8,7 @@ use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 use map::pos::TilePos;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
-use savefile::Meta;
+use savefile::{GameView, Meta};
 use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
@@ -464,13 +464,16 @@ impl Scene for CreateCharacter {
                     let avatar = Avatar::new(character, TilePos::new(0, 0));
                     let mut world = World::new(
                         self.meta.clone(),
+                        GameView::default(),
                         avatar,
                         HashMap::new(),
                         self.game_data.clone(),
                     )
                     .init();
                     world.save();
-                    Some(vec![Transition::Replace(GameScene::Empty)])
+                    Some(vec![Transition::Replace(GameScene::Game(
+                        self.meta.clone(),
+                    ))])
                 }
             }
         }

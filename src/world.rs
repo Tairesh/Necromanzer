@@ -7,7 +7,7 @@ use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};
 use map::tile::Tile;
 use rand::Rng;
-use savefile::Meta;
+use savefile::{GameView, Meta};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::rc::Rc;
@@ -16,6 +16,7 @@ use {geometry, savefile};
 #[derive(Debug)]
 pub struct World {
     pub meta: Meta,
+    pub game_view: GameView,
     pub avatar: Avatar,
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
@@ -25,6 +26,7 @@ pub struct World {
 impl World {
     pub fn new(
         meta: Meta,
+        game_view: GameView,
         avatar: Avatar,
         chunks: HashMap<ChunkPos, Chunk>,
         game_data: Rc<GameData>,
@@ -32,6 +34,7 @@ impl World {
         let changed = chunks.keys().copied().collect();
         Self {
             meta,
+            game_view,
             avatar,
             chunks,
             changed,

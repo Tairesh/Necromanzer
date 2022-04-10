@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+mod game_mode;
 pub mod game_scene;
 pub mod implements;
 pub mod scene;

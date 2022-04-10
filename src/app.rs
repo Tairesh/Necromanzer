@@ -69,7 +69,7 @@ impl App {
     }
 
     fn push_scene(&mut self, ctx: &mut Context, scene: GameScene) {
-        self.scenes.push(scene.to_impl(self, ctx));
+        self.scenes.push(scene.into_impl(self, ctx));
         self.on_open(ctx);
     }
 

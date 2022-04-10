@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use crate::geometry::point::Point;
+use geometry::Vec2;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -55,6 +56,10 @@ impl Direction {
             Direction::SouthEast | Direction::South | Direction::SouthWest => 1,
             Direction::East | Direction::West | Direction::Here => 0,
         }
+    }
+
+    pub fn as_vec(&self) -> Vec2 {
+        Vec2::new(self.dx() as f32, self.dy() as f32)
     }
 
     pub fn is_here(&self) -> bool {

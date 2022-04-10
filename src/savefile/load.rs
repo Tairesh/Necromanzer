@@ -1,8 +1,13 @@
+use assets::game_data::GameData;
+use map::chunk::Chunk;
 use savefile::meta::Meta;
 use savefile::SAVEFILES_FOLDER;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
+use std::rc::Rc;
+use world::World;
 
 pub fn savefiles_exists() -> bool {
     let path = Path::new(SAVEFILES_FOLDER);
@@ -66,4 +71,40 @@ pub fn load(path: &Path) -> Option<Meta> {
     serde_json::from_str(meta.as_str())
         .ok()
         .map(|s: Meta| s.with_path(path))
+}
+
+pub fn load_world(path: &Path, game_data: Rc<GameData>) -> Result<World, LoadError> {
+    let file = File::open(path)?;
+    let mut lines = BufReader::new(&file).lines();
+    let meta = lines.next().unwrap()?;
+    let game_view = lines.next().unwrap()?;
+    let mut units_data = Vec::new();
+    loop {
+        let unit = lines.next().unwrap()?;
+        if unit.eq("/units") {
+            break;
+        }
+        units_data.push(unit);
+    }
+    let mut chunks_data = Vec::new();
+    loop {
+        let chunk = lines.next().unwrap()?;
+        if chunk.eq("/chunks") {
+            break;
+        }
+        chunks_data.push(chunk);
+    }
+
+    let mut map = HashMap::with_capacity(chunks_data.len());
+    for chunk in chunks_data.iter() {
+        let chunk: Chunk = serde_json::from_str(chunk).unwrap();
+        map.insert(chunk.pos, chunk);
+    }
+    Ok(World::new(
+        serde_json::from_str(meta.as_str()).map(|s: Meta| s.with_path(path))?,
+        serde_json::from_str(game_view.as_str())?,
+        serde_json::from_str(units_data.get(0).unwrap().as_str())?,
+        map,
+        game_data,
+    ))
 }
