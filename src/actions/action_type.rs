@@ -113,6 +113,9 @@ impl ActionType {
                 world.get_tile(pos).unwrap().terrain.is_walkable()
             }
             ActionType::Wielding(dir) => {
+                if !world.avatar.wield.is_empty() {
+                    return false;
+                }
                 let pos = world.avatar.pos + dir;
                 !world.get_tile(pos).unwrap().items.is_empty()
             }

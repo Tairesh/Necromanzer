@@ -38,7 +38,15 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
             game.mode = GameMode::Dropping;
         }
     } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
-        game.mode = GameMode::Wielding;
+        if !game.world.avatar.wield.is_empty() {
+            // TODO: check limit of hands
+            println!(
+                "You are already wielding the {}",
+                game.world.avatar.wield.last().unwrap().item_type.name()
+            );
+        } else {
+            game.mode = GameMode::Wielding;
+        }
         // } else if input::is_key_pressed(ctx, Key::C)
         //     && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         // {
