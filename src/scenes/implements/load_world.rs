@@ -18,10 +18,24 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::Rectangle;
+use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 use time::format_description::FormatItem;
 use time::OffsetDateTime;
 use {savefile, VERSION};
+
+const KEYS: [Key; 10] = [
+    Key::Num1,
+    Key::Num2,
+    Key::Num3,
+    Key::Num4,
+    Key::Num5,
+    Key::Num6,
+    Key::Num7,
+    Key::Num8,
+    Key::Num9,
+    Key::Num0,
+];
 
 const DATETIME_FORMAT: &[FormatItem] =
     time::macros::format_description!("[year].[month].[day] [hour]:[minute]:[second]");
@@ -36,6 +50,7 @@ impl LoadWorld {
         let savefiles = savefiles();
         let mut sprites: BunchOfSprites = Vec::with_capacity(savefiles.len() * 6 + 1);
         let height = savefiles.len() as f32 * 50.0 + 33.0;
+        // TODO: Add scroll if there are too many savefiles
         let mut y = -height / 2.0;
 
         sprites.push(Rc::new(RefCell::new(Alert::new(
@@ -101,19 +116,35 @@ impl LoadWorld {
                 },
             ))));
             sprites.push(Rc::new(RefCell::new(Button::text(
-                vec![],
-                "Load",
+                if i < 10 {
+                    vec![(KEYS[i], None)]
+                } else {
+                    vec![]
+                },
+                if i < 10 {
+                    format!("[{}] Load", if i < 9 { i + 1 } else { 0 })
+                } else {
+                    "Load".to_string()
+                },
                 app.assets.fonts.default.clone(),
                 app.assets.button.clone(),
                 Position {
-                    x: Horizontal::AtWindowCenterByRight { offset: 190.0 },
+                    x: Horizontal::AtWindowCenterByRight { offset: 120.0 },
                     y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
                 },
                 Transition::CustomEvent((i * 2) as u8),
             ))));
             sprites.push(Rc::new(RefCell::new(Button::text(
-                vec![],
-                "Delete",
+                if i < 10 {
+                    vec![(KEYS[i], Some(KeyModifier::Alt))]
+                } else {
+                    vec![]
+                },
+                if i < 10 {
+                    format!("[Alt+{}] Delete", if i < 9 { i + 1 } else { 0 })
+                } else {
+                    "Delete".to_string()
+                },
                 app.assets.fonts.default.clone(),
                 app.assets.button.clone(),
                 Position {

@@ -80,14 +80,17 @@ impl Button {
         }
     }
 
-    pub fn text(
+    pub fn text<S>(
         keys: Vec<(Key, Option<KeyModifier>)>,
-        text: &str,
+        text: S,
         font: PreparedFont,
         asset: Rc<ButtonAsset>,
         position: Position,
         on_click: Transition,
-    ) -> Self {
+    ) -> Self
+    where
+        S: Into<String>,
+    {
         Self::new(
             keys,
             ButtonContent::Text(Text::new(text, font.font), font.line_height),
