@@ -37,7 +37,7 @@ pub struct Game {
 impl Game {
     pub fn new(world: World, app: &App, ctx: &mut Context) -> Self {
         let name_label = Rc::new(RefCell::new(Label::new(
-            world.avatar.character.name.as_str(),
+            world.player().character.name.as_str(),
             app.assets.fonts.header2.clone(),
             Colors::WHITE_SMOKE,
             Position::by_left_top(50.0, 1.0),
@@ -75,7 +75,7 @@ impl Game {
         if self.selected.is_none() {
             self.selected = Some(dir);
             if let Ok(dir) = TwoDimDirection::try_from(dir) {
-                self.world.avatar.vision = dir;
+                self.world.player_mut().vision = dir;
             }
         }
     }
@@ -101,10 +101,10 @@ impl Scene for Game {
         } {
             return Some(t);
         }
-        if self.world.avatar.action.is_some() {
+        if self.world.player().action.is_some() {
             let (delta, action) = {
                 let starting_tick = self.world.meta.current_tick;
-                let action = self.world.avatar.action.unwrap().action.name(&self.world);
+                let action = self.world.player().action.unwrap().action.name(&self.world);
                 self.world.tick();
                 (
                     (self.world.meta.current_tick - starting_tick) as u32,
@@ -136,49 +136,53 @@ impl Scene for Game {
             window_size.0 as f32 / 2.0 - 5.0 * zoom,
             window_size.1 as f32 / 2.0 - 5.0 * zoom,
         );
-        {
-            let center_tile = self.world.avatar.pos;
-            let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
-            let right_bottom =
-                center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
-            for (pos, tile) in self.world.tiles_between(left_top, right_bottom).into_iter() {
-                let dx = pos.x - center_tile.x;
-                let dy = pos.y - center_tile.y;
-                let region = tile.terrain.region(&self.tileset);
-                let params = DrawParams::new()
-                    .position(Vec2::new(
-                        center.x + dx as f32 * self.tileset.tile_size as f32 * zoom,
-                        center.y + dy as f32 * self.tileset.tile_size as f32 * zoom,
-                    ))
-                    .scale(scale);
-                self.tileset
-                    .texture
-                    .draw_region(ctx, region, params.clone());
-                if let Some(item) = tile.top_item() {
-                    self.tileset.texture.draw_region(
-                        ctx,
-                        item.item_type.region(&self.tileset),
-                        params.clone(),
-                    );
-                    if tile.items.len() > 1 {
-                        self.tileset
-                            .texture
-                            .draw_region(ctx, self.tileset.highlight, params);
-                    }
+        let center_tile = self.world.player().pos;
+        let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
+        let right_bottom = center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
+        for (pos, tile) in self.world.tiles_between(left_top, right_bottom).into_iter() {
+            let dx = pos.x - center_tile.x;
+            let dy = pos.y - center_tile.y;
+            let region = tile.terrain.region(&self.tileset);
+            let params = DrawParams::new()
+                .position(Vec2::new(
+                    center.x + dx as f32 * self.tileset.tile_size as f32 * zoom,
+                    center.y + dy as f32 * self.tileset.tile_size as f32 * zoom,
+                ))
+                .scale(scale);
+            self.tileset
+                .texture
+                .draw_region(ctx, region, params.clone());
+            if let Some(item) = tile.top_item() {
+                self.tileset.texture.draw_region(
+                    ctx,
+                    item.item_type.region(&self.tileset),
+                    params.clone(),
+                );
+                if tile.items.len() > 1 {
+                    self.tileset
+                        .texture
+                        .draw_region(ctx, self.tileset.highlight, params);
                 }
             }
         }
-        self.world
-            .avatar
-            .draw(ctx, &self.tileset, center, zoom, true);
-        // if self.world.avatar.action.is_some() {
+        for i in self.world.loaded_units.iter().copied() {
+            let unit = self.world.units.get(i).unwrap();
+            let dx = unit.pos.x - center_tile.x;
+            let dy = unit.pos.y - center_tile.y;
+            let position = Vec2::new(
+                center.x + dx as f32 * self.tileset.tile_size as f32 * zoom,
+                center.y + dy as f32 * self.tileset.tile_size as f32 * zoom,
+            );
+            unit.draw(ctx, &self.tileset, position, zoom, true);
+        }
+        // if self.world.player().action.is_some() {
         //     self.draw_action_loader(ctx, center);
         // } else {
         //     self.action_text = None;
         // }
         if self.mode.draw_cursors() {
             for dir in DIR9 {
-                let pos = self.world.avatar.pos + dir;
+                let pos = self.world.player().pos + dir;
                 if self.mode.cursor_here(self.world.load_tile(pos)) {
                     let delta = dir.as_vec() * self.tileset.tile_size as f32 * zoom;
                     self.cursor.draw(
@@ -216,8 +220,9 @@ impl Scene for Game {
     }
 
     fn after_draw(&mut self, ctx: &mut Context) {
+        // UI
         self.world
-            .avatar
+            .player()
             .draw(ctx, &self.tileset, Vec2::new(5.0, 5.0), 3.0, false);
     }
 

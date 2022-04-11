@@ -13,7 +13,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     if let Some(dir) = input::get_direction_keys_down(ctx) {
         if game.selected.is_none() {
             game.select(dir);
-            let pos = game.world.avatar.pos + dir;
+            let pos = game.world.player().pos + dir;
             let tile = game.world.load_tile(pos);
             let mut this_is = tile.terrain.this_is();
             if !tile.items.is_empty() {

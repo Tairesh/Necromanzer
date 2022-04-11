@@ -1,4 +1,5 @@
 use assets::game_data::GameData;
+use avatar::Avatar;
 use map::chunk::Chunk;
 use savefile::meta::Meta;
 use savefile::SAVEFILES_FOLDER;
@@ -106,16 +107,22 @@ pub fn load_world(path: &Path, game_data: Rc<GameData>) -> Result<World, LoadErr
         chunks_data.push(chunk);
     }
 
-    let mut map = HashMap::with_capacity(chunks_data.len());
+    let mut units = Vec::with_capacity(units_data.len());
+    for unit in units_data.iter() {
+        let unit: Avatar = serde_json::from_str(unit).unwrap();
+        units.push(unit);
+    }
+
+    let mut chunks = HashMap::with_capacity(chunks_data.len());
     for chunk in chunks_data.iter() {
         let chunk: Chunk = serde_json::from_str(chunk).unwrap();
-        map.insert(chunk.pos, chunk);
+        chunks.insert(chunk.pos, chunk);
     }
     Ok(World::new(
         serde_json::from_str(meta.as_str()).map(|s: Meta| s.with_path(path))?,
         serde_json::from_str(game_view.as_str())?,
-        serde_json::from_str(units_data.get(0).unwrap().as_str())?,
-        map,
+        units,
+        chunks,
         game_data,
     ))
 }

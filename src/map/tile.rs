@@ -1,13 +1,17 @@
 #![allow(dead_code)]
+
 use human::body::{Body, Freshness};
 use map::item::{Item, ItemType};
 use map::terrains::{DeadGrassVariant, DirtVariant, GrassVariant, Terrain};
 use rand::Rng;
+use std::collections::HashSet;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Tile {
     pub terrain: Terrain,
     pub items: Vec<Item>,
+    #[serde(skip)]
+    pub units: HashSet<usize>,
 }
 
 impl Tile {
@@ -15,14 +19,18 @@ impl Tile {
         Self {
             terrain,
             items: Vec::new(),
+            units: HashSet::new(),
         }
     }
 
     /// Calls when avatar leaves tile
-    pub fn off_step(&mut self) {}
+    pub fn off_step(&mut self, unit_id: usize) {
+        self.units.remove(&unit_id);
+    }
 
     /// Calls when avatar walks on tile
-    pub fn on_step(&mut self) {
+    pub fn on_step(&mut self, unit_id: usize) {
+        self.units.insert(unit_id);
         // TODO: (for future) footprints
         if rand::thread_rng().gen_bool(0.1) {
             match self.terrain {

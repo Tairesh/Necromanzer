@@ -31,6 +31,12 @@ impl TilePos {
         let pos = ((self.x - left_top.x) * Chunk::SIZE + self.y - left_top.y) as usize;
         (chunk, pos)
     }
+
+    pub fn square_dist_to(&self, other: TilePos) -> u32 {
+        let dx = self.x.abs_diff(other.x);
+        let dy = self.y.abs_diff(other.y);
+        dx * dx + dy * dy
+    }
 }
 
 impl Add<Direction> for TilePos {

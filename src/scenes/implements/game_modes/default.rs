@@ -16,7 +16,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {
         game.mode = GameMode::Examining;
     } else if input::is_key_pressed(ctx, Key::D) && input::is_no_key_modifiers(ctx) {
-        if game.world.avatar.wield.is_empty() {
+        if game.world.player().wield.is_empty() {
             // TODO: log
             println!("You have nothing to drop!");
         } else {
@@ -24,7 +24,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
             if action.is_possible(&game.world) {
                 let length = action.length(&game.world);
                 let finish = game.world.meta.current_tick + length;
-                game.world.avatar.action = Some(Action::new(finish, action));
+                game.world.player_mut().action = Some(Action::new(finish, action));
             } else {
                 println!("You can't put items here!");
             }
@@ -32,17 +32,17 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     } else if input::is_key_pressed(ctx, Key::D)
         && input::is_key_modifier_down(ctx, KeyModifier::Shift)
     {
-        if game.world.avatar.wield.is_empty() {
+        if game.world.player().wield.is_empty() {
             println!("You have nothing to drop!");
         } else {
             game.mode = GameMode::Dropping;
         }
     } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
-        if !game.world.avatar.wield.is_empty() {
+        if !game.world.player().wield.is_empty() {
             // TODO: check limit of hands
             println!(
                 "You are already wielding the {}",
-                game.world.avatar.wield.last().unwrap().item_type.name()
+                game.world.player().wield.last().unwrap().item_type.name()
             );
         } else {
             game.mode = GameMode::Wielding;
@@ -54,7 +54,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     } else if input::is_key_pressed(ctx, Key::G) && input::is_no_key_modifiers(ctx) {
         if game
             .world
-            .avatar
+            .player()
             .wield
             .iter()
             .any(|i| matches!(i.item_type, ItemType::Shovel))
@@ -77,13 +77,14 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
             if dir.is_here() {
                 let action = ActionType::SkippingTime;
                 let finish = game.world.meta.current_tick + action.length(&game.world);
-                game.world.avatar.action = Some(Action::new(finish, action));
+                game.world.player_mut().action = Some(Action::new(finish, action));
             } else {
+                // TODO: move length calc and possibility checks to Action::new()
                 let action = ActionType::Walking(dir);
                 if action.is_possible(&game.world) {
                     let length = action.length(&game.world);
                     let finish = game.world.meta.current_tick + length;
-                    game.world.avatar.action = Some(Action::new(finish, action));
+                    game.world.player_mut().action = Some(Action::new(finish, action));
                 }
             }
         }

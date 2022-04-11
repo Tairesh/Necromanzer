@@ -465,7 +465,7 @@ impl Scene for CreateCharacter {
                     let mut world = World::new(
                         self.meta.clone(),
                         GameView::default(),
-                        avatar,
+                        vec![avatar],
                         HashMap::new(),
                         self.game_data.clone(),
                     )

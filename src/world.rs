@@ -18,7 +18,8 @@ use {geometry, savefile};
 pub struct World {
     pub meta: Meta,
     pub game_view: GameView,
-    pub avatar: Avatar,
+    pub units: Vec<Avatar>,
+    pub loaded_units: HashSet<usize>,
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
     game_data: Rc<GameData>,
@@ -28,23 +29,28 @@ impl World {
     pub fn new(
         meta: Meta,
         game_view: GameView,
-        avatar: Avatar,
+        units: Vec<Avatar>,
         chunks: HashMap<ChunkPos, Chunk>,
         game_data: Rc<GameData>,
     ) -> Self {
         let changed = chunks.keys().copied().collect();
-        Self {
+        let mut loaded_units = HashSet::with_capacity(1);
+        loaded_units.insert(0);
+        let mut world = Self {
             meta,
             game_view,
-            avatar,
+            units,
+            loaded_units,
             chunks,
             changed,
             game_data,
-        }
+        };
+        world.load_units();
+        world
     }
 
     pub fn init(mut self) -> Self {
-        self.kill_grass(self.avatar.pos, 13, 0.8);
+        self.kill_grass(self.player().pos, 13, 0.8);
         self
     }
 
@@ -123,14 +129,26 @@ impl World {
         tiles
     }
 
+    pub fn player(&self) -> &Avatar {
+        self.units.get(0).unwrap()
+    }
+
+    pub fn player_mut(&mut self) -> &mut Avatar {
+        self.units.get_mut(0).unwrap()
+    }
+
     pub fn move_avatar(&mut self, dir: Direction) {
-        let pos = self.avatar.pos;
-        self.load_tile_mut(pos).off_step();
-        self.avatar.pos = pos + dir;
+        let pos = self.player().pos;
+        let (old_chunk, _) = pos.chunk_and_pos();
+        self.load_tile_mut(pos).off_step(0);
+        self.player_mut().pos = pos + dir;
         if let Ok(dir) = TwoDimDirection::try_from(dir) {
-            self.avatar.vision = dir;
+            self.player_mut().vision = dir;
         }
-        self.load_tile_mut(self.avatar.pos).on_step();
+        self.load_tile_mut(self.player().pos).on_step(0);
+        if old_chunk != self.player().pos.chunk_and_pos().0 {
+            self.load_units();
+        }
     }
 
     pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
@@ -153,7 +171,7 @@ impl World {
 
     /// Doing actions that should be done
     fn act(&mut self) {
-        if let Some(action) = self.avatar.action {
+        if let Some(action) = self.player().action {
             if action.finish >= self.meta.current_tick {
                 if let Some(result) = action.act(self) {
                     match result {
@@ -164,22 +182,39 @@ impl World {
                 }
             }
             if self.meta.current_tick == action.finish {
-                self.avatar.action = None;
+                self.player_mut().action = None;
+            }
+        }
+    }
+
+    fn load_units(&mut self) {
+        let center = self.player().pos;
+        if self.units.len() > 1 {
+            for i in 1..self.units.len() {
+                let pos = self.units.get(i).unwrap().pos;
+                let dist = pos.square_dist_to(center);
+                if dist < Self::BUBBLE_SQUARE_RADIUS {
+                    self.loaded_units.insert(i);
+                    self.load_tile_mut(pos).units.insert(i);
+                } else {
+                    self.loaded_units.remove(&i);
+                }
             }
         }
     }
 
     fn every_tick(&mut self) {
-        self.kill_grass(self.avatar.pos, 13, 0.01);
+        self.kill_grass(self.player().pos, 13, 0.01);
         self.act();
     }
 
+    pub const BUBBLE_SQUARE_RADIUS: u32 = 128 * 128;
     pub const SPEND_LIMIT: u32 = 100;
 
     pub fn tick(&mut self) {
         self.act();
         let mut spend = 0;
-        while self.avatar.action.is_some() && spend < World::SPEND_LIMIT {
+        while self.player().action.is_some() && spend < Self::SPEND_LIMIT {
             self.meta.current_tick += 1;
             spend += 1;
             self.every_tick();

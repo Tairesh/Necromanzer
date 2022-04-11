@@ -71,12 +71,14 @@ fn make_data_form_world(world: &World) -> Result<String, SaveError> {
             .map_err(SaveError::from)?
             .as_str(),
     );
-    data.push('\n');
-    data.push_str(
-        serde_json::to_string(&world.avatar)
-            .map_err(SaveError::from)?
-            .as_str(),
-    );
+    for unit in world.units.iter() {
+        data.push('\n');
+        data.push_str(
+            serde_json::to_string(unit)
+                .map_err(SaveError::from)?
+                .as_str(),
+        );
+    }
     data.push_str("\n/units");
     for coords in world.changed.clone().iter() {
         let chunk = world.get_chunk(*coords).unwrap();

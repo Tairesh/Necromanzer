@@ -36,8 +36,8 @@ impl Action {
                 }
                 ActionType::Wielding(dir) => {
                     // TODO: other units
-                    if let Some(item) = world.load_tile_mut(world.avatar.pos + dir).items.pop() {
-                        world.avatar.wield.push(item.clone());
+                    if let Some(item) = world.load_tile_mut(world.player().pos + dir).items.pop() {
+                        world.player_mut().wield.push(item.clone());
                         Some(ActionResult::LogMessage(format!(
                             "You wield the {}",
                             item.item_type.name()
@@ -47,26 +47,26 @@ impl Action {
                     }
                 }
                 ActionType::Dropping(i, dir) => {
-                    let item = world.avatar.wield.get(i).unwrap().clone();
+                    let item = world.player().wield.get(i).unwrap().clone();
                     world
-                        .load_tile_mut(world.avatar.pos + dir)
+                        .load_tile_mut(world.player().pos + dir)
                         .items
                         .push(item.clone());
-                    world.avatar.wield.remove(i);
+                    world.player_mut().wield.remove(i);
                     Some(ActionResult::LogMessage(format!(
                         "You drop the {}",
                         item.item_type.name()
                     )))
                 }
                 ActionType::Digging(dir) => {
-                    let pos = world.avatar.pos + dir;
+                    let pos = world.player().pos + dir;
                     let items = world.load_tile_mut(pos).dig();
                     if !items.is_empty() {
                         let mut rng = rand::thread_rng();
                         let places: Vec<Direction> = DIR8
                             .iter()
                             .filter(|d| {
-                                pos + *d != world.avatar.pos
+                                pos + *d != world.player().pos
                                     && world.load_tile(pos + *d).terrain.is_walkable()
                             })
                             .copied()

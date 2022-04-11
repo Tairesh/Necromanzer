@@ -18,7 +18,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
         if action.is_possible(&game.world) {
             let length = action.length(&game.world);
             let finish = game.world.meta.current_tick + length;
-            game.world.avatar.action = Some(Action::new(finish, action));
+            game.world.player_mut().action = Some(Action::new(finish, action));
         } else {
             println!("Nothing to pick up here!");
         }
