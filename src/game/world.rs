@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use actions::ActionResult;
 use assets::game_data::GameData;
-use avatar::Avatar;
+use game::actions::ActionResult;
+use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};

@@ -1,25 +1,35 @@
-use actions::action_result::ActionResult;
-use actions::action_type::ActionType;
+use super::{ActionResult, ActionType};
+use game::actions::action_type::ActionPossibility;
+use game::World;
 use geometry::direction::{Direction, DIR8};
 use rand::seq::SliceRandom;
-use world::World;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Action {
-    pub action: ActionType,
+    pub typ: ActionType,
     pub finish: u128,
 }
 
 impl Action {
-    pub fn new(finish: u128, action: ActionType) -> Self {
-        Self { action, finish }
+    pub fn new(typ: ActionType, world: &World) -> Result<Self, String> {
+        match typ.is_possible(world) {
+            ActionPossibility::Yes => {
+                let finish = world.meta.current_tick + typ.length(world) as u128;
+                Ok(Self { typ, finish })
+            }
+            ActionPossibility::No(s) => Err(s),
+        }
+    }
+
+    pub fn name(&self, world: &World) -> String {
+        self.typ.name(world)
     }
 
     /// called every tick
     pub fn act(&self, world: &mut World) -> Option<ActionResult> {
-        let steps = self.finish - world.meta.current_tick;
-        if steps == self.action.length(world) {
-            match self.action {
+        let steps = (self.finish - world.meta.current_tick) as u32;
+        if steps == self.typ.length(world) {
+            match self.typ {
                 ActionType::Digging(..) => {
                     Some(ActionResult::LogMessage("You start digging".to_string()))
                 }
@@ -27,7 +37,7 @@ impl Action {
             }
         } else if steps == 0 {
             // finish
-            match self.action {
+            match self.typ {
                 ActionType::SkippingTime => None,
                 ActionType::Walking(dir) => {
                     // TODO: move other units

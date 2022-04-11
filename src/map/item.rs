@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use assets::tileset::Tileset;
-use avatar::Avatar;
+use game::Avatar;
 use human::body::{Body, BodyPart};
 use human::character::Character;
 use human::main_hand::MainHand;
@@ -169,5 +169,9 @@ pub struct Item {
 impl Item {
     pub fn new(item_type: ItemType) -> Self {
         Self { item_type }
+    }
+
+    pub fn name(&self) -> String {
+        self.item_type.name()
     }
 }

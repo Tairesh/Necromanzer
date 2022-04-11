@@ -1,14 +1,13 @@
+use super::Meta;
+use super::SAVEFILES_FOLDER;
 use assets::game_data::GameData;
-use avatar::Avatar;
+use game::{Avatar, World};
 use map::chunk::Chunk;
-use savefile::meta::Meta;
-use savefile::SAVEFILES_FOLDER;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::rc::Rc;
-use world::World;
 
 pub fn savefiles_exists() -> bool {
     let path = Path::new(SAVEFILES_FOLDER);

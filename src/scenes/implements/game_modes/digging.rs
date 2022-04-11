@@ -1,4 +1,4 @@
-use actions::{Action, ActionType};
+use game::actions::{Action, ActionType};
 use input;
 use scenes::game_mode::GameMode;
 use scenes::implements::Game;
@@ -14,14 +14,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     if let Some(dir) = input::get_direction_keys_down(ctx) {
         game.select(dir);
     } else if let Some(dir) = game.selected {
-        let action = ActionType::Digging(dir);
-        if action.is_possible(&game.world) {
-            let length = action.length(&game.world);
-            let finish = game.world.meta.current_tick + length;
-            game.world.player_mut().action = Some(Action::new(finish, action));
-        } else {
-            println!("You can't dig here!");
-        }
+        game.call_action(Action::new(ActionType::Digging(dir), &game.world));
         game.mode = GameMode::Default;
         game.selected = None;
     }

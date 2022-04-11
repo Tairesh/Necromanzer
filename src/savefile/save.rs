@@ -1,9 +1,9 @@
+use game::World;
 use savefile::meta::Meta;
 use savefile::SAVEFILES_FOLDER;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use world::World;
 
 #[derive(Debug)]
 pub enum SaveError {

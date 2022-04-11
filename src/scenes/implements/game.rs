@@ -2,6 +2,8 @@ use app::App;
 use assets::game_data::GameData;
 use assets::tileset::Tileset;
 use colors::Colors;
+use game::actions::Action;
+use game::World;
 use geometry::direction::{Direction, TwoDimDirection, DIR9};
 use geometry::Vec2;
 use input;
@@ -19,7 +21,6 @@ use std::time::Instant;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{DrawParams, Rectangle};
 use tetra::Context;
-use world::World;
 
 pub struct Game {
     pub sprites: BunchOfSprites,
@@ -79,6 +80,18 @@ impl Game {
             }
         }
     }
+
+    pub fn call_action(&mut self, action: Result<Action, String>) {
+        match action {
+            Ok(action) => {
+                self.world.player_mut().action = Some(action);
+            }
+            Err(msg) => {
+                // TODO: log
+                println!("{}", msg);
+            }
+        }
+    }
 }
 
 impl Scene for Game {
@@ -101,18 +114,12 @@ impl Scene for Game {
         } {
             return Some(t);
         }
-        if self.world.player().action.is_some() {
-            let (delta, action) = {
-                let starting_tick = self.world.meta.current_tick;
-                let action = self.world.player().action.unwrap().action.name(&self.world);
-                self.world.tick();
-                (
-                    (self.world.meta.current_tick - starting_tick) as u32,
-                    action,
-                )
-            };
-            if delta > 20 && delta < World::SPEND_LIMIT {
-                println!("It takes a long time to {}.", action.as_str());
+        if let Some(action) = self.world.player().action {
+            let starting_tick = self.world.meta.current_tick;
+            self.world.tick();
+            let delta = self.world.meta.current_tick - starting_tick;
+            if delta > 20 {
+                println!("It takes a long time to {}.", action.name(&self.world));
             }
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),

@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use actions::Action;
 use assets::tileset::Tileset;
+use game::actions::Action;
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
 use human::body::{Body, Freshness};

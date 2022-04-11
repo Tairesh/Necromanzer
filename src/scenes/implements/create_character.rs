@@ -1,7 +1,8 @@
 use app::App;
 use assets::game_data::GameData;
-use avatar::Avatar;
 use colors::Colors;
+use game::Avatar;
+use game::World;
 use geometry::Vec2;
 use human::character::Character;
 use human::main_hand::MainHand;
@@ -29,7 +30,6 @@ use tetra::graphics::Rectangle;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 use variant_count::VariantCount;
-use world::World;
 
 #[derive(IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone)]
 #[repr(u8)]

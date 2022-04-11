@@ -1,4 +1,4 @@
-use actions::{Action, ActionType};
+use game::actions::{Action, ActionType};
 use geometry::direction::Direction;
 use input;
 use map::item::ItemType;
@@ -16,19 +16,10 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {
         game.mode = GameMode::Examining;
     } else if input::is_key_pressed(ctx, Key::D) && input::is_no_key_modifiers(ctx) {
-        if game.world.player().wield.is_empty() {
-            // TODO: log
-            println!("You have nothing to drop!");
-        } else {
-            let action = ActionType::Dropping(0, Direction::Here);
-            if action.is_possible(&game.world) {
-                let length = action.length(&game.world);
-                let finish = game.world.meta.current_tick + length;
-                game.world.player_mut().action = Some(Action::new(finish, action));
-            } else {
-                println!("You can't put items here!");
-            }
-        }
+        game.call_action(Action::new(
+            ActionType::Dropping(0, Direction::Here),
+            &game.world,
+        ));
     } else if input::is_key_pressed(ctx, Key::D)
         && input::is_key_modifier_down(ctx, KeyModifier::Shift)
     {
@@ -74,19 +65,14 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
             || input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
             game.last_walk = now;
-            if dir.is_here() {
-                let action = ActionType::SkippingTime;
-                let finish = game.world.meta.current_tick + action.length(&game.world);
-                game.world.player_mut().action = Some(Action::new(finish, action));
-            } else {
-                // TODO: move length calc and possibility checks to Action::new()
-                let action = ActionType::Walking(dir);
-                if action.is_possible(&game.world) {
-                    let length = action.length(&game.world);
-                    let finish = game.world.meta.current_tick + length;
-                    game.world.player_mut().action = Some(Action::new(finish, action));
-                }
-            }
+            game.call_action(Action::new(
+                if dir.is_here() {
+                    ActionType::SkippingTime
+                } else {
+                    ActionType::Walking(dir)
+                },
+                &game.world,
+            ));
         }
     }
     None

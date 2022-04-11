@@ -9,12 +9,11 @@ extern crate tetra;
 extern crate time;
 extern crate variant_count;
 
-mod actions;
 mod app;
 mod assets;
-mod avatar;
 mod colors;
 mod enums;
+mod game;
 mod geometry;
 mod human;
 mod input;
@@ -24,7 +23,6 @@ mod scenes;
 mod settings;
 mod sprites;
 mod window;
-mod world;
 
 const NAME: &str = "NecromanZer";
 const VERSION: &str = concat!(
