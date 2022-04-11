@@ -154,7 +154,7 @@ impl World {
     /// Doing actions that should be done
     fn act(&mut self) {
         if let Some(action) = self.avatar.action {
-            if action.finish <= self.meta.current_tick {
+            if action.finish >= self.meta.current_tick {
                 if let Some(result) = action.act(self) {
                     match result {
                         ActionResult::LogMessage(msg) => {
@@ -171,6 +171,7 @@ impl World {
 
     fn every_tick(&mut self) {
         self.kill_grass(self.avatar.pos, 13, 0.01);
+        self.act();
     }
 
     pub const SPEND_LIMIT: u32 = 100;
@@ -180,10 +181,8 @@ impl World {
         let mut spend = 0;
         while self.avatar.action.is_some() && spend < World::SPEND_LIMIT {
             self.meta.current_tick += 1;
-            self.every_tick();
             spend += 1;
-            self.act();
+            self.every_tick();
         }
-        // println!("{}", self.meta.current_tick);
     }
 }

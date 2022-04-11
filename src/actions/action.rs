@@ -18,7 +18,14 @@ impl Action {
     /// called every tick
     pub fn act(&self, world: &mut World) -> Option<ActionResult> {
         let steps = self.finish - world.meta.current_tick;
-        if steps == 0 {
+        if steps == self.action.length(world) {
+            match self.action {
+                ActionType::Digging(..) => {
+                    Some(ActionResult::LogMessage("You start digging".to_string()))
+                }
+                _ => None,
+            }
+        } else if steps == 0 {
             // finish
             match self.action {
                 ActionType::SkippingTime => None,
@@ -32,7 +39,7 @@ impl Action {
                     if let Some(item) = world.load_tile_mut(world.avatar.pos + dir).items.pop() {
                         world.avatar.wield.push(item.clone());
                         Some(ActionResult::LogMessage(format!(
-                            "You wield {}",
+                            "You wield the {}",
                             item.item_type.name()
                         )))
                     } else {
@@ -47,7 +54,7 @@ impl Action {
                         .push(item.clone());
                     world.avatar.wield.remove(i);
                     Some(ActionResult::LogMessage(format!(
-                        "You wield {}",
+                        "You drop the {}",
                         item.item_type.name()
                     )))
                 }
