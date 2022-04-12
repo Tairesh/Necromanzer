@@ -1,8 +1,8 @@
 #![allow(dead_code)]
-mod game_mode;
-pub mod game_scene;
+mod game_modes;
 pub mod implements;
 pub mod scene;
+pub mod scene_impl;
 pub mod transition;
 
 use assets::Assets;

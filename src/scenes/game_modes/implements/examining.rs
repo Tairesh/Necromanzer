@@ -1,5 +1,5 @@
+use super::super::GameMode;
 use input;
-use scenes::game_mode::GameMode;
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
 use tetra::input::Key;

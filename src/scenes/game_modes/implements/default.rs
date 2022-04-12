@@ -1,10 +1,10 @@
+use super::super::GameMode;
 use game::actions::{Action, ActionType};
 use geometry::direction::Direction;
 use input;
 use map::item::ItemType;
-use scenes::game_mode::GameMode;
-use scenes::game_scene::GameScene;
 use scenes::implements::Game;
+use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
 use std::time::Instant;
 use tetra::input::{Key, KeyModifier};
@@ -12,7 +12,7 @@ use tetra::Context;
 
 pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     if input::is_key_pressed(ctx, Key::Escape) {
-        return Some(vec![Transition::Push(GameScene::GameMenu)]);
+        return Some(vec![Transition::Push(Scene::GameMenu)]);
     } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {
         game.mode = GameMode::Examining;
     } else if input::is_key_pressed(ctx, Key::D) && input::is_no_key_modifiers(ctx) {
@@ -57,7 +57,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     } else if input::is_key_pressed(ctx, Key::Num2)
         && input::is_key_modifier_down(ctx, KeyModifier::Shift)
     {
-        return Some(vec![Transition::Push(GameScene::Empty)]);
+        return Some(vec![Transition::Push(Scene::Empty)]);
     }
     let now = Instant::now();
     if let Some(dir) = input::get_direction_keys_down(ctx) {

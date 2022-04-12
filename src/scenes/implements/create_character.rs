@@ -10,8 +10,8 @@ use human::skin_tone::SkinTone;
 use map::pos::TilePos;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use savefile::{GameView, Meta};
-use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
 use sprites::button::Button;
@@ -362,7 +362,7 @@ impl CreateCharacter {
     }
 }
 
-impl Scene for CreateCharacter {
+impl SceneImpl for CreateCharacter {
     fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
         let mut name_error = self.name_empty.borrow_mut();
         if !self.name_input.borrow().danger() && name_error.visible() {
@@ -471,9 +471,7 @@ impl Scene for CreateCharacter {
                     )
                     .init();
                     world.save();
-                    Some(vec![Transition::Replace(GameScene::Game(
-                        self.meta.clone(),
-                    ))])
+                    Some(vec![Transition::Replace(Scene::Game(self.meta.clone()))])
                 }
             }
         }

@@ -1,6 +1,6 @@
+use super::super::GameMode;
 use game::actions::{Action, ActionType};
 use input;
-use scenes::game_mode::GameMode;
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
 use tetra::input::Key;
@@ -14,7 +14,7 @@ pub fn update(game: &mut Game, ctx: &mut Context) -> SomeTransitions {
     if let Some(dir) = input::get_direction_keys_down(ctx) {
         game.select(dir);
     } else if let Some(dir) = game.selected {
-        game.call_action(Action::new(ActionType::Dropping(0, dir), &game.world));
+        game.call_action(Action::new(ActionType::Wielding(dir), &game.world));
         game.mode = GameMode::Default;
         game.selected = None;
     }

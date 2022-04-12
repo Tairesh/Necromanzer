@@ -2,8 +2,8 @@ use app::App;
 use colors::Colors;
 use savefile::savefiles_exists;
 use scenes::bg;
-use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::Transition;
 use sprites::button::Button;
 use sprites::image::Image;
@@ -43,7 +43,7 @@ impl MainMenu {
                 assets.fonts.default.clone(),
                 assets.button.clone(),
                 Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 0.0 }),
-                Transition::Push(GameScene::LoadWorld),
+                Transition::Push(Scene::LoadWorld),
             )
             .with_disabled(true),
         ));
@@ -53,7 +53,7 @@ impl MainMenu {
             assets.fonts.default.clone(),
             assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 50.0 }),
-            Transition::Push(GameScene::CreateWorld),
+            Transition::Push(Scene::CreateWorld),
         )));
         let settings_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::S, None)],
@@ -61,7 +61,7 @@ impl MainMenu {
             assets.fonts.default.clone(),
             assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 100.0 }),
-            Transition::Push(GameScene::Settings),
+            Transition::Push(Scene::Settings),
         )));
         let exit_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::X, None)],
@@ -87,7 +87,7 @@ impl MainMenu {
     }
 }
 
-impl Scene for MainMenu {
+impl SceneImpl for MainMenu {
     fn on_open(&mut self, _ctx: &mut Context) {
         if savefiles_exists() {
             self.select_btn.borrow_mut().set_disabled(false);

@@ -1,40 +1,39 @@
-use scenes::transition::SomeTransitions;
-use sprites::SomeSprites;
-use tetra::{Context, Event};
+use app::App;
+use savefile;
+use savefile::Meta;
+use scenes::implements;
+use scenes::scene_impl::SceneImpl;
+use tetra::Context;
 
-pub trait Scene {
-    fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
-        None
-    }
-    fn event(&mut self, _ctx: &mut Context, _event: Event) -> SomeTransitions {
-        None
-    }
-    fn before_draw(&mut self, _ctx: &mut Context) {}
-    fn after_draw(&mut self, _ctx: &mut Context) {}
-    fn on_open(&mut self, _ctx: &mut Context) {}
-    fn on_resize(&mut self, _ctx: &mut Context, _window_size: (i32, i32)) {}
-    fn sprites(&self) -> SomeSprites {
-        None
-    }
-    fn custom_event(&mut self, _ctx: &mut Context, _event: u8) -> SomeTransitions {
-        None
-    }
-
-    fn is_there_focused_sprite(&self) -> bool {
-        self.sprites()
-            .map(|sprites| sprites.iter().any(|s| s.borrow().focused()))
-            .unwrap_or(false)
-    }
+#[derive(Debug, Clone)]
+pub enum Scene {
+    MainMenu,
+    #[allow(dead_code)]
+    Empty,
+    Settings,
+    CreateWorld,
+    LoadWorld,
+    CreateCharacter(Meta),
+    Game(Meta),
+    GameMenu,
 }
 
-pub fn reposition_all_sprites(
-    scene: &mut Box<dyn Scene>,
-    ctx: &mut Context,
-    window_size: (i32, i32),
-) {
-    if let Some(sprites) = scene.sprites() {
-        for sprite in sprites.iter() {
-            sprite.borrow_mut().positionate(ctx, window_size);
+impl Scene {
+    pub fn into_impl(self, app: &App, ctx: &mut Context) -> Box<dyn SceneImpl> {
+        match self {
+            Scene::MainMenu => Box::new(implements::MainMenu::new(app)),
+            Scene::Empty => Box::new(implements::Empty {}),
+            Scene::Settings => Box::new(implements::Settings::new(app, ctx)),
+            Scene::CreateWorld => Box::new(implements::CreateWorld::new(app, ctx)),
+            Scene::LoadWorld => Box::new(implements::LoadWorld::new(app, ctx)),
+            Scene::CreateCharacter(meta) => {
+                Box::new(implements::CreateCharacter::new(meta, app, ctx))
+            }
+            Scene::Game(meta) => {
+                let world = savefile::load_world(&meta.path, app.assets.game_data.clone()).unwrap();
+                Box::new(implements::Game::new(world, app, ctx))
+            }
+            Scene::GameMenu => Box::new(implements::GameMenu::new(app)),
         }
     }
 }

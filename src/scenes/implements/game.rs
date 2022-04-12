@@ -7,9 +7,9 @@ use game::World;
 use geometry::direction::{Direction, TwoDimDirection, DIR9};
 use geometry::Vec2;
 use input;
-use scenes::game_mode::GameMode;
-use scenes::implements::game_modes;
-use scenes::scene::Scene;
+use scenes::game_modes::implements;
+use scenes::game_modes::GameMode;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use sprites::label::Label;
 use sprites::position::{Position, Vertical};
@@ -94,7 +94,7 @@ impl Game {
     }
 }
 
-impl Scene for Game {
+impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
         let scroll = input::get_mouse_wheel_movement(ctx).y;
         if scroll != 0 {
@@ -106,11 +106,11 @@ impl Scene for Game {
             }
         }
         if let Some(t) = match self.mode {
-            GameMode::Default => game_modes::default::update(self, ctx),
-            GameMode::Examining => game_modes::examining::update(self, ctx),
-            GameMode::Wielding => game_modes::wielding::update(self, ctx),
-            GameMode::Dropping => game_modes::dropping::update(self, ctx),
-            GameMode::Digging => game_modes::digging::update(self, ctx),
+            GameMode::Default => implements::default::update(self, ctx),
+            GameMode::Examining => implements::examining::update(self, ctx),
+            GameMode::Wielding => implements::wielding::update(self, ctx),
+            GameMode::Dropping => implements::dropping::update(self, ctx),
+            GameMode::Digging => implements::digging::update(self, ctx),
         } {
             return Some(t);
         }

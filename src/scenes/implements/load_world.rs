@@ -3,8 +3,8 @@ use colors::Colors;
 use geometry::Vec2;
 use savefile::{savefiles, savefiles_exists};
 use scenes::easy_back;
-use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use sprites::alert::Alert;
 use sprites::button::Button;
@@ -163,7 +163,7 @@ impl LoadWorld {
     }
 }
 
-impl Scene for LoadWorld {
+impl SceneImpl for LoadWorld {
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
         easy_back(event, false)
     }
@@ -179,9 +179,9 @@ impl Scene for LoadWorld {
             // load
             if let Some(meta) = savefile::load(path) {
                 if savefile::have_avatar(path) {
-                    Some(vec![Transition::Replace(GameScene::Game(meta))])
+                    Some(vec![Transition::Replace(Scene::Game(meta))])
                 } else {
-                    Some(vec![Transition::Replace(GameScene::CreateCharacter(meta))])
+                    Some(vec![Transition::Replace(Scene::CreateCharacter(meta))])
                 }
             } else {
                 panic!("Can't load savefile: {:?}", path)
@@ -192,7 +192,7 @@ impl Scene for LoadWorld {
             if savefiles_exists() {
                 Some(vec![Transition::Pop])
             } else {
-                Some(vec![Transition::Replace(GameScene::LoadWorld)])
+                Some(vec![Transition::Replace(Scene::LoadWorld)])
             }
         }
     }

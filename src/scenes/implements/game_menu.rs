@@ -1,6 +1,6 @@
 use app::App;
-use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::Transition;
 use sprites::alert::Alert;
 use sprites::button::Button;
@@ -42,7 +42,7 @@ impl GameMenu {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenterByBottom { offset: 20.0 },
             },
-            Transition::Replace(GameScene::Settings),
+            Transition::Replace(Scene::Settings),
         )));
         let quit_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::Q, None)],
@@ -62,7 +62,7 @@ impl GameMenu {
     }
 }
 
-impl Scene for GameMenu {
+impl SceneImpl for GameMenu {
     fn sprites(&self) -> SomeSprites {
         Some(&self.sprites)
     }

@@ -4,8 +4,8 @@ use colors::Colors;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use savefile;
-use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
 use sprites::button::Button;
@@ -169,7 +169,7 @@ impl CreateWorld {
     }
 }
 
-impl Scene for CreateWorld {
+impl SceneImpl for CreateWorld {
     fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
         let name = self.name_input.borrow();
         let mut name_empty = self.name_empty.borrow_mut();
@@ -222,7 +222,7 @@ impl Scene for CreateWorld {
                     None
                 } else {
                     match savefile::create(name.as_str(), seed.as_str()) {
-                        Ok(path) => Some(vec![Transition::Replace(GameScene::CreateCharacter(
+                        Ok(path) => Some(vec![Transition::Replace(Scene::CreateCharacter(
                             savefile::load(&path).expect("Can't load newly created savefile!"),
                         ))]),
                         Err(err) => match err {

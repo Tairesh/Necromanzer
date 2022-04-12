@@ -1,8 +1,8 @@
 use assets::Assets;
 use colors::Colors;
 use scenes;
-use scenes::game_scene::GameScene;
 use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SettingsChange, SomeTransitions, Transition};
 use settings::game::GameSettings;
 use sprites::label::Label;
@@ -15,7 +15,7 @@ use tetra::{window, Context, Event, State};
 pub struct App {
     pub assets: Assets,
     pub settings: GameSettings,
-    scenes: Vec<Box<dyn Scene>>,
+    scenes: Vec<Box<dyn SceneImpl>>,
     fps_counter: Label,
 }
 
@@ -34,11 +34,11 @@ impl App {
             scenes: vec![],
             fps_counter,
         };
-        app.push_scene(ctx, GameScene::MainMenu);
+        app.push_scene(ctx, Scene::MainMenu);
         Ok(app)
     }
 
-    fn current_scene(&mut self) -> Option<&mut Box<dyn Scene>> {
+    fn current_scene(&mut self) -> Option<&mut Box<dyn SceneImpl>> {
         self.scenes.last_mut()
     }
 
@@ -52,7 +52,7 @@ impl App {
     fn on_resize(&mut self, ctx: &mut Context) {
         if let Some(scene) = self.current_scene() {
             let window_size = window::get_size(ctx);
-            scenes::scene::reposition_all_sprites(scene, ctx, window_size);
+            scenes::scene_impl::reposition_all_sprites(scene, ctx, window_size);
             scene.on_resize(ctx, window_size);
             self.fps_counter.positionate(ctx, window_size);
         }
@@ -63,12 +63,12 @@ impl App {
         self.on_open(ctx);
     }
 
-    fn replace_scene(&mut self, ctx: &mut Context, scene: GameScene) {
+    fn replace_scene(&mut self, ctx: &mut Context, scene: Scene) {
         self.scenes.pop();
         self.push_scene(ctx, scene);
     }
 
-    fn push_scene(&mut self, ctx: &mut Context, scene: GameScene) {
+    fn push_scene(&mut self, ctx: &mut Context, scene: Scene) {
         self.scenes.push(scene.into_impl(self, ctx));
         self.on_open(ctx);
     }

@@ -3,7 +3,6 @@ mod create_world;
 mod empty;
 mod game;
 mod game_menu;
-mod game_modes;
 mod load_world;
 mod main_menu;
 mod settings;

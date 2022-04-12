@@ -1,6 +1,6 @@
 use app::App;
 use colors::Colors;
-use scenes::scene::Scene;
+use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SettingsChange, SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
 use sprites::button::Button;
@@ -86,7 +86,7 @@ impl Settings {
     }
 }
 
-impl Scene for Settings {
+impl SceneImpl for Settings {
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
         easy_back(event, self.is_there_focused_sprite())
     }
