@@ -7,7 +7,6 @@ use game::World;
 use geometry::direction::{Direction, TwoDimDirection, DIR9};
 use geometry::Vec2;
 use input;
-use scenes::game_modes::implements;
 use scenes::game_modes::GameMode;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
@@ -92,10 +91,8 @@ impl Game {
             }
         }
     }
-}
 
-impl SceneImpl for Game {
-    fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
+    fn update_zoom(&mut self, ctx: &mut Context) {
         let scroll = input::get_mouse_wheel_movement(ctx).y;
         if scroll != 0 {
             self.world.game_view.zoom += scroll;
@@ -105,15 +102,18 @@ impl SceneImpl for Game {
                 self.world.game_view.zoom = 10;
             }
         }
-        if let Some(t) = match self.mode {
-            GameMode::Default => implements::default::update(self, ctx),
-            GameMode::Examining => implements::examining::update(self, ctx),
-            GameMode::Wielding => implements::wielding::update(self, ctx),
-            GameMode::Dropping => implements::dropping::update(self, ctx),
-            GameMode::Digging => implements::digging::update(self, ctx),
-        } {
+    }
+}
+
+impl SceneImpl for Game {
+    fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
+        self.update_zoom(ctx);
+
+        let game_mode = self.mode;
+        if let Some(t) = game_mode.update(self, ctx) {
             return Some(t);
         }
+
         if let Some(action) = self.world.player().action {
             let starting_tick = self.world.meta.current_tick;
             self.world.tick();
@@ -190,7 +190,7 @@ impl SceneImpl for Game {
         if self.mode.draw_cursors() {
             for dir in DIR9 {
                 let pos = self.world.player().pos + dir;
-                if self.mode.cursor_here(self.world.load_tile(pos)) {
+                if self.mode.draw_cursor_here(self.world.load_tile(pos)) {
                     let delta = dir.as_vec() * self.tileset.tile_size as f32 * zoom;
                     self.cursor.draw(
                         ctx,
