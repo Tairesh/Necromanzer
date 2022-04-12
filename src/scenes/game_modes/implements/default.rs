@@ -30,6 +30,12 @@ impl GameModeImpl for Default {
     }
 
     fn update(&self, game: &mut Game, ctx: &mut Context) -> SomeTransitions {
+        if input::is_mouse_scrolled_down(ctx) {
+            game.world.game_view.zoom.dec();
+        }
+        if input::is_mouse_scrolled_up(ctx) {
+            game.world.game_view.zoom.inc();
+        }
         if input::is_key_pressed(ctx, Key::Escape) {
             return Some(vec![Transition::Push(Scene::GameMenu)]);
         } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {

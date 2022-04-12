@@ -6,7 +6,6 @@ use game::actions::Action;
 use game::World;
 use geometry::direction::{Direction, TwoDimDirection, DIR9};
 use geometry::Vec2;
-use input;
 use scenes::game_modes::GameMode;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
@@ -91,24 +90,10 @@ impl Game {
             }
         }
     }
-
-    fn update_zoom(&mut self, ctx: &mut Context) {
-        let scroll = input::get_mouse_wheel_movement(ctx).y;
-        if scroll != 0 {
-            self.world.game_view.zoom += scroll;
-            if self.world.game_view.zoom < 1 {
-                self.world.game_view.zoom = 1;
-            } else if self.world.game_view.zoom > 10 {
-                self.world.game_view.zoom = 10;
-            }
-        }
-    }
 }
 
 impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
-        self.update_zoom(ctx);
-
         let game_mode = self.mode;
         if let Some(t) = game_mode.update(self, ctx) {
             return Some(t);
@@ -133,8 +118,8 @@ impl SceneImpl for Game {
     fn before_draw(&mut self, ctx: &mut Context) {
         tetra::graphics::clear(ctx, Colors::BLACK);
         let window_size = tetra::window::get_size(ctx);
-        let zoom = self.world.game_view.zoom as f32;
-        let scale = Vec2::new(zoom, zoom);
+        let zoom = self.world.game_view.zoom.as_view();
+        let scale = self.world.game_view.zoom.as_scale();
         let window_size_in_tiles = (
             (window_size.0 as f32 / (self.tileset.tile_size as f32 * zoom)).ceil() as i32,
             (window_size.1 as f32 / (self.tileset.tile_size as f32 * zoom as f32)).ceil() as i32,
