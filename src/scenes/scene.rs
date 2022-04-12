@@ -30,7 +30,7 @@ impl Scene {
                 Box::new(implements::CreateCharacter::new(meta, app, ctx))
             }
             Scene::Game(meta) => {
-                let world = savefile::load_world(&meta.path, app.assets.game_data.clone()).unwrap();
+                let world = savefile::load_world(&meta.path, &app.assets).unwrap();
                 Box::new(implements::Game::new(world, app, ctx))
             }
             Scene::GameMenu => Box::new(implements::GameMenu::new(app)),

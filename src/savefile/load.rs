@@ -1,13 +1,12 @@
 use super::Meta;
 use super::SAVEFILES_FOLDER;
-use assets::game_data::GameData;
-use game::{Avatar, World};
+use assets::Assets;
+use game::{Avatar, Log, World};
 use map::chunk::Chunk;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::rc::Rc;
 
 pub fn savefiles_exists() -> bool {
     let path = Path::new(SAVEFILES_FOLDER);
@@ -75,16 +74,13 @@ pub fn load(path: &Path) -> Option<Meta> {
 
 pub fn have_avatar(path: &Path) -> bool {
     if let Ok(file) = File::open(path) {
-        let mut lines = BufReader::new(&file).lines();
-        lines.next();
-        lines.next();
-        lines.next().is_some()
+        BufReader::new(&file).lines().nth(2).is_some()
     } else {
         false
     }
 }
 
-pub fn load_world(path: &Path, game_data: Rc<GameData>) -> Result<World, LoadError> {
+pub fn load_world(path: &Path, assets: &Assets) -> Result<World, LoadError> {
     let file = File::open(path)?;
     let mut lines = BufReader::new(&file).lines();
     let meta = lines.next().unwrap()?;
@@ -122,6 +118,7 @@ pub fn load_world(path: &Path, game_data: Rc<GameData>) -> Result<World, LoadErr
         serde_json::from_str(game_view.as_str())?,
         units,
         chunks,
-        game_data,
+        Some(Log::new(assets.fonts.default.font.clone())),
+        assets.game_data.clone(),
     ))
 }

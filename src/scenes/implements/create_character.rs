@@ -467,6 +467,7 @@ impl SceneImpl for CreateCharacter {
                         GameView::default(),
                         vec![avatar],
                         HashMap::new(),
+                        None,
                         self.game_data.clone(),
                     )
                     .init();

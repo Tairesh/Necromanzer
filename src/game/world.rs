@@ -1,8 +1,9 @@
 #![allow(dead_code)]
 
 use assets::game_data::GameData;
+use colors::Colors;
 use game::actions::ActionResult;
-use game::Avatar;
+use game::{Avatar, Log};
 use geometry::direction::{Direction, TwoDimDirection};
 use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};
@@ -12,6 +13,7 @@ use savefile::{GameView, Meta};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::rc::Rc;
+use tetra::graphics::Color;
 use {geometry, savefile};
 
 #[derive(Debug)]
@@ -22,6 +24,7 @@ pub struct World {
     pub loaded_units: HashSet<usize>,
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
+    pub log: Option<Log>,
     game_data: Rc<GameData>,
 }
 
@@ -31,6 +34,7 @@ impl World {
         game_view: GameView,
         units: Vec<Avatar>,
         chunks: HashMap<ChunkPos, Chunk>,
+        log: Option<Log>,
         game_data: Rc<GameData>,
     ) -> Self {
         let changed = chunks.keys().copied().collect();
@@ -43,6 +47,7 @@ impl World {
             loaded_units,
             chunks,
             changed,
+            log,
             game_data,
         };
         world.load_units();
@@ -169,6 +174,12 @@ impl World {
         }
     }
 
+    pub fn log<S: Into<String>>(&mut self, message: S, color: Color) {
+        if let Some(log) = &mut self.log {
+            log.log(message, color);
+        }
+    }
+
     /// Doing actions that should be done
     fn act(&mut self) {
         if let Some(action) = self.player().action {
@@ -176,7 +187,7 @@ impl World {
                 if let Some(result) = action.act(self) {
                     match result {
                         ActionResult::LogMessage(msg) => {
-                            println!("{}", msg);
+                            self.log(msg, Colors::WHITE_SMOKE);
                         }
                     }
                 }

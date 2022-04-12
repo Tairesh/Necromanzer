@@ -24,7 +24,6 @@ pub struct Game {
     pub sprites: BunchOfSprites,
     pub world: World,
     pub game_data: Rc<GameData>,
-    // TODO: logger
     pub last_walk: Instant,
     pub mode: GameMode,
     pub cursor: Mesh,
@@ -85,8 +84,7 @@ impl Game {
                 self.world.player_mut().action = Some(action);
             }
             Err(msg) => {
-                // TODO: log
-                println!("{}", msg);
+                self.world.log(msg, Colors::LIGHT_YELLOW);
             }
         }
     }
@@ -103,8 +101,11 @@ impl SceneImpl for Game {
             let starting_tick = self.world.meta.current_tick;
             self.world.tick();
             let delta = self.world.meta.current_tick - starting_tick;
-            if delta > 20 {
-                println!("It takes a long time to {}.", action.name(&self.world));
+            if delta > 20 && self.world.player().action.is_none() {
+                self.world.log(
+                    format!("It takes a long time to {}.", action.name(&self.world)),
+                    Colors::LIGHT_GRAY,
+                );
             }
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),
@@ -198,17 +199,20 @@ impl SceneImpl for Game {
                     .color(Colors::LIGHT_YELLOW.with_alpha(0.7)),
             )
         }
-        // for (i, msg) in self.log.iter_mut().enumerate() {
-        //     msg.text.draw(
-        //         ctx,
-        //         DrawParams::new()
-        //             .position(Vec2::new(
-        //                 10.0,
-        //                 window_size.1 as f32 - 20.0 - 20.0 * i as f32,
-        //             ))
-        //             .color(if i == 0 { msg.color } else { Colors::GRAY }),
-        //     );
-        // }
+        for (i, msg) in self
+            .world
+            .log
+            .as_mut()
+            .unwrap()
+            .texts
+            .iter_mut()
+            .enumerate()
+        {
+            msg.draw(
+                Vec2::new(10.0, window_size.1 as f32 - 20.0 - 20.0 * i as f32),
+                ctx,
+            );
+        }
     }
 
     fn after_draw(&mut self, ctx: &mut Context) {

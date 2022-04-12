@@ -1,4 +1,5 @@
 use super::super::GameMode;
+use colors::Colors;
 use input;
 use map::terrains::Terrain;
 use map::tile::Tile;
@@ -45,7 +46,7 @@ impl GameModeImpl for Examining {
                     this_is += " Here you see: ";
                     this_is += items.join(", ").as_str();
                 }
-                println!("{}", this_is);
+                game.world.log(this_is, Colors::WHITE_SMOKE);
             }
         } else if game.selected.is_some() {
             game.mode = GameMode::Default;

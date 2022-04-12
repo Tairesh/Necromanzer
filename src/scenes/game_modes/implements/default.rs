@@ -1,4 +1,5 @@
 use super::super::GameMode;
+use colors::Colors;
 use game::actions::{Action, ActionType};
 use geometry::direction::Direction;
 use input;
@@ -49,24 +50,27 @@ impl GameModeImpl for Default {
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
             if game.world.player().wield.is_empty() {
-                println!("You have nothing to drop!");
+                game.world.log("You have nothing to drop!", Colors::ORANGE);
             } else {
                 game.mode = GameMode::Dropping;
             }
         } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
             if !game.world.player().wield.is_empty() {
                 // TODO: check limit of hands
-                println!(
-                    "You are already wielding the {}",
-                    game.world.player().wield.last().unwrap().item_type.name()
+                game.world.log(
+                    format!(
+                        "You are already wielding the {}",
+                        game.world.player().wield.last().unwrap().item_type.name()
+                    ),
+                    Colors::ORANGE,
                 );
             } else {
                 game.mode = GameMode::Wielding;
             }
-            // } else if input::is_key_pressed(ctx, Key::C)
-            //     && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-            // {
-            //     // game.log.clear();
+        } else if input::is_key_pressed(ctx, Key::C)
+            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+        {
+            game.world.log.as_mut().unwrap().clear();
         } else if input::is_key_pressed(ctx, Key::G) && input::is_no_key_modifiers(ctx) {
             if game
                 .world
@@ -77,7 +81,8 @@ impl GameModeImpl for Default {
             {
                 game.mode = GameMode::Digging;
             } else {
-                println!("You can't dig without a shovel");
+                game.world
+                    .log("You can't dig without a shovel", Colors::ORANGE);
             }
         } else if input::is_key_pressed(ctx, Key::Num2)
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
