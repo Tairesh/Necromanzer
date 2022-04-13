@@ -4,7 +4,7 @@ use game::World;
 use geometry::direction::{Direction, DIR8};
 use rand::seq::SliceRandom;
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Action {
     pub typ: ActionType,
     pub finish: u128,
@@ -19,10 +19,6 @@ impl Action {
             }
             ActionPossibility::No(s) => Err(s),
         }
-    }
-
-    pub fn name(&self, world: &World) -> String {
-        self.typ.name(world)
     }
 
     /// called every tick

@@ -19,33 +19,6 @@ pub enum ActionType {
 }
 
 impl ActionType {
-    pub fn name(&self, world: &World) -> String {
-        match self {
-            ActionType::SkippingTime => "skip time".to_string(),
-            ActionType::Walking(dir) => {
-                let pos = world.player().pos + dir;
-                format!(
-                    "walk through the {}",
-                    world.get_tile(pos).unwrap().terrain.name()
-                )
-            }
-            ActionType::Wielding(dir) => {
-                let pos = world.player().pos + dir;
-                format!(
-                    "wield the {}",
-                    world.get_tile(pos).unwrap().items.last().unwrap().name()
-                )
-            }
-            ActionType::Dropping(i, _) => {
-                format!("drop the {}", world.player().wield.get(*i).unwrap().name())
-            }
-            ActionType::Digging(dir) => {
-                let pos = world.player().pos + dir;
-                format!("dig the {}", world.get_tile(pos).unwrap().terrain.name())
-            }
-        }
-    }
-
     pub fn length(&self, world: &World) -> u32 {
         match self {
             ActionType::SkippingTime => 1,

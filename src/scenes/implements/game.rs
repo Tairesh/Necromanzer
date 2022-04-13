@@ -97,16 +97,8 @@ impl SceneImpl for Game {
             return Some(t);
         }
 
-        if let Some(action) = self.world.player().action {
-            let starting_tick = self.world.meta.current_tick;
+        if self.world.player().action.is_some() {
             self.world.tick();
-            let delta = self.world.meta.current_tick - starting_tick;
-            if delta > 20 && self.world.player().action.is_none() {
-                self.world.log(
-                    format!("It takes a long time to {}.", action.name(&self.world)),
-                    Colors::LIGHT_GRAY,
-                );
-            }
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),
                 ctx,

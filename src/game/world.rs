@@ -182,7 +182,7 @@ impl World {
 
     /// Doing actions that should be done
     fn act(&mut self) {
-        if let Some(action) = self.player().action {
+        if let Some(action) = self.player().action.clone() {
             if action.finish >= self.meta.current_tick {
                 if let Some(result) = action.act(self) {
                     match result {
