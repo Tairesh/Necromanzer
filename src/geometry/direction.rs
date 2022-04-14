@@ -59,7 +59,7 @@ impl Direction {
     }
 
     pub fn as_vec(&self) -> Vec2 {
-        Vec2::new(self.dx() as f32, self.dy() as f32)
+        self.into()
     }
 
     pub fn is_here(&self) -> bool {
@@ -76,6 +76,18 @@ impl From<(i32, i32)> for Direction {
 impl From<Point> for Direction {
     fn from(point: Point) -> Self {
         Self::from_delta(point.x, point.y)
+    }
+}
+
+impl From<Direction> for Vec2 {
+    fn from(dir: Direction) -> Self {
+        Vec2::new(dir.dx() as f32, dir.dy() as f32)
+    }
+}
+
+impl From<&Direction> for Vec2 {
+    fn from(dir: &Direction) -> Self {
+        Vec2::new(dir.dx() as f32, dir.dy() as f32)
     }
 }
 

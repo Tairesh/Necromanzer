@@ -1,6 +1,7 @@
 #![windows_subsystem = "windows"]
 
 extern crate core;
+extern crate enum_dispatch;
 extern crate num_enum;
 extern crate rand;
 extern crate serde;

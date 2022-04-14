@@ -18,6 +18,7 @@ rand = "0.8"
 time = { version = "0.3", features = ["formatting", "local-offset", "macros"] }
 num_enum = "0.5"
 variant_count = "1.1"
+enum_dispatch = "0.3"
 
 [build-dependencies]
 winres = "0.1"

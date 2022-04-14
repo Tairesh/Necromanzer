@@ -204,7 +204,7 @@ impl World {
             for i in 1..self.units.len() {
                 let pos = self.units.get(i).unwrap().pos;
                 let dist = pos.square_dist_to(center);
-                if dist < Self::BUBBLE_SQUARE_RADIUS {
+                if dist <= Self::BUBBLE_SQUARE_RADIUS {
                     self.loaded_units.insert(i);
                     self.load_tile_mut(pos).units.insert(i);
                 } else {

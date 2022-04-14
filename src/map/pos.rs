@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 use geometry::direction::Direction;
+use geometry::Vec2;
 use map::chunk::Chunk;
-use std::ops::Add;
+use std::ops::{Add, AddAssign, Sub};
 
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct TilePos {
@@ -55,6 +56,20 @@ impl Add<&Direction> for TilePos {
     }
 }
 
+impl AddAssign<Direction> for TilePos {
+    fn add_assign(&mut self, dir: Direction) {
+        self.x += dir.dx();
+        self.y += dir.dy();
+    }
+}
+
+impl AddAssign<&Direction> for TilePos {
+    fn add_assign(&mut self, dir: &Direction) {
+        self.x += dir.dx();
+        self.y += dir.dy();
+    }
+}
+
 impl Add<(i32, i32)> for TilePos {
     type Output = TilePos;
 
@@ -68,6 +83,14 @@ impl Add<&(i32, i32)> for TilePos {
 
     fn add(self, (dx, dy): &(i32, i32)) -> Self::Output {
         Self::new(self.x + dx, self.y + dy)
+    }
+}
+
+impl Sub<TilePos> for TilePos {
+    type Output = Vec2;
+
+    fn sub(self, rhs: TilePos) -> Self::Output {
+        Vec2::new((rhs.x - self.x) as f32, (rhs.y - self.y) as f32)
     }
 }
 

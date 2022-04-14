@@ -4,9 +4,11 @@ use assets::tileset::Tileset;
 use colors::Colors;
 use game::actions::Action;
 use game::World;
-use geometry::direction::{Direction, TwoDimDirection, DIR9};
+use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
-use scenes::game_modes::GameMode;
+use scenes::game_modes::implements::walking::Walking;
+use scenes::game_modes::GameModeImpl;
+use scenes::game_modes::{GameMode, UpdateResult};
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use sprites::label::Label;
@@ -15,7 +17,6 @@ use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::rc::Rc;
-use std::time::Instant;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{DrawParams, Rectangle};
 use tetra::Context;
@@ -24,10 +25,8 @@ pub struct Game {
     pub sprites: BunchOfSprites,
     pub world: World,
     pub game_data: Rc<GameData>,
-    pub last_walk: Instant,
-    pub mode: GameMode,
+    pub modes: Vec<GameMode>,
     pub cursor: Mesh,
-    pub selected: Option<Direction>,
     pub current_time_label: Rc<RefCell<Label>>,
     pub tileset: Rc<Tileset>,
 }
@@ -51,8 +50,7 @@ impl Game {
             current_time_label,
             world,
             game_data: app.assets.game_data.clone(),
-            last_walk: Instant::now(),
-            mode: GameMode::Default,
+            modes: vec![Walking::new().into()],
             cursor: Mesh::rectangle(
                 ctx,
                 ShapeStyle::Stroke(1.0),
@@ -64,48 +62,104 @@ impl Game {
                 ),
             )
             .unwrap(),
-            selected: None,
             tileset: app.assets.tileset.clone(),
         }
     }
 
-    pub fn select(&mut self, dir: Direction) {
-        if self.selected.is_none() {
-            self.selected = Some(dir);
-            if let Ok(dir) = TwoDimDirection::try_from(dir) {
-                self.world.player_mut().vision = dir;
+    pub fn current_mode(&self) -> &GameMode {
+        self.modes.last().unwrap()
+    }
+
+    pub fn current_mode_mut(&mut self) -> &mut GameMode {
+        self.modes.last_mut().unwrap()
+    }
+
+    pub fn push_mode(&mut self, mode: GameMode) {
+        match mode.can_push(self) {
+            Ok(..) => self.modes.push(mode),
+            Err(s) => {
+                self.world.log(s, Colors::ORANGE);
             }
         }
     }
 
-    pub fn call_action(&mut self, action: Result<Action, String>) {
-        match action {
-            Ok(action) => {
-                self.world.player_mut().action = Some(action);
-            }
-            Err(msg) => {
-                self.world.log(msg, Colors::LIGHT_YELLOW);
+    pub fn mode_update(&mut self, ctx: &mut Context) -> SomeTransitions {
+        if let Some(updates) = self.current_mode_mut().update(ctx) {
+            for update in updates {
+                match update {
+                    UpdateResult::Push(mode) => {
+                        self.push_mode(mode);
+                    }
+                    UpdateResult::Replace(mode) => {
+                        self.modes.pop();
+                        self.push_mode(mode);
+                    }
+                    UpdateResult::Pop => {
+                        self.modes.pop();
+                    }
+                    UpdateResult::ZoomIn => {
+                        self.world.game_view.zoom.inc();
+                    }
+                    UpdateResult::ZoomOut => {
+                        self.world.game_view.zoom.dec();
+                    }
+                    UpdateResult::TryStartAction(typ) => match Action::new(typ, &self.world) {
+                        Ok(action) => {
+                            self.world.player_mut().action = Some(action);
+                        }
+                        Err(msg) => {
+                            self.world.log(msg, Colors::ORANGE_RED);
+                        }
+                    },
+                    UpdateResult::ClearLog => {
+                        // TODO: move this log to Game
+                        self.world.log.as_mut().unwrap().clear();
+                    }
+                    UpdateResult::SceneTransit(t) => {
+                        return Some(t);
+                    }
+                    UpdateResult::Examine(dir) => {
+                        let pos = self.world.player().pos + dir;
+                        let tile = self.world.load_tile(pos);
+                        let mut this_is = tile.terrain.this_is();
+                        if !tile.items.is_empty() {
+                            let items: Vec<String> = tile
+                                .items
+                                .iter()
+                                .map(|item| item.item_type.name())
+                                .collect();
+                            this_is += " Here you see: ";
+                            this_is += items.join(", ").as_str();
+                        }
+                        self.world.log(this_is, Colors::WHITE_SMOKE);
+                    }
+                    UpdateResult::TryRotate(dir) => {
+                        if let Ok(dir) = TwoDimDirection::try_from(dir) {
+                            self.world.player_mut().vision = dir;
+                        }
+                    }
+                }
             }
         }
+
+        None
     }
 }
 
 impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
-        let game_mode = self.mode;
-        if let Some(t) = game_mode.update(self, ctx) {
-            return Some(t);
-        }
-
         if self.world.player().action.is_some() {
             self.world.tick();
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),
                 ctx,
                 tetra::window::get_size(ctx),
-            )
+            );
+
+            None
+        } else {
+            self.mode_update(ctx)
         }
-        None
     }
 
     fn before_draw(&mut self, ctx: &mut Context) {
@@ -165,32 +219,17 @@ impl SceneImpl for Game {
         // } else {
         //     self.action_text = None;
         // }
-        if self.mode.draw_cursors() {
-            for dir in DIR9 {
-                let pos = self.world.player().pos + dir;
-                if self.mode.draw_cursor_here(self.world.load_tile(pos)) {
-                    let delta = dir.as_vec() * self.tileset.tile_size as f32 * zoom;
-                    self.cursor.draw(
-                        ctx,
-                        DrawParams::new()
-                            .position(center + delta)
-                            .scale(scale)
-                            .color(Colors::LIGHT_GREEN.with_alpha(0.7)),
-                    );
-                }
-            }
-        }
-        if let Some(dir) = self.selected {
-            let delta =
-                Vec2::new(dir.dx() as f32, dir.dy() as f32) * self.tileset.tile_size as f32 * zoom;
+        for (delta, color) in self.current_mode().cursors(self) {
+            let delta = delta * self.tileset.tile_size as f32 * zoom;
             self.cursor.draw(
                 ctx,
                 DrawParams::new()
-                    .scale(scale)
                     .position(center + delta)
-                    .color(Colors::LIGHT_YELLOW.with_alpha(0.7)),
-            )
+                    .scale(scale)
+                    .color(color.with_alpha(0.7)),
+            );
         }
+
         for (i, msg) in self
             .world
             .log

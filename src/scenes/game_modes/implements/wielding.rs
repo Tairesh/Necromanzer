@@ -1,42 +1,76 @@
-use super::super::GameMode;
-use game::actions::{Action, ActionType};
+use colors::Colors;
+use game::actions::ActionType;
+use geometry::direction::{Direction, DIR9};
+use geometry::Vec2;
 use input;
-use map::tile::Tile;
-use scenes::game_modes::GameModeImpl;
+use scenes::game_modes::update_result::UpdateResult;
+use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;
-use scenes::transition::SomeTransitions;
+use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
 
-pub struct Wielding {}
+#[derive(Debug, Copy, Clone)]
+pub struct Wielding {
+    selected: Option<Direction>,
+}
 
-impl From<Wielding> for GameMode {
-    fn from(_: Wielding) -> Self {
-        GameMode::Wielding
+impl Wielding {
+    pub fn new() -> Self {
+        Self { selected: None }
+    }
+}
+
+impl Default for Wielding {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
 impl GameModeImpl for Wielding {
-    fn draw_cursors(&self) -> bool {
-        true
+    fn cursors(&self, game: &Game) -> Vec<(Vec2, Color)> {
+        if let Some(selected) = self.selected {
+            vec![(selected.into(), Colors::LIME)]
+        } else {
+            DIR9.iter()
+                .copied()
+                .filter(|d| {
+                    let pos = game.world.player().pos + d;
+                    game.world
+                        .get_tile(pos)
+                        .map(|t| !t.items.is_empty())
+                        .unwrap_or(false)
+                })
+                .map(|d| (Vec2::from(d), Colors::WHITE_SMOKE))
+                .collect()
+        }
     }
 
-    fn draw_cursor_here(&self, tile: &Tile) -> bool {
-        !tile.items.is_empty()
+    fn can_push(&self, game: &Game) -> Result<(), String> {
+        if game.world.player().wield.is_empty() {
+            Ok(())
+        } else {
+            Err(format!(
+                "You already have {} in hands",
+                game.world.player().wield.last().unwrap().name()
+            ))
+        }
     }
 
-    fn update(&self, game: &mut Game, ctx: &mut Context) -> SomeTransitions {
+    fn update(&mut self, ctx: &mut Context) -> SomeResults {
         if input::is_key_pressed(ctx, Key::Escape) {
-            game.mode = GameMode::Default;
-            game.selected = None;
+            UpdateResult::Pop.into()
+        } else if let Some(dir) = input::get_direction_keys_down(ctx) {
+            self.selected = Some(dir);
+            UpdateResult::TryRotate(dir).into()
+        } else {
+            self.selected.map(|dir| {
+                vec![
+                    UpdateResult::TryRotate(dir),
+                    UpdateResult::TryStartAction(ActionType::Wielding(dir)),
+                    UpdateResult::Pop,
+                ]
+            })
         }
-        if let Some(dir) = input::get_direction_keys_down(ctx) {
-            game.select(dir);
-        } else if let Some(dir) = game.selected {
-            game.call_action(Action::new(ActionType::Wielding(dir), &game.world));
-            game.mode = GameMode::Default;
-            game.selected = None;
-        }
-        None
     }
 }

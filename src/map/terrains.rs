@@ -44,7 +44,7 @@ impl Terrain {
                     data.character.age,
                 )
             }
-            _ => format!("That is a {}.", self.name()),
+            _ => format!("This is the {}.", self.name()),
         }
     }
 

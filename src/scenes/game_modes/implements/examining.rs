@@ -1,57 +1,53 @@
-use super::super::GameMode;
 use colors::Colors;
+use geometry::direction::Direction;
+use geometry::Vec2;
 use input;
-use map::terrains::Terrain;
-use map::tile::Tile;
-use scenes::game_modes::GameModeImpl;
+use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
-use scenes::transition::SomeTransitions;
+use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
 
-pub struct Examining {}
+#[derive(Debug, Copy, Clone)]
+pub struct Examining {
+    selected: Option<Direction>,
+}
 
-impl From<Examining> for GameMode {
-    fn from(_: Examining) -> Self {
-        GameMode::Examining
+impl Examining {
+    pub fn new() -> Self {
+        Self { selected: None }
+    }
+}
+
+impl Default for Examining {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
 impl GameModeImpl for Examining {
-    fn draw_cursors(&self) -> bool {
-        true
+    fn cursors(&self, _game: &Game) -> Vec<(Vec2, Color)> {
+        if let Some(selected) = self.selected {
+            vec![(selected.into(), Colors::LIME)]
+        } else {
+            vec![]
+        }
     }
 
-    fn draw_cursor_here(&self, tile: &Tile) -> bool {
-        matches!(tile.terrain, Terrain::Grave(..))
-    }
-
-    fn update(&self, game: &mut Game, ctx: &mut Context) -> SomeTransitions {
+    fn update(&mut self, ctx: &mut Context) -> SomeResults {
         if input::is_key_pressed(ctx, Key::Escape) {
-            game.mode = GameMode::Default;
-            game.selected = None;
+            UpdateResult::Pop.into()
+        } else if let Some(dir) = input::get_direction_keys_down(ctx) {
+            self.selected = Some(dir);
+            UpdateResult::TryRotate(dir).into()
+        } else {
+            self.selected.map(|dir| {
+                vec![
+                    UpdateResult::TryRotate(dir),
+                    UpdateResult::Examine(dir),
+                    UpdateResult::Pop,
+                ]
+            })
         }
-        if let Some(dir) = input::get_direction_keys_down(ctx) {
-            if game.selected.is_none() {
-                game.select(dir);
-                let pos = game.world.player().pos + dir;
-                let tile = game.world.load_tile(pos);
-                let mut this_is = tile.terrain.this_is();
-                if !tile.items.is_empty() {
-                    let items: Vec<String> = tile
-                        .items
-                        .iter()
-                        .map(|item| item.item_type.name())
-                        .collect();
-                    this_is += " Here you see: ";
-                    this_is += items.join(", ").as_str();
-                }
-                game.world.log(this_is, Colors::WHITE_SMOKE);
-            }
-        } else if game.selected.is_some() {
-            game.mode = GameMode::Default;
-            game.selected = None;
-        }
-        None
     }
 }
