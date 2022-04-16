@@ -1,6 +1,6 @@
 use app::App;
 use assets::game_data::GameData;
-use assets::tileset::Tileset;
+use assets::Assets;
 use colors::Colors;
 use game::actions::{Action, ActionResult, ActionType};
 use game::{Log, World};
@@ -30,10 +30,10 @@ pub struct Game {
     pub modes: Vec<Rc<RefCell<GameMode>>>,
     pub cursor: Mesh,
     pub current_time_label: Rc<RefCell<Label>>,
-    pub tileset: Rc<Tileset>,
     pub log: Log,
     pub shift_of_view: Point,
     pub settings: Rc<RefCell<GameSettings>>,
+    pub assets: Rc<Assets>,
 }
 
 impl Game {
@@ -65,10 +65,10 @@ impl Game {
                 ),
             )
             .unwrap(),
-            tileset: app.assets.tileset.clone(),
             log: Log::new(app.assets.fonts.default.font.clone()),
             shift_of_view: Point::zero(),
             settings: app.settings.clone(),
+            assets: app.assets.clone(),
             current_time_label,
             world,
         }
@@ -96,17 +96,7 @@ impl Game {
     pub fn examine(&mut self, dir: Direction) {
         let pos = self.world.player().pos + dir;
         let tile = self.world.load_tile(pos);
-        let mut this_is = tile.terrain.this_is();
-        if !tile.items.is_empty() {
-            let items: Vec<String> = tile
-                .items
-                .iter()
-                .map(|item| item.item_type.name())
-                .collect();
-            this_is += " Here you see: ";
-            this_is += items.join(", ").as_str();
-        }
-        self.log.log(this_is, Colors::WHITE_SMOKE);
+        self.log.log(tile.this_is(), Colors::WHITE_SMOKE);
     }
 
     pub fn try_start_action(&mut self, typ: ActionType) {
@@ -175,8 +165,9 @@ impl SceneImpl for Game {
         let zoom = self.world.game_view.zoom.as_view();
         let scale = self.world.game_view.zoom.as_scale();
         let window_size_in_tiles = (
-            (window_size.0 as f32 / (self.tileset.tile_size as f32 * zoom)).ceil() as i32,
-            (window_size.1 as f32 / (self.tileset.tile_size as f32 * zoom as f32)).ceil() as i32,
+            (window_size.0 as f32 / (self.assets.tileset.tile_size as f32 * zoom)).ceil() as i32,
+            (window_size.1 as f32 / (self.assets.tileset.tile_size as f32 * zoom as f32)).ceil()
+                as i32,
         );
         let center = Vec2::new(
             window_size.0 as f32 / 2.0 - 5.0 * zoom,
@@ -188,26 +179,29 @@ impl SceneImpl for Game {
         for (pos, tile) in self.world.tiles_between(left_top, right_bottom).into_iter() {
             let dx = pos.x - center_tile.x;
             let dy = pos.y - center_tile.y;
-            let region = tile.terrain.region(&self.tileset);
+            let region = tile.terrain.region(&self.assets.tileset);
             let params = DrawParams::new()
                 .position(Vec2::new(
-                    center.x + dx as f32 * self.tileset.tile_size as f32 * zoom,
-                    center.y + dy as f32 * self.tileset.tile_size as f32 * zoom,
+                    center.x + dx as f32 * self.assets.tileset.tile_size as f32 * zoom,
+                    center.y + dy as f32 * self.assets.tileset.tile_size as f32 * zoom,
                 ))
                 .scale(scale);
-            self.tileset
+            self.assets
+                .tileset
                 .texture
                 .draw_region(ctx, region, params.clone());
             if let Some(item) = tile.top_item() {
-                self.tileset.texture.draw_region(
+                self.assets.tileset.texture.draw_region(
                     ctx,
-                    item.item_type.region(&self.tileset),
+                    item.item_type.region(&self.assets.tileset),
                     params.clone(),
                 );
                 if tile.items.len() > 1 {
-                    self.tileset
-                        .texture
-                        .draw_region(ctx, self.tileset.highlight, params);
+                    self.assets.tileset.texture.draw_region(
+                        ctx,
+                        self.assets.tileset.highlight,
+                        params,
+                    );
                 }
             }
         }
@@ -216,10 +210,10 @@ impl SceneImpl for Game {
             let dx = unit.pos.x - center_tile.x;
             let dy = unit.pos.y - center_tile.y;
             let position = Vec2::new(
-                center.x + dx as f32 * self.tileset.tile_size as f32 * zoom,
-                center.y + dy as f32 * self.tileset.tile_size as f32 * zoom,
+                center.x + dx as f32 * self.assets.tileset.tile_size as f32 * zoom,
+                center.y + dy as f32 * self.assets.tileset.tile_size as f32 * zoom,
             );
-            unit.draw(ctx, &self.tileset, position, zoom, true);
+            unit.draw(ctx, &self.assets.tileset, position, zoom, true);
         }
         // if self.world.player().action.is_some() {
         //     self.draw_action_loader(ctx, center);
@@ -227,7 +221,7 @@ impl SceneImpl for Game {
         //     self.action_text = None;
         // }
         for (delta, color) in self.current_mode().borrow().cursors(&self.world) {
-            let delta = delta * self.tileset.tile_size as f32 * zoom;
+            let delta = delta * self.assets.tileset.tile_size as f32 * zoom;
             self.cursor.draw(
                 ctx,
                 DrawParams::new()
@@ -249,7 +243,8 @@ impl SceneImpl for Game {
         // UI
         self.world
             .player()
-            .draw(ctx, &self.tileset, Vec2::new(5.0, 5.0), 3.0, false);
+            .draw(ctx, &self.assets.tileset, Vec2::new(5.0, 5.0), 3.0, false);
+        self.current_mode().borrow_mut().draw(ctx, self);
     }
 
     fn sprites(&self) -> SomeSprites {

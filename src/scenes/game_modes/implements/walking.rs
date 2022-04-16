@@ -14,7 +14,6 @@ use std::time::Instant;
 use tetra::input::{Key, KeyModifier};
 use tetra::Context;
 
-#[derive(Debug, Copy, Clone)]
 pub struct Walking {
     last_walk: Instant,
 }

@@ -31,17 +31,15 @@ pub struct Settings {
 
 impl Settings {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
-        let assets = &app.assets;
-        // TODO: save Rc clone and move settings changes here from Game
         let settings = app.settings.borrow();
-        let bg = bg(assets, &settings);
+        let bg = bg(&app.assets, &settings);
         let title = title("Settings", &app.assets);
 
         let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
             vec![(Key::F, Some(KeyModifier::Alt))],
             "[Alt+F] Fullscreen",
-            assets.fonts.default.clone(),
-            assets.button.clone(),
+            app.assets.fonts.default.clone(),
+            app.assets.button.clone(),
             settings.window_settings.fullscreen,
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 100.0 },
@@ -52,8 +50,8 @@ impl Settings {
         let window_btn = Rc::new(RefCell::new(Button::fixed(
             vec![(Key::W, Some(KeyModifier::Alt))],
             "[Alt+W] Window",
-            assets.fonts.default.clone(),
-            assets.button.clone(),
+            app.assets.fonts.default.clone(),
+            app.assets.button.clone(),
             !settings.window_settings.fullscreen,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 98.0 },
@@ -65,7 +63,7 @@ impl Settings {
 
         let window_mode_label = Rc::new(RefCell::new(Label::new(
             "Window mode:",
-            assets.fonts.header2.clone(),
+            app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight {
@@ -77,7 +75,7 @@ impl Settings {
 
         let repeat_interval_label = Rc::new(RefCell::new(Label::new(
             "Repeat delay:",
-            assets.fonts.header2.clone(),
+            app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position {
                 x: Horizontal::AtWindowCenterByRight {
@@ -88,9 +86,9 @@ impl Settings {
         )));
         let repeat_interval_minus = Rc::new(RefCell::new(Button::icon(
             vec![],
-            assets.tileset.minus,
-            assets.tileset.texture.clone(),
-            assets.button.clone(),
+            app.assets.tileset.minus,
+            app.assets.tileset.texture.clone(),
+            app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 0.0 },
                 y: Vertical::ByCenter { y: 200.0 },
@@ -101,7 +99,7 @@ impl Settings {
             app.settings.borrow().repeat_interval as u32,
             (1, 10000),
             190.0,
-            assets.fonts.header2.clone(),
+            app.assets.fonts.header2.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: Vertical::ByCenter { y: 200.0 },
@@ -109,9 +107,9 @@ impl Settings {
         )));
         let repeat_interval_plus = Rc::new(RefCell::new(Button::icon(
             vec![],
-            assets.tileset.plus,
-            assets.tileset.texture.clone(),
-            assets.button.clone(),
+            app.assets.tileset.plus,
+            app.assets.tileset.texture.clone(),
+            app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 200.0 },
                 y: Vertical::ByCenter { y: 200.0 },
@@ -121,7 +119,7 @@ impl Settings {
 
         let back_btn = back_btn(
             Position::horizontal_center(0.0, Vertical::AtWindowBottomByBottom { offset: -200.0 }),
-            assets,
+            &app.assets,
         );
 
         Self {

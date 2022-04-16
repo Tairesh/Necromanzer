@@ -12,7 +12,6 @@ use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
 
-#[derive(Debug, Copy, Clone)]
 pub struct Digging {
     selected: Option<Direction>,
 }

@@ -14,7 +14,7 @@ use tetra::input::Key;
 use tetra::{window, Context, Event, State};
 
 pub struct App {
-    pub assets: Assets,
+    pub assets: Rc<Assets>,
     pub settings: Rc<RefCell<GameSettings>>,
     scenes: Vec<Box<dyn SceneImpl>>,
     fps_counter: Label,
@@ -32,7 +32,7 @@ impl App {
         );
         let mut app = Self {
             settings: Rc::new(RefCell::new(settings)),
-            assets,
+            assets: Rc::new(assets),
             scenes: vec![],
             fps_counter,
         };

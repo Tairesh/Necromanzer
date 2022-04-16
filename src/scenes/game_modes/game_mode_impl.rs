@@ -22,4 +22,5 @@ pub trait GameModeImpl {
         Ok(())
     }
     fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults;
+    fn draw(&mut self, _ctx: &mut Context, _game: &mut Game) {}
 }

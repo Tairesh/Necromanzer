@@ -24,15 +24,14 @@ pub struct MainMenu {
 
 impl MainMenu {
     pub fn new(app: &App) -> Self {
-        let assets = &app.assets;
-        let bg = bg(assets, &app.settings.borrow());
+        let bg = bg(&app.assets, &app.settings.borrow());
         let logo = Rc::new(RefCell::new(Image::new(
-            assets.images.logo.clone(),
+            app.assets.images.logo.clone(),
             Position::horizontal_center(0.0, Vertical::ByTop { y: 50.0 }),
         )));
         let version = Rc::new(RefCell::new(Label::new(
             VERSION,
-            assets.fonts.default.clone(),
+            app.assets.fonts.default.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 69.69 }),
         )));
@@ -40,8 +39,8 @@ impl MainMenu {
             Button::text(
                 vec![(Key::E, None)],
                 "[e] Select world",
-                assets.fonts.default.clone(),
-                assets.button.clone(),
+                app.assets.fonts.default.clone(),
+                app.assets.button.clone(),
                 Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 0.0 }),
                 Transition::Push(Scene::LoadWorld),
             )
@@ -50,24 +49,24 @@ impl MainMenu {
         let create_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::C, None)],
             "[c] Create new world",
-            assets.fonts.default.clone(),
-            assets.button.clone(),
+            app.assets.fonts.default.clone(),
+            app.assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 50.0 }),
             Transition::Push(Scene::CreateWorld),
         )));
         let settings_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::S, None)],
             "[s] Settings",
-            assets.fonts.default.clone(),
-            assets.button.clone(),
+            app.assets.fonts.default.clone(),
+            app.assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 100.0 }),
             Transition::Push(Scene::Settings),
         )));
         let exit_btn = Rc::new(RefCell::new(Button::text(
             vec![(Key::X, None)],
             "[x] Exit",
-            assets.fonts.default.clone(),
-            assets.button.clone(),
+            app.assets.fonts.default.clone(),
+            app.assets.button.clone(),
             Position::horizontal_center(0.0, Vertical::AtWindowCenterByTop { offset: 150.0 }),
             Transition::Quit,
         )));

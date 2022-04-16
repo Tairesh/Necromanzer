@@ -82,7 +82,7 @@ impl Positionate for Label {
 
     fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
         let rect = self.text.get_bounds(ctx).unwrap();
-        Vec2::new(rect.width, self.line_height)
+        Vec2::new(rect.width, f32::max(self.line_height, rect.height))
     }
 
     fn rect(&self) -> Rect {

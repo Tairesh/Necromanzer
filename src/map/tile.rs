@@ -89,4 +89,18 @@ impl Tile {
         self.terrain = Terrain::Pit;
         items
     }
+
+    pub fn this_is(&self) -> String {
+        let mut this_is = self.terrain.this_is();
+        if !self.items.is_empty() {
+            let items: Vec<String> = self
+                .items
+                .iter()
+                .map(|item| item.item_type.name())
+                .collect();
+            this_is += " Here you see: ";
+            this_is += items.join(", ").as_str();
+        }
+        this_is
+    }
 }

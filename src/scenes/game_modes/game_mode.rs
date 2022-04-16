@@ -7,7 +7,6 @@ use scenes::game_modes::implements::walking::Walking;
 use scenes::game_modes::implements::wielding::Wielding;
 
 #[enum_dispatch(GameModeImpl)]
-#[derive(Debug, Copy, Clone)]
 pub enum GameMode {
     Walking,
     Examining,

@@ -86,6 +86,34 @@ impl Position {
         }
     }
 
+    pub fn at_center_by_left_top(x_offset: f32, y_offset: f32) -> Position {
+        Position {
+            x: Horizontal::AtWindowCenterByLeft { offset: x_offset },
+            y: Vertical::AtWindowCenterByTop { offset: y_offset },
+        }
+    }
+
+    pub fn at_center_by_right_top(x_offset: f32, y_offset: f32) -> Position {
+        Position {
+            x: Horizontal::AtWindowCenterByRight { offset: x_offset },
+            y: Vertical::AtWindowCenterByTop { offset: y_offset },
+        }
+    }
+
+    pub fn at_center_by_left_bottom(x_offset: f32, y_offset: f32) -> Position {
+        Position {
+            x: Horizontal::AtWindowCenterByLeft { offset: x_offset },
+            y: Vertical::AtWindowCenterByBottom { offset: y_offset },
+        }
+    }
+
+    pub fn at_center_by_right_bottom(x_offset: f32, y_offset: f32) -> Position {
+        Position {
+            x: Horizontal::AtWindowCenterByRight { offset: x_offset },
+            y: Vertical::AtWindowCenterByBottom { offset: y_offset },
+        }
+    }
+
     pub fn center() -> Position {
         Position {
             x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
