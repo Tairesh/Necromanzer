@@ -1,9 +1,8 @@
 #![allow(dead_code)]
 
 use assets::game_data::GameData;
-use colors::Colors;
 use game::actions::ActionResult;
-use game::{Avatar, Log};
+use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};
@@ -13,7 +12,6 @@ use savefile::{GameView, Meta};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::rc::Rc;
-use tetra::graphics::Color;
 use {geometry, savefile};
 
 #[derive(Debug)]
@@ -24,7 +22,6 @@ pub struct World {
     pub loaded_units: HashSet<usize>,
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
-    pub log: Option<Log>,
     game_data: Rc<GameData>,
 }
 
@@ -34,7 +31,6 @@ impl World {
         game_view: GameView,
         units: Vec<Avatar>,
         chunks: HashMap<ChunkPos, Chunk>,
-        log: Option<Log>,
         game_data: Rc<GameData>,
     ) -> Self {
         let changed = chunks.keys().copied().collect();
@@ -47,7 +43,6 @@ impl World {
             loaded_units,
             chunks,
             changed,
-            log,
             game_data,
         };
         world.load_units();
@@ -174,27 +169,20 @@ impl World {
         }
     }
 
-    pub fn log<S: Into<String>>(&mut self, message: S, color: Color) {
-        if let Some(log) = &mut self.log {
-            log.log(message, color);
-        }
-    }
-
     /// Doing actions that should be done
-    fn act(&mut self) {
+    fn act(&mut self) -> Option<ActionResult> {
         if let Some(action) = self.player().action.clone() {
+            let mut result = None;
             if action.finish >= self.meta.current_tick {
-                if let Some(result) = action.act(self) {
-                    match result {
-                        ActionResult::LogMessage(msg) => {
-                            self.log(msg, Colors::WHITE_SMOKE);
-                        }
-                    }
-                }
+                result = action.act(self);
             }
+
             if self.meta.current_tick == action.finish {
                 self.player_mut().action = None;
             }
+            result
+        } else {
+            None
         }
     }
 
@@ -214,21 +202,27 @@ impl World {
         }
     }
 
-    fn every_tick(&mut self) {
-        self.kill_grass(self.player().pos, 13, 0.01);
-        self.act();
-    }
-
     pub const BUBBLE_SQUARE_RADIUS: u32 = 128 * 128;
     pub const SPEND_LIMIT: u32 = 100;
 
-    pub fn tick(&mut self) {
-        self.act();
+    pub fn tick(&mut self) -> Vec<ActionResult> {
+        let mut actions = vec![];
+
+        // make zero ticks actions
+        if let Some(action) = self.act() {
+            actions.push(action);
+        }
+
         let mut spend = 0;
         while self.player().action.is_some() && spend < Self::SPEND_LIMIT {
             self.meta.current_tick += 1;
             spend += 1;
-            self.every_tick();
+            if let Some(action) = self.act() {
+                actions.push(action);
+            }
+            self.kill_grass(self.player().pos, 13, 0.01);
         }
+
+        actions
     }
 }

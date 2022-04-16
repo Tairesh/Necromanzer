@@ -2,8 +2,8 @@ use app::App;
 use assets::game_data::GameData;
 use assets::tileset::Tileset;
 use colors::Colors;
-use game::actions::Action;
-use game::World;
+use game::actions::{Action, ActionResult};
+use game::{Log, World};
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
 use scenes::game_modes::implements::walking::Walking;
@@ -29,6 +29,7 @@ pub struct Game {
     pub cursor: Mesh,
     pub current_time_label: Rc<RefCell<Label>>,
     pub tileset: Rc<Tileset>,
+    pub log: Log,
 }
 
 impl Game {
@@ -63,6 +64,7 @@ impl Game {
             )
             .unwrap(),
             tileset: app.assets.tileset.clone(),
+            log: Log::new(app.assets.fonts.default.font.clone()),
         }
     }
 
@@ -78,7 +80,7 @@ impl Game {
         match mode.can_push(self) {
             Ok(..) => self.modes.push(mode),
             Err(s) => {
-                self.world.log(s, Colors::ORANGE);
+                self.log.log(s, Colors::ORANGE);
             }
         }
     }
@@ -108,12 +110,11 @@ impl Game {
                             self.world.player_mut().action = Some(action);
                         }
                         Err(msg) => {
-                            self.world.log(msg, Colors::ORANGE_RED);
+                            self.log.log(msg, Colors::ORANGE_RED);
                         }
                     },
                     UpdateResult::ClearLog => {
-                        // TODO: move this log to Game
-                        self.world.log.as_mut().unwrap().clear();
+                        self.log.clear();
                     }
                     UpdateResult::SceneTransit(t) => {
                         return Some(t);
@@ -131,7 +132,7 @@ impl Game {
                             this_is += " Here you see: ";
                             this_is += items.join(", ").as_str();
                         }
-                        self.world.log(this_is, Colors::WHITE_SMOKE);
+                        self.log.log(this_is, Colors::WHITE_SMOKE);
                     }
                     UpdateResult::TryRotate(dir) => {
                         if let Ok(dir) = TwoDimDirection::try_from(dir) {
@@ -149,7 +150,13 @@ impl Game {
 impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
         if self.world.player().action.is_some() {
-            self.world.tick();
+            for action in self.world.tick() {
+                match action {
+                    ActionResult::LogMessage(s) => {
+                        self.log.log(s, Colors::WHITE_SMOKE);
+                    }
+                }
+            }
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),
                 ctx,
@@ -230,15 +237,7 @@ impl SceneImpl for Game {
             );
         }
 
-        for (i, msg) in self
-            .world
-            .log
-            .as_mut()
-            .unwrap()
-            .texts
-            .iter_mut()
-            .enumerate()
-        {
+        for (i, msg) in self.log.texts.iter_mut().enumerate() {
             msg.draw(
                 Vec2::new(10.0, window_size.1 as f32 - 20.0 - 20.0 * i as f32),
                 ctx,

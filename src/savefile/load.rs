@@ -1,7 +1,7 @@
 use super::Meta;
 use super::SAVEFILES_FOLDER;
 use assets::Assets;
-use game::{Avatar, Log, World};
+use game::{Avatar, World};
 use map::chunk::Chunk;
 use std::collections::HashMap;
 use std::fs::File;
@@ -118,7 +118,6 @@ pub fn load_world(path: &Path, assets: &Assets) -> Result<World, LoadError> {
         serde_json::from_str(game_view.as_str())?,
         units,
         chunks,
-        Some(Log::new(assets.fonts.default.font.clone())),
         assets.game_data.clone(),
     ))
 }
