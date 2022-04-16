@@ -1,5 +1,6 @@
 use game::actions::ActionType;
 use geometry::direction::Direction;
+use geometry::point::Point;
 use scenes::game_modes::GameMode;
 use scenes::transition::Transition;
 
@@ -10,6 +11,8 @@ pub enum UpdateResult {
     ZoomOut,
     TryRotate(Direction),
     TryStartAction(ActionType),
+    SetViewShift(Point), // move view to this DELTA TODO: use something like PointDelta
+    SetViewFollow,       // back to follow avatar
     ClearLog,
     Examine(Direction),
     Push(GameMode),

@@ -6,12 +6,24 @@ use std::path::Path;
 
 const PATH: &str = "./settings.json";
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct GameSettings {
     pub window_settings: WindowSettings,
     #[serde(skip)]
     pub time_settings: TimeSettings,
     pub show_fps: bool,
+    pub move_repeat_interval: u8,
+}
+
+impl Default for GameSettings {
+    fn default() -> Self {
+        Self {
+            window_settings: WindowSettings::default(),
+            time_settings: TimeSettings::default(),
+            show_fps: false,
+            move_repeat_interval: 75,
+        }
+    }
 }
 
 impl GameSettings {

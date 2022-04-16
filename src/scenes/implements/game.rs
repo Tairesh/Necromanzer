@@ -5,6 +5,7 @@ use colors::Colors;
 use game::actions::{Action, ActionResult};
 use game::{Log, World};
 use geometry::direction::TwoDimDirection;
+use geometry::point::Point;
 use geometry::Vec2;
 use scenes::game_modes::implements::walking::Walking;
 use scenes::game_modes::GameModeImpl;
@@ -30,6 +31,7 @@ pub struct Game {
     pub current_time_label: Rc<RefCell<Label>>,
     pub tileset: Rc<Tileset>,
     pub log: Log,
+    pub shift_of_view: Point,
 }
 
 impl Game {
@@ -48,8 +50,6 @@ impl Game {
         )));
         Self {
             sprites: vec![name_label, current_time_label.clone()],
-            current_time_label,
-            world,
             game_data: app.assets.game_data.clone(),
             modes: vec![Walking::new().into()],
             cursor: Mesh::rectangle(
@@ -65,6 +65,9 @@ impl Game {
             .unwrap(),
             tileset: app.assets.tileset.clone(),
             log: Log::new(app.assets.fonts.default.font.clone()),
+            shift_of_view: Point::zero(),
+            current_time_label,
+            world,
         }
     }
 
@@ -139,6 +142,12 @@ impl Game {
                             self.world.player_mut().vision = dir;
                         }
                     }
+                    UpdateResult::SetViewShift(pos) => {
+                        self.shift_of_view = pos;
+                    }
+                    UpdateResult::SetViewFollow => {
+                        self.shift_of_view = Point::zero();
+                    }
                 }
             }
         }
@@ -182,7 +191,7 @@ impl SceneImpl for Game {
             window_size.0 as f32 / 2.0 - 5.0 * zoom,
             window_size.1 as f32 / 2.0 - 5.0 * zoom,
         );
-        let center_tile = self.world.player().pos;
+        let center_tile = self.world.player().pos + self.shift_of_view;
         let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
         let right_bottom = center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
         for (pos, tile) in self.world.tiles_between(left_top, right_bottom).into_iter() {

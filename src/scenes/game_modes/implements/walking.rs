@@ -11,7 +11,6 @@ use scenes::scene::Scene;
 use scenes::transition::Transition;
 use std::time::Instant;
 use tetra::input::{Key, KeyModifier};
-use tetra::math::Vec2;
 use tetra::Context;
 
 #[derive(Debug, Copy, Clone)]
@@ -58,13 +57,7 @@ impl GameModeImpl for Walking {
         } else if input::is_key_pressed(ctx, Key::G) && input::is_no_key_modifiers(ctx) {
             UpdateResult::Push(Digging::new().into()).into()
         } else if input::is_key_pressed(ctx, Key::X) && input::is_no_key_modifiers(ctx) {
-            UpdateResult::Push(
-                Observing {
-                    cursor: Vec2::zero(),
-                }
-                .into(),
-            )
-            .into()
+            UpdateResult::Push(Observing::new().into()).into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
             if now.duration_since(self.last_walk).as_millis() > 125

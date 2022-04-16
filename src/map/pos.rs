@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use geometry::direction::Direction;
+use geometry::point::Point;
 use geometry::Vec2;
 use map::chunk::Chunk;
 use std::ops::{Add, AddAssign, Sub};
@@ -91,6 +92,24 @@ impl Sub<TilePos> for TilePos {
 
     fn sub(self, rhs: TilePos) -> Self::Output {
         Vec2::new((rhs.x - self.x) as f32, (rhs.y - self.y) as f32)
+    }
+}
+
+impl Add<Point> for TilePos {
+    type Output = Self;
+
+    fn add(self, rhs: Point) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl AddAssign<Point> for TilePos {
+    fn add_assign(&mut self, rhs: Point) {
+        self.x += rhs.x;
+        self.y += rhs.y;
     }
 }
 

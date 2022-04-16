@@ -15,7 +15,7 @@ impl Point {
         Point { x, y }
     }
 
-    /// Create a zero point
+    // TODO: impl Zero
     pub fn zero() -> Self {
         Point { x: 0, y: 0 }
     }
@@ -151,6 +151,13 @@ impl AddAssign for Point {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
+    }
+}
+
+impl AddAssign<Direction> for Point {
+    fn add_assign(&mut self, dir: Direction) {
+        self.x += dir.dx();
+        self.y += dir.dy();
     }
 }
 
