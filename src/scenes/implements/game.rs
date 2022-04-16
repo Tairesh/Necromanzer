@@ -91,8 +91,8 @@ impl Game {
         }
     }
 
-    pub fn mode_update(&mut self, ctx: &mut Context) -> SomeTransitions {
-        if let Some(updates) = self.current_mode_mut().update(ctx) {
+    pub fn mode_update(&mut self, ctx: &mut Context, settings: &GameSettings) -> SomeTransitions {
+        if let Some(updates) = self.current_mode_mut().update(ctx, settings) {
             for update in updates {
                 match update {
                     UpdateResult::Push(mode) => {
@@ -177,7 +177,7 @@ impl SceneImpl for Game {
 
             None
         } else {
-            self.mode_update(ctx)
+            self.mode_update(ctx, &self.settings.clone().borrow())
         }
     }
 

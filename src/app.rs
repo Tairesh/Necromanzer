@@ -160,11 +160,14 @@ impl State for App {
     fn event(&mut self, ctx: &mut Context, event: Event) -> tetra::Result {
         match event {
             Event::KeyPressed { key: Key::F2 } => {
-                self.settings.borrow_mut().show_fps = !self.settings.borrow().show_fps;
+                self.settings.borrow_mut().show_fps ^= true; // ^_^
             }
             Event::Resized { width, height } => {
-                self.settings.borrow_mut().window_settings.width = width;
-                self.settings.borrow_mut().window_settings.height = height;
+                if !window::is_fullscreen(ctx) {
+                    let mut settings = self.settings.borrow_mut();
+                    settings.window_settings.width = width;
+                    settings.window_settings.height = height;
+                }
                 self.on_resize(ctx);
             }
             _ => {}

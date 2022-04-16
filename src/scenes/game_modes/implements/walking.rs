@@ -9,6 +9,7 @@ use scenes::game_modes::implements::wielding::Wielding;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::scene::Scene;
 use scenes::transition::Transition;
+use settings::game::GameSettings;
 use std::time::Instant;
 use tetra::input::{Key, KeyModifier};
 use tetra::Context;
@@ -33,7 +34,7 @@ impl Default for Walking {
 }
 
 impl GameModeImpl for Walking {
-    fn update(&mut self, ctx: &mut Context) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, settings: &GameSettings) -> SomeResults {
         if input::is_mouse_scrolled_down(ctx) {
             UpdateResult::ZoomOut.into()
         } else if input::is_mouse_scrolled_up(ctx) {
@@ -60,7 +61,7 @@ impl GameModeImpl for Walking {
             UpdateResult::Push(Observing::new().into()).into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
-            if now.duration_since(self.last_walk).as_millis() > 125
+            if now.duration_since(self.last_walk).as_millis() > settings.repeat_interval
                 || input::is_key_modifier_down(ctx, KeyModifier::Shift)
             {
                 self.last_walk = now;

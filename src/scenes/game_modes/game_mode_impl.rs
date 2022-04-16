@@ -9,6 +9,7 @@ use scenes::game_modes::implements::walking::Walking;
 use scenes::game_modes::implements::wielding::Wielding;
 use scenes::game_modes::SomeResults;
 use scenes::implements::Game;
+use settings::game::GameSettings;
 use tetra::graphics::Color;
 use tetra::Context;
 
@@ -20,5 +21,5 @@ pub trait GameModeImpl {
     fn can_push(&self, _game: &Game) -> Result<(), String> {
         Ok(())
     }
-    fn update(&mut self, ctx: &mut Context) -> SomeResults;
+    fn update(&mut self, ctx: &mut Context, settings: &GameSettings) -> SomeResults;
 }

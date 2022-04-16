@@ -12,7 +12,7 @@ pub struct GameSettings {
     #[serde(skip)]
     pub time_settings: TimeSettings,
     pub show_fps: bool,
-    pub move_repeat_interval: u8,
+    pub repeat_interval: u128,
 }
 
 impl Default for GameSettings {
@@ -21,7 +21,7 @@ impl Default for GameSettings {
             window_settings: WindowSettings::default(),
             time_settings: TimeSettings::default(),
             show_fps: false,
-            move_repeat_interval: 75,
+            repeat_interval: 75,
         }
     }
 }

@@ -7,6 +7,7 @@ use map::item::ItemType;
 use scenes::game_modes::update_result::UpdateResult;
 use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;
+use settings::game::GameSettings;
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -61,7 +62,7 @@ impl GameModeImpl for Digging {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, _settings: &GameSettings) -> SomeResults {
         if input::is_key_pressed(ctx, Key::Escape) {
             UpdateResult::Pop.into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
