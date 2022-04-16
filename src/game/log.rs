@@ -6,8 +6,8 @@ use tetra::Context;
 
 #[derive(Debug)]
 pub struct LogMessageText {
-    text: Text,
-    color: Color,
+    pub text: Text,
+    pub color: Color,
 }
 
 impl LogMessageText {
@@ -50,5 +50,12 @@ impl Log {
 
     pub fn clear(&mut self) {
         self.texts.clear()
+    }
+
+    pub fn same_message(&self, new_msg: &String) -> bool {
+        self.texts
+            .front()
+            .map(|t| new_msg == t.text.content())
+            .unwrap_or(false)
     }
 }

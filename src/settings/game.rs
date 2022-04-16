@@ -13,6 +13,7 @@ pub struct GameSettings {
     pub time_settings: TimeSettings,
     pub show_fps: bool,
     pub repeat_interval: u128,
+    pub tile_size: f32,
 }
 
 impl Default for GameSettings {
@@ -22,6 +23,7 @@ impl Default for GameSettings {
             time_settings: TimeSettings::default(),
             show_fps: false,
             repeat_interval: 75,
+            tile_size: 10.0,
         }
     }
 }

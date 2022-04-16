@@ -21,8 +21,9 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(ctx: &mut Context, settings: GameSettings) -> tetra::Result<Self> {
+    pub fn new(ctx: &mut Context, mut settings: GameSettings) -> tetra::Result<Self> {
         let assets = Assets::load(ctx)?;
+        settings.tile_size = assets.tileset.tile_size as f32;
         let fps_counter = Label::new(
             "00",
             assets.fonts.default.clone(),

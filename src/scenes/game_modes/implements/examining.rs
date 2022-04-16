@@ -1,10 +1,10 @@
 use colors::Colors;
+use game::World;
 use geometry::direction::Direction;
-use geometry::Vec2;
+use geometry::point::Point;
 use input;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
-use settings::game::GameSettings;
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -27,7 +27,7 @@ impl Default for Examining {
 }
 
 impl GameModeImpl for Examining {
-    fn cursors(&self, _game: &Game) -> Vec<(Vec2, Color)> {
+    fn cursors(&self, _world: &World) -> Vec<(Point, Color)> {
         if let Some(selected) = self.selected {
             vec![(selected.into(), Colors::LIME)]
         } else {
@@ -35,20 +35,18 @@ impl GameModeImpl for Examining {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context, _settings: &GameSettings) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
         if input::is_key_pressed(ctx, Key::Escape) {
             UpdateResult::Pop.into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             self.selected = Some(dir);
-            UpdateResult::TryRotate(dir).into()
+            game.try_rotate_player(dir);
+            None
+        } else if let Some(dir) = self.selected {
+            game.examine(dir);
+            UpdateResult::Pop.into()
         } else {
-            self.selected.map(|dir| {
-                vec![
-                    UpdateResult::TryRotate(dir),
-                    UpdateResult::Examine(dir),
-                    UpdateResult::Pop,
-                ]
-            })
+            None
         }
     }
 }

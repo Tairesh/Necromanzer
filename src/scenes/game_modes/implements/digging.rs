@@ -1,13 +1,13 @@
 use colors::Colors;
 use game::actions::ActionType;
+use game::World;
 use geometry::direction::{Direction, DIR9};
-use geometry::Vec2;
+use geometry::point::Point;
 use input;
 use map::item::ItemType;
 use scenes::game_modes::update_result::UpdateResult;
 use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;
-use settings::game::GameSettings;
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -30,15 +30,15 @@ impl Default for Digging {
 }
 
 impl GameModeImpl for Digging {
-    fn cursors(&self, game: &Game) -> Vec<(Vec2, Color)> {
+    fn cursors(&self, world: &World) -> Vec<(Point, Color)> {
         if let Some(selected) = self.selected {
             vec![(selected.into(), Colors::LIME)]
         } else {
             DIR9.iter()
                 .copied()
                 .filter(|d| {
-                    let pos = game.world.player().pos + d;
-                    game.world
+                    let pos = world.player().pos + d;
+                    world
                         .get_tile(pos)
                         .map(|t| t.terrain.is_diggable())
                         .unwrap_or(false)
@@ -48,9 +48,9 @@ impl GameModeImpl for Digging {
         }
     }
 
-    fn can_push(&self, game: &Game) -> Result<(), String> {
-        if game
-            .world
+    fn can_push(&self, world: &World) -> Result<(), String> {
+        // TODO: use item tag/quality
+        if world
             .player()
             .wield
             .iter()
@@ -62,19 +62,17 @@ impl GameModeImpl for Digging {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context, _settings: &GameSettings) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
         if input::is_key_pressed(ctx, Key::Escape) {
             UpdateResult::Pop.into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             self.selected = Some(dir);
-            UpdateResult::TryRotate(dir).into()
+            game.try_rotate_player(dir);
+            None
         } else {
             self.selected.map(|dir| {
-                vec![
-                    UpdateResult::TryRotate(dir),
-                    UpdateResult::TryStartAction(ActionType::Digging(dir)),
-                    UpdateResult::Pop,
-                ]
+                game.try_start_action(ActionType::Digging(dir));
+                vec![UpdateResult::Pop]
             })
         }
     }

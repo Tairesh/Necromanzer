@@ -20,7 +20,10 @@ pub enum Terrain {
 impl Terrain {
     pub fn name(&self) -> &str {
         match self {
-            Terrain::Dirt(_) => "dirt",
+            Terrain::Dirt(var) => match var {
+                DirtVariant::Dirt3 => "flat dirt",
+                _ => "dirt",
+            },
             Terrain::Boulder(var) => match var {
                 BoulderVariant::Huge => "huge boulder",
                 BoulderVariant::Middle => "boulder",

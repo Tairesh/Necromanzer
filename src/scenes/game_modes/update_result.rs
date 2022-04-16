@@ -1,20 +1,9 @@
-use game::actions::ActionType;
-use geometry::direction::Direction;
-use geometry::point::Point;
 use scenes::game_modes::GameMode;
 use scenes::transition::Transition;
 
+// TODO: as game modes now in Rc<RefCell<>> it probably doesn't needed at all
 pub enum UpdateResult {
     SceneTransit(Vec<Transition>),
-    // ChangeGameView{ zoom_delta: i8 },
-    ZoomIn,
-    ZoomOut,
-    TryRotate(Direction),
-    TryStartAction(ActionType),
-    SetViewShift(Point), // move view to this DELTA TODO: use something like PointDelta
-    SetViewFollow,       // back to follow avatar
-    ClearLog,
-    Examine(Direction),
     Push(GameMode),
     Replace(GameMode),
     Pop,

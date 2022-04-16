@@ -2,9 +2,9 @@ use app::App;
 use assets::game_data::GameData;
 use assets::tileset::Tileset;
 use colors::Colors;
-use game::actions::{Action, ActionResult};
+use game::actions::{Action, ActionResult, ActionType};
 use game::{Log, World};
-use geometry::direction::TwoDimDirection;
+use geometry::direction::{Direction, TwoDimDirection};
 use geometry::point::Point;
 use geometry::Vec2;
 use scenes::game_modes::implements::walking::Walking;
@@ -27,7 +27,7 @@ pub struct Game {
     pub sprites: BunchOfSprites,
     pub world: World,
     pub game_data: Rc<GameData>,
-    pub modes: Vec<GameMode>,
+    pub modes: Vec<Rc<RefCell<GameMode>>>,
     pub cursor: Mesh,
     pub current_time_label: Rc<RefCell<Label>>,
     pub tileset: Rc<Tileset>,
@@ -53,7 +53,7 @@ impl Game {
         Self {
             sprites: vec![name_label, current_time_label.clone()],
             game_data: app.assets.game_data.clone(),
-            modes: vec![Walking::new().into()],
+            modes: vec![Rc::new(RefCell::new(Walking::new().into()))],
             cursor: Mesh::rectangle(
                 ctx,
                 ShapeStyle::Stroke(1.0),
@@ -74,25 +74,56 @@ impl Game {
         }
     }
 
-    pub fn current_mode(&self) -> &GameMode {
-        self.modes.last().unwrap()
-    }
-
-    pub fn current_mode_mut(&mut self) -> &mut GameMode {
-        self.modes.last_mut().unwrap()
+    pub fn current_mode(&self) -> Rc<RefCell<GameMode>> {
+        self.modes.last().unwrap().clone()
     }
 
     pub fn push_mode(&mut self, mode: GameMode) {
-        match mode.can_push(self) {
-            Ok(..) => self.modes.push(mode),
+        match mode.can_push(&self.world) {
+            Ok(..) => self.modes.push(Rc::new(RefCell::new(mode))),
             Err(s) => {
-                self.log.log(s, Colors::ORANGE);
+                self.log.log(s, Colors::LIGHT_CORAL);
             }
         }
     }
 
-    pub fn mode_update(&mut self, ctx: &mut Context, settings: &GameSettings) -> SomeTransitions {
-        if let Some(updates) = self.current_mode_mut().update(ctx, settings) {
+    pub fn try_rotate_player(&mut self, dir: Direction) {
+        if let Ok(dir) = TwoDimDirection::try_from(dir) {
+            self.world.player_mut().vision = dir;
+        }
+    }
+
+    pub fn examine(&mut self, dir: Direction) {
+        let pos = self.world.player().pos + dir;
+        let tile = self.world.load_tile(pos);
+        let mut this_is = tile.terrain.this_is();
+        if !tile.items.is_empty() {
+            let items: Vec<String> = tile
+                .items
+                .iter()
+                .map(|item| item.item_type.name())
+                .collect();
+            this_is += " Here you see: ";
+            this_is += items.join(", ").as_str();
+        }
+        self.log.log(this_is, Colors::WHITE_SMOKE);
+    }
+
+    pub fn try_start_action(&mut self, typ: ActionType) {
+        match Action::new(typ, &self.world) {
+            Ok(action) => {
+                self.world.player_mut().action = Some(action);
+            }
+            Err(msg) => {
+                if !self.log.same_message(&msg) {
+                    self.log.log(msg, Colors::LIGHT_CORAL);
+                }
+            }
+        }
+    }
+
+    pub fn mode_update(&mut self, ctx: &mut Context) -> SomeTransitions {
+        if let Some(updates) = self.current_mode().borrow_mut().update(ctx, self) {
             for update in updates {
                 match update {
                     UpdateResult::Push(mode) => {
@@ -105,51 +136,8 @@ impl Game {
                     UpdateResult::Pop => {
                         self.modes.pop();
                     }
-                    UpdateResult::ZoomIn => {
-                        self.world.game_view.zoom.inc();
-                    }
-                    UpdateResult::ZoomOut => {
-                        self.world.game_view.zoom.dec();
-                    }
-                    UpdateResult::TryStartAction(typ) => match Action::new(typ, &self.world) {
-                        Ok(action) => {
-                            self.world.player_mut().action = Some(action);
-                        }
-                        Err(msg) => {
-                            self.log.log(msg, Colors::ORANGE_RED);
-                        }
-                    },
-                    UpdateResult::ClearLog => {
-                        self.log.clear();
-                    }
                     UpdateResult::SceneTransit(t) => {
                         return Some(t);
-                    }
-                    UpdateResult::Examine(dir) => {
-                        let pos = self.world.player().pos + dir;
-                        let tile = self.world.load_tile(pos);
-                        let mut this_is = tile.terrain.this_is();
-                        if !tile.items.is_empty() {
-                            let items: Vec<String> = tile
-                                .items
-                                .iter()
-                                .map(|item| item.item_type.name())
-                                .collect();
-                            this_is += " Here you see: ";
-                            this_is += items.join(", ").as_str();
-                        }
-                        self.log.log(this_is, Colors::WHITE_SMOKE);
-                    }
-                    UpdateResult::TryRotate(dir) => {
-                        if let Ok(dir) = TwoDimDirection::try_from(dir) {
-                            self.world.player_mut().vision = dir;
-                        }
-                    }
-                    UpdateResult::SetViewShift(pos) => {
-                        self.shift_of_view = pos;
-                    }
-                    UpdateResult::SetViewFollow => {
-                        self.shift_of_view = Point::zero();
                     }
                 }
             }
@@ -177,7 +165,7 @@ impl SceneImpl for Game {
 
             None
         } else {
-            self.mode_update(ctx, &self.settings.clone().borrow())
+            self.mode_update(ctx)
         }
     }
 
@@ -238,7 +226,7 @@ impl SceneImpl for Game {
         // } else {
         //     self.action_text = None;
         // }
-        for (delta, color) in self.current_mode().cursors(self) {
+        for (delta, color) in self.current_mode().borrow().cursors(&self.world) {
             let delta = delta * self.tileset.tile_size as f32 * zoom;
             self.cursor.draw(
                 ctx,

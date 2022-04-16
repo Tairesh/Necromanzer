@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 use crate::geometry::direction::Direction;
 pub use tetra::input::*;
+use tetra::math::num_traits::Zero;
 use tetra::Context;
 
+/// Check key is pressed and key mod is on
 pub fn is_pressed_key_with_mod(ctx: &mut Context, key: Key, key_mod: Option<KeyModifier>) -> bool {
     if !is_key_pressed(ctx, key) {
         return false;
@@ -10,18 +12,19 @@ pub fn is_pressed_key_with_mod(ctx: &mut Context, key: Key, key_mod: Option<KeyM
     if let Some(key_mod) = key_mod {
         is_key_modifier_down(ctx, key_mod)
     } else {
-        !is_key_modifier_down(ctx, KeyModifier::Alt)
-            && !is_key_modifier_down(ctx, KeyModifier::Ctrl)
-            && !is_key_modifier_down(ctx, KeyModifier::Shift)
+        is_no_key_modifiers(ctx)
     }
 }
 
+/// Nor Shift, nor Alt, nor Ctrl is pressed
 pub fn is_no_key_modifiers(ctx: &Context) -> bool {
     is_key_modifier_up(ctx, KeyModifier::Shift)
         && is_key_modifier_up(ctx, KeyModifier::Alt)
         && is_key_modifier_up(ctx, KeyModifier::Ctrl)
 }
 
+/// Sum of downed keys that assumes direction
+/// For example if Key::Up and Key::Left is pressed it will return Some(Direction::NorthWest)
 pub fn get_direction_keys_down(ctx: &Context) -> Option<Direction> {
     let key_down = |np: Key, n: Key| -> bool {
         is_key_down(ctx, np) || (is_key_down(ctx, n) && is_key_modifier_up(ctx, KeyModifier::Shift))
@@ -70,4 +73,9 @@ pub fn get_direction_keys_down(ctx: &Context) -> Option<Direction> {
         (0, 1) => Some(Direction::South),
         _ => None,
     }
+}
+
+/// Mouse was scrolled up or down (or even left or right)
+pub fn is_mouse_scrolled(ctx: &mut Context) -> bool {
+    !get_mouse_wheel_movement(ctx).is_zero()
 }

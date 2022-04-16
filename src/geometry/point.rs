@@ -83,6 +83,18 @@ impl From<Vec2> for Point {
     }
 }
 
+impl From<Direction> for Point {
+    fn from(dir: Direction) -> Self {
+        Self::new(dir.dx(), dir.dy())
+    }
+}
+
+impl From<&Direction> for Point {
+    fn from(dir: &Direction) -> Self {
+        Self::new(dir.dx(), dir.dy())
+    }
+}
+
 impl Add<Direction> for Point {
     type Output = Point;
 

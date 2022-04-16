@@ -58,10 +58,6 @@ impl Direction {
         }
     }
 
-    pub fn as_vec(&self) -> Vec2 {
-        self.into()
-    }
-
     pub fn is_here(&self) -> bool {
         matches!(self, Direction::Here)
     }
