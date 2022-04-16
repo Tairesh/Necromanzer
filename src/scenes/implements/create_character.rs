@@ -63,7 +63,7 @@ pub struct CreateCharacter {
 
 impl CreateCharacter {
     pub fn new(meta: Meta, app: &App, ctx: &mut Context) -> Self {
-        let bg = bg(&app.assets, &app.settings);
+        let bg = bg(&app.assets, &app.settings.borrow());
         let title = title("Create new character:", &app.assets);
         let subtitle = Rc::new(RefCell::new(Label::new(
             format!("New adventurer in the «{}» world", meta.name),

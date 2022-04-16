@@ -12,6 +12,7 @@ use scenes::game_modes::GameModeImpl;
 use scenes::game_modes::{GameMode, UpdateResult};
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
+use settings::game::GameSettings;
 use sprites::label::Label;
 use sprites::position::{Position, Vertical};
 use sprites::{BunchOfSprites, SomeSprites};
@@ -32,6 +33,7 @@ pub struct Game {
     pub tileset: Rc<Tileset>,
     pub log: Log,
     pub shift_of_view: Point,
+    pub settings: Rc<RefCell<GameSettings>>,
 }
 
 impl Game {
@@ -66,6 +68,7 @@ impl Game {
             tileset: app.assets.tileset.clone(),
             log: Log::new(app.assets.fonts.default.font.clone()),
             shift_of_view: Point::zero(),
+            settings: app.settings.clone(),
             current_time_label,
             world,
         }

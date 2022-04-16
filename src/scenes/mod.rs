@@ -28,7 +28,7 @@ pub(crate) fn easy_back(event: Event, focused: bool) -> SomeTransitions {
             button: MouseButton::X1,
         }
         | Event::KeyPressed {
-            key: Key::Escape | Key::Backspace,
+            key: Key::Backspace,
         } => Some(vec![Transition::Pop]),
         _ => None,
     }

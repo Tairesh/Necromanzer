@@ -25,7 +25,7 @@ pub struct MainMenu {
 impl MainMenu {
     pub fn new(app: &App) -> Self {
         let assets = &app.assets;
-        let bg = bg(assets, &app.settings);
+        let bg = bg(assets, &app.settings.borrow());
         let logo = Rc::new(RefCell::new(Image::new(
             assets.images.logo.clone(),
             Position::horizontal_center(0.0, Vertical::ByTop { y: 50.0 }),

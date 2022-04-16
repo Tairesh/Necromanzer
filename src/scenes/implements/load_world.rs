@@ -102,8 +102,8 @@ impl LoadWorld {
             )));
             let version_label_size = version_label.borrow_mut().calc_size(ctx);
             sprites.push(version_label);
-            let time =
-                OffsetDateTime::from(savefile.time).to_offset(app.settings.time_settings.offset);
+            let time = OffsetDateTime::from(savefile.time)
+                .to_offset(app.settings.borrow().time_settings.offset);
             sprites.push(Rc::new(RefCell::new(Label::new(
                 time.format(&DATETIME_FORMAT).unwrap(),
                 app.assets.fonts.default.clone(),

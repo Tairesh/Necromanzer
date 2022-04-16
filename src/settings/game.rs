@@ -32,7 +32,7 @@ impl GameSettings {
         let settings = if path.is_file() {
             let file = File::open(path).unwrap();
             let reader = BufReader::new(file);
-            serde_json::from_reader(reader).unwrap()
+            serde_json::from_reader(reader).unwrap_or_else(|_| GameSettings::default())
         } else {
             let settings = GameSettings::default();
             serde_json::to_writer(&File::create(path).unwrap(), &settings).unwrap();

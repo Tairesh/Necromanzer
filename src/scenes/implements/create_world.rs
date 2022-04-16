@@ -40,7 +40,7 @@ impl CreateWorld {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let mut rng = thread_rng();
 
-        let bg = bg(&app.assets, &app.settings);
+        let bg = bg(&app.assets, &app.settings.borrow());
         let title = title("Create new world:", &app.assets);
 
         let name_label = Rc::new(RefCell::new(Label::new(

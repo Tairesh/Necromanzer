@@ -1,8 +1,9 @@
 use app::App;
 use colors::Colors;
 use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SettingsChange, SomeTransitions, Transition};
+use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
+use settings::game::GameSettings;
 use sprites::button::Button;
 use sprites::label::Label;
 use sprites::position::{Horizontal, Position, Vertical};
@@ -11,6 +12,7 @@ use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier};
+use tetra::window::WindowPosition;
 use tetra::{Context, Event};
 
 const WINDOW_MODE_EVENT: u8 = 1;
@@ -20,13 +22,15 @@ pub struct Settings {
     sprites: BunchOfSprites,
     window_btn: Rc<RefCell<Button>>,
     fullscreen_btn: Rc<RefCell<Button>>,
+    settings: Rc<RefCell<GameSettings>>,
 }
 
 impl Settings {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let assets = &app.assets;
-        let settings = &app.settings;
-        let bg = bg(assets, settings);
+        // TODO: save Rc clone and move settings changes here from Game
+        let settings = app.settings.borrow();
+        let bg = bg(assets, &settings);
         let title = title("Settings", &app.assets);
 
         let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
@@ -80,6 +84,7 @@ impl Settings {
                 window_mode_label,
                 back_btn,
             ],
+            settings: app.settings.clone(),
             fullscreen_btn,
             window_btn,
         }
@@ -95,18 +100,36 @@ impl SceneImpl for Settings {
         Some(&self.sprites)
     }
 
-    fn custom_event(&mut self, _ctx: &mut Context, event: u8) -> SomeTransitions {
+    fn custom_event(&mut self, ctx: &mut Context, event: u8) -> SomeTransitions {
         match event {
             FULLSCREEN_MODE_EVENT => {
                 self.window_btn.borrow_mut().unpress();
-                // TODO: this will be not needed if buttons will return SomeTransitions on click, not one
-                Some(vec![Transition::ChangeSettings(
-                    SettingsChange::FullscreenMode,
-                )])
+                if !tetra::window::is_fullscreen(ctx) {
+                    self.settings.borrow_mut().window_settings.fullscreen = true;
+                    tetra::window::set_fullscreen(ctx, true).ok();
+                }
+                None
             }
             WINDOW_MODE_EVENT => {
                 self.fullscreen_btn.borrow_mut().unpress();
-                Some(vec![Transition::ChangeSettings(SettingsChange::WindowMode)])
+                if tetra::window::is_fullscreen(ctx) {
+                    self.settings.borrow_mut().window_settings.fullscreen = false;
+                    tetra::window::set_fullscreen(ctx, false).ok();
+                    tetra::window::set_decorated(ctx, true);
+                    tetra::window::set_size(
+                        ctx,
+                        self.settings.borrow().window_settings.width as i32,
+                        self.settings.borrow().window_settings.height as i32,
+                    )
+                    .ok();
+                    let current_monitor = tetra::window::get_current_monitor(ctx).unwrap_or(0);
+                    tetra::window::set_position(
+                        ctx,
+                        WindowPosition::Centered(current_monitor),
+                        WindowPosition::Centered(current_monitor),
+                    );
+                }
+                None
             }
             _ => None,
         }

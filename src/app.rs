@@ -3,18 +3,19 @@ use colors::Colors;
 use scenes;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SettingsChange, SomeTransitions, Transition};
+use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
 use sprites::label::Label;
 use sprites::position::Position;
 use sprites::sprite::{Draw, Positionate, Stringify};
+use std::cell::RefCell;
+use std::rc::Rc;
 use tetra::input::Key;
-use tetra::window::WindowPosition;
 use tetra::{window, Context, Event, State};
 
 pub struct App {
     pub assets: Assets,
-    pub settings: GameSettings,
+    pub settings: Rc<RefCell<GameSettings>>,
     scenes: Vec<Box<dyn SceneImpl>>,
     fps_counter: Label,
 }
@@ -29,7 +30,7 @@ impl App {
             Position::by_right_top(-10.0, 10.0),
         );
         let mut app = Self {
-            settings,
+            settings: Rc::new(RefCell::new(settings)),
             assets,
             scenes: vec![],
             fps_counter,
@@ -93,33 +94,6 @@ impl App {
                 }
             }
             Transition::Quit => window::quit(ctx),
-            Transition::ChangeSettings(s) => match s {
-                SettingsChange::FullscreenMode => {
-                    if !window::is_fullscreen(ctx) {
-                        self.settings.window_settings.fullscreen = true;
-                        window::set_fullscreen(ctx, true).ok();
-                    }
-                }
-                SettingsChange::WindowMode => {
-                    if window::is_fullscreen(ctx) {
-                        self.settings.window_settings.fullscreen = false;
-                        window::set_fullscreen(ctx, false).ok();
-                        window::set_decorated(ctx, true);
-                        window::set_size(
-                            ctx,
-                            self.settings.window_settings.width as i32,
-                            self.settings.window_settings.height as i32,
-                        )
-                        .ok();
-                        let current_monitor = window::get_current_monitor(ctx).unwrap_or(0);
-                        window::set_position(
-                            ctx,
-                            WindowPosition::Centered(current_monitor),
-                            WindowPosition::Centered(current_monitor),
-                        );
-                    }
-                }
-            },
             Transition::GoMainMenu => {
                 while self.scenes.len() > 1 {
                     self.pop_scene(ctx);
@@ -173,7 +147,7 @@ impl State for App {
             }
             scene.after_draw(ctx);
         }
-        if self.settings.show_fps {
+        if self.settings.borrow().show_fps {
             let fps = (tetra::time::get_fps(ctx).round() as u8).to_string();
             if !self.fps_counter.value().eq(&fps) {
                 self.fps_counter.set_value(fps);
@@ -186,11 +160,11 @@ impl State for App {
     fn event(&mut self, ctx: &mut Context, event: Event) -> tetra::Result {
         match event {
             Event::KeyPressed { key: Key::F2 } => {
-                self.settings.show_fps = !self.settings.show_fps;
+                self.settings.borrow_mut().show_fps = !self.settings.borrow().show_fps;
             }
             Event::Resized { width, height } => {
-                self.settings.window_settings.width = width;
-                self.settings.window_settings.height = height;
+                self.settings.borrow_mut().window_settings.width = width;
+                self.settings.borrow_mut().window_settings.height = height;
                 self.on_resize(ctx);
             }
             _ => {}
@@ -207,7 +181,6 @@ impl State for App {
 
 impl Drop for App {
     fn drop(&mut self) {
-        self.settings.save();
-        // TODO: save savefile probably
+        self.settings.borrow_mut().save();
     }
 }
