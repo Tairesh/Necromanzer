@@ -16,6 +16,7 @@ pub struct Character {
     pub age: u8,
     pub main_hand: MainHand,
     pub skin_tone: SkinTone,
+    // TODO: profession
 }
 
 impl Character {
@@ -55,5 +56,23 @@ impl Character {
             rng.sample(Standard),
             rng.sample(Standard),
         )
+    }
+
+    pub fn gender_age_name(&self) -> &str {
+        if self.age < 3 {
+            "baby"
+        } else if self.age < 16 {
+            match self.gender {
+                Gender::Male => "boy",
+                Gender::Female => "girl",
+                Gender::Custom(_) => "child",
+            }
+        } else {
+            match self.gender {
+                Gender::Male => "man",
+                Gender::Female => "woman",
+                Gender::Custom(_) => "human",
+            }
+        }
     }
 }

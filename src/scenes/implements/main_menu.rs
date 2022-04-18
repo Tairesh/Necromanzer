@@ -88,9 +88,9 @@ impl MainMenu {
 
 impl SceneImpl for MainMenu {
     fn on_open(&mut self, _ctx: &mut Context) {
-        if savefiles_exists() {
-            self.select_btn.borrow_mut().set_disabled(false);
-        }
+        self.select_btn
+            .borrow_mut()
+            .set_disabled(!savefiles_exists());
     }
 
     fn sprites(&self) -> SomeSprites {

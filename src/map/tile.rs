@@ -78,7 +78,7 @@ impl Tile {
     pub fn dig(&mut self) -> Vec<Item> {
         let mut items = vec![];
         if let Terrain::Grave(_, data) = &self.terrain {
-            items.push(Item::new(ItemType::GraveStone(data.character.clone())));
+            items.push(Item::new(ItemType::GraveStone(data.clone())));
             let freshness = match data.death_year {
                 253..=255 => Freshness::Rotten,
                 _ => Freshness::Skeletal,
@@ -90,5 +90,27 @@ impl Tile {
         }
         self.terrain = Terrain::Pit;
         items
+    }
+
+    pub fn is_readable(&self) -> bool {
+        if self.terrain.is_readable() {
+            return true;
+        }
+
+        self.items.iter().any(|i| i.is_readable())
+    }
+
+    pub fn read(&self) -> String {
+        // TODO: probably we shouldn't read only first occurency
+        if self.terrain.is_readable() {
+            return self.terrain.read();
+        }
+
+        self.items
+            .iter()
+            .filter(|i| i.is_readable())
+            .map(|i| i.read())
+            .next()
+            .unwrap_or_else(|| "You can't find anything to read here.".to_string())
     }
 }

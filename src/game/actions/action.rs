@@ -84,6 +84,10 @@ impl Action {
                     }
                     Some(ActionResult::LogMessage("You dig a hole".to_string()))
                 }
+                ActionType::Reading(dir) => {
+                    let pos = world.player().pos + dir;
+                    Some(ActionResult::LogMessage(world.load_tile(pos).read()))
+                }
             }
         } else {
             None

@@ -4,6 +4,7 @@ use game::Avatar;
 use human::body::{Body, BodyPart};
 use human::character::Character;
 use human::main_hand::MainHand;
+use map::terrains::GraveData;
 use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding
@@ -14,7 +15,7 @@ pub enum ItemType {
     Knife,
     Axe,
     Corpse(Character, Body),
-    GraveStone(Character),
+    GraveStone(GraveData),
 
     HumanHead(BodyPart),
     HumanEye(BodyPart),
@@ -70,7 +71,7 @@ impl ItemType {
             ItemType::Shovel => "shovel".to_string(),
             ItemType::Knife => "knife".to_string(),
             ItemType::Axe => "axe".to_string(),
-            ItemType::Corpse(c, _) => format!("corpse of {}", c.name),
+            ItemType::Corpse(c, _) => format!("corpse of {}", c.gender_age_name()),
             ItemType::GraveStone(_) => "gravestone".to_string(),
             ItemType::HumanHead(data) => format!("{} head", data.age_name(true)),
             ItemType::HumanEye(data) => format!("{} eye", data.age_name(false)),
@@ -160,6 +161,17 @@ impl ItemType {
             | ItemType::HumanRightFoot(b) => Some(b),
         }
     }
+
+    pub fn is_readable(&self) -> bool {
+        matches!(self, ItemType::GraveStone(..))
+    }
+
+    pub fn read(&self) -> String {
+        match self {
+            ItemType::GraveStone(data) => data.read(),
+            _ => unreachable!(),
+        }
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -174,5 +186,13 @@ impl Item {
 
     pub fn name(&self) -> String {
         self.item_type.name()
+    }
+
+    pub fn is_readable(&self) -> bool {
+        self.item_type.is_readable()
+    }
+
+    pub fn read(&self) -> String {
+        self.item_type.read()
     }
 }

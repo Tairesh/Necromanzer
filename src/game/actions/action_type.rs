@@ -16,8 +16,10 @@ pub enum ActionType {
     Wielding(Direction),
     Dropping(usize, Direction),
     Digging(Direction),
+    Reading(Direction),
 }
 
+// TODO: get rid of all these unwraps
 impl ActionType {
     pub fn length(&self, world: &World) -> u32 {
         match self {
@@ -59,6 +61,16 @@ impl ActionType {
             ActionType::Digging(_) => {
                 // TODO: check tool quality, avatar perks and tile terrain
                 1000
+            }
+            ActionType::Reading(dir) => {
+                let pos = world.player().pos + dir;
+                if let Some(tile) = world.get_tile(pos) {
+                    if tile.is_readable() {
+                        return tile.read().len() as u32;
+                    }
+                }
+
+                0
             }
         }
     }
@@ -117,6 +129,17 @@ impl ActionType {
                     return ActionPossibility::No(format!("You can't dig the {}", terrain.name()));
                 }
                 ActionPossibility::Yes
+            }
+            ActionType::Reading(dir) => {
+                let pos = world.player().pos + dir;
+                // TODO: check skill of reading, and probably even another languages
+                if let Some(tile) = world.get_tile(pos) {
+                    if tile.is_readable() {
+                        return ActionPossibility::Yes;
+                    }
+                }
+
+                ActionPossibility::No("There is nothing to read".to_string())
             }
         }
     }

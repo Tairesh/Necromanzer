@@ -5,6 +5,7 @@ use scenes::game_modes::implements::digging::Digging;
 use scenes::game_modes::implements::dropping::Dropping;
 use scenes::game_modes::implements::examining::Examining;
 use scenes::game_modes::implements::observing::Observing;
+use scenes::game_modes::implements::reading::Reading;
 use scenes::game_modes::implements::wielding::Wielding;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
@@ -62,6 +63,10 @@ impl GameModeImpl for Walking {
             UpdateResult::Push(Digging::new().into()).into()
         } else if input::is_key_pressed(ctx, Key::X) && input::is_no_key_modifiers(ctx) {
             UpdateResult::Push(Observing::new().into()).into()
+        } else if input::is_key_pressed(ctx, Key::R)
+            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+        {
+            UpdateResult::Push(Reading::new().into()).into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
             if now.duration_since(self.last_walk).as_millis()

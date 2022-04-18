@@ -21,6 +21,8 @@ pub struct Avatar {
     pub vision: TwoDimDirection,
     pub wield: Vec<Item>, // TODO: custom struct with hands counter
     pub stamina: u8,
+    // TODO: traits
+    // TODO: skills
 }
 
 impl Avatar {

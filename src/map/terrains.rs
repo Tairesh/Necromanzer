@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 use assets::tileset::Tileset;
 use human::character::Character;
 use map::Passage;
@@ -30,7 +31,10 @@ impl Terrain {
                 BoulderVariant::Middle => "boulder",
                 BoulderVariant::Small => "small boulder",
             },
-            Terrain::Grave(_, _) => "grave",
+            Terrain::Grave(var, _) => match var {
+                GraveVariant::New => "grave",
+                GraveVariant::Old => "old grave",
+            },
             Terrain::Grass(_) => "grass",
             Terrain::DeadGrass(_) => "dead grass",
             Terrain::Pit => "pit",
@@ -38,18 +42,7 @@ impl Terrain {
     }
 
     pub fn this_is(&self) -> String {
-        match self {
-            Terrain::Grave(_, data) => {
-                format!(
-                    "This is the grave of {}. {} died in {} at the age of {}.",
-                    data.character.name,
-                    data.character.gender.pronounce().0,
-                    data.death_year,
-                    data.character.age,
-                )
-            }
-            _ => format!("This is the {}.", self.name()),
-        }
+        format!("This is the {}.", self.name())
     }
 
     pub fn region(&self, tileset: &Tileset) -> Rectangle {
@@ -133,6 +126,17 @@ impl Terrain {
             _ => false,
         }
     }
+
+    pub fn is_readable(&self) -> bool {
+        matches!(self, Terrain::Grave(..))
+    }
+
+    pub fn read(&self) -> String {
+        match self {
+            Terrain::Grave(_, data) => data.read(),
+            _ => unreachable!(),
+        }
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -194,10 +198,21 @@ impl Distribution<GraveVariant> for Standard {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct GraveData {
     pub character: Character,
     pub death_year: u8,
+}
+
+impl GraveData {
+    pub fn read(&self) -> String {
+        format!(
+            "You read on gravestone: {}. {}—{}",
+            self.character.name, // TODO: random mottos, professions, etc.
+            self.death_year - self.character.age,
+            self.death_year
+        )
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
