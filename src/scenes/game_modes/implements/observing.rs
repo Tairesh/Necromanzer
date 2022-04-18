@@ -78,8 +78,7 @@ impl Observing {
         let pos = game.world.player().pos + delta;
         if let Some(tile) = game.world.get_tile(pos) {
             let msg = tile.this_is().replace(". ", ".\n");
-            let tile_size =
-                game.assets.tileset.tile_size as f32 * game.world.game_view.zoom.as_view();
+            let tile_size = game.tile_size();
             let position = Vec2::from(self.mouse_moved_pos * tile_size);
             let position_shift = tile_size / 2.0 + 5.0;
             let position = match Direction::from_delta(delta.x, delta.y) {

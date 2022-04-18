@@ -135,6 +135,10 @@ impl Game {
 
         None
     }
+
+    pub fn tile_size(&self) -> f32 {
+        self.assets.tileset.tile_size as f32 * self.world.game_view.zoom.as_view()
+    }
 }
 
 impl SceneImpl for Game {
@@ -163,11 +167,11 @@ impl SceneImpl for Game {
         tetra::graphics::clear(ctx, Colors::BLACK);
         let window_size = tetra::window::get_size(ctx);
         let zoom = self.world.game_view.zoom.as_view();
+        let tile_size = self.tile_size();
         let scale = self.world.game_view.zoom.as_scale();
         let window_size_in_tiles = (
-            (window_size.0 as f32 / (self.assets.tileset.tile_size as f32 * zoom)).ceil() as i32,
-            (window_size.1 as f32 / (self.assets.tileset.tile_size as f32 * zoom as f32)).ceil()
-                as i32,
+            (window_size.0 as f32 / tile_size).ceil() as i32,
+            (window_size.1 as f32 / tile_size).ceil() as i32,
         );
         let center = Vec2::new(
             window_size.0 as f32 / 2.0 - 5.0 * zoom,
@@ -182,8 +186,8 @@ impl SceneImpl for Game {
             let region = tile.terrain.region(&self.assets.tileset);
             let params = DrawParams::new()
                 .position(Vec2::new(
-                    center.x + dx as f32 * self.assets.tileset.tile_size as f32 * zoom,
-                    center.y + dy as f32 * self.assets.tileset.tile_size as f32 * zoom,
+                    center.x + dx as f32 * tile_size,
+                    center.y + dy as f32 * tile_size,
                 ))
                 .scale(scale);
             self.assets
@@ -210,8 +214,8 @@ impl SceneImpl for Game {
             let dx = unit.pos.x - center_tile.x;
             let dy = unit.pos.y - center_tile.y;
             let position = Vec2::new(
-                center.x + dx as f32 * self.assets.tileset.tile_size as f32 * zoom,
-                center.y + dy as f32 * self.assets.tileset.tile_size as f32 * zoom,
+                center.x + dx as f32 * tile_size,
+                center.y + dy as f32 * tile_size,
             );
             unit.draw(ctx, &self.assets.tileset, position, zoom, true);
         }
@@ -221,7 +225,7 @@ impl SceneImpl for Game {
         //     self.action_text = None;
         // }
         for (delta, color) in self.current_mode().borrow().cursors(&self.world) {
-            let delta = delta * self.assets.tileset.tile_size as f32 * zoom;
+            let delta = delta * tile_size;
             self.cursor.draw(
                 ctx,
                 DrawParams::new()
