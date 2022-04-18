@@ -69,6 +69,8 @@ pub struct Tileset {
     pub shovel: Rectangle,
     pub knife: Rectangle,
     pub axe: Rectangle,
+    pub cloak: Rectangle,
+    pub hat: Rectangle,
 
     pub lt: Rectangle,
     pub mt: Rectangle,
@@ -142,6 +144,8 @@ impl Tileset {
             shovel: Rectangle::new(0.0, 70.0, 10.0, 10.0),
             knife: Rectangle::new(10.0, 70.0, 10.0, 10.0),
             axe: Rectangle::new(20.0, 70.0, 10.0, 10.0),
+            cloak: Rectangle::new(30.0, 70.0, 10.0, 10.0),
+            hat: Rectangle::new(40.0, 70.0, 10.0, 10.0),
 
             mt: Rectangle::new(0.0, 90.0, 10.0, 10.0),
             lt: Rectangle::new(10.0, 90.0, 10.0, 10.0),

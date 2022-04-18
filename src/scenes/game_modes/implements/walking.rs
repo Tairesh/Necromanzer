@@ -1,3 +1,4 @@
+use colors::Colors;
 use game::actions::ActionType;
 use geometry::direction::Direction;
 use input;
@@ -67,6 +68,20 @@ impl GameModeImpl for Walking {
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
             UpdateResult::Push(Reading::new().into()).into()
+        } else if input::is_key_pressed(ctx, Key::I) && input::is_no_key_modifiers(ctx) {
+            let items: Vec<String> = game
+                .world
+                .player()
+                .body
+                .wear
+                .iter()
+                .map(|i| i.name())
+                .collect();
+            game.log.log(
+                format!("You wear: {}", items.join(", ")),
+                Colors::WHITE_SMOKE,
+            );
+            None
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
             if now.duration_since(self.last_walk).as_millis()

@@ -27,8 +27,11 @@ pub struct Avatar {
 
 impl Avatar {
     pub fn new(character: Character, pos: TilePos) -> Self {
+        let mut body = Body::human(&character, Freshness::Fresh);
+        body.wear.push(Item::new(ItemType::Cloak));
+        body.wear.push(Item::new(ItemType::MagicHat));
         Avatar {
-            body: Body::human(&character, Freshness::Fresh),
+            body,
             character,
             pos,
             action: None,

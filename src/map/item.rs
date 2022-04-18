@@ -9,7 +9,6 @@ use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-#[serde(untagged)]
 pub enum ItemType {
     Shovel,
     Knife,
@@ -35,6 +34,10 @@ pub enum ItemType {
     HumanRightLeg(BodyPart),
     HumanLeftFoot(BodyPart),
     HumanRightFoot(BodyPart),
+
+    MagicHat,
+    Hat,
+    Cloak,
 }
 
 impl ItemType {
@@ -43,6 +46,8 @@ impl ItemType {
             ItemType::Shovel => tileset.shovel,
             ItemType::Knife => tileset.knife,
             ItemType::Axe => tileset.axe,
+            ItemType::Hat | ItemType::MagicHat => tileset.hat,
+            ItemType::Cloak => tileset.cloak,
             ItemType::Corpse(_, _) => tileset.corpse,
             ItemType::GraveStone(_) => tileset.grave_stone,
             ItemType::HumanHead(_)
@@ -71,6 +76,9 @@ impl ItemType {
             ItemType::Shovel => "shovel".to_string(),
             ItemType::Knife => "knife".to_string(),
             ItemType::Axe => "axe".to_string(),
+            ItemType::MagicHat => "magic hat".to_string(),
+            ItemType::Hat => "hat".to_string(),
+            ItemType::Cloak => "cloak".to_string(),
             ItemType::Corpse(c, _) => format!("corpse of {}", c.gender_age_name()),
             ItemType::GraveStone(_) => "gravestone".to_string(),
             ItemType::HumanHead(data) => format!("{} head", data.age_name(true)),
@@ -103,6 +111,8 @@ impl ItemType {
             ItemType::Shovel => 30.0,
             ItemType::Knife => 20.0,
             ItemType::Axe => 25.0,
+            ItemType::Hat | ItemType::MagicHat => 10.0,
+            ItemType::Cloak => 15.0,
             ItemType::Corpse(c, _) => {
                 if c.age < 16 {
                     50.0
@@ -139,6 +149,9 @@ impl ItemType {
             ItemType::Shovel
             | ItemType::Knife
             | ItemType::Axe
+            | ItemType::Hat
+            | ItemType::MagicHat
+            | ItemType::Cloak
             | ItemType::Corpse(_, _)
             | ItemType::GraveStone(_) => None,
             ItemType::HumanHead(b)
@@ -171,6 +184,10 @@ impl ItemType {
             ItemType::GraveStone(data) => data.read(),
             _ => unreachable!(),
         }
+    }
+
+    pub fn is_wearable(&self) -> bool {
+        matches!(self, ItemType::Hat | ItemType::MagicHat | ItemType::Cloak)
     }
 }
 

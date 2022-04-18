@@ -67,6 +67,7 @@ impl BodyPart {
 pub struct Body {
     pub parts: HashMap<String, Item>,
     // TODO: schema for placing items to different tiles
+    pub wear: Vec<Item>, // TODO: some schema for bodyparts to wear
 }
 
 impl Body {
@@ -158,7 +159,10 @@ impl Body {
             Item::new(ItemType::HumanRightLeg(right_foot)),
         );
 
-        Self { parts }
+        Self {
+            parts,
+            wear: vec![],
+        }
     }
 }
 
