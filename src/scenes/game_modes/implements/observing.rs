@@ -74,13 +74,12 @@ impl Observing {
     }
 
     fn update_sprite(&mut self, ctx: &mut Context, game: &mut Game) {
-        let delta = game.shift_of_view + self.mouse_moved_pos;
-        let pos = game.world.player().pos + delta;
+        let pos = game.world.player().pos + game.shift_of_view + self.mouse_moved_pos;
         let msg = game.world.this_is(pos, true);
         let tile_size = game.tile_size();
         let position = Vec2::from(self.mouse_moved_pos * tile_size);
         let position_shift = tile_size / 2.0 + 5.0;
-        let position = match Direction::from_delta(delta.x, delta.y) {
+        let position = match Direction::from_delta(self.mouse_moved_pos.x, self.mouse_moved_pos.y) {
             Direction::NorthWest | Direction::North | Direction::West | Direction::Here => {
                 Position::at_center_by_left_top(
                     position.x + position_shift,

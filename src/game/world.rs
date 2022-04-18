@@ -154,6 +154,9 @@ impl World {
     pub fn this_is(&self, pos: TilePos, multiline: bool) -> String {
         if let Some(tile) = self.get_tile(pos) {
             let mut this_is = tile.terrain.this_is();
+            if multiline {
+                this_is = this_is.replace(". ", ".\n");
+            }
 
             if !tile.items.is_empty() || !tile.units.is_empty() {
                 this_is.push(if multiline { '\n' } else { ' ' });
