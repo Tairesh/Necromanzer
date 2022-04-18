@@ -151,6 +151,53 @@ impl World {
         }
     }
 
+    pub fn this_is(&self, pos: TilePos, multiline: bool) -> String {
+        if let Some(tile) = self.get_tile(pos) {
+            let mut this_is = tile.terrain.this_is();
+
+            if !tile.items.is_empty() || !tile.units.is_empty() {
+                this_is.push(if multiline { '\n' } else { ' ' });
+                this_is.push_str("Here you see: ");
+                if multiline {
+                    this_is.push('\n');
+                }
+            }
+
+            let mut items: Vec<String> = Vec::with_capacity(tile.items.len() + tile.units.len());
+            if !tile.items.is_empty() {
+                items.append(
+                    &mut tile
+                        .items
+                        .iter()
+                        .map(|item| {
+                            (if multiline { " - " } else { "" }).to_string()
+                                + item.item_type.name().as_str()
+                        })
+                        .collect(),
+                );
+            }
+            if !tile.units.is_empty() {
+                items.append(
+                    &mut tile
+                        .units
+                        .iter()
+                        .copied()
+                        .map(|i| {
+                            let unit = self.units.get(i).unwrap();
+                            (if multiline { " - " } else { "" }).to_string()
+                                + unit.character.name.as_str()
+                        })
+                        .collect(),
+                );
+            }
+            this_is += items.join(if multiline { "\n" } else { ", " }).as_str();
+
+            this_is
+        } else {
+            String::new()
+        }
+    }
+
     pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
         for (dx, dy) in match diameter {
             7 => geometry::CIRCLE7.iter().copied(),
@@ -189,7 +236,7 @@ impl World {
     fn load_units(&mut self) {
         let center = self.player().pos;
         if self.units.len() > 1 {
-            for i in 1..self.units.len() {
+            for i in 0..self.units.len() {
                 let pos = self.units.get(i).unwrap().pos;
                 let dist = pos.square_dist_to(center);
                 if dist <= Self::BUBBLE_SQUARE_RADIUS {

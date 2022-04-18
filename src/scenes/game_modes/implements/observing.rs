@@ -76,52 +76,50 @@ impl Observing {
     fn update_sprite(&mut self, ctx: &mut Context, game: &mut Game) {
         let delta = game.shift_of_view + self.mouse_moved_pos;
         let pos = game.world.player().pos + delta;
-        if let Some(tile) = game.world.get_tile(pos) {
-            let msg = tile.this_is().replace(". ", ".\n");
-            let tile_size = game.tile_size();
-            let position = Vec2::from(self.mouse_moved_pos * tile_size);
-            let position_shift = tile_size / 2.0 + 5.0;
-            let position = match Direction::from_delta(delta.x, delta.y) {
-                Direction::NorthWest | Direction::North | Direction::West | Direction::Here => {
-                    Position::at_center_by_left_top(
-                        position.x + position_shift,
-                        position.y + position_shift,
-                    )
-                }
-                Direction::East | Direction::NorthEast => Position::at_center_by_right_top(
-                    position.x - position_shift,
-                    position.y + position_shift,
-                ),
-                Direction::South | Direction::SouthWest => Position::at_center_by_left_bottom(
+        let msg = game.world.this_is(pos, true);
+        let tile_size = game.tile_size();
+        let position = Vec2::from(self.mouse_moved_pos * tile_size);
+        let position_shift = tile_size / 2.0 + 5.0;
+        let position = match Direction::from_delta(delta.x, delta.y) {
+            Direction::NorthWest | Direction::North | Direction::West | Direction::Here => {
+                Position::at_center_by_left_top(
                     position.x + position_shift,
-                    position.y - position_shift,
-                ),
-                Direction::SouthEast => Position::at_center_by_right_bottom(
-                    position.x - position_shift,
-                    position.y - position_shift,
-                ),
-            };
-            let window_size = tetra::window::get_size(ctx);
-            if let Some(sprite) = &mut self.sprite {
-                sprite.label.set_value(msg);
-                sprite.label.set_position(position);
-                sprite.label.positionate(ctx, window_size);
-                let rect = sprite.label.rect();
-                sprite.mesh = create_mesh(ctx, rect, position);
-                sprite.mesh.positionate(ctx, window_size);
-            } else {
-                let mut label = Label::new(
-                    msg,
-                    game.assets.fonts.default.clone(),
-                    Colors::WHITE_SMOKE,
-                    position,
-                );
-                label.positionate(ctx, window_size);
-                let rect = label.rect();
-                let mut mesh = create_mesh(ctx, rect, position);
-                mesh.positionate(ctx, window_size);
-                self.sprite = Some(Box::new(ObservingSprite { label, mesh }));
+                    position.y + position_shift,
+                )
             }
+            Direction::East | Direction::NorthEast => Position::at_center_by_right_top(
+                position.x - position_shift,
+                position.y + position_shift,
+            ),
+            Direction::South | Direction::SouthWest => Position::at_center_by_left_bottom(
+                position.x + position_shift,
+                position.y - position_shift,
+            ),
+            Direction::SouthEast => Position::at_center_by_right_bottom(
+                position.x - position_shift,
+                position.y - position_shift,
+            ),
+        };
+        let window_size = tetra::window::get_size(ctx);
+        if let Some(sprite) = &mut self.sprite {
+            sprite.label.set_value(msg);
+            sprite.label.set_position(position);
+            sprite.label.positionate(ctx, window_size);
+            let rect = sprite.label.rect();
+            sprite.mesh = create_mesh(ctx, rect, position);
+            sprite.mesh.positionate(ctx, window_size);
+        } else {
+            let mut label = Label::new(
+                msg,
+                game.assets.fonts.default.clone(),
+                Colors::WHITE_SMOKE,
+                position,
+            );
+            label.positionate(ctx, window_size);
+            let rect = label.rect();
+            let mut mesh = create_mesh(ctx, rect, position);
+            mesh.positionate(ctx, window_size);
+            self.sprite = Some(Box::new(ObservingSprite { label, mesh }));
         }
     }
 }

@@ -95,8 +95,8 @@ impl Game {
 
     pub fn examine(&mut self, dir: Direction) {
         let pos = self.world.player().pos + dir;
-        let tile = self.world.load_tile(pos);
-        self.log.log(tile.this_is(), Colors::WHITE_SMOKE);
+        self.log
+            .log(self.world.this_is(pos, false), Colors::WHITE_SMOKE);
     }
 
     pub fn try_start_action(&mut self, typ: ActionType) {
