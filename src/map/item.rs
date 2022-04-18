@@ -8,6 +8,7 @@ use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+#[serde(untagged)]
 pub enum ItemType {
     Shovel,
     Knife,

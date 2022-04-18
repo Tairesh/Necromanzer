@@ -1,4 +1,3 @@
-use human::character::Character;
 use std::cmp::Ordering;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
@@ -13,7 +12,6 @@ pub struct Meta {
     pub version: String,
     pub time: SystemTime,
     pub current_tick: u128,
-    pub character: Option<Character>,
 }
 
 impl Meta {
@@ -28,7 +26,6 @@ impl Meta {
             version: VERSION.to_string(),
             time: SystemTime::now(),
             current_tick: 0,
-            character: None,
         }
     }
 

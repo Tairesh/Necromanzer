@@ -8,6 +8,7 @@ use tetra::graphics::Rectangle;
 
 // TODO: Create structs TerrainType and load them from jsons
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[serde(untagged)]
 pub enum Terrain {
     Dirt(DirtVariant),
     Boulder(BoulderVariant),

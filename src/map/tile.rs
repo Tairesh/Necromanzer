@@ -8,7 +8,9 @@ use std::collections::HashSet;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Tile {
+    #[serde(rename = "t")]
     pub terrain: Terrain,
+    #[serde(rename = "i")]
     pub items: Vec<Item>,
     #[serde(skip)]
     pub units: HashSet<usize>,
