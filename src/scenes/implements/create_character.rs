@@ -3,7 +3,6 @@ use assets::game_data::GameData;
 use colors::Colors;
 use game::Avatar;
 use game::World;
-use geometry::Vec2;
 use human::character::Character;
 use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
@@ -17,16 +16,13 @@ use scenes::{back_btn, bg, easy_back, title};
 use sprites::button::Button;
 use sprites::input::TextInput;
 use sprites::label::Label;
-use sprites::meshy::JustMesh;
 use sprites::position::{Horizontal, Position, Vertical};
-use sprites::sprite::{Colorize, Draw, Positionate, Stringify};
+use sprites::sprite::{Draw, Positionate, Stringify};
 use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::rc::Rc;
-use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
-use tetra::graphics::Rectangle;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 use variant_count::VariantCount;
@@ -40,8 +36,6 @@ enum Events {
     AgePlus,
     HandLeft,
     HandRight,
-    SkinLeft,
-    SkinRight,
     Randomize,
     Create,
 }
@@ -55,10 +49,7 @@ pub struct CreateCharacter {
     gender_input: Rc<RefCell<TextInput>>,
     age_input: Rc<RefCell<TextInput>>,
     hand_name: Rc<RefCell<Label>>,
-    skin_mesh: Rc<RefCell<JustMesh>>,
-    skin_name: Rc<RefCell<Label>>,
     main_hand: MainHand,
-    skin_tone: SkinTone,
 }
 
 impl CreateCharacter {
@@ -224,61 +215,6 @@ impl CreateCharacter {
             },
             Transition::CustomEvent(Events::HandRight as u8),
         )));
-        let skin_label = Rc::new(RefCell::new(Label::new(
-            "Skin tone:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
-                y: Vertical::ByCenter { y: 395.0 },
-            },
-        )));
-        let skin_left = Rc::new(RefCell::new(Button::icon(
-            vec![],
-            app.assets.tileset.lt,
-            app.assets.tileset.texture.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
-                y: Vertical::ByCenter { y: 400.0 },
-            },
-            Transition::CustomEvent(Events::SkinLeft as u8),
-        )));
-        let skin_mesh = Rc::new(RefCell::new(JustMesh::new(
-            Mesh::rounded_rectangle(
-                ctx,
-                ShapeStyle::Fill,
-                Rectangle::new(0.0, 0.0, 210.0, 42.0),
-                BorderRadii::new(10.0),
-            )
-            .unwrap(),
-            Some(Colors::WARM_IVORY),
-            Vec2::new(210.0, 42.0),
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
-                y: Vertical::ByCenter { y: 400.0 },
-            },
-        )));
-        let skin_name = Rc::new(RefCell::new(Label::new(
-            "Warm Ivory",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
-                y: Vertical::ByCenter { y: 398.0 },
-            },
-        )));
-        let skin_right = Rc::new(RefCell::new(Button::icon(
-            vec![],
-            app.assets.tileset.mt,
-            app.assets.tileset.texture.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
-                y: Vertical::ByCenter { y: 400.0 },
-            },
-            Transition::CustomEvent(Events::SkinRight as u8),
-        )));
 
         let randomize_btn = Rc::new(RefCell::new(Button::text(
             vec![
@@ -340,11 +276,6 @@ impl CreateCharacter {
                 hand_left,
                 hand_name.clone(),
                 hand_right,
-                skin_label,
-                skin_left,
-                skin_mesh.clone(),
-                skin_name.clone(),
-                skin_right,
                 back_btn,
                 randomize_btn,
                 create_btn,
@@ -354,10 +285,7 @@ impl CreateCharacter {
             gender_input,
             age_input,
             hand_name,
-            skin_mesh,
-            skin_name,
             main_hand: MainHand::Right,
-            skin_tone: SkinTone::WarmIvory,
         }
     }
 }
@@ -415,19 +343,6 @@ impl SceneImpl for CreateCharacter {
                 label.positionate(ctx, tetra::window::get_size(ctx));
                 None
             }
-            Events::SkinLeft | Events::SkinRight => {
-                self.skin_tone = match event {
-                    Events::SkinRight => self.skin_tone.next(),
-                    Events::SkinLeft => self.skin_tone.prev(),
-                    _ => unreachable!(),
-                };
-                self.skin_mesh.borrow_mut().set_color(self.skin_tone);
-                let mut label = self.skin_name.borrow_mut();
-                label.set_value(self.skin_tone.name());
-                label.set_color(self.skin_tone.text_color());
-                label.positionate(ctx, tetra::window::get_size(ctx));
-                None
-            }
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
                 let character = Character::random(&mut rng, &self.game_data);
@@ -441,12 +356,6 @@ impl SceneImpl for CreateCharacter {
                 hand.set_value(self.main_hand.name());
                 let window_size = tetra::window::get_size(ctx);
                 hand.positionate(ctx, window_size);
-                self.skin_tone = character.skin_tone;
-                self.skin_mesh.borrow_mut().set_color(self.skin_tone);
-                let mut label = self.skin_name.borrow_mut();
-                label.set_value(self.skin_tone.name());
-                label.set_color(self.skin_tone.text_color());
-                label.positionate(ctx, window_size);
                 None
             }
             Events::Create => {
@@ -459,7 +368,7 @@ impl SceneImpl for CreateCharacter {
                     let gender = self.gender_input.borrow().value().into();
                     let age = self.age_input.borrow().value().parse::<u8>().unwrap();
                     let character =
-                        Character::new(name, gender, age, self.main_hand, self.skin_tone);
+                        Character::new(name, gender, age, self.main_hand, SkinTone::PaleIvory);
                     // TODO: find available starting pos in the world
                     let avatar = Avatar::new(character, TilePos::new(0, 0));
                     let mut world = World::new(

@@ -34,8 +34,7 @@ impl World {
         game_data: Rc<GameData>,
     ) -> Self {
         let changed = chunks.keys().copied().collect();
-        let mut loaded_units = HashSet::with_capacity(1);
-        loaded_units.insert(0);
+        let loaded_units = HashSet::from([0]);
         let mut world = Self {
             meta,
             game_view,
@@ -238,16 +237,14 @@ impl World {
 
     fn load_units(&mut self) {
         let center = self.player().pos;
-        if self.units.len() > 1 {
-            for i in 0..self.units.len() {
-                let pos = self.units.get(i).unwrap().pos;
-                let dist = pos.square_dist_to(center);
-                if dist <= Self::BUBBLE_SQUARE_RADIUS {
-                    self.loaded_units.insert(i);
-                    self.load_tile_mut(pos).units.insert(i);
-                } else {
-                    self.loaded_units.remove(&i);
-                }
+        for i in 0..self.units.len() {
+            let pos = self.units.get(i).unwrap().pos;
+            let dist = pos.square_dist_to(center);
+            if dist <= Self::BUBBLE_SQUARE_RADIUS {
+                self.loaded_units.insert(i);
+                self.load_tile_mut(pos).units.insert(i);
+            } else {
+                self.loaded_units.remove(&i);
             }
         }
     }

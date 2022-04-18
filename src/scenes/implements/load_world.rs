@@ -189,7 +189,7 @@ impl SceneImpl for LoadWorld {
         } else {
             // delete
             savefile::delete(path);
-            if savefiles_exists() {
+            if !savefiles_exists() {
                 Some(vec![Transition::Pop])
             } else {
                 Some(vec![Transition::Replace(Scene::LoadWorld)])

@@ -200,7 +200,7 @@ impl SceneImpl for Game {
                     item.item_type.region(&self.assets.tileset),
                     params.clone(),
                 );
-                if tile.items.len() > 1 || (tile.items.len() > 0 && tile.units.len() > 0) {
+                if tile.items.len() > 1 || (!tile.items.is_empty() && !tile.units.is_empty()) {
                     self.assets.tileset.texture.draw_region(
                         ctx,
                         self.assets.tileset.highlight,
