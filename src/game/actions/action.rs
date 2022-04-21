@@ -1,7 +1,9 @@
 use super::{ActionResult, ActionType};
+use colors::Colors;
 use game::actions::action_type::ActionPossibility;
-use game::World;
+use game::{Avatar, World};
 use geometry::direction::{Direction, DIR8};
+use map::item::ItemType;
 use rand::seq::SliceRandom;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -87,6 +89,27 @@ impl Action {
                 ActionType::Reading(dir) => {
                     let pos = world.player().pos + dir;
                     Some(ActionResult::LogMessage(world.load_tile(pos).read()))
+                }
+                ActionType::Animate(dir) => {
+                    let pos = world.player().pos + dir;
+                    if let Some(i) = world
+                        .load_tile(pos)
+                        .items
+                        .iter()
+                        .position(|i| matches!(i.item_type, ItemType::Corpse(..)))
+                    {
+                        let body = world.load_tile_mut(pos).items.remove(i);
+                        if let ItemType::Corpse(character, body) = body.item_type {
+                            let name = character.age_name().to_owned();
+                            let zombie = Avatar::zombie(character, body, pos);
+                            world.add_unit(zombie);
+                            return Some(ActionResult::ColoredLogMessage(
+                                format!("Zombie {} stands up!", name),
+                                Colors::LIGHT_PINK,
+                            ));
+                        }
+                    }
+                    None
                 }
             }
         } else {

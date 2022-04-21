@@ -99,7 +99,7 @@ impl Observing {
                 position.y - position_shift,
             ),
         };
-        let window_size = tetra::window::get_size(ctx);
+        let window_size = game.window_size;
         if let Some(sprite) = &mut self.sprite {
             sprite.label.set_value(msg);
             sprite.label.set_position(position);

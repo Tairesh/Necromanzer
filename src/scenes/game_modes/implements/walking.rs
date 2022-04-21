@@ -2,6 +2,7 @@ use colors::Colors;
 use game::actions::ActionType;
 use geometry::direction::Direction;
 use input;
+use scenes::game_modes::implements::animate::Animate;
 use scenes::game_modes::implements::digging::Digging;
 use scenes::game_modes::implements::dropping::Dropping;
 use scenes::game_modes::implements::examining::Examining;
@@ -88,6 +89,8 @@ impl GameModeImpl for Walking {
                 Colors::WHITE_SMOKE,
             );
             None
+        } else if input::is_key_pressed(ctx, Key::A) && input::is_no_key_modifiers(ctx) {
+            UpdateResult::Push(Animate::new().into()).into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
             if now.duration_since(self.last_walk).as_millis()

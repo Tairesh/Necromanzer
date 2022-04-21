@@ -34,6 +34,7 @@ pub struct Game {
     pub shift_of_view: Point,
     pub settings: Rc<RefCell<GameSettings>>,
     pub assets: Rc<Assets>,
+    pub window_size: (i32, i32),
 }
 
 impl Game {
@@ -69,6 +70,7 @@ impl Game {
             shift_of_view: Point::zero(),
             settings: app.settings.clone(),
             assets: app.assets.clone(),
+            window_size: tetra::window::get_size(ctx),
             current_time_label,
             world,
         }
@@ -139,18 +141,25 @@ impl Game {
     pub fn tile_size(&self) -> f32 {
         self.assets.tileset.tile_size as f32 * self.world.game_view.zoom.as_view()
     }
+
+    fn make_world_tick(&mut self) {
+        for action in self.world.tick() {
+            match action {
+                ActionResult::LogMessage(message) => {
+                    self.log.log(message, Colors::WHITE_SMOKE);
+                }
+                ActionResult::ColoredLogMessage(message, color) => {
+                    self.log.log(message, color);
+                }
+            }
+        }
+    }
 }
 
 impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
         if self.world.player().action.is_some() {
-            for action in self.world.tick() {
-                match action {
-                    ActionResult::LogMessage(s) => {
-                        self.log.log(s, Colors::WHITE_SMOKE);
-                    }
-                }
-            }
+            self.make_world_tick();
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),
                 ctx,
@@ -165,9 +174,8 @@ impl SceneImpl for Game {
 
     fn before_draw(&mut self, ctx: &mut Context) {
         tetra::graphics::clear(ctx, Colors::BLACK);
-        let window_size = tetra::window::get_size(ctx);
-        let width = window_size.0 as f32;
-        let height = window_size.1 as f32;
+        let width = self.window_size.0 as f32;
+        let height = self.window_size.1 as f32;
         let zoom = self.world.game_view.zoom.as_view();
         let tile_size = self.tile_size();
         let scale = self.world.game_view.zoom.as_scale();
@@ -248,6 +256,10 @@ impl SceneImpl for Game {
             .player()
             .draw(ctx, &self.assets.tileset, Vec2::new(5.0, 5.0), 3.0, false);
         self.current_mode().borrow_mut().draw(ctx, self);
+    }
+
+    fn on_resize(&mut self, _ctx: &mut Context, window_size: (i32, i32)) {
+        self.window_size = window_size;
     }
 
     fn sprites(&self) -> SomeSprites {

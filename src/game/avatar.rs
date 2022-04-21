@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use assets::tileset::Tileset;
+use colors::Colors;
 use game::actions::Action;
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
@@ -13,6 +14,12 @@ use tetra::graphics::DrawParams;
 use tetra::Context;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub enum Brain {
+    Player,
+    Zombie,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
     pub character: Character,
     pub body: Body,
@@ -21,18 +28,28 @@ pub struct Avatar {
     pub vision: TwoDimDirection,
     pub wield: Vec<Item>, // TODO: custom struct with hands counter
     pub stamina: u8,
+    pub brain: Brain,
     // TODO: traits
     // TODO: skills
 }
 
 impl Avatar {
-    pub fn new(character: Character, pos: TilePos) -> Self {
+    pub fn player(character: Character, pos: TilePos) -> Self {
         let mut body = Body::human(&character, Freshness::Fresh);
         body.wear.push(Item::new(ItemType::Cloak));
         body.wear.push(Item::new(ItemType::MagicHat));
+        Self::new(character, body, Brain::Player, pos)
+    }
+
+    pub fn zombie(character: Character, body: Body, pos: TilePos) -> Self {
+        Self::new(character, body, Brain::Zombie, pos)
+    }
+
+    pub fn new(character: Character, body: Body, brain: Brain, pos: TilePos) -> Self {
         Avatar {
             body,
             character,
+            brain,
             pos,
             action: None,
             vision: TwoDimDirection::East,
@@ -55,24 +72,67 @@ impl Avatar {
             position.x += 10.0 * zoom;
             Vec2::new(-zoom, zoom)
         };
-        let torso = self.body.parts.get("torso").unwrap();
-        let (gender, skin_tone) = if let ItemType::HumanTorso(part) = &torso.item_type {
-            (part.gender.clone(), part.skin_tone)
+        if let Brain::Zombie = self.brain {
+            let freshness = self
+                .body
+                .parts
+                .get("torso")
+                .map(|i| {
+                    i.item_type
+                        .body_part()
+                        .map(|bp| bp.freshness)
+                        .unwrap_or(Freshness::Rotten)
+                })
+                .unwrap_or(Freshness::Rotten);
+            let (region, color) = match freshness {
+                Freshness::Fresh => (
+                    if self.character.age > 15 {
+                        tileset.raw_zombie
+                    } else {
+                        tileset.raw_zombie_child
+                    },
+                    self.character.skin_tone.into(),
+                ),
+                Freshness::Rotten => (
+                    if self.character.age > 15 {
+                        tileset.zombie
+                    } else {
+                        tileset.zombie_child
+                    },
+                    Colors::WHITE,
+                ),
+                Freshness::Skeletal => (
+                    if self.character.age > 15 {
+                        tileset.skeleton
+                    } else {
+                        tileset.skeleton_child
+                    },
+                    Colors::WARM_IVORY,
+                ),
+            };
+            tileset.texture.draw_region(
+                ctx,
+                region,
+                DrawParams::new()
+                    .position(position)
+                    .scale(scale)
+                    .color(color),
+            );
         } else {
-            (self.character.gender.clone(), self.character.skin_tone)
-        };
-        tileset.texture.draw_region(
-            ctx,
-            match gender {
-                Gender::Female => tileset.female,
-                Gender::Male => tileset.male,
-                Gender::Custom(_) => tileset.queer,
-            },
-            DrawParams::new()
-                .position(position)
-                .scale(scale)
-                .color(skin_tone.into()),
-        );
+            let (gender, skin_tone) = (self.character.gender.clone(), self.character.skin_tone);
+            tileset.texture.draw_region(
+                ctx,
+                match gender {
+                    Gender::Female => tileset.female,
+                    Gender::Male => tileset.male,
+                    Gender::Custom(_) => tileset.queer,
+                },
+                DrawParams::new()
+                    .position(position)
+                    .scale(scale)
+                    .color(skin_tone.into()),
+            );
+        }
         if let Some(item) = self.wield.get(0) {
             let offset = if !rotate || matches!(self.vision, TwoDimDirection::East) {
                 Vec2::new(15.0 * zoom, 10.0 * zoom)

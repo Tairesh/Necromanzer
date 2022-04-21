@@ -235,7 +235,7 @@ impl GraveData {
         format!(
             "You read on gravestone: {}. {}—{}",
             self.character.name, // TODO: random mottos, professions, etc.
-            self.death_year - self.character.age,
+            self.death_year as i32 - self.character.age as i32,
             self.death_year
         )
     }

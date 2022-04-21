@@ -370,7 +370,7 @@ impl SceneImpl for CreateCharacter {
                     let character =
                         Character::new(name, gender, age, self.main_hand, SkinTone::PaleIvory);
                     // TODO: find available starting pos in the world
-                    let avatar = Avatar::new(character, TilePos::new(0, 0));
+                    let avatar = Avatar::player(character, TilePos::new(0, 0));
                     let mut world = World::new(
                         self.meta.clone(),
                         GameView::default(),

@@ -1,3 +1,4 @@
+pub mod animate;
 pub mod digging;
 pub mod dropping;
 pub mod examining;

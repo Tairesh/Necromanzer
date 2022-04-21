@@ -2,12 +2,15 @@
 
 use game::World;
 use geometry::direction::Direction;
+use map::item::ItemType;
 use map::Passage;
 
 pub enum ActionPossibility {
     Yes,
     No(String),
 }
+
+use self::ActionPossibility::{No, Yes};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum ActionType {
@@ -17,6 +20,7 @@ pub enum ActionType {
     Dropping(usize, Direction),
     Digging(Direction),
     Reading(Direction),
+    Animate(Direction),
 }
 
 // TODO: get rid of all these unwraps
@@ -72,29 +76,40 @@ impl ActionType {
 
                 0
             }
+            ActionType::Animate(dir) => {
+                let pos = world.player().pos + dir;
+                if let Some(tile) = world.get_tile(pos) {
+                    if tile
+                        .items
+                        .iter()
+                        .any(|i| matches!(i.item_type, ItemType::Corpse(..)))
+                    {
+                        return 5000; // TODO: use coprse mass
+                    }
+                }
+
+                0
+            }
         }
     }
 
     pub fn is_possible(&self, world: &World) -> ActionPossibility {
         match self {
-            ActionType::SkippingTime => ActionPossibility::Yes,
+            ActionType::SkippingTime => Yes,
             ActionType::Walking(dir) => {
                 let pos = world.player().pos + dir;
                 let tile = world.get_tile(pos).unwrap();
                 if !tile.terrain.is_walkable() {
-                    return ActionPossibility::No(format!(
-                        "You can't walk to the {}",
-                        tile.terrain.name()
-                    ));
+                    return No(format!("You can't walk to the {}", tile.terrain.name()));
                 }
                 if !tile.units.is_empty() {
                     let i = tile.units.iter().copied().next().unwrap();
-                    return ActionPossibility::No(format!(
+                    return No(format!(
                         "{} is on the way",
                         world.units.get(i).unwrap().character.name
                     ));
                 }
-                ActionPossibility::Yes
+                Yes
             }
             ActionType::Wielding(dir) => {
                 if !world.player().wield.is_empty() {
@@ -140,6 +155,20 @@ impl ActionType {
                 }
 
                 ActionPossibility::No("There is nothing to read".to_string())
+            }
+            ActionType::Animate(dir) => {
+                let pos = world.player().pos + dir;
+                if let Some(tile) = world.get_tile(pos) {
+                    if tile
+                        .items
+                        .iter()
+                        .any(|i| matches!(i.item_type, ItemType::Corpse(..)))
+                    {
+                        return Yes;
+                    }
+                }
+
+                No("There is nothing to rise".to_string())
             }
         }
     }

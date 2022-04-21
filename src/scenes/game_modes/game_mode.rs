@@ -1,4 +1,5 @@
 use enum_dispatch::enum_dispatch;
+use scenes::game_modes::implements::animate::Animate;
 use scenes::game_modes::implements::digging::Digging;
 use scenes::game_modes::implements::dropping::Dropping;
 use scenes::game_modes::implements::examining::Examining;
@@ -16,4 +17,5 @@ pub enum GameMode {
     Digging,
     Observing,
     Reading,
+    Animate,
 }
