@@ -68,7 +68,13 @@ impl GameModeImpl for Walking {
             && input::is_key_modifier_down(ctx, KeyModifier::Shift)
         {
             UpdateResult::Push(Reading::new().into()).into()
+        } else if input::is_key_pressed(ctx, Key::Num2)
+            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
+        {
+            // TODO: body view game scene (gamemodes should not use a lot of sprites)
+            None
         } else if input::is_key_pressed(ctx, Key::I) && input::is_no_key_modifiers(ctx) {
+            // TODO: inventory game scene
             let items: Vec<String> = game
                 .world
                 .player()

@@ -4,11 +4,8 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use variant_count::VariantCount;
 
-#[derive(
-    Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone,
-)]
+#[derive(Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
 #[repr(u8)]
 pub enum MainHand {
     Left,
@@ -21,12 +18,12 @@ impl MainHand {
         (*self).into()
     }
 
-    pub fn next(&self) -> Self {
-        enums::next(*self, Self::VARIANT_COUNT)
+    pub fn next(self) -> Self {
+        enums::next(self)
     }
 
-    pub fn prev(&self) -> Self {
-        enums::prev(*self, Self::VARIANT_COUNT)
+    pub fn prev(self) -> Self {
+        enums::prev(self, 2)
     }
 }
 

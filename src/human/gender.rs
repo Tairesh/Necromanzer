@@ -2,7 +2,6 @@
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Gender {
@@ -18,20 +17,6 @@ impl Gender {
             Gender::Female => ("She", "her", "her"),
             Gender::Custom(_) => ("They", "them", "their"),
         }
-    }
-}
-
-impl Display for Gender {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Gender::Male => "Male",
-                Gender::Female => "Female",
-                Gender::Custom(s) => s.as_str(),
-            }
-        )
     }
 }
 
