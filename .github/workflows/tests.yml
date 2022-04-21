@@ -41,3 +41,4 @@ jobs:
         run: cargo test --verbose
       - name: "Run rust-clippy"
         run: cargo clippy -- -Dwarnings --verbose
+      - uses: codecov/codecov-action@v2
