@@ -284,3 +284,40 @@ impl World {
         actions
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+    use super::World;
+    use assets::game_data::GameData;
+    use game::Avatar;
+    use human::character::Character;
+    use human::gender::Gender;
+    use human::main_hand::MainHand;
+    use human::skin_tone::SkinTone;
+    use map::pos::TilePos;
+    use savefile::{GameView, Meta};
+    use std::collections::HashMap;
+    use std::rc::Rc;
+
+    pub fn prepare_world() -> World {
+        let mut world = World::new(
+            Meta::new("test", "test"),
+            GameView::default(),
+            vec![Avatar::player(
+                Character::new(
+                    "player",
+                    Gender::Female,
+                    16,
+                    MainHand::Left,
+                    SkinTone::Espresso,
+                ),
+                TilePos::new(0, 0),
+            )],
+            HashMap::new(),
+            Rc::new(GameData::load().unwrap()),
+        );
+        world.load_tile(TilePos::new(0, 0));
+
+        world
+    }
+}

@@ -18,9 +18,9 @@ pub enum ActionType {
     Walking(Direction),
     Wielding(Direction),
     Dropping(usize, Direction),
-    Digging(Direction),
-    Reading(Direction),
-    Animate(Direction),
+    Digging(Direction), // TODO: write test for digging
+    Reading(Direction), // TODO: write test for reading
+    Animate(Direction), // TODO: write test for animate
 }
 
 // TODO: get rid of all these unwraps
@@ -171,5 +171,90 @@ impl ActionType {
                 No("There is nothing to rise".to_string())
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use game::actions::{Action, ActionType};
+    use game::world::tests::prepare_world;
+    use geometry::direction::Direction;
+    use map::item::{Item, ItemType};
+    use map::pos::TilePos;
+    use map::terrains::{DirtVariant, Terrain};
+
+    #[test]
+    fn test_walking() {
+        let mut world = prepare_world();
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+
+        assert_eq!(TilePos::new(0, 0), world.player().pos);
+        assert_eq!(0, world.meta.current_tick);
+
+        let typ = ActionType::Walking(Direction::East);
+        let length = typ.length(&world);
+        world.player_mut().action = Some(Action::new(typ, &world).unwrap());
+        world.tick();
+
+        assert_eq!(length as u128, world.meta.current_tick);
+        assert_eq!(TilePos::new(1, 0), world.player().pos);
+    }
+
+    #[test]
+    fn test_wielding() {
+        let mut world = prepare_world();
+        world.load_tile_mut(TilePos::new(1, 0)).items.clear();
+        world
+            .load_tile_mut(TilePos::new(1, 0))
+            .items
+            .push(Item::new(ItemType::Axe));
+
+        assert!(world.player().wield.is_empty());
+        assert_eq!(0, world.meta.current_tick);
+
+        let typ = ActionType::Wielding(Direction::East);
+        let length = typ.length(&world);
+        world.player_mut().action = Some(Action::new(typ, &world).unwrap());
+        world.tick();
+
+        assert_eq!(length as u128, world.meta.current_tick);
+        assert_eq!(TilePos::new(0, 0), world.player().pos);
+        assert_eq!(1, world.player().wield.len());
+        let item = world.player().wield.first().unwrap();
+        assert!(matches!(item.item_type, ItemType::Axe));
+    }
+
+    #[test]
+    fn test_skipping_time() {
+        let mut world = prepare_world();
+
+        assert_eq!(0, world.meta.current_tick);
+        let typ = ActionType::SkippingTime;
+        let length = typ.length(&world);
+        assert_eq!(1, length);
+        world.player_mut().action = Some(Action::new(typ, &world).unwrap());
+        world.tick();
+        assert_eq!(1, world.meta.current_tick);
+    }
+
+    #[test]
+    fn test_dropping() {
+        let mut world = prepare_world();
+        world.load_tile_mut(TilePos::new(0, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+        world.load_tile_mut(TilePos::new(0, 0)).items.clear();
+        world.player_mut().wield.clear();
+        world.player_mut().wield.push(Item::new(ItemType::Axe));
+
+        let typ = ActionType::Dropping(0, Direction::Here);
+        let length = typ.length(&world);
+        world.player_mut().action = Some(Action::new(typ, &world).unwrap());
+        world.tick();
+
+        assert_eq!(length as u128, world.meta.current_tick);
+        assert_eq!(TilePos::new(0, 0), world.player().pos);
+        assert_eq!(0, world.player().wield.len());
+        assert_eq!(1, world.load_tile(TilePos::new(0, 0)).items.len());
+        let item = world.load_tile(TilePos::new(0, 0)).items.first().unwrap();
+        assert!(matches!(item.item_type, ItemType::Axe));
     }
 }
