@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use human::character::Character;
+use human::character::{age_name, Character};
 use human::gender::Gender;
 use human::skin_tone::SkinTone;
 use map::item::{Item, ItemType};
@@ -10,6 +10,16 @@ pub enum Freshness {
     Fresh,
     Rotten,
     Skeletal,
+}
+
+impl Freshness {
+    pub fn adjective(&self) -> &str {
+        match self {
+            Freshness::Fresh => "fresh",
+            Freshness::Rotten => "rotten",
+            Freshness::Skeletal => "skeletal",
+        }
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -35,31 +45,14 @@ impl BodyPart {
     }
 
     pub fn age_name(&self, with_gender: bool) -> &str {
-        match self.age {
-            0..=3 => "baby",
-            4..=15 => {
-                if with_gender {
-                    match self.gender {
-                        Gender::Male => "boy",
-                        Gender::Female => "girl",
-                        Gender::Custom(_) => "child",
-                    }
-                } else {
-                    "child"
-                }
-            }
-            16.. => {
-                if with_gender {
-                    match self.gender {
-                        Gender::Male => "male",
-                        Gender::Female => "female",
-                        Gender::Custom(_) => "human",
-                    }
-                } else {
-                    "human"
-                }
-            }
-        }
+        age_name(
+            self.age,
+            if with_gender {
+                Some(&self.gender)
+            } else {
+                None
+            },
+        )
     }
 }
 

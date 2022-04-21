@@ -58,20 +58,34 @@ impl Character {
         )
     }
 
-    pub fn gender_age_name(&self) -> &str {
-        if self.age < 3 {
-            "baby"
-        } else if self.age < 16 {
-            match self.gender {
-                Gender::Male => "boy",
-                Gender::Female => "girl",
-                Gender::Custom(_) => "child",
+    pub fn age_name(&self) -> &str {
+        age_name(self.age, Some(&self.gender))
+    }
+}
+
+pub fn age_name(age: u8, gender: Option<&Gender>) -> &'static str {
+    match age {
+        0..=3 => "baby",
+        4..=15 => {
+            if let Some(gender) = gender {
+                match gender {
+                    Gender::Male => "boy",
+                    Gender::Female => "girl",
+                    Gender::Custom(_) => "child",
+                }
+            } else {
+                "child"
             }
-        } else {
-            match self.gender {
-                Gender::Male => "man",
-                Gender::Female => "woman",
-                Gender::Custom(_) => "human",
+        }
+        16.. => {
+            if let Some(gender) = gender {
+                match gender {
+                    Gender::Male => "man",
+                    Gender::Female => "woman",
+                    Gender::Custom(_) => "human",
+                }
+            } else {
+                "human"
             }
         }
     }

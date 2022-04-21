@@ -79,7 +79,31 @@ impl ItemType {
             ItemType::MagicHat => "magic hat".to_string(),
             ItemType::Hat => "hat".to_string(),
             ItemType::Cloak => "cloak".to_string(),
-            ItemType::Corpse(c, _) => format!("corpse of {}", c.gender_age_name()),
+            ItemType::Corpse(c, b) => {
+                let mut adjectives = Vec::new();
+                if b.wear.is_empty() {
+                    adjectives.push("naked");
+                }
+                let age_name = if let Some(torso) = b.parts.get("torso") {
+                    if let Some(bp) = torso.item_type.body_part() {
+                        adjectives.push(bp.freshness.adjective());
+                        bp.age_name(true)
+                    } else {
+                        "strange corpse"
+                    }
+                } else {
+                    c.age_name()
+                };
+                let corpse_name = format!("{} {}", adjectives.join(" "), age_name);
+                let article = corpse_name
+                    .get(0..1)
+                    .map(|s| match s {
+                        "a" | "e" | "u" | "i" | "o" => "an",
+                        _ => "a",
+                    })
+                    .unwrap_or("a");
+                format!("corpse of {} {}", article, corpse_name)
+            }
             ItemType::GraveStone(_) => "gravestone".to_string(),
             ItemType::HumanHead(data) => format!("{} head", data.age_name(true)),
             ItemType::HumanEye(data) => format!("{} eye", data.age_name(false)),

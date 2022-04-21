@@ -33,6 +33,11 @@ impl Meta {
         self.path = path.into();
         self
     }
+
+    pub fn update_before_save(&mut self) {
+        self.time = SystemTime::now();
+        self.version = VERSION.to_string();
+    }
 }
 
 impl Eq for Meta {}
