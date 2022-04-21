@@ -25,16 +25,12 @@ pub trait SceneImpl {
             .map(|sprites| sprites.iter().any(|s| s.borrow().focused()))
             .unwrap_or(false)
     }
-}
 
-pub fn reposition_all_sprites(
-    scene: &mut Box<dyn SceneImpl>,
-    ctx: &mut Context,
-    window_size: (i32, i32),
-) {
-    if let Some(sprites) = scene.sprites() {
-        for sprite in sprites.iter() {
-            sprite.borrow_mut().positionate(ctx, window_size);
+    fn reposition_all_sprites(&mut self, ctx: &mut Context, window_size: (i32, i32)) {
+        if let Some(sprites) = self.sprites() {
+            for sprite in sprites.iter() {
+                sprite.borrow_mut().positionate(ctx, window_size);
+            }
         }
     }
 }

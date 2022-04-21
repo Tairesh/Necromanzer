@@ -1,7 +1,9 @@
 #![allow(dead_code)]
 
 use assets::tileset::Tileset;
+use human::body::{Body, Freshness};
 use human::character::Character;
+use map::item::{Item, ItemType};
 use map::Passage;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
@@ -125,6 +127,30 @@ impl Terrain {
             }
             _ => false,
         }
+    }
+
+    pub fn dig(&mut self) -> Vec<Item> {
+        let items = match self {
+            Terrain::Grave(_, data) => {
+                vec![
+                    Item::new(ItemType::GraveStone(data.clone())),
+                    Item::new(ItemType::Corpse(
+                        data.character.clone(),
+                        Body::human(
+                            &data.character,
+                            match data.death_year {
+                                253..=255 => Freshness::Rotten,
+                                _ => Freshness::Skeletal,
+                            },
+                        ),
+                    )),
+                ]
+            }
+            _ => vec![],
+        };
+        *self = Terrain::Pit;
+
+        items
     }
 
     pub fn is_readable(&self) -> bool {

@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
-use human::body::{Body, Freshness};
-use map::item::{Item, ItemType};
+use map::item::Item;
 use map::terrains::{DeadGrassVariant, DirtVariant, GrassVariant, Terrain};
 use rand::Rng;
 use std::collections::HashSet;
@@ -12,7 +11,8 @@ pub struct Tile {
     pub terrain: Terrain,
     #[serde(rename = "i")]
     pub items: Vec<Item>,
-    #[serde(skip)]
+    #[serde(default)]
+    #[serde(rename = "u")]
     pub units: HashSet<usize>,
 }
 
@@ -72,24 +72,11 @@ impl Tile {
     }
 
     pub fn top_item(&self) -> Option<&Item> {
-        self.items.first()
+        self.items.last()
     }
 
     pub fn dig(&mut self) -> Vec<Item> {
-        let mut items = vec![];
-        if let Terrain::Grave(_, data) = &self.terrain {
-            items.push(Item::new(ItemType::GraveStone(data.clone())));
-            let freshness = match data.death_year {
-                253..=255 => Freshness::Rotten,
-                _ => Freshness::Skeletal,
-            };
-            items.push(Item::new(ItemType::Corpse(
-                data.character.clone(),
-                Body::human(&data.character, freshness),
-            )));
-        }
-        self.terrain = Terrain::Pit;
-        items
+        self.terrain.dig()
     }
 
     pub fn is_readable(&self) -> bool {
@@ -108,6 +95,7 @@ impl Tile {
 
         self.items
             .iter()
+            .rev()
             .filter(|i| i.is_readable())
             .map(|i| i.read())
             .next()

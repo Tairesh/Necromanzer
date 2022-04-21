@@ -136,16 +136,19 @@ impl World {
         self.units.get_mut(0).unwrap()
     }
 
-    pub fn move_avatar(&mut self, dir: Direction) {
-        let pos = self.player().pos;
+    pub fn move_avatar(&mut self, unit_id: usize, dir: Direction) {
+        let mut pos = self.units.get(unit_id).unwrap().pos;
         let (old_chunk, _) = pos.chunk_and_pos();
-        self.load_tile_mut(pos).off_step(0);
-        self.player_mut().pos = pos + dir;
-        if let Ok(dir) = TwoDimDirection::try_from(dir) {
-            self.player_mut().vision = dir;
+        self.load_tile_mut(pos).off_step(unit_id);
+        pos += dir;
+        if let Some(unit) = self.units.get_mut(unit_id) {
+            unit.pos = pos;
+            if let Ok(dir) = TwoDimDirection::try_from(dir) {
+                unit.vision = dir;
+            }
         }
-        self.load_tile_mut(self.player().pos).on_step(0);
-        if old_chunk != self.player().pos.chunk_and_pos().0 {
+        self.load_tile_mut(pos).on_step(unit_id);
+        if old_chunk != pos.chunk_and_pos().0 {
             self.load_units();
         }
     }
@@ -235,14 +238,22 @@ impl World {
         }
     }
 
+    pub fn add_unit(&mut self, unit: Avatar) {
+        let pos = unit.pos;
+        self.units.push(unit);
+        self.load_units();
+        let new_id = self.units.len() - 1;
+        self.load_tile_mut(pos).units.insert(new_id);
+    }
+
     fn load_units(&mut self) {
+        self.loaded_units.clear();
         let center = self.player().pos;
-        for i in 0..self.units.len() {
-            let pos = self.units.get(i).unwrap().pos;
+        for (i, unit) in self.units.iter().enumerate() {
+            let pos = unit.pos;
             let dist = pos.square_dist_to(center);
             if dist <= Self::BUBBLE_SQUARE_RADIUS {
                 self.loaded_units.insert(i);
-                self.load_tile_mut(pos).units.insert(i);
             } else {
                 self.loaded_units.remove(&i);
             }
@@ -267,7 +278,7 @@ impl World {
             if let Some(action) = self.act() {
                 actions.push(action);
             }
-            self.kill_grass(self.player().pos, 13, 0.01);
+            // self.kill_grass(self.player().pos, 13, 0.01);
         }
 
         actions

@@ -166,16 +166,18 @@ impl SceneImpl for Game {
     fn before_draw(&mut self, ctx: &mut Context) {
         tetra::graphics::clear(ctx, Colors::BLACK);
         let window_size = tetra::window::get_size(ctx);
+        let width = window_size.0 as f32;
+        let height = window_size.1 as f32;
         let zoom = self.world.game_view.zoom.as_view();
         let tile_size = self.tile_size();
         let scale = self.world.game_view.zoom.as_scale();
         let window_size_in_tiles = (
-            (window_size.0 as f32 / tile_size).ceil() as i32,
-            (window_size.1 as f32 / tile_size).ceil() as i32,
+            (width as f32 / tile_size).ceil() as i32,
+            (height as f32 / tile_size).ceil() as i32,
         );
         let center = Vec2::new(
-            window_size.0 as f32 / 2.0 - 5.0 * zoom,
-            window_size.1 as f32 / 2.0 - 5.0 * zoom,
+            width / 2.0 - tile_size / 2.0,
+            height / 2.0 - tile_size / 2.0,
         );
         let center_tile = self.world.player().pos + self.shift_of_view;
         let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
@@ -236,10 +238,7 @@ impl SceneImpl for Game {
         }
 
         for (i, msg) in self.log.texts.iter_mut().enumerate() {
-            msg.draw(
-                Vec2::new(10.0, window_size.1 as f32 - 20.0 - 20.0 * i as f32),
-                ctx,
-            );
+            msg.draw(Vec2::new(10.0, height - 20.0 * (i + 1) as f32), ctx);
         }
     }
 

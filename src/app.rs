@@ -1,6 +1,5 @@
 use assets::Assets;
 use colors::Colors;
-use scenes;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
@@ -54,7 +53,7 @@ impl App {
     fn on_resize(&mut self, ctx: &mut Context) {
         if let Some(scene) = self.current_scene() {
             let window_size = window::get_size(ctx);
-            scenes::scene_impl::reposition_all_sprites(scene, ctx, window_size);
+            scene.reposition_all_sprites(ctx, window_size);
             scene.on_resize(ctx, window_size);
             self.fps_counter.positionate(ctx, window_size);
         }

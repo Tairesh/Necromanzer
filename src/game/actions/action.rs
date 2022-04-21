@@ -37,7 +37,7 @@ impl Action {
                 ActionType::SkippingTime => None,
                 ActionType::Walking(dir) => {
                     // TODO: move other units
-                    world.move_avatar(dir);
+                    world.move_avatar(0, dir);
                     None
                 }
                 ActionType::Wielding(dir) => {
