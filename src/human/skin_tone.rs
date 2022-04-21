@@ -6,7 +6,9 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tetra::graphics::Color;
 
-#[derive(Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
+#[derive(
+    Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, Eq, PartialEq,
+)]
 #[repr(u8)]
 pub enum SkinTone {
     PaleIvory,

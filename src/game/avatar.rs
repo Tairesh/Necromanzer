@@ -73,6 +73,7 @@ impl Avatar {
         zoom: f32,
         rotate: bool,
     ) {
+        // TODO: create canvas
         let scale = if !rotate || matches!(self.vision, TwoDimDirection::East) {
             Vec2::new(zoom, zoom)
         } else {
@@ -126,10 +127,10 @@ impl Avatar {
                     .color(color),
             );
         } else {
-            let (gender, skin_tone) = (self.character.gender.clone(), self.character.skin_tone);
+            // TODO: draw wear
             tileset.texture.draw_region(
                 ctx,
-                match gender {
+                match self.character.gender {
                     Gender::Female => tileset.female,
                     Gender::Male => tileset.male,
                     Gender::Custom(_) => tileset.queer,
@@ -137,7 +138,7 @@ impl Avatar {
                 DrawParams::new()
                     .position(position)
                     .scale(scale)
-                    .color(skin_tone.into()),
+                    .color(self.character.skin_tone.into()),
             );
         }
         if let Some(item) = self.wield.get(0) {
