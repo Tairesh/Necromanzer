@@ -102,7 +102,7 @@ impl Game {
     }
 
     pub fn try_start_action(&mut self, typ: ActionType) {
-        match Action::new(typ, &self.world) {
+        match Action::new(0, typ, &self.world) {
             Ok(action) => {
                 self.world.player_mut().action = Some(action);
             }

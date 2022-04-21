@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use assets::game_data::GameData;
-use game::actions::ActionResult;
+use game::actions::{owner_mut, Action, ActionResult};
 use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use map::chunk::Chunk;
@@ -223,19 +223,27 @@ impl World {
 
     /// Doing actions that should be done
     fn act(&mut self) -> Option<ActionResult> {
-        if let Some(action) = self.player().action.clone() {
-            let mut result = None;
-            if action.finish >= self.meta.current_tick {
-                result = action.act(self);
-            }
+        let mut result = None;
 
-            if self.meta.current_tick == action.finish {
-                self.player_mut().action = None;
+        let actions: Vec<Action> = self
+            .units
+            .iter()
+            .filter(|u| u.action.is_some())
+            .map(|u| u.action.as_ref().unwrap().clone())
+            .collect();
+        for action in actions {
+            if action.finish >= self.meta.current_tick {
+                let res = action.act(self);
+                if action.owner == 0 {
+                    result = res;
+                }
             }
-            result
-        } else {
-            None
+            if self.meta.current_tick == action.finish {
+                owner_mut(action.owner, self).action = None;
+            }
         }
+
+        result
     }
 
     pub fn add_unit(&mut self, unit: Avatar) {
@@ -289,12 +297,16 @@ impl World {
 pub mod tests {
     use super::World;
     use assets::game_data::GameData;
+    use game::actions::{Action, ActionType};
     use game::Avatar;
+    use geometry::direction::Direction;
+    use human::body::{Body, Freshness};
     use human::character::Character;
     use human::gender::Gender;
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
     use map::pos::TilePos;
+    use map::terrains::{DirtVariant, Terrain};
     use savefile::{GameView, Meta};
     use std::collections::HashMap;
     use std::rc::Rc;
@@ -319,5 +331,39 @@ pub mod tests {
         world.load_tile(TilePos::new(0, 0));
 
         world
+    }
+
+    #[test]
+    pub fn test_moving_other_unit() {
+        let mut world = prepare_world();
+        let character = Character::new(
+            "zombie",
+            Gender::Female,
+            16,
+            MainHand::Left,
+            SkinTone::Espresso,
+        );
+        let body = Body::human(&character, Freshness::Rotten);
+        let zombie = Avatar::zombie(character, body, TilePos::new(1, 0));
+        world.load_tile(TilePos::new(1, 0));
+        world.add_unit(zombie);
+
+        assert_eq!(2, world.units.len());
+        world.load_tile_mut(TilePos::new(2, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+        let typ = ActionType::Walking(Direction::East);
+        let length = typ.length(1, &world);
+        let action = Action::new(1, typ, &world).unwrap();
+        if let Some(zombie) = world.units.get_mut(1) {
+            zombie.action = Some(action);
+        }
+        assert_eq!(TilePos::new(0, 0), world.player().pos);
+        assert_eq!(TilePos::new(1, 0), world.units.get(1).unwrap().pos);
+        for _ in 0..length {
+            world.player_mut().action =
+                Some(Action::new(0, ActionType::SkippingTime, &world).unwrap());
+            world.tick();
+        }
+        assert_eq!(TilePos::new(0, 0), world.player().pos);
+        assert_eq!(TilePos::new(2, 0), world.units.get(1).unwrap().pos)
     }
 }

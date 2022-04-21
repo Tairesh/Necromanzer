@@ -58,6 +58,13 @@ impl Avatar {
         }
     }
 
+    pub fn name_for_actions(&self) -> String {
+        match self.brain {
+            Brain::Player => "You".to_string(),
+            Brain::Zombie => format!("Zombie {}", self.character.name),
+        }
+    }
+
     pub fn draw(
         &self,
         ctx: &mut Context,

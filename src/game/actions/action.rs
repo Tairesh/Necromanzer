@@ -6,31 +6,56 @@ use geometry::direction::{Direction, DIR8};
 use map::item::ItemType;
 use rand::seq::SliceRandom;
 
+pub fn owner(owner: usize, world: &World) -> &Avatar {
+    world.units.get(owner).unwrap()
+}
+
+pub fn owner_mut(owner: usize, world: &mut World) -> &mut Avatar {
+    world.units.get_mut(owner).unwrap()
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Action {
+    pub owner: usize,
     pub typ: ActionType,
+    length: u32,
     pub finish: u128,
 }
 
 impl Action {
-    pub fn new(typ: ActionType, world: &World) -> Result<Self, String> {
-        match typ.is_possible(world) {
+    pub fn new(owner: usize, typ: ActionType, world: &World) -> Result<Self, String> {
+        match typ.is_possible(owner, world) {
             ActionPossibility::Yes => {
-                let finish = world.meta.current_tick + typ.length(world) as u128;
-                Ok(Self { typ, finish })
+                let length = typ.length(owner, world);
+                let finish = world.meta.current_tick + length as u128;
+                Ok(Self {
+                    owner,
+                    typ,
+                    finish,
+                    length,
+                })
             }
             ActionPossibility::No(s) => Err(s),
         }
     }
 
+    fn owner<'a>(&self, world: &'a World) -> &'a Avatar {
+        owner(self.owner, world)
+    }
+
+    fn owner_mut<'a>(&self, world: &'a mut World) -> &'a mut Avatar {
+        owner_mut(self.owner, world)
+    }
+
     /// called every tick
     pub fn act(&self, world: &mut World) -> Option<ActionResult> {
         let steps = (self.finish - world.meta.current_tick) as u32;
-        if steps == self.typ.length(world) {
+        if steps == self.length {
             match self.typ {
-                ActionType::Digging(..) => {
-                    Some(ActionResult::LogMessage("You start digging".to_string()))
-                }
+                ActionType::Digging(..) => Some(ActionResult::LogMessage(format!(
+                    "{} start digging",
+                    self.owner(world).name_for_actions()
+                ))),
                 _ => None,
             }
         } else if steps == 0 {
@@ -38,43 +63,45 @@ impl Action {
             match self.typ {
                 ActionType::SkippingTime => None,
                 ActionType::Walking(dir) => {
-                    // TODO: move other units
-                    world.move_avatar(0, dir);
+                    world.move_avatar(self.owner, dir);
                     None
                 }
                 ActionType::Wielding(dir) => {
-                    // TODO: other units
-                    if let Some(item) = world.load_tile_mut(world.player().pos + dir).items.pop() {
-                        world.player_mut().wield.push(item.clone());
+                    if let Some(item) = world.load_tile_mut(self.owner(world).pos + dir).items.pop()
+                    {
+                        let name = item.item_type.name();
+                        self.owner_mut(world).wield.push(item);
                         Some(ActionResult::LogMessage(format!(
-                            "You wield the {}",
-                            item.item_type.name()
+                            "{} wield the {}",
+                            self.owner(world).name_for_actions(),
+                            name
                         )))
                     } else {
                         None
                     }
                 }
                 ActionType::Dropping(i, dir) => {
-                    let item = world.player().wield.get(i).unwrap().clone();
+                    let item = self.owner_mut(world).wield.remove(i);
+                    let name = item.item_type.name();
                     world
-                        .load_tile_mut(world.player().pos + dir)
+                        .load_tile_mut(self.owner(world).pos + dir)
                         .items
-                        .push(item.clone());
-                    world.player_mut().wield.remove(i);
+                        .push(item);
                     Some(ActionResult::LogMessage(format!(
-                        "You drop the {}",
-                        item.item_type.name()
+                        "{} drop the {}",
+                        self.owner(world).name_for_actions(),
+                        name
                     )))
                 }
                 ActionType::Digging(dir) => {
-                    let pos = world.player().pos + dir;
+                    let pos = self.owner(world).pos + dir;
                     let items = world.load_tile_mut(pos).dig();
                     if !items.is_empty() {
                         let mut rng = rand::thread_rng();
                         let places: Vec<Direction> = DIR8
                             .iter()
                             .filter(|d| {
-                                pos + *d != world.player().pos
+                                (pos + *d != self.owner(world).pos)
                                     && world.load_tile(pos + *d).terrain.is_walkable()
                             })
                             .copied()
@@ -84,14 +111,17 @@ impl Action {
                             world.load_tile_mut(pos + delta).items.push(item);
                         }
                     }
-                    Some(ActionResult::LogMessage("You dig a hole".to_string()))
+                    Some(ActionResult::LogMessage(format!(
+                        "{} dig a hole",
+                        self.owner(world).name_for_actions()
+                    )))
                 }
                 ActionType::Reading(dir) => {
-                    let pos = world.player().pos + dir;
+                    let pos = self.owner(world).pos + dir;
                     Some(ActionResult::LogMessage(world.load_tile(pos).read()))
                 }
                 ActionType::Animate(dir) => {
-                    let pos = world.player().pos + dir;
+                    let pos = self.owner(world).pos + dir;
                     if let Some(i) = world
                         .load_tile(pos)
                         .items
