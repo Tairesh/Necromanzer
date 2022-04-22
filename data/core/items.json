@@ -1,0 +1,67 @@
+[
+  {
+    "type": "item",
+    "id": "shovel",
+    "name": "Shovel",
+    "mass": 30,
+    "volume": 10,
+    "tags": [ "DIG" ]
+  },
+  {
+    "type": "item",
+    "id": "axe",
+    "name": "Axe",
+    "mass": 20,
+    "volume": 7,
+    "tags": [ "CUT" ]
+  },
+  {
+    "type": "item",
+    "id": "knife",
+    "name": "Knife",
+    "mass": 7,
+    "volume": 2,
+    "tags": [ "CUT" ]
+  },
+  {
+    "type": "item",
+    "id": "corpse",
+    "name": "Corpse",
+    "mass": 1000,
+    "volume": 1000,
+    "tags": [ "CORPSE" ]
+  },
+  {
+    "type": "item",
+    "id": "gravestone",
+    "name": "Gravestone",
+    "mass": 3000,
+    "volume": 200,
+    "tags": ["GRAVE_DATA"],
+    "read_action": "GRAVE_STONE"
+  },
+  {
+    "type": "item",
+    "id": "magic_hat",
+    "name": "Magic hat",
+    "mass": 10,
+    "volume": 100,
+    "tags": [ "WEAR" ]
+  },
+  {
+    "type": "item",
+    "id": "hat",
+    "name": "Hat",
+    "mass": 10,
+    "volume": 100,
+    "tags": [ "WEAR" ]
+  },
+  {
+    "type": "item",
+    "id": "cloak",
+    "name": "Cloak",
+    "mass": 50,
+    "volume": 500,
+    "tags": [ "WEAR" ]
+  }
+]

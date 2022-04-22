@@ -1,0 +1,59 @@
+[
+  {
+    "type": "terrain",
+    "id": "dirt",
+    "name": "Dirt",
+    "pass": { "passable": 10 },
+    "variants": 5,
+    "dig_result": "pit"
+  },
+  {
+    "type": "terrain",
+    "id": "small_boulder",
+    "name": "Small boulder",
+    "pass": { "passable": 30 }
+  },
+  {
+    "type": "terrain",
+    "id": "medium_boulder",
+    "name": "Medium boulder",
+    "pass": "unpassable"
+  },
+  {
+    "type": "terrain",
+    "id": "huge_boulder",
+    "name": "Huge boulder",
+    "pass": "unpassable"
+  },
+  {
+    "type": "terrain",
+    "id": "grass",
+    "name": "Grass",
+    "pass": { "passable": 11 },
+    "variants": 14,
+    "dig_result": "pit"
+  },
+  {
+    "type": "terrain",
+    "id": "dead_grass",
+    "name": "Dead grass",
+    "pass": { "passable": 11 },
+    "variants": 14,
+    "dig_result": "pit"
+  },
+  {
+    "type": "terrain",
+    "id": "grave",
+    "name": "Grave",
+    "pass": "unpassable",
+    "dig_result": "pit",
+    "dig_action": "GRAVE",
+    "read_action": "GRAVE_STONE"
+  },
+  {
+    "type": "terrain",
+    "id": "pid",
+    "name": "Pit",
+    "pass": "unpassable"
+  }
+]
