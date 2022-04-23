@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use arrayvec::ArrayVec;
 use assets::game_data::GameData;
 use human::character::Character;
 use map::item::{Item, ItemType};
@@ -22,7 +23,7 @@ struct ChunkUnique {
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Chunk {
     pub pos: ChunkPos,
-    pub tiles: Vec<Tile>,
+    pub tiles: ArrayVec<Tile, { Chunk::USIZE }>,
 }
 
 impl Chunk {
@@ -35,7 +36,7 @@ impl Chunk {
         seed.hash(&mut hasher);
         let seed = hasher.finish();
         let mut rng = StdRng::seed_from_u64(seed);
-        let mut tiles = Vec::with_capacity(Chunk::USIZE);
+        let mut tiles = ArrayVec::new();
         for _ in 0..Chunk::USIZE {
             tiles.push(Tile::new(if rng.gen_bool(0.01) {
                 Terrain::Boulder(rng.sample(Standard))
@@ -74,7 +75,7 @@ impl Chunk {
                     .items
                     .push(Item::new(ItemType::Shovel));
             } else {
-                let death_year = rng.gen_range(0..255u8);
+                let death_year = rng.gen_range(200..=255);
                 tiles.get_mut(pos).unwrap().terrain = Terrain::Grave(
                     if death_year < 200 {
                         GraveVariant::Old

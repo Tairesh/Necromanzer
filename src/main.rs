@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+extern crate arrayvec;
 extern crate core;
 extern crate enum_dispatch;
 extern crate num_enum;
