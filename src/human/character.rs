@@ -11,10 +11,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Character {
+    #[serde(rename = "n")]
     pub name: String,
+    #[serde(rename = "g")]
     pub gender: Gender,
+    #[serde(rename = "a")]
     pub age: u8,
+    #[serde(rename = "h")]
     pub main_hand: MainHand,
+    #[serde(rename = "s")]
     pub skin_tone: SkinTone,
     // TODO: profession
 }

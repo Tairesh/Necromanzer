@@ -5,8 +5,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub enum Gender {
+    #[serde(rename = "m")]
     Male,
+    #[serde(rename = "f")]
     Female,
+    #[serde(rename = "x")]
     Custom(String),
 }
 

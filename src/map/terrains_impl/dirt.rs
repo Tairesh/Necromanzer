@@ -21,25 +21,25 @@ impl Dirt {
 
 impl Default for Dirt {
     fn default() -> Self {
-        Self::new(DirtVariant::Dirt3)
+        Self::new(DirtVariant::Flat)
     }
 }
 
 impl TerrainView for Dirt {
     fn name(&self) -> &str {
         match self.variant {
-            DirtVariant::Dirt3 => "flat dirt",
+            DirtVariant::Flat => "flat dirt",
             _ => "dirt",
         }
     }
 
     fn region(&self, tileset: &Tileset) -> Rectangle {
         match self.variant {
-            DirtVariant::Dirt1 => tileset.dirt1,
-            DirtVariant::Dirt2 => tileset.dirt2,
-            DirtVariant::Dirt3 => tileset.dirt3,
-            DirtVariant::Dirt4 => tileset.dirt4,
-            DirtVariant::Dirt5 => tileset.dirt5,
+            DirtVariant::LotOfChunks => tileset.dirt1,
+            DirtVariant::SomeChunks => tileset.dirt2,
+            DirtVariant::Flat => tileset.dirt3,
+            DirtVariant::LittleChunks => tileset.dirt4,
+            DirtVariant::AlmostNoChunks => tileset.dirt5,
         }
     }
 
@@ -64,23 +64,28 @@ impl TerrainInteract for Dirt {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum DirtVariant {
-    Dirt1,
-    Dirt2,
-    Dirt3, // TODO: rename Dirt3 to FlatDirt
-    Dirt4,
-    Dirt5,
+    #[serde(rename = "1")]
+    Flat,
+    #[serde(rename = "2")]
+    LotOfChunks,
+    #[serde(rename = "3")]
+    SomeChunks,
+    #[serde(rename = "4")]
+    LittleChunks,
+    #[serde(rename = "5")]
+    AlmostNoChunks,
 }
 
 impl Distribution<DirtVariant> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> DirtVariant {
         if rng.gen_bool(0.9) {
-            DirtVariant::Dirt3
+            DirtVariant::Flat
         } else {
             match rng.gen_range(0..4) {
-                0 => DirtVariant::Dirt1,
-                1 => DirtVariant::Dirt2,
-                2 => DirtVariant::Dirt4,
-                3 => DirtVariant::Dirt5,
+                0 => DirtVariant::LotOfChunks,
+                1 => DirtVariant::SomeChunks,
+                2 => DirtVariant::LittleChunks,
+                3 => DirtVariant::AlmostNoChunks,
                 _ => unreachable!(),
             }
         }

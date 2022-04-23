@@ -7,8 +7,11 @@ use std::collections::HashMap;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum Freshness {
+    #[serde(rename = "f")]
     Fresh,
+    #[serde(rename = "r")]
     Rotten,
+    #[serde(rename = "s")]
     Skeletal,
 }
 
@@ -24,11 +27,17 @@ impl Freshness {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct BodyPart {
+    #[serde(rename = "f")]
     pub freshness: Freshness,
+    #[serde(rename = "a")]
     pub age: u8,
+    #[serde(rename = "g")]
     pub gender: Gender,
+    #[serde(rename = "s")]
     pub skin_tone: SkinTone,
+    #[serde(rename = "o")]
     pub outside: HashMap<String, Item>,
+    #[serde(rename = "i")]
     pub inside: HashMap<String, Item>,
 }
 

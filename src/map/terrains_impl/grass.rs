@@ -122,33 +122,61 @@ impl TerrainInteract for Grass {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum GrassVariant {
+    #[serde(rename = "1")]
     Grass1,
+    #[serde(rename = "2")]
     Grass2,
+    #[serde(rename = "3")]
     Grass3,
+    #[serde(rename = "4")]
     Grass4,
+    #[serde(rename = "5")]
     Grass5,
+    #[serde(rename = "6")]
     Grass6,
+    #[serde(rename = "7")]
     Grass7,
+    #[serde(rename = "8")]
     Grass8,
+    #[serde(rename = "9")]
     Grass9,
+    #[serde(rename = "10")]
     Grass10,
+    #[serde(rename = "11")]
     Grass11,
+    #[serde(rename = "12")]
     Grass12,
+    #[serde(rename = "13")]
     Grass13,
+    #[serde(rename = "14")]
     Grass14,
+    #[serde(rename = "d1")]
     DeadGrass1,
+    #[serde(rename = "d2")]
     DeadGrass2,
+    #[serde(rename = "d3")]
     DeadGrass3,
+    #[serde(rename = "d4")]
     DeadGrass4,
+    #[serde(rename = "d5")]
     DeadGrass5,
+    #[serde(rename = "d6")]
     DeadGrass6,
+    #[serde(rename = "d7")]
     DeadGrass7,
+    #[serde(rename = "d8")]
     DeadGrass8,
+    #[serde(rename = "d9")]
     DeadGrass9,
+    #[serde(rename = "d10")]
     DeadGrass10,
+    #[serde(rename = "d11")]
     DeadGrass11,
+    #[serde(rename = "d12")]
     DeadGrass12,
+    #[serde(rename = "d13")]
     DeadGrass13,
+    #[serde(rename = "d14")]
     DeadGrass14,
 }
 

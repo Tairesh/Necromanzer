@@ -98,7 +98,9 @@ impl Distribution<GraveVariant> for Standard {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct GraveData {
+    #[serde(rename = "c")]
     pub character: Character,
+    #[serde(rename = "d")]
     pub death_year: u8,
 }
 

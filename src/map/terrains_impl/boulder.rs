@@ -51,8 +51,11 @@ impl TerrainInteract for Boulder {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum BoulderSize {
+    #[serde(rename = "1")]
     Huge,
+    #[serde(rename = "2")]
     Middle,
+    #[serde(rename = "3")]
     Small,
 }
 

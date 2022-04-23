@@ -11,21 +11,37 @@ use tetra::graphics::Color;
 )]
 #[repr(u8)]
 pub enum SkinTone {
+    #[serde(rename = "1")]
     PaleIvory,
+    #[serde(rename = "2")]
     WarmIvory,
+    #[serde(rename = "3")]
     Sand,
+    #[serde(rename = "4")]
     RoseBeige,
+    #[serde(rename = "5")]
     Sienna,
+    #[serde(rename = "6")]
     Limestone,
+    #[serde(rename = "7")]
     Beige,
+    #[serde(rename = "8")]
     Amber,
+    #[serde(rename = "9")]
     Honey,
+    #[serde(rename = "10")]
     Band,
+    #[serde(rename = "11")]
     Almond,
+    #[serde(rename = "12")]
     Umber,
+    #[serde(rename = "13")]
     Bronze,
+    #[serde(rename = "14")]
     Golden,
+    #[serde(rename = "15")]
     Espresso,
+    #[serde(rename = "16")]
     Chocolate,
 }
 

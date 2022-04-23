@@ -8,6 +8,7 @@ use tetra::graphics::Rectangle;
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
 pub enum Terrain {
     Dirt,
     Grass,
@@ -53,7 +54,7 @@ mod tests {
 
     #[test]
     fn test_dirt() {
-        let terrain: Terrain = Dirt::new(DirtVariant::Dirt3).into();
+        let terrain: Terrain = Dirt::new(DirtVariant::Flat).into();
         assert_eq!("flat dirt", terrain.name());
         assert!(terrain.is_diggable());
     }

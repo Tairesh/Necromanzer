@@ -41,7 +41,7 @@ impl Tile {
                     self.terrain = Dirt::new(rand::random::<DirtVariant>()).into();
                 }
                 Terrain::Dirt(..) => {
-                    self.terrain = Dirt::new(DirtVariant::Dirt3).into();
+                    self.terrain = Dirt::new(DirtVariant::Flat).into();
                 }
                 _ => {}
             }

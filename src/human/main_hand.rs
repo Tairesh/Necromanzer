@@ -10,8 +10,11 @@ use serde::{Deserialize, Serialize};
 )]
 #[repr(u8)]
 pub enum MainHand {
+    #[serde(rename = "l")]
     Left,
+    #[serde(rename = "r")]
     Right,
+    #[serde(rename = "a")]
     Ambidexter,
 }
 
