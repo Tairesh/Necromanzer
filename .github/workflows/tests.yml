@@ -1,4 +1,4 @@
-name: tests
+name: Rust tests
 
 on:
   push:
@@ -18,7 +18,7 @@ env:
   NECROMANZER_VERSION_POSTFIX: "-test"
 
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout code"

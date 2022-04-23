@@ -9,7 +9,6 @@ use tetra::Context;
 
 pub mod alert;
 pub mod button;
-pub mod data_entity;
 pub mod fonts;
 pub mod game_data;
 pub mod images;
