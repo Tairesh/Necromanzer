@@ -7,6 +7,7 @@ use game::{Log, World};
 use geometry::direction::{Direction, TwoDimDirection};
 use geometry::point::Point;
 use geometry::Vec2;
+use map::item::ItemView;
 use map::terrain::TerrainView;
 use scenes::game_modes::implements::walking::Walking;
 use scenes::game_modes::GameModeImpl;
@@ -208,7 +209,7 @@ impl SceneImpl for Game {
             if let Some(item) = tile.top_item() {
                 self.assets.tileset.texture.draw_region(
                     ctx,
-                    item.item_type.region(&self.assets.tileset),
+                    item.region(&self.assets.tileset),
                     params.clone(),
                 );
                 if tile.items.len() > 1 || (!tile.items.is_empty() && !tile.units.is_empty()) {

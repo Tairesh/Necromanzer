@@ -5,6 +5,7 @@ use game::actions::{owner_mut, Action, ActionResult};
 use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use map::chunk::Chunk;
+use map::item::ItemView;
 use map::pos::{ChunkPos, TilePos};
 use map::terrain::TerrainView;
 use map::tile::Tile;
@@ -176,8 +177,7 @@ impl World {
                         .items
                         .iter()
                         .map(|item| {
-                            (if multiline { " - " } else { "" }).to_string()
-                                + item.item_type.name().as_str()
+                            (if multiline { " - " } else { "" }).to_string() + item.name().as_str()
                         })
                         .collect(),
                 );
@@ -307,7 +307,7 @@ pub mod tests {
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
     use map::pos::TilePos;
-    use map::terrains_impl::Dirt;
+    use map::terrains::Dirt;
     use savefile::{GameView, Meta};
     use std::collections::HashMap;
     use std::rc::Rc;

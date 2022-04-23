@@ -1,10 +1,11 @@
 use assets::tileset::Tileset;
 use human::body::{Body, Freshness};
 use human::character::Character;
-use map::item::{Item, ItemType};
+use map::item::Item;
+use map::items::{Corpse, Gravestone};
 use map::passage::Passage;
 use map::terrain::{Terrain, TerrainInteract, TerrainView};
-use map::terrains_impl::pit::Pit;
+use map::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use tetra::graphics::Rectangle;
@@ -56,8 +57,8 @@ impl TerrainInteract for Grave {
         (
             Pit::new().into(),
             vec![
-                Item::new(ItemType::GraveStone(self.data.clone())),
-                Item::new(ItemType::Corpse(
+                Gravestone::new(self.data.clone()).into(),
+                Corpse::new(
                     self.data.character.clone(),
                     Body::human(
                         &self.data.character,
@@ -66,7 +67,8 @@ impl TerrainInteract for Grave {
                             _ => Freshness::Skeletal,
                         },
                     ),
-                )),
+                )
+                .into(),
             ],
         )
     }

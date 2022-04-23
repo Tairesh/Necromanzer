@@ -4,7 +4,7 @@ use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
-use map::item::ItemType;
+use map::item::Item;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
 use tetra::graphics::Color;
@@ -38,11 +38,7 @@ impl GameModeImpl for Animate {
                     let pos = world.player().pos + d;
                     world
                         .get_tile(pos)
-                        .map(|t| {
-                            t.items
-                                .iter()
-                                .any(|i| matches!(i.item_type, ItemType::Corpse(..)))
-                        })
+                        .map(|t| t.items.iter().any(|i| matches!(i, Item::Corpse(..))))
                         .unwrap_or(false)
                 })
                 .map(|d| (d.into(), Colors::LIGHT_YELLOW))

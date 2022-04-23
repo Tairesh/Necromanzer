@@ -2,7 +2,8 @@
 use human::character::{age_name, Character};
 use human::gender::Gender;
 use human::skin_tone::SkinTone;
-use map::item::{Item, ItemType};
+use map::item::Item;
+use map::items::{BodyPart, BodyPartType};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -26,7 +27,7 @@ impl Freshness {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub struct BodyPart {
+pub struct BodyPartData {
     #[serde(rename = "f")]
     pub freshness: Freshness,
     #[serde(rename = "a")]
@@ -41,7 +42,7 @@ pub struct BodyPart {
     pub inside: HashMap<String, Item>,
 }
 
-impl BodyPart {
+impl BodyPartData {
     pub fn new(character: &Character, freshness: Freshness) -> Self {
         Self {
             freshness,
@@ -74,91 +75,109 @@ pub struct Body {
 
 impl Body {
     pub fn human(character: &Character, freshness: Freshness) -> Self {
-        let body_part = BodyPart::new(character, freshness);
+        let data = BodyPartData::new(character, freshness);
         let mut parts = HashMap::new();
-        let mut head = body_part.clone();
+        let mut head = data.clone();
         head.outside.insert(
             "left eye".to_string(),
-            Item::new(ItemType::HumanEye(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Eye).into(),
         );
         head.outside.insert(
             "right eye".to_string(),
-            Item::new(ItemType::HumanEye(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Eye).into(),
         );
         head.outside.insert(
             "nose".to_string(),
-            Item::new(ItemType::HumanNose(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Nose).into(),
         );
         head.outside.insert(
             "mouth".to_string(),
-            Item::new(ItemType::HumanMouth(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Mouth).into(),
+        );
+        head.outside.insert(
+            "left ear".to_string(),
+            BodyPart::new(data.clone(), BodyPartType::Ear).into(),
+        );
+        head.outside.insert(
+            "right ear".to_string(),
+            BodyPart::new(data.clone(), BodyPartType::Ear).into(),
         );
         head.inside.insert(
             "brain".to_string(),
-            Item::new(ItemType::HumanBrain(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Brain).into(),
         );
-        parts.insert("head".to_string(), Item::new(ItemType::HumanHead(head)));
-        let mut torso = body_part.clone();
+        parts.insert(
+            "head".to_string(),
+            BodyPart::new(head, BodyPartType::Head).into(),
+        );
+        let mut torso = data.clone();
         torso.inside.insert(
             "heart".to_string(),
-            Item::new(ItemType::HumanHeart(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Heart).into(),
         );
         torso.inside.insert(
             "stomach".to_string(),
-            Item::new(ItemType::HumanStomach(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Stomach).into(),
         );
         torso.inside.insert(
             "left lung".to_string(),
-            Item::new(ItemType::HumanLung(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Lung).into(),
         );
         torso.inside.insert(
             "right lung".to_string(),
-            Item::new(ItemType::HumanLung(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Lung).into(),
         );
         torso.inside.insert(
             "left kidney".to_string(),
-            Item::new(ItemType::HumanKidney(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Kidney).into(),
         );
         torso.inside.insert(
             "right kidney".to_string(),
-            Item::new(ItemType::HumanKidney(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::Kidney).into(),
         );
-        parts.insert("torso".to_string(), Item::new(ItemType::HumanTorso(torso)));
-        let mut left_arm = body_part.clone();
+        torso.inside.insert(
+            "right kidney".to_string(),
+            BodyPart::new(data.clone(), BodyPartType::Liver).into(),
+        );
+        parts.insert(
+            "torso".to_string(),
+            BodyPart::new(torso, BodyPartType::Torso).into(),
+        );
+        let mut left_arm = data.clone();
         left_arm.outside.insert(
             "hand".to_string(),
-            Item::new(ItemType::HumanLeftHand(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::LeftHand).into(),
         );
         parts.insert(
             "left arm".to_string(),
-            Item::new(ItemType::HumanLeftArm(left_arm)),
+            BodyPart::new(left_arm, BodyPartType::LeftArm).into(),
         );
-        let mut right_arm = body_part.clone();
+        let mut right_arm = data.clone();
         right_arm.outside.insert(
             "hand".to_string(),
-            Item::new(ItemType::HumanRightHand(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::RightHand).into(),
         );
         parts.insert(
             "right arm".to_string(),
-            Item::new(ItemType::HumanRightArm(right_arm)),
+            BodyPart::new(right_arm, BodyPartType::LeftArm).into(),
         );
-        let mut left_foot = body_part.clone();
+        let mut left_foot = data.clone();
         left_foot.outside.insert(
             "foot".to_string(),
-            Item::new(ItemType::HumanLeftFoot(body_part.clone())),
+            BodyPart::new(data.clone(), BodyPartType::LeftFoot).into(),
         );
         parts.insert(
             "left leg".to_string(),
-            Item::new(ItemType::HumanLeftLeg(left_foot)),
+            BodyPart::new(left_foot, BodyPartType::LeftLeg).into(),
         );
-        let mut right_foot = body_part.clone();
+        let mut right_foot = data.clone();
         right_foot.outside.insert(
             "foot".to_string(),
-            Item::new(ItemType::HumanRightFoot(body_part)),
+            BodyPart::new(data, BodyPartType::RightFoot).into(),
         );
         parts.insert(
             "right leg".to_string(),
-            Item::new(ItemType::HumanRightLeg(right_foot)),
+            BodyPart::new(right_foot, BodyPartType::RightLeg).into(),
         );
 
         Self {
@@ -175,7 +194,8 @@ mod tests {
     use human::gender::Gender;
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
-    use map::item::ItemType;
+    use map::item::Item;
+    use map::items::{BodyPart, BodyPartType};
 
     #[test]
     fn test_human_creating() {
@@ -188,19 +208,30 @@ mod tests {
         );
         let body = Body::human(&character, Freshness::Fresh);
         let head = body.parts.get("head").unwrap();
-        assert!(matches!(head.item_type, ItemType::HumanHead(..)));
-        if let ItemType::HumanHead(data) = &head.item_type {
+
+        assert!(matches!(head, Item::BodyPart(..)));
+        if let Item::BodyPart(bodypart) = &head {
+            assert!(matches!(bodypart.typ, BodyPartType::Head));
+            let data = &bodypart.data;
             assert!(matches!(data.freshness, Freshness::Fresh));
             assert!(matches!(data.skin_tone, SkinTone::Amber));
             let brain = data.inside.get("brain").unwrap();
-            assert!(matches!(brain.item_type, ItemType::HumanBrain(..)));
-            if let ItemType::HumanBrain(data) = &brain.item_type {
+            assert!(matches!(brain, Item::BodyPart(..)));
+            if let Item::BodyPart(bodypart) = &brain {
+                assert!(matches!(bodypart.typ, BodyPartType::Brain));
+                let data = &bodypart.data;
                 assert!(matches!(data.gender, Gender::Female));
             }
             assert_eq!(
                 data.outside
-                    .iter()
-                    .filter(|(_, item)| matches!(item.item_type, ItemType::HumanEye(..)))
+                    .values()
+                    .filter(|item| matches!(
+                        item,
+                        Item::BodyPart(BodyPart {
+                            typ: BodyPartType::Eye,
+                            ..
+                        })
+                    ))
                     .count(),
                 2
             );

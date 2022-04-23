@@ -1,4 +1,4 @@
-use super::terrains_impl::*;
+use super::terrains::*;
 use assets::tileset::Tileset;
 use enum_dispatch::enum_dispatch;
 use map::item::Item;
@@ -50,7 +50,7 @@ pub trait TerrainInteract {
 #[cfg(test)]
 mod tests {
     use super::{Terrain, TerrainInteract, TerrainView};
-    use map::terrains_impl::{Dirt, DirtVariant, Grass, GrassVariant};
+    use map::terrains::{Dirt, DirtVariant, Grass, GrassVariant};
 
     #[test]
     fn test_dirt() {

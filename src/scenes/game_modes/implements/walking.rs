@@ -2,6 +2,7 @@ use colors::Colors;
 use game::actions::ActionType;
 use geometry::direction::Direction;
 use input;
+use map::item::ItemView;
 use scenes::game_modes::implements::animate::Animate;
 use scenes::game_modes::implements::digging::Digging;
 use scenes::game_modes::implements::dropping::Dropping;

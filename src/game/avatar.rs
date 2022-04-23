@@ -8,7 +8,8 @@ use geometry::Vec2;
 use human::body::{Body, Freshness};
 use human::character::Character;
 use human::gender::Gender;
-use map::item::{Item, ItemType};
+use map::item::{Item, ItemView};
+use map::items::{Cloak, Hat};
 use map::pos::TilePos;
 use tetra::graphics::DrawParams;
 use tetra::Context;
@@ -36,8 +37,8 @@ pub struct Avatar {
 impl Avatar {
     pub fn player(character: Character, pos: TilePos) -> Self {
         let mut body = Body::human(&character, Freshness::Fresh);
-        body.wear.push(Item::new(ItemType::Cloak));
-        body.wear.push(Item::new(ItemType::MagicHat));
+        body.wear.push(Cloak::new().into());
+        body.wear.push(Hat::new().into());
         Self::new(character, body, Brain::Player, pos)
     }
 
@@ -86,10 +87,11 @@ impl Avatar {
                 .parts
                 .get("torso")
                 .map(|i| {
-                    i.item_type
-                        .body_part()
-                        .map(|bp| bp.freshness)
-                        .unwrap_or(Freshness::Rotten)
+                    if let Item::BodyPart(bp) = i {
+                        bp.data.freshness
+                    } else {
+                        unreachable!()
+                    }
                 })
                 .unwrap_or(Freshness::Rotten);
             let (region, color) = match freshness {
@@ -149,7 +151,7 @@ impl Avatar {
             };
             tileset.texture.draw_region(
                 ctx,
-                item.item_type.region(tileset),
+                item.region(tileset),
                 DrawParams::new()
                     .position(position + offset)
                     .scale(scale * -1.0),

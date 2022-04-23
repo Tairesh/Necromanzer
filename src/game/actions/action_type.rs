@@ -3,7 +3,7 @@
 use game::actions::action::owner;
 use game::World;
 use geometry::direction::Direction;
-use map::item::ItemType;
+use map::item::{Item, ItemInteract, ItemTag};
 use map::passage::Passage;
 use map::terrain::{TerrainInteract, TerrainView};
 
@@ -40,13 +40,7 @@ impl ActionType {
             }
             ActionType::Wielding(dir) => {
                 let pos = owner(owner_id, world).pos + dir;
-                if let Some(item) = world
-                    .get_tile(pos)
-                    .unwrap()
-                    .items
-                    .last()
-                    .map(|i| i.item_type.clone())
-                {
+                if let Some(item) = world.get_tile(pos).unwrap().items.last() {
                     item.wield_time(owner(owner_id, world)).round() as u32
                 } else {
                     0
@@ -59,7 +53,7 @@ impl ActionType {
                     } else {
                         1.5
                     };
-                    (item.item_type.drop_time() * k).round() as u32
+                    (item.drop_time(owner(owner_id, world)) * k).round() as u32
                 } else {
                     0
                 }
@@ -81,13 +75,13 @@ impl ActionType {
             ActionType::Animate(dir) => {
                 let pos = owner(owner_id, world).pos + dir;
                 if let Some(tile) = world.get_tile(pos) {
-                    if tile
+                    return tile
                         .items
                         .iter()
-                        .any(|i| matches!(i.item_type, ItemType::Corpse(..)))
-                    {
-                        return 5000; // TODO: use coprse mass
-                    }
+                        .filter(|i| matches!(i, Item::Corpse(..)))
+                        .map(|i| i.mass() / 10)
+                        .next()
+                        .unwrap_or(0);
                 }
 
                 0
@@ -143,9 +137,9 @@ impl ActionType {
                 if !owner(owner_id, world)
                     .wield
                     .iter()
-                    .any(|i| matches!(i.item_type, ItemType::Shovel))
+                    .any(|i| i.tags().contains(&ItemTag::Dig))
                 {
-                    return No("You have no shovel to dig!".to_string());
+                    return No("You need a shovel to dig!".to_string());
                 }
                 Yes
             }
@@ -163,11 +157,7 @@ impl ActionType {
             ActionType::Animate(dir) => {
                 let pos = owner(owner_id, world).pos + dir;
                 if let Some(tile) = world.get_tile(pos) {
-                    if tile
-                        .items
-                        .iter()
-                        .any(|i| matches!(i.item_type, ItemType::Corpse(..)))
-                    {
+                    if tile.items.iter().any(|i| matches!(i, Item::Corpse(..))) {
                         return Yes;
                     }
                 }
@@ -183,15 +173,16 @@ mod tests {
     use game::actions::{Action, ActionType};
     use game::world::tests::prepare_world;
     use geometry::direction::{Direction, DIR8};
-    use human::body::Freshness;
+    use human::body::{BodyPartData, Freshness};
     use human::character::Character;
     use human::gender::Gender;
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
-    use map::item::{Item, ItemType};
+    use map::item::Item;
+    use map::items::{Axe, BodyPart, Shovel};
     use map::pos::TilePos;
     use map::terrain::Terrain;
-    use map::terrains_impl::{Dirt, Grave, GraveData, GraveVariant};
+    use map::terrains::{Dirt, Grave, GraveData, GraveVariant};
 
     #[test]
     fn test_walking() {
@@ -218,7 +209,7 @@ mod tests {
         world
             .load_tile_mut(TilePos::new(1, 0))
             .items
-            .push(Item::new(ItemType::Axe));
+            .push(Axe::new().into());
 
         assert!(world.player().wield.is_empty());
         assert_eq!(0, world.meta.current_tick);
@@ -232,7 +223,7 @@ mod tests {
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(1, world.player().wield.len());
         let item = world.player().wield.first().unwrap();
-        assert!(matches!(item.item_type, ItemType::Axe));
+        assert!(matches!(item, Item::Axe(..)));
     }
 
     #[test]
@@ -254,7 +245,7 @@ mod tests {
         world.load_tile_mut(TilePos::new(0, 0)).terrain = Dirt::default().into();
         world.load_tile_mut(TilePos::new(0, 0)).items.clear();
         world.player_mut().wield.clear();
-        world.player_mut().wield.push(Item::new(ItemType::Axe));
+        world.player_mut().wield.push(Axe::new().into());
 
         let typ = ActionType::Dropping(0, Direction::Here);
         let length = typ.length(0, &world);
@@ -266,7 +257,7 @@ mod tests {
         assert_eq!(0, world.player().wield.len());
         assert_eq!(1, world.load_tile(TilePos::new(0, 0)).items.len());
         let item = world.load_tile(TilePos::new(0, 0)).items.first().unwrap();
-        assert!(matches!(item.item_type, ItemType::Axe));
+        assert!(matches!(item, Item::Axe(..)));
     }
 
     #[test]
@@ -279,7 +270,7 @@ mod tests {
         let length = typ.length(0, &world);
         assert!(Action::new(0, typ, &world).is_err());
 
-        world.player_mut().wield.push(Item::new(ItemType::Shovel));
+        world.player_mut().wield.push(Shovel::new().into());
         world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
         while world.player().action.is_some() {
             world.tick();
@@ -313,11 +304,11 @@ mod tests {
         let mut gravestone = None;
         for dir in DIR8 {
             for item in world.load_tile_mut(TilePos::new(1, 0) + dir).items.iter() {
-                match item.item_type {
-                    ItemType::Corpse(..) => {
+                match item {
+                    Item::Corpse(..) => {
                         corpse = Some(item.clone());
                     }
-                    ItemType::GraveStone(..) => {
+                    Item::Gravestone(..) => {
                         gravestone = Some(item.clone());
                     }
                     _ => {}
@@ -326,21 +317,23 @@ mod tests {
         }
         assert!(corpse.is_some());
         if let Some(corpse) = corpse {
-            if let ItemType::Corpse(ch, body) = corpse.item_type {
+            if let Item::Corpse(corpse) = corpse {
+                let ch = &corpse.character;
+                let body = &corpse.body;
                 assert_eq!("test", ch.name);
                 assert_eq!(SkinTone::Amber, ch.skin_tone);
                 assert_eq!(Gender::Male, ch.gender);
                 assert_eq!(25, ch.age);
                 assert_eq!(MainHand::Right, ch.main_hand);
                 assert!(matches!(
-                    body.parts
-                        .get("torso")
-                        .unwrap()
-                        .item_type
-                        .body_part()
-                        .unwrap()
-                        .freshness,
-                    Freshness::Rotten
+                    body.parts.get("torso"),
+                    Some(Item::BodyPart(BodyPart {
+                        data: BodyPartData {
+                            freshness: Freshness::Rotten,
+                            ..
+                        },
+                        ..
+                    }))
                 ));
             } else {
                 unreachable!();
@@ -350,7 +343,8 @@ mod tests {
         }
         assert!(gravestone.is_some());
         if let Some(gravestone) = gravestone {
-            if let ItemType::GraveStone(data) = gravestone.item_type {
+            if let Item::Gravestone(gravestone) = gravestone {
+                let data = &gravestone.data;
                 assert_eq!("test", data.character.name);
                 assert_eq!(SkinTone::Amber, data.character.skin_tone);
                 assert_eq!(Gender::Male, data.character.gender);

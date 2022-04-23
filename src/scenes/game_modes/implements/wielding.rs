@@ -4,6 +4,7 @@ use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
+use map::item::ItemView;
 use scenes::game_modes::update_result::UpdateResult;
 use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;

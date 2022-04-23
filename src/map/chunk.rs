@@ -2,9 +2,9 @@
 use arrayvec::ArrayVec;
 use assets::game_data::GameData;
 use human::character::Character;
-use map::item::{Item, ItemType};
+use map::items::Shovel;
 use map::pos::ChunkPos;
-use map::terrains_impl::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
+use map::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
 use map::tile::Tile;
 use rand::distributions::Standard;
 use rand::rngs::StdRng;
@@ -67,11 +67,7 @@ impl Chunk {
                 blocked_tiles.insert(pos + Chunk::SIZE as usize);
             }
             if rng.gen_bool(0.1) {
-                tiles
-                    .get_mut(pos)
-                    .unwrap()
-                    .items
-                    .push(Item::new(ItemType::Shovel));
+                tiles.get_mut(pos).unwrap().items.push(Shovel::new().into());
             } else {
                 let death_year = rng.gen_range(200..=255);
                 tiles.get_mut(pos).unwrap().terrain = Grave::new(

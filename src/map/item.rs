@@ -1,239 +1,151 @@
-#![allow(dead_code)]
+use super::items::*;
 use assets::tileset::Tileset;
+use enum_dispatch::enum_dispatch;
 use game::Avatar;
-use human::body::{Body, BodyPart};
-use human::character::Character;
 use human::main_hand::MainHand;
-use map::terrains_impl::GraveData;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use tetra::graphics::Rectangle;
 
-// TODO: ItemTypes should be loaded from jsons for modding
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub enum ItemType {
+#[enum_dispatch]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Item {
     Shovel,
-    Knife,
     Axe,
-    Corpse(Character, Body),
-    GraveStone(GraveData),
-
-    HumanHead(BodyPart),
-    HumanEye(BodyPart),
-    HumanNose(BodyPart),
-    HumanMouth(BodyPart),
-    HumanBrain(BodyPart),
-    HumanTorso(BodyPart),
-    HumanHeart(BodyPart),
-    HumanStomach(BodyPart),
-    HumanLung(BodyPart),
-    HumanKidney(BodyPart),
-    HumanLeftArm(BodyPart),
-    HumanRightArm(BodyPart),
-    HumanLeftHand(BodyPart),
-    HumanRightHand(BodyPart),
-    HumanLeftLeg(BodyPart),
-    HumanRightLeg(BodyPart),
-    HumanLeftFoot(BodyPart),
-    HumanRightFoot(BodyPart),
-
-    MagicHat,
+    Knife,
+    Corpse,
+    Gravestone,
+    BodyPart,
     Hat,
     Cloak,
 }
 
-impl ItemType {
-    pub fn region(&self, tileset: &Tileset) -> Rectangle {
-        match self {
-            ItemType::Shovel => tileset.shovel,
-            ItemType::Knife => tileset.knife,
-            ItemType::Axe => tileset.axe,
-            ItemType::Hat | ItemType::MagicHat => tileset.hat,
-            ItemType::Cloak => tileset.cloak,
-            ItemType::Corpse(_, _) => tileset.corpse,
-            ItemType::GraveStone(_) => tileset.grave_stone,
-            ItemType::HumanHead(_)
-            | ItemType::HumanEye(_)
-            | ItemType::HumanNose(_)
-            | ItemType::HumanMouth(_)
-            | ItemType::HumanBrain(_)
-            | ItemType::HumanTorso(_)
-            | ItemType::HumanHeart(_)
-            | ItemType::HumanStomach(_)
-            | ItemType::HumanKidney(_)
-            | ItemType::HumanLung(_)
-            | ItemType::HumanLeftArm(_)
-            | ItemType::HumanRightArm(_)
-            | ItemType::HumanLeftHand(_)
-            | ItemType::HumanRightHand(_)
-            | ItemType::HumanLeftLeg(_)
-            | ItemType::HumanRightLeg(_)
-            | ItemType::HumanLeftFoot(_)
-            | ItemType::HumanRightFoot(_) => tileset.flesh,
-        }
-    }
+#[enum_dispatch(Item)]
+pub trait ItemView {
+    fn name(&self) -> String;
+    fn region(&self, tileset: &Tileset) -> Rectangle;
+}
 
-    pub fn name(&self) -> String {
-        match self {
-            ItemType::Shovel => "shovel".to_string(),
-            ItemType::Knife => "knife".to_string(),
-            ItemType::Axe => "axe".to_string(),
-            ItemType::MagicHat => "magic hat".to_string(),
-            ItemType::Hat => "hat".to_string(),
-            ItemType::Cloak => "cloak".to_string(),
-            ItemType::Corpse(c, b) => {
-                let mut adjectives = Vec::new();
-                if b.wear.is_empty() {
-                    adjectives.push("naked");
-                }
-                let age_name = if let Some(torso) = b.parts.get("torso") {
-                    if let Some(bp) = torso.item_type.body_part() {
-                        adjectives.push(bp.freshness.adjective());
-                        bp.age_name(true)
-                    } else {
-                        "strange corpse"
-                    }
-                } else {
-                    c.age_name()
-                };
-                let corpse_name = format!("{} {}", adjectives.join(" "), age_name);
-                let article = corpse_name
-                    .get(0..1)
-                    .map(|s| match s {
-                        "a" | "e" | "u" | "i" | "o" => "an",
-                        _ => "a",
-                    })
-                    .unwrap_or("a");
-                format!("corpse of {} {}", article, corpse_name)
-            }
-            ItemType::GraveStone(_) => "gravestone".to_string(),
-            ItemType::HumanHead(data) => format!("{} head", data.age_name(true)),
-            ItemType::HumanEye(data) => format!("{} eye", data.age_name(false)),
-            ItemType::HumanNose(data) => format!("{} nose", data.age_name(true)),
-            ItemType::HumanMouth(data) => format!("{} mouth", data.age_name(true)),
-            ItemType::HumanBrain(data) => format!("{} brain", data.age_name(false)),
-            ItemType::HumanTorso(data) => format!("{} torso", data.age_name(true)),
-            ItemType::HumanHeart(data) => format!("{} heart", data.age_name(false)),
-            ItemType::HumanStomach(data) => format!("{} stomach", data.age_name(false)),
-            ItemType::HumanLung(data) => format!("{} lung", data.age_name(false)),
-            ItemType::HumanKidney(data) => format!("{} kidney", data.age_name(false)),
-            ItemType::HumanLeftArm(data) => format!("{} left arm", data.age_name(true)),
-            ItemType::HumanRightArm(data) => format!("{} right arm", data.age_name(true)),
-            ItemType::HumanLeftHand(data) => format!("{} left hand", data.age_name(true)),
-            ItemType::HumanRightHand(data) => format!("{} right hand", data.age_name(true)),
-            ItemType::HumanLeftLeg(data) => format!("{} left leg", data.age_name(true)),
-            ItemType::HumanRightLeg(data) => format!("{} right leg", data.age_name(true)),
-            ItemType::HumanLeftFoot(data) => format!("{} left foot", data.age_name(true)),
-            ItemType::HumanRightFoot(data) => format!("{} right foot", data.age_name(true)),
-        }
+#[enum_dispatch(Item)]
+pub trait ItemInteract {
+    fn tags(&self) -> HashSet<ItemTag> {
+        HashSet::new()
     }
-
-    pub fn wield_time(&self, avatar: &Avatar) -> f64 {
+    fn mass(&self) -> u32; // in grams
+    fn wield_time(&self, avatar: &Avatar) -> f64 {
         let k = match avatar.character.main_hand {
             MainHand::Left => 1.1,
             MainHand::Right | MainHand::Ambidexter => 1.0,
         };
-        k * match self {
-            ItemType::Shovel => 30.0,
-            ItemType::Knife => 20.0,
-            ItemType::Axe => 25.0,
-            ItemType::Hat | ItemType::MagicHat => 10.0,
-            ItemType::Cloak => 15.0,
-            ItemType::Corpse(c, _) => {
-                if c.age < 16 {
-                    50.0
-                } else {
-                    100.0
-                }
-            }
-            ItemType::GraveStone(_) => 200.0,
-            ItemType::HumanEye(_)
-            | ItemType::HumanNose(_)
-            | ItemType::HumanMouth(_)
-            | ItemType::HumanBrain(_)
-            | ItemType::HumanHeart(_)
-            | ItemType::HumanStomach(_)
-            | ItemType::HumanLung(_)
-            | ItemType::HumanKidney(_)
-            | ItemType::HumanLeftHand(_)
-            | ItemType::HumanRightHand(_)
-            | ItemType::HumanLeftFoot(_)
-            | ItemType::HumanRightFoot(_) => 5.0,
-            ItemType::HumanHead(_) => 10.0,
-            ItemType::HumanTorso(_) => 20.0,
-            ItemType::HumanLeftArm(_) | ItemType::HumanRightArm(_) => 12.0,
-            ItemType::HumanLeftLeg(_) | ItemType::HumanRightLeg(_) => 15.0,
-        }
-    }
 
-    pub fn drop_time(&self) -> f64 {
+        // 100 grams per tick
+        k * self.mass() as f64 / 100.0
+    }
+    fn drop_time(&self, _avatar: &Avatar) -> f64 {
         10.0
     }
-
-    pub fn body_part(&self) -> Option<&BodyPart> {
-        match self {
-            ItemType::Shovel
-            | ItemType::Knife
-            | ItemType::Axe
-            | ItemType::Hat
-            | ItemType::MagicHat
-            | ItemType::Cloak
-            | ItemType::Corpse(_, _)
-            | ItemType::GraveStone(_) => None,
-            ItemType::HumanHead(b)
-            | ItemType::HumanEye(b)
-            | ItemType::HumanNose(b)
-            | ItemType::HumanMouth(b)
-            | ItemType::HumanBrain(b)
-            | ItemType::HumanTorso(b)
-            | ItemType::HumanHeart(b)
-            | ItemType::HumanStomach(b)
-            | ItemType::HumanLung(b)
-            | ItemType::HumanKidney(b)
-            | ItemType::HumanLeftArm(b)
-            | ItemType::HumanRightArm(b)
-            | ItemType::HumanLeftHand(b)
-            | ItemType::HumanRightHand(b)
-            | ItemType::HumanLeftLeg(b)
-            | ItemType::HumanRightLeg(b)
-            | ItemType::HumanLeftFoot(b)
-            | ItemType::HumanRightFoot(b) => Some(b),
-        }
+    // TODO: same as TerrainInteract
+    fn is_readable(&self) -> bool {
+        false
     }
-
-    pub fn is_readable(&self) -> bool {
-        matches!(self, ItemType::GraveStone(..))
+    fn read(&self) -> String {
+        unreachable!()
     }
-
-    pub fn read(&self) -> String {
-        match self {
-            ItemType::GraveStone(data) => data.read(),
-            _ => unreachable!(),
-        }
-    }
-
-    pub fn is_wearable(&self) -> bool {
-        matches!(self, ItemType::Hat | ItemType::MagicHat | ItemType::Cloak)
+    fn is_wearable(&self) -> bool {
+        false
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub struct Item {
-    pub item_type: ItemType,
+#[derive(Debug, Hash, Eq, PartialEq)]
+pub enum ItemTag {
+    Dig,
+    Butch,
 }
 
-impl Item {
-    pub fn new(item_type: ItemType) -> Self {
-        Self { item_type }
+#[cfg(test)]
+mod tests {
+    use super::{Item, ItemInteract, ItemTag, ItemView};
+    use human::body::{Body, BodyPartData, Freshness};
+    use human::character::Character;
+    use human::gender::Gender;
+    use human::main_hand::MainHand;
+    use human::skin_tone::SkinTone;
+    use map::items::{Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel};
+    use map::terrains::GraveData;
+
+    #[test]
+    fn test_shovel() {
+        let shovel: Item = Shovel::new().into();
+        assert_eq!("shovel", shovel.name());
+        assert!(shovel.tags().contains(&ItemTag::Dig));
     }
 
-    pub fn name(&self) -> String {
-        self.item_type.name()
+    #[test]
+    fn test_axe() {
+        let axe: Item = Axe::new().into();
+        assert_eq!("axe", axe.name());
+        assert!(axe.tags().contains(&ItemTag::Butch));
+        assert!(!axe.tags().contains(&ItemTag::Dig));
     }
 
-    pub fn is_readable(&self) -> bool {
-        self.item_type.is_readable()
+    #[test]
+    fn test_knife() {
+        let knife: Item = Knife::new().into();
+        assert_eq!("knife", knife.name());
+        assert!(knife.tags().contains(&ItemTag::Butch));
+        assert!(!knife.tags().contains(&ItemTag::Dig));
     }
 
-    pub fn read(&self) -> String {
-        self.item_type.read()
+    #[test]
+    fn test_corpse() {
+        let character = Character::new("test", Gender::Male, 15, MainHand::Right, SkinTone::Almond);
+        let body = Body::human(&character, Freshness::Rotten);
+        let corpse: Item = Corpse::new(character, body).into();
+        assert_eq!("naked rotten boy corpse", corpse.name());
+    }
+
+    #[test]
+    fn test_bodypart() {
+        let character = Character::new("test", Gender::Male, 15, MainHand::Right, SkinTone::Almond);
+        let brain: Item = BodyPart::new(
+            BodyPartData::new(&character, Freshness::Fresh),
+            BodyPartType::Brain,
+        )
+        .into();
+        assert_eq!("fresh child brain", brain.name());
+        let head: Item = BodyPart::new(
+            BodyPartData::new(&character, Freshness::Skeletal),
+            BodyPartType::Head,
+        )
+        .into();
+        assert_eq!("skeletal boy head", head.name());
+    }
+
+    #[test]
+    fn test_gravestone() {
+        let character = Character::new("test", Gender::Male, 15, MainHand::Right, SkinTone::Almond);
+        let gravestone: Item = Gravestone::new(GraveData {
+            character,
+            death_year: 255,
+        })
+        .into();
+        assert_eq!("gravestone", gravestone.name());
+        assert!(gravestone.is_readable());
+        assert!(gravestone.read().contains("test"));
+    }
+
+    #[test]
+    fn test_hat() {
+        let hat: Item = Hat::new().into();
+        assert_eq!("hat", hat.name());
+        assert!(hat.is_wearable());
+    }
+
+    #[test]
+    fn test_cloak() {
+        let cloak: Item = Cloak::new().into();
+        assert_eq!("cloak", cloak.name());
+        assert!(cloak.is_wearable());
     }
 }

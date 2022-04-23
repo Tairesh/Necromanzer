@@ -2,7 +2,7 @@ use assets::tileset::Tileset;
 use map::item::Item;
 use map::passage::Passage;
 use map::terrain::{Terrain, TerrainInteract, TerrainView};
-use map::terrains_impl::pit::Pit;
+use map::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use tetra::graphics::Rectangle;

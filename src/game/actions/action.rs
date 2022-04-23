@@ -3,7 +3,7 @@ use colors::Colors;
 use game::actions::action_type::ActionPossibility;
 use game::{Avatar, World};
 use geometry::direction::{Direction, DIR8};
-use map::item::ItemType;
+use map::item::{Item, ItemView};
 use map::terrain::TerrainInteract;
 use rand::seq::SliceRandom;
 
@@ -70,7 +70,7 @@ impl Action {
                 ActionType::Wielding(dir) => {
                     if let Some(item) = world.load_tile_mut(self.owner(world).pos + dir).items.pop()
                     {
-                        let name = item.item_type.name();
+                        let name = item.name();
                         self.owner_mut(world).wield.push(item);
                         Some(ActionResult::LogMessage(format!(
                             "{} wield the {}",
@@ -83,7 +83,7 @@ impl Action {
                 }
                 ActionType::Dropping(i, dir) => {
                     let item = self.owner_mut(world).wield.remove(i);
-                    let name = item.item_type.name();
+                    let name = item.name();
                     world
                         .load_tile_mut(self.owner(world).pos + dir)
                         .items
@@ -127,12 +127,12 @@ impl Action {
                         .load_tile(pos)
                         .items
                         .iter()
-                        .position(|i| matches!(i.item_type, ItemType::Corpse(..)))
+                        .position(|i| matches!(i, Item::Corpse(..)))
                     {
                         let body = world.load_tile_mut(pos).items.remove(i);
-                        if let ItemType::Corpse(character, body) = body.item_type {
-                            let name = character.age_name().to_owned();
-                            let zombie = Avatar::zombie(character, body, pos);
+                        if let Item::Corpse(corpse) = body {
+                            let name = corpse.character.age_name().to_owned();
+                            let zombie = Avatar::zombie(corpse.character, corpse.body, pos);
                             world.add_unit(zombie);
                             return Some(ActionResult::ColoredLogMessage(
                                 format!("Zombie {} stands up!", name),
