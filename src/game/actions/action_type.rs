@@ -21,7 +21,7 @@ pub enum ActionType {
     Wielding(Direction),
     Dropping(usize, Direction),
     Digging(Direction),
-    Reading(Direction), // TODO: write test for reading
+    Reading(Direction),
     Animate(Direction), // TODO: write test for animate
 }
 
@@ -170,7 +170,7 @@ impl ActionType {
 
 #[cfg(test)]
 mod tests {
-    use game::actions::{Action, ActionType};
+    use game::actions::{Action, ActionResult, ActionType};
     use game::world::tests::prepare_world;
     use geometry::direction::{Direction, DIR8};
     use human::body::{BodyPartData, Freshness};
@@ -179,7 +179,7 @@ mod tests {
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
     use map::item::Item;
-    use map::items::{Axe, BodyPart, Shovel};
+    use map::items::{Axe, BodyPart, Gravestone, Shovel};
     use map::pos::TilePos;
     use map::terrain::Terrain;
     use map::terrains::{Dirt, Grave, GraveData, GraveVariant};
@@ -356,5 +356,58 @@ mod tests {
         } else {
             unreachable!();
         }
+    }
+
+    #[test]
+    fn test_reading() {
+        let mut world = prepare_world();
+
+        let character = Character::new("test", Gender::Male, 25, MainHand::Right, SkinTone::Amber);
+        let data = GraveData {
+            character,
+            death_year: 255,
+        };
+        world.load_tile_mut(TilePos::new(1, 0)).terrain =
+            Grave::new(GraveVariant::New, data.clone()).into();
+        let typ = ActionType::Reading(Direction::East);
+        let length = typ.length(0, &world);
+        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        while world.player().action.is_some() {
+            let results = world.tick();
+            for result in results {
+                match result {
+                    ActionResult::LogMessage(s) => {
+                        assert_eq!("You read on gravestone: test. 230 — 255", s);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        assert_eq!(length as u128, world.meta.current_tick);
+
+        world.load_tile_mut(TilePos::new(0, 1)).terrain = Dirt::default().into();
+        world.load_tile_mut(TilePos::new(0, 1)).items.clear();
+        let typ = ActionType::Reading(Direction::South);
+        assert!(Action::new(0, typ, &world).is_err());
+
+        world
+            .load_tile_mut(TilePos::new(0, 1))
+            .items
+            .push(Gravestone::new(data).into());
+
+        let length = typ.length(0, &world);
+        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        while world.player().action.is_some() {
+            let results = world.tick();
+            for result in results {
+                match result {
+                    ActionResult::LogMessage(s) => {
+                        assert_eq!("You read on gravestone: test. 230 — 255", s);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        assert_eq!(length as u128 * 2, world.meta.current_tick);
     }
 }
