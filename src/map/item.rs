@@ -4,7 +4,7 @@ use game::Avatar;
 use human::body::{Body, BodyPart};
 use human::character::Character;
 use human::main_hand::MainHand;
-use map::terrains::GraveData;
+use map::terrains_impl::GraveData;
 use tetra::graphics::Rectangle;
 
 // TODO: ItemTypes should be loaded from jsons for modding

@@ -4,6 +4,7 @@ use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
+use map::terrain::TerrainInteract;
 use scenes::game_modes::update_result::UpdateResult;
 use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;
@@ -38,7 +39,7 @@ impl GameModeImpl for Dropping {
                     let pos = world.player().pos + d;
                     world
                         .get_tile(pos)
-                        .map(|t| t.terrain.is_walkable())
+                        .map(|t| t.terrain.is_passable())
                         .unwrap_or(false)
                 })
                 .map(|d| (d.into(), Colors::WHITE_SMOKE))

@@ -243,6 +243,7 @@ mod tests {
     use crate::geometry::direction::Direction;
     use geometry::Vec2;
 
+    // TODO: remove silly tests
     #[test]
     fn new_point() {
         let pt = Point::new(1, 2);

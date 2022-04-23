@@ -4,6 +4,7 @@ use game::actions::action_type::ActionPossibility;
 use game::{Avatar, World};
 use geometry::direction::{Direction, DIR8};
 use map::item::ItemType;
+use map::terrain::TerrainInteract;
 use rand::seq::SliceRandom;
 
 pub fn owner(owner: usize, world: &World) -> &Avatar {
@@ -102,7 +103,7 @@ impl Action {
                             .iter()
                             .filter(|d| {
                                 (pos + *d != self.owner(world).pos)
-                                    && world.load_tile(pos + *d).terrain.is_walkable()
+                                    && world.load_tile(pos + *d).terrain.is_passable()
                             })
                             .copied()
                             .collect();

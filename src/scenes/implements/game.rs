@@ -7,6 +7,7 @@ use game::{Log, World};
 use geometry::direction::{Direction, TwoDimDirection};
 use geometry::point::Point;
 use geometry::Vec2;
+use map::terrain::TerrainView;
 use scenes::game_modes::implements::walking::Walking;
 use scenes::game_modes::GameModeImpl;
 use scenes::game_modes::{GameMode, UpdateResult};

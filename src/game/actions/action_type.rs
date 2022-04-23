@@ -4,7 +4,8 @@ use game::actions::action::owner;
 use game::World;
 use geometry::direction::Direction;
 use map::item::ItemType;
-use map::Passage;
+use map::passage::Passage;
+use map::terrain::{TerrainInteract, TerrainView};
 
 pub enum ActionPossibility {
     Yes,
@@ -32,7 +33,7 @@ impl ActionType {
             ActionType::Walking(dir) => {
                 // TODO: check avatar perks for calculating speed
                 let pos = owner(owner_id, world).pos + dir;
-                match world.get_tile(pos).unwrap().terrain.pass() {
+                match world.get_tile(pos).unwrap().terrain.passage() {
                     Passage::Passable(length) => length.round() as u32,
                     Passage::Unpassable => 0,
                 }
@@ -100,7 +101,7 @@ impl ActionType {
             ActionType::Walking(dir) => {
                 let pos = owner(owner_id, world).pos + dir;
                 let tile = world.get_tile(pos).unwrap();
-                if !tile.terrain.is_walkable() {
+                if !tile.terrain.is_passable() {
                     return No(format!("You can't walk to the {}", tile.terrain.name()));
                 }
                 if !tile.units.is_empty() {
@@ -128,7 +129,7 @@ impl ActionType {
                 }
                 let pos = owner(owner_id, world).pos + dir;
                 let terrain = &world.get_tile(pos).unwrap().terrain;
-                if !terrain.is_walkable() {
+                if !terrain.is_passable() {
                     return No(format!("You can't put items on {}", terrain.name()));
                 }
                 Yes
@@ -189,13 +190,14 @@ mod tests {
     use human::skin_tone::SkinTone;
     use map::item::{Item, ItemType};
     use map::pos::TilePos;
-    use map::terrains::{DirtVariant, GraveData, GraveVariant, Terrain};
+    use map::terrain::Terrain;
+    use map::terrains_impl::{Dirt, Grave, GraveData, GraveVariant};
 
     #[test]
     fn test_walking() {
         // TODO: add checks for failing to move to impassable terrains and units
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
 
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(0, world.meta.current_tick);
@@ -249,7 +251,7 @@ mod tests {
     #[test]
     fn test_dropping() {
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(0, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+        world.load_tile_mut(TilePos::new(0, 0)).terrain = Dirt::default().into();
         world.load_tile_mut(TilePos::new(0, 0)).items.clear();
         world.player_mut().wield.clear();
         world.player_mut().wield.push(Item::new(ItemType::Axe));
@@ -271,7 +273,7 @@ mod tests {
     fn test_digging() {
         let mut world = prepare_world();
         world.player_mut().wield.clear();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
 
         let typ = ActionType::Digging(Direction::East);
         let length = typ.length(0, &world);
@@ -287,24 +289,25 @@ mod tests {
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert!(matches!(
             world.load_tile(TilePos::new(1, 0)).terrain,
-            Terrain::Pit
+            Terrain::Pit(..)
         ));
 
         let character = Character::new("test", Gender::Male, 25, MainHand::Right, SkinTone::Amber);
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Terrain::Grave(
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Grave::new(
             GraveVariant::New,
             GraveData {
                 character,
                 death_year: 255,
             },
-        );
+        )
+        .into();
         world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
         while world.player().action.is_some() {
             world.tick();
         }
         assert!(matches!(
             world.load_tile(TilePos::new(1, 0)).terrain,
-            Terrain::Pit
+            Terrain::Pit(..)
         ));
         let mut corpse = None;
         let mut gravestone = None;

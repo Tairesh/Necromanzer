@@ -5,6 +5,7 @@ use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
 use map::item::ItemType;
+use map::terrain::TerrainInteract;
 use scenes::game_modes::update_result::UpdateResult;
 use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;

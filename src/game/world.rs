@@ -6,6 +6,7 @@ use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use map::chunk::Chunk;
 use map::pos::{ChunkPos, TilePos};
+use map::terrain::TerrainView;
 use map::tile::Tile;
 use rand::Rng;
 use savefile::{GameView, Meta};
@@ -155,7 +156,7 @@ impl World {
 
     pub fn this_is(&self, pos: TilePos, multiline: bool) -> String {
         if let Some(tile) = self.get_tile(pos) {
-            let mut this_is = tile.terrain.this_is();
+            let mut this_is = format!("This is the {}", tile.terrain.name());
             if multiline {
                 this_is = this_is.replace(". ", ".\n");
             }
@@ -306,7 +307,7 @@ pub mod tests {
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
     use map::pos::TilePos;
-    use map::terrains::{DirtVariant, Terrain};
+    use map::terrains_impl::Dirt;
     use savefile::{GameView, Meta};
     use std::collections::HashMap;
     use std::rc::Rc;
@@ -349,7 +350,7 @@ pub mod tests {
         world.add_unit(zombie);
 
         assert_eq!(2, world.units.len());
-        world.load_tile_mut(TilePos::new(2, 0)).terrain = Terrain::Dirt(DirtVariant::Dirt3);
+        world.load_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();
         let typ = ActionType::Walking(Direction::East);
         let length = typ.length(1, &world);
         let action = Action::new(1, typ, &world).unwrap();

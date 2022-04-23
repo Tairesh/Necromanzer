@@ -4,7 +4,7 @@ use assets::game_data::GameData;
 use human::character::Character;
 use map::item::{Item, ItemType};
 use map::pos::ChunkPos;
-use map::terrains::{GraveData, GraveVariant, Terrain};
+use map::terrains_impl::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
 use map::tile::Tile;
 use rand::distributions::Standard;
 use rand::rngs::StdRng;
@@ -39,13 +39,11 @@ impl Chunk {
         let mut tiles = ArrayVec::new();
         for _ in 0..Chunk::USIZE {
             tiles.push(Tile::new(if rng.gen_bool(0.01) {
-                Terrain::Boulder(rng.sample(Standard))
+                Boulder::new(rng.sample(Standard)).into()
             } else if rng.gen_bool(0.5) {
-                Terrain::Grass(rng.sample(Standard))
-            } else if rng.gen_bool(0.1) {
-                Terrain::DeadGrass(rng.sample(Standard))
+                Grass::new(rng.sample(Standard)).into()
             } else {
-                Terrain::Dirt(rng.sample(Standard))
+                Dirt::new(rng.sample(Standard)).into()
             }));
         }
         let count: usize = rng.gen_range(5..20);
@@ -76,7 +74,7 @@ impl Chunk {
                     .push(Item::new(ItemType::Shovel));
             } else {
                 let death_year = rng.gen_range(200..=255);
-                tiles.get_mut(pos).unwrap().terrain = Terrain::Grave(
+                tiles.get_mut(pos).unwrap().terrain = Grave::new(
                     if death_year < 200 {
                         GraveVariant::Old
                     } else {
@@ -86,7 +84,8 @@ impl Chunk {
                         character: Character::random(&mut rng, game_data),
                         death_year,
                     },
-                );
+                )
+                .into();
             }
         }
         Chunk { pos, tiles }
