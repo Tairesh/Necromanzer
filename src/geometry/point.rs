@@ -243,14 +243,6 @@ mod tests {
     use crate::geometry::direction::Direction;
     use geometry::Vec2;
 
-    // TODO: remove silly tests
-    #[test]
-    fn new_point() {
-        let pt = Point::new(1, 2);
-        assert_eq!(pt.x, 1);
-        assert_eq!(pt.y, 2);
-    }
-
     #[test]
     fn index_converting() {
         let pt = Point::new(1, 2);
@@ -273,138 +265,19 @@ mod tests {
     }
 
     #[test]
-    fn point_from_tuple() {
-        let pt = Point::from((1, 2));
-        assert_eq!(pt.x, 1);
-        assert_eq!(pt.y, 2);
-    }
-
-    #[test]
-    fn add_point_to_point() {
-        let pt = Point::new(1, 2);
-        let p2 = pt + Point::new(3, 4);
-        assert_eq!(p2.x, 4);
-        assert_eq!(p2.y, 6);
-    }
-
-    #[test]
     fn add_direction_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt + Direction::NorthWest;
-        assert_eq!(pt2.x, 0);
-        assert_eq!(pt2.y, 1);
-    }
-
-    #[test]
-    fn add_tuple_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt + (3, 4);
-        assert_eq!(pt2.x, 4);
-        assert_eq!(pt2.y, 6);
-    }
-
-    #[test]
-    fn add_vec2_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt + Vec2::new(3.4, 3.5);
-        assert_eq!(pt2.x, 4);
-        assert_eq!(pt2.y, 6);
-    }
-
-    #[test]
-    fn add_assign_point_to_point() {
         let mut pt = Point::new(1, 2);
-        pt += Point::new(3, 4);
-        assert_eq!(pt.x, 4);
-        assert_eq!(pt.y, 6);
-    }
-
-    #[test]
-    fn sub_point_to_point() {
-        let pt = Point::new(1, 2);
-        let p2 = pt - Point::new(3, 4);
-        assert_eq!(p2.x, -2);
-        assert_eq!(p2.y, -2);
-    }
-
-    #[test]
-    fn sub_direction_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt - Direction::NorthWest;
-        assert_eq!(pt2.x, 2);
-        assert_eq!(pt2.y, 3);
-    }
-
-    #[test]
-    fn sub_tuple_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt - (3, 4);
-        assert_eq!(pt2.x, -2);
-        assert_eq!(pt2.y, -2);
-    }
-
-    #[test]
-    fn sub_vec2_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt - Vec2::new(3.4, 3.5);
-        assert_eq!(pt2.x, -2);
-        assert_eq!(pt2.y, -2);
-    }
-
-    #[test]
-    fn sub_assign_point_to_point() {
-        let mut pt = Point::new(1, 2);
-        pt -= Point::new(3, 4);
-        assert_eq!(pt.x, -2);
-        assert_eq!(pt.y, -2);
-    }
-
-    #[test]
-    fn mul_point_to_int() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt * 2;
-        assert_eq!(pt2.x, 2);
-        assert_eq!(pt2.y, 4);
-    }
-
-    #[test]
-    fn mul_point_to_tuple() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt * (3, 4);
-        assert_eq!(pt2.x, 3);
-        assert_eq!(pt2.y, 8);
-    }
-
-    #[test]
-    fn mul_point_to_point() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt * Point::new(3, 4);
-        assert_eq!(pt2.x, 3);
-        assert_eq!(pt2.y, 8);
-    }
-
-    #[test]
-    fn mul_point_to_float() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt * 2.0;
-        assert_eq!(pt2.x, 2);
-        assert_eq!(pt2.y, 4);
+        pt += Direction::NorthWest;
+        assert_eq!(pt.x, 0);
+        assert_eq!(pt.y, 1);
     }
 
     #[test]
     fn mul_point_to_float_tuple() {
         let pt = Point::new(1, 2);
-        let pt2 = pt * (3.0, 4.0);
-        assert_eq!(pt2.x, 3);
-        assert_eq!(pt2.y, 8);
-    }
-
-    #[test]
-    fn mul_point_to_vec() {
-        let pt = Point::new(1, 2);
-        let pt2 = pt * Vec2::new(3.0, 4.0);
-        assert_eq!(pt2.x, 3);
-        assert_eq!(pt2.y, 8);
+        let pt2 = pt * (1.4, 2.2);
+        assert_eq!(pt2.x, 1);
+        assert_eq!(pt2.y, 4);
     }
 
     #[test]
