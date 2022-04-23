@@ -46,36 +46,28 @@ impl GameModeImpl for Walking {
             None
         } else if input::is_key_pressed(ctx, Key::Escape) {
             UpdateResult::SceneTransit(vec![Transition::Push(Scene::GameMenu)]).into()
-        } else if input::is_key_pressed(ctx, Key::E) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::E, None) {
             UpdateResult::Push(Examining::new().into()).into()
-        } else if input::is_key_pressed(ctx, Key::D) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::D, None) {
             game.try_start_action(ActionType::Dropping(0, Direction::Here));
             None
-        } else if input::is_key_pressed(ctx, Key::D)
-            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-        {
+        } else if input::is_pressed_key_with_mod(ctx, Key::D, Some(KeyModifier::Shift)) {
             UpdateResult::Push(Dropping::new().into()).into()
-        } else if input::is_key_pressed(ctx, Key::W) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::W, None) {
             UpdateResult::Push(Wielding::new().into()).into()
-        } else if input::is_key_pressed(ctx, Key::C)
-            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-        {
+        } else if input::is_pressed_key_with_mod(ctx, Key::C, Some(KeyModifier::Shift)) {
             game.log.clear();
             None
-        } else if input::is_key_pressed(ctx, Key::G) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::G, None) {
             UpdateResult::Push(Digging::new().into()).into()
-        } else if input::is_key_pressed(ctx, Key::X) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::X, None) {
             UpdateResult::Push(Observing::new().into()).into()
-        } else if input::is_key_pressed(ctx, Key::R)
-            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-        {
+        } else if input::is_pressed_key_with_mod(ctx, Key::R, Some(KeyModifier::Shift)) {
             UpdateResult::Push(Reading::new().into()).into()
-        } else if input::is_key_pressed(ctx, Key::Num2)
-            && input::is_key_modifier_down(ctx, KeyModifier::Shift)
-        {
+        } else if input::is_pressed_key_with_mod(ctx, Key::Num2, Some(KeyModifier::Shift)) {
             // TODO: body view game scene (gamemodes should not use a lot of sprites)
             None
-        } else if input::is_key_pressed(ctx, Key::I) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::I, None) {
             // TODO: inventory game scene
             let items: Vec<String> = game
                 .world
@@ -90,7 +82,7 @@ impl GameModeImpl for Walking {
                 Colors::WHITE_SMOKE,
             );
             None
-        } else if input::is_key_pressed(ctx, Key::A) && input::is_no_key_modifiers(ctx) {
+        } else if input::is_pressed_key_with_mod(ctx, Key::A, None) {
             UpdateResult::Push(Animate::new().into()).into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
