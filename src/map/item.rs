@@ -19,6 +19,7 @@ pub enum Item {
     BodyPart,
     Hat,
     Cloak,
+    Rags,
 }
 
 #[enum_dispatch(Item)]

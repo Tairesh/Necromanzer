@@ -2,7 +2,7 @@ use assets::tileset::Tileset;
 use human::body::{Body, Freshness};
 use human::character::Character;
 use map::item::Item;
-use map::items::{Corpse, Gravestone};
+use map::items::{Corpse, Gravestone, Rags};
 use map::passage::Passage;
 use map::terrain::{Terrain, TerrainInteract, TerrainView};
 use map::terrains::pit::Pit;
@@ -54,21 +54,19 @@ impl TerrainInteract for Grave {
     }
 
     fn dig_result(&self) -> (Terrain, Vec<Item>) {
+        let mut body = Body::human(
+            &self.data.character,
+            match self.data.death_year {
+                253..=255 => Freshness::Rotten,
+                _ => Freshness::Skeletal,
+            },
+        );
+        body.wear.push(Rags::new().into());
         (
             Pit::new().into(),
             vec![
                 Gravestone::new(self.data.clone()).into(),
-                Corpse::new(
-                    self.data.character.clone(),
-                    Body::human(
-                        &self.data.character,
-                        match self.data.death_year {
-                            253..=255 => Freshness::Rotten,
-                            _ => Freshness::Skeletal,
-                        },
-                    ),
-                )
-                .into(),
+                Corpse::new(self.data.character.clone(), body).into(),
             ],
         )
     }
