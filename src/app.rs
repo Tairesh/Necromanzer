@@ -15,6 +15,7 @@ use tetra::{window, Context, Event, State};
 pub struct App {
     pub assets: Rc<Assets>,
     pub settings: Rc<RefCell<GameSettings>>,
+    pub window_size: (i32, i32),
     scenes: Vec<Box<dyn SceneImpl>>,
     fps_counter: Label,
 }
@@ -33,6 +34,7 @@ impl App {
             settings: Rc::new(RefCell::new(settings)),
             assets: Rc::new(assets),
             scenes: vec![],
+            window_size: window::get_size(ctx),
             fps_counter,
         };
         app.push_scene(ctx, Scene::MainMenu);
@@ -47,12 +49,12 @@ impl App {
         if let Some(scene) = self.current_scene() {
             scene.on_open(ctx);
         }
-        self.on_resize(ctx);
+        self.on_resize(ctx, self.window_size);
     }
 
-    fn on_resize(&mut self, ctx: &mut Context) {
+    fn on_resize(&mut self, ctx: &mut Context, window_size: (i32, i32)) {
+        self.window_size = window_size;
         if let Some(scene) = self.current_scene() {
-            let window_size = window::get_size(ctx);
             scene.reposition_all_sprites(ctx, window_size);
             scene.on_resize(ctx, window_size);
             self.fps_counter.positionate(ctx, window_size);
@@ -168,7 +170,7 @@ impl State for App {
                     settings.window_settings.width = width;
                     settings.window_settings.height = height;
                 }
-                self.on_resize(ctx);
+                self.on_resize(ctx, (width, height));
             }
             _ => {}
         }

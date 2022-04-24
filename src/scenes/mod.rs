@@ -36,13 +36,12 @@ pub(crate) fn easy_back(event: Event, focused: bool) -> SomeTransitions {
 
 pub(crate) fn bg(assets: &Assets, settings: &GameSettings) -> Rc<RefCell<Image>> {
     let date = OffsetDateTime::now_utc().to_offset(settings.time_settings.offset);
-    Rc::new(RefCell::new(Image::new(
+    Rc::new(RefCell::new(Image::repeat(
         if date.month() == Month::October && date.day() >= 19 && date.day() <= 31 {
             assets.images.halloween.clone()
         } else {
             assets.images.bg.clone()
         },
-        Position::center(),
     )))
 }
 

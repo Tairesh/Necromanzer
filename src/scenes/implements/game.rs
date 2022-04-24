@@ -72,7 +72,7 @@ impl Game {
             shift_of_view: Point::zero(),
             settings: app.settings.clone(),
             assets: app.assets.clone(),
-            window_size: tetra::window::get_size(ctx),
+            window_size: app.window_size,
             current_time_label,
             world,
         }
@@ -165,7 +165,7 @@ impl SceneImpl for Game {
             self.current_time_label.borrow_mut().update(
                 format!("{}", self.world.meta.current_tick),
                 ctx,
-                tetra::window::get_size(ctx),
+                self.window_size,
             );
 
             None

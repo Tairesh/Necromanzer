@@ -15,6 +15,7 @@ pub struct Image {
     rect: Option<Rect>,
     visible: bool,
     repeat: bool,
+    window_size: (i32, i32),
 }
 
 impl Image {
@@ -29,6 +30,7 @@ impl Image {
             rect: None,
             visible: true,
             repeat: false,
+            window_size: (0, 0),
         }
     }
 
@@ -63,7 +65,7 @@ impl Draw for Image {
         } else if let Some(region) = self.region {
             self.texture.draw_region(ctx, region, params);
         } else if self.repeat {
-            let (w, h) = window::get_size(ctx);
+            let (w, h) = self.window_size;
             let w_count = ((w as f32 / rect.w).ceil() / 2.0) as i32;
             let h_count = ((h as f32 / rect.h).ceil() / 2.0) as i32;
             for i in -w_count..=w_count {
@@ -95,7 +97,10 @@ impl Positionate for Image {
         self.position = position;
     }
 
-    fn calc_size(&mut self, _ctx: &mut Context) -> Vec2 {
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
+        if self.repeat {
+            self.window_size = window::get_size(ctx);
+        }
         let size = if let Some(region) = self.region {
             (region.width, region.height)
         } else {

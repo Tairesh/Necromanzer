@@ -50,6 +50,7 @@ pub struct CreateCharacter {
     age_input: Rc<RefCell<TextInput>>,
     hand_name: Rc<RefCell<Label>>,
     main_hand: MainHand,
+    window_size: (i32, i32),
 }
 
 impl CreateCharacter {
@@ -286,6 +287,7 @@ impl CreateCharacter {
             age_input,
             hand_name,
             main_hand: MainHand::Right,
+            window_size: app.window_size,
         }
     }
 }
@@ -301,6 +303,10 @@ impl SceneImpl for CreateCharacter {
 
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
         easy_back(event, self.is_there_focused_sprite())
+    }
+
+    fn on_resize(&mut self, _ctx: &mut Context, window_size: (i32, i32)) {
+        self.window_size = window_size;
     }
 
     fn sprites(&self) -> SomeSprites {
@@ -340,7 +346,7 @@ impl SceneImpl for CreateCharacter {
                     _ => unreachable!(),
                 };
                 label.set_value(self.main_hand.name());
-                label.positionate(ctx, tetra::window::get_size(ctx));
+                label.positionate(ctx, self.window_size);
                 None
             }
             Events::Randomize => {
@@ -354,8 +360,7 @@ impl SceneImpl for CreateCharacter {
                 self.main_hand = character.main_hand;
                 let mut hand = self.hand_name.borrow_mut();
                 hand.set_value(self.main_hand.name());
-                let window_size = tetra::window::get_size(ctx);
-                hand.positionate(ctx, window_size);
+                hand.positionate(ctx, self.window_size);
                 None
             }
             Events::Create => {
