@@ -130,8 +130,12 @@ impl World {
         tiles
     }
 
+    pub fn get_unit(&self, unit_id: usize) -> &Avatar {
+        self.units.get(unit_id).unwrap()
+    }
+
     pub fn player(&self) -> &Avatar {
-        self.units.get(0).unwrap()
+        self.get_unit(0)
     }
 
     pub fn player_mut(&mut self) -> &mut Avatar {

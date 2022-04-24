@@ -15,7 +15,7 @@ pub enum Scene {
     CreateCharacter(PathBuf),
     Game,
     GameMenu,
-    BodyView,
+    BodyView(usize),
 }
 
 impl Scene {
@@ -32,7 +32,7 @@ impl Scene {
             }
             Scene::Game => Box::new(implements::Game::new(app, ctx)),
             Scene::GameMenu => Box::new(implements::GameMenu::new(app)),
-            Scene::BodyView => Box::new(implements::BodyView::new(app, ctx)),
+            Scene::BodyView(unit_id) => Box::new(implements::BodyView::new(unit_id, app, ctx)),
         }
     }
 }

@@ -23,9 +23,9 @@ pub struct BodyView {
 }
 
 impl BodyView {
-    pub fn new(app: &App, ctx: &mut Context) -> Self {
+    pub fn new(unit_id: usize, app: &App, ctx: &mut Context) -> Self {
         let world = app.world.as_ref().unwrap().borrow();
-        let avatar = world.player();
+        let avatar = world.get_unit(unit_id);
         let back_btn = back_btn(
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },

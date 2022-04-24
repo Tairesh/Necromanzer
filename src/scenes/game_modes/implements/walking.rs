@@ -59,7 +59,7 @@ impl GameModeImpl for Walking {
         } else if input::is_pressed_key_with_mod(ctx, Key::R, Some(KeyModifier::Shift)) {
             UpdateResult::Push(Reading::new().into()).into()
         } else if input::is_pressed_key_with_mod(ctx, Key::Num2, Some(KeyModifier::Shift)) {
-            UpdateResult::SceneTransit(vec![Transition::Push(Scene::BodyView)]).into()
+            UpdateResult::SceneTransit(vec![Transition::Push(Scene::BodyView(0))]).into()
         } else if input::is_pressed_key_with_mod(ctx, Key::I, None) {
             // TODO: inventory game scene
             let items: Vec<String> = game

@@ -5,6 +5,8 @@ use geometry::point::Point;
 use input;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
+use scenes::scene::Scene::BodyView;
+use scenes::transition::Transition;
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -42,6 +44,18 @@ impl GameModeImpl for Examining {
             game.try_rotate_player(dir);
             None
         } else if let Some(dir) = self.selected {
+            let mut world = game.world.borrow_mut();
+            let pos = world.player().pos + dir;
+            let tile = world.load_tile(pos);
+            if !tile.units.is_empty() {
+                return Some(vec![
+                    UpdateResult::Pop,
+                    UpdateResult::SceneTransit(vec![Transition::Push(BodyView(
+                        *tile.units.iter().next().unwrap(),
+                    ))]),
+                ]);
+            }
+            drop(world);
             game.examine(dir);
             UpdateResult::Pop.into()
         } else {
