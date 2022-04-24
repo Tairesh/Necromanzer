@@ -3,13 +3,7 @@ use game::actions::ActionType;
 use geometry::direction::Direction;
 use input;
 use map::item::ItemView;
-use scenes::game_modes::implements::animate::Animate;
-use scenes::game_modes::implements::digging::Digging;
-use scenes::game_modes::implements::dropping::Dropping;
-use scenes::game_modes::implements::examining::Examining;
-use scenes::game_modes::implements::observing::Observing;
-use scenes::game_modes::implements::reading::Reading;
-use scenes::game_modes::implements::wielding::Wielding;
+use scenes::game_modes::implements::*;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
 use scenes::scene::Scene;
@@ -65,8 +59,7 @@ impl GameModeImpl for Walking {
         } else if input::is_pressed_key_with_mod(ctx, Key::R, Some(KeyModifier::Shift)) {
             UpdateResult::Push(Reading::new().into()).into()
         } else if input::is_pressed_key_with_mod(ctx, Key::Num2, Some(KeyModifier::Shift)) {
-            // TODO: body view game scene (gamemodes should not use a lot of sprites)
-            None
+            UpdateResult::SceneTransit(vec![Transition::Push(Scene::BodyView)]).into()
         } else if input::is_pressed_key_with_mod(ctx, Key::I, None) {
             // TODO: inventory game scene
             let items: Vec<String> = game

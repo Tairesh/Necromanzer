@@ -37,6 +37,12 @@ impl Alert {
         self.scale = scale;
         self
     }
+
+    pub fn set_size(&mut self, ctx: &mut Context, window_size: (i32, i32)) {
+        self.width = window_size.0 as f32;
+        self.height = window_size.1 as f32;
+        self.positionate(ctx, window_size)
+    }
 }
 
 impl Draw for Alert {

@@ -9,7 +9,7 @@ use geometry::point::Point;
 use geometry::Vec2;
 use map::item::ItemView;
 use map::terrain::TerrainView;
-use scenes::game_modes::implements::walking::Walking;
+use scenes::game_modes::implements::Walking;
 use scenes::game_modes::GameModeImpl;
 use scenes::game_modes::{GameMode, UpdateResult};
 use scenes::scene_impl::SceneImpl;

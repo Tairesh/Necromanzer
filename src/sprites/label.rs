@@ -2,9 +2,11 @@
 use crate::assets::prepared_font::PreparedFont;
 use crate::sprites::position::Position;
 use crate::sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
+use assets::tileset::Tileset;
 use geometry::{Rect, Vec2};
+use map::item::{Item, ItemView};
 use tetra::graphics::text::Text;
-use tetra::graphics::{Color, DrawParams};
+use tetra::graphics::{Color, DrawParams, Rectangle, Texture};
 use tetra::Context;
 
 pub struct Label {
@@ -120,3 +122,138 @@ impl Update for Label {
     }
 }
 impl Sprite for Label {}
+
+pub struct ItemDisplay {
+    text: Text,
+    color: Color,
+    icon: bool,
+    tileset: Texture,
+    region: Rectangle,
+    scale: Vec2,
+    position: Position,
+    rect: Option<Rect>,
+    visible: bool,
+}
+
+impl ItemDisplay {
+    pub fn new(
+        item: Option<&Item>,
+        font: PreparedFont,
+        color: Color,
+        tileset: &Tileset,
+        scale: Vec2,
+        position: Position,
+    ) -> Self {
+        let (name, region) = if let Some(item) = item {
+            (item.name(), item.region(tileset))
+        } else {
+            ("(empty)".to_string(), Rectangle::default())
+        };
+        Self {
+            text: Text::new(name, font.font),
+            color,
+            icon: item.is_some(),
+            tileset: tileset.texture.clone(),
+            region,
+            scale,
+            position,
+            rect: None,
+            visible: true,
+        }
+    }
+
+    pub fn set_item(
+        &mut self,
+        item: Option<&Item>,
+        ctx: &mut Context,
+        tileset: &Tileset,
+        window_size: (i32, i32),
+    ) {
+        let (name, region) = if let Some(item) = item {
+            (item.name(), Some(item.region(tileset)))
+        } else {
+            ("(empty)".to_string(), None)
+        };
+        if name != self.text.content() || region.is_some() != self.icon {
+            if let Some(region) = region {
+                self.icon = true;
+                self.region = region;
+            } else {
+                self.icon = false;
+            }
+            self.text.set_content(name);
+            self.positionate(ctx, window_size);
+        }
+    }
+}
+
+impl Draw for ItemDisplay {
+    fn draw(&mut self, ctx: &mut Context) {
+        let rect = self.rect.unwrap();
+        let text_pos = if self.icon {
+            self.tileset.draw_region(
+                ctx,
+                self.region,
+                DrawParams::new()
+                    .position(Vec2::new(rect.x, rect.y))
+                    .scale(self.scale),
+            );
+            Vec2::new(rect.x + self.region.width * self.scale.x + 5.0, rect.y)
+        } else {
+            Vec2::new(rect.x, rect.y)
+        };
+        self.text
+            .draw(ctx, DrawParams::new().position(text_pos).color(self.color));
+    }
+
+    fn visible(&self) -> bool {
+        self.visible
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
+    }
+}
+
+impl Positionate for ItemDisplay {
+    fn position(&self) -> Position {
+        self.position
+    }
+
+    fn set_position(&mut self, position: Position) {
+        self.position = position;
+    }
+
+    fn calc_size(&mut self, ctx: &mut Context) -> Vec2 {
+        let rect = self.text.get_bounds(ctx).unwrap();
+        if self.icon {
+            Vec2::new(
+                self.region.width * self.scale.x + 5.0 + rect.width,
+                rect.height,
+            )
+        } else {
+            Vec2::new(rect.width, rect.height)
+        }
+    }
+
+    fn rect(&self) -> Rect {
+        self.rect.unwrap()
+    }
+
+    fn set_rect(&mut self, rect: Rect) {
+        self.rect = Some(rect);
+    }
+}
+
+impl Colorize for ItemDisplay {
+    fn color(&self) -> Color {
+        self.color
+    }
+
+    fn set_color<C: Into<Color>>(&mut self, color: C) {
+        self.color = color.into();
+    }
+}
+
+impl Update for ItemDisplay {}
+impl Sprite for ItemDisplay {}
