@@ -2,10 +2,12 @@ use app::App;
 use colors::Colors;
 use game::World;
 use geometry::Vec2;
-use map::item::ItemView;
+use human::body::Freshness;
+use map::item::{Item, ItemView};
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use scenes::{back_btn, easy_back};
+use sprites::alert::Alert;
 use sprites::label::{ItemDisplay, Label};
 use sprites::meshy::HoverableMesh;
 use sprites::position::{Horizontal, Position, Vertical};
@@ -20,16 +22,25 @@ use tetra::{Context, Event};
 pub struct BodyView {
     sprites: BunchOfSprites,
     world: Rc<RefCell<World>>,
+    alert: Rc<RefCell<Alert>>,
+    window_size: (i32, i32),
 }
 
 impl BodyView {
     pub fn new(unit_id: usize, app: &App, ctx: &mut Context) -> Self {
         let world = app.world.as_ref().unwrap().borrow();
         let avatar = world.get_unit(unit_id);
+        let window_size = app.window_size;
+        let alert = Rc::new(RefCell::new(Alert::new(
+            window_size.0 as f32,
+            window_size.1 as f32,
+            app.assets.alert.clone(),
+            Position::by_left_top(0.0, 0.0),
+        )));
         let back_btn = back_btn(
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
-                y: Vertical::AtWindowBottomByBottom { offset: -10.0 },
+                y: Vertical::AtWindowBottomByBottom { offset: -20.0 },
             },
             &app.assets,
         );
@@ -63,6 +74,7 @@ impl BodyView {
             Position::by_left_top(20.0, 50.0),
         );
         let mut sprites: BunchOfSprites = Vec::with_capacity(avatar.body.wear.len() + 4);
+        sprites.push(alert.clone());
         sprites.push(Rc::new(RefCell::new(name)));
         sprites.push(Rc::new(RefCell::new(gender)));
         sprites.push(Rc::new(RefCell::new(wear)));
@@ -105,10 +117,19 @@ impl BodyView {
                 Colors::LIGHT_GRAY,
                 Position::by_left_top(20.0, 60.0 + y as f32),
             ))));
+            let color = if let Item::BodyPart(bp) = item {
+                match bp.data.freshness {
+                    Freshness::Fresh => Colors::LIGHT_PINK,
+                    Freshness::Rotten => Colors::LIME_GREEN,
+                    Freshness::Skeletal => Colors::WARM_IVORY,
+                }
+            } else {
+                Colors::LIGHT_CORAL
+            };
             let mut bp = Label::new(
                 item.name(),
                 app.assets.fonts.default2.clone(),
-                Colors::LIGHT_PINK,
+                color,
                 Position::by_left_top(170.0, 60.0 + y as f32),
             );
             let size = bp.calc_size(ctx) + Vec2::new(10.0, 6.0);
@@ -129,6 +150,8 @@ impl BodyView {
         Self {
             world: app.clone_world(),
             sprites,
+            alert,
+            window_size,
         }
     }
 }
@@ -138,8 +161,8 @@ impl SceneImpl for BodyView {
         easy_back(event, false)
     }
 
-    fn before_draw(&mut self, ctx: &mut Context) {
-        tetra::graphics::clear(ctx, Colors::BLACK);
+    fn on_resize(&mut self, ctx: &mut Context, window_size: (i32, i32)) {
+        self.alert.borrow_mut().set_size(ctx, window_size);
     }
 
     fn sprites(&self) -> SomeSprites {
