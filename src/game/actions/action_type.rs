@@ -5,7 +5,7 @@ use game::World;
 use geometry::direction::Direction;
 use map::item::{Item, ItemInteract, ItemTag};
 use map::passage::Passage;
-use map::terrain::{TerrainInteract, TerrainView};
+use map::terrain::{Terrain, TerrainInteract, TerrainView};
 
 pub enum ActionPossibility {
     Yes,
@@ -58,9 +58,17 @@ impl ActionType {
                     0
                 }
             }
-            ActionType::Digging(_) => {
-                // TODO: check tool quality, avatar perks and tile terrain
-                1000
+            ActionType::Digging(dir) => {
+                // TODO: check tool quality, avatar perks
+                let pos = owner(owner_id, world).pos + dir;
+                if let Some(tile) = world.get_tile(pos) {
+                    return match tile.terrain {
+                        Terrain::Grave(..) => 2000,
+                        _ => 1000,
+                    };
+                }
+
+                0
             }
             ActionType::Reading(dir) => {
                 let pos = owner(owner_id, world).pos + dir;

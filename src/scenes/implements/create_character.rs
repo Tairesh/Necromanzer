@@ -8,6 +8,7 @@ use human::main_hand::MainHand;
 use human::skin_tone::SkinTone;
 use map::pos::TilePos;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
+use savefile;
 use savefile::{GameView, Meta};
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
@@ -22,6 +23,7 @@ use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::path::PathBuf;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
@@ -54,7 +56,8 @@ pub struct CreateCharacter {
 }
 
 impl CreateCharacter {
-    pub fn new(meta: Meta, app: &App, ctx: &mut Context) -> Self {
+    pub fn new(path: PathBuf, app: &App, ctx: &mut Context) -> Self {
+        let meta = savefile::load(&path).unwrap();
         let bg = bg(&app.assets, &app.settings.borrow());
         let title = title("Create new character:", &app.assets);
         let subtitle = Rc::new(RefCell::new(Label::new(
@@ -385,7 +388,10 @@ impl SceneImpl for CreateCharacter {
                     )
                     .init();
                     world.save();
-                    Some(vec![Transition::Replace(Scene::Game(self.meta.clone()))])
+                    Some(vec![
+                        Transition::LoadWorld(self.meta.path.clone()),
+                        Transition::Replace(Scene::Game),
+                    ])
                 }
             }
         }

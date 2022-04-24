@@ -222,9 +222,7 @@ impl SceneImpl for CreateWorld {
                     None
                 } else {
                     match savefile::create(name.as_str(), seed.as_str()) {
-                        Ok(path) => Some(vec![Transition::Replace(Scene::CreateCharacter(
-                            savefile::load(&path).expect("Can't load newly created savefile!"),
-                        ))]),
+                        Ok(path) => Some(vec![Transition::Replace(Scene::CreateCharacter(path))]),
                         Err(err) => match err {
                             savefile::SaveError::SystemError(err) => {
                                 panic!("Can't write savefile: {}", err)

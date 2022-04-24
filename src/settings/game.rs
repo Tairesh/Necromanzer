@@ -12,7 +12,7 @@ pub struct GameSettings {
     #[serde(skip)]
     pub time_settings: TimeSettings,
     pub show_fps: bool,
-    pub repeat_interval: u128,
+    pub repeat_interval: u32,
     pub tile_size: f32,
 }
 

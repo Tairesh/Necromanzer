@@ -11,6 +11,12 @@ impl Hat {
     }
 }
 
+impl Default for Hat {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ItemView for Hat {
     fn name(&self) -> String {
         "hat".to_string()

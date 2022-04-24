@@ -12,6 +12,12 @@ impl Shovel {
     }
 }
 
+impl Default for Shovel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ItemView for Shovel {
     fn name(&self) -> String {
         "shovel".to_string()

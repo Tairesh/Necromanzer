@@ -11,6 +11,12 @@ impl Cloak {
     }
 }
 
+impl Default for Cloak {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ItemView for Cloak {
     fn name(&self) -> String {
         "cloak".to_string()

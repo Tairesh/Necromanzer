@@ -1,5 +1,7 @@
 use assets::Assets;
 use colors::Colors;
+use game::World;
+use savefile;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
@@ -8,6 +10,7 @@ use sprites::label::Label;
 use sprites::position::Position;
 use sprites::sprite::{Draw, Positionate, Stringify};
 use std::cell::RefCell;
+use std::path::Path;
 use std::rc::Rc;
 use tetra::input::Key;
 use tetra::{window, Context, Event, State};
@@ -15,6 +18,7 @@ use tetra::{window, Context, Event, State};
 pub struct App {
     pub assets: Rc<Assets>,
     pub settings: Rc<RefCell<GameSettings>>,
+    pub world: Option<Rc<RefCell<World>>>,
     pub window_size: (i32, i32),
     scenes: Vec<Box<dyn SceneImpl>>,
     fps_counter: Label,
@@ -35,6 +39,7 @@ impl App {
             assets: Rc::new(assets),
             scenes: vec![],
             window_size: window::get_size(ctx),
+            world: None,
             fps_counter,
         };
         app.push_scene(ctx, Scene::MainMenu);
@@ -76,6 +81,24 @@ impl App {
         self.on_open(ctx);
     }
 
+    pub fn clone_world(&self) -> Rc<RefCell<World>> {
+        if let Some(world) = &self.world {
+            world.clone()
+        } else {
+            panic!("World isn't loaded!")
+        }
+    }
+
+    fn load_world(&mut self, path: &Path) {
+        self.world = savefile::load_world(path, &self.assets)
+            .ok() // TODO: catch errors
+            .map(|w| Rc::new(RefCell::new(w)));
+    }
+
+    fn unload_world(&mut self) {
+        self.world = None;
+    }
+
     fn exec_transitions(&mut self, ctx: &mut Context, transitions: SomeTransitions) {
         if let Some(transitions) = transitions {
             for transition in transitions {
@@ -97,10 +120,12 @@ impl App {
             }
             Transition::Quit => window::quit(ctx),
             Transition::GoMainMenu => {
-                while self.scenes.len() > 1 {
-                    self.pop_scene(ctx);
-                }
+                self.unload_world();
+                self.scenes.drain(1..);
+                self.on_open(ctx);
             }
+            Transition::LoadWorld(path) => self.load_world(&path),
+            Transition::UnloadWorld => self.unload_world(),
         }
     }
 }

@@ -206,7 +206,7 @@ impl SceneImpl for Settings {
 
 impl Drop for Settings {
     fn drop(&mut self) {
-        if let Ok(repeat_interval) = self.repeat_interval_input.borrow().value().parse::<u128>() {
+        if let Ok(repeat_interval) = self.repeat_interval_input.borrow().value().parse() {
             self.settings.borrow_mut().repeat_interval = repeat_interval;
             self.settings.borrow_mut().save();
         }

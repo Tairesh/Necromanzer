@@ -12,6 +12,12 @@ impl Pit {
     }
 }
 
+impl Default for Pit {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TerrainView for Pit {
     fn name(&self) -> &str {
         "pit"

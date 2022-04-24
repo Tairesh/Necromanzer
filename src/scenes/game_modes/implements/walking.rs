@@ -39,10 +39,10 @@ impl Default for Walking {
 impl GameModeImpl for Walking {
     fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
         if input::is_mouse_scrolled_down(ctx) {
-            game.world.game_view.zoom.dec();
+            game.world.borrow_mut().game_view.zoom.dec();
             None
         } else if input::is_mouse_scrolled_up(ctx) {
-            game.world.game_view.zoom.inc();
+            game.world.borrow_mut().game_view.zoom.inc();
             None
         } else if input::is_key_pressed(ctx, Key::Escape) {
             UpdateResult::SceneTransit(vec![Transition::Push(Scene::GameMenu)]).into()
@@ -71,6 +71,7 @@ impl GameModeImpl for Walking {
             // TODO: inventory game scene
             let items: Vec<String> = game
                 .world
+                .borrow()
                 .player()
                 .body
                 .wear
@@ -86,7 +87,7 @@ impl GameModeImpl for Walking {
             UpdateResult::Push(Animate::new().into()).into()
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
-            if now.duration_since(self.last_walk).as_millis()
+            if now.duration_since(self.last_walk).subsec_millis()
                 > game.settings.borrow().repeat_interval
                 || input::is_key_modifier_down(ctx, KeyModifier::Shift)
             {

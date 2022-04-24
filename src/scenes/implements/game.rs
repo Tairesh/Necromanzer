@@ -27,7 +27,7 @@ use tetra::Context;
 
 pub struct Game {
     pub sprites: BunchOfSprites,
-    pub world: World,
+    pub world: Rc<RefCell<World>>,
     pub game_data: Rc<GameData>,
     pub modes: Vec<Rc<RefCell<GameMode>>>,
     pub cursor: Mesh,
@@ -40,15 +40,16 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(world: World, app: &App, ctx: &mut Context) -> Self {
+    pub fn new(app: &App, ctx: &mut Context) -> Self {
+        let world = app.clone_world();
         let name_label = Rc::new(RefCell::new(Label::new(
-            world.player().character.name.as_str(),
+            world.borrow().player().character.name.as_str(),
             app.assets.fonts.header2.clone(),
             Colors::WHITE_SMOKE,
             Position::by_left_top(50.0, 1.0),
         )));
         let current_time_label = Rc::new(RefCell::new(Label::new(
-            format!("{}", world.meta.current_tick),
+            format!("{}", world.borrow().meta.current_tick),
             app.assets.fonts.default2.clone(),
             Colors::WHITE_SMOKE,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 5.0 }),
@@ -83,7 +84,7 @@ impl Game {
     }
 
     pub fn push_mode(&mut self, mode: GameMode) {
-        match mode.can_push(&self.world) {
+        match mode.can_push(&self.world.borrow()) {
             Ok(..) => self.modes.push(Rc::new(RefCell::new(mode))),
             Err(s) => {
                 self.log.log(s, Colors::LIGHT_CORAL);
@@ -93,20 +94,21 @@ impl Game {
 
     pub fn try_rotate_player(&mut self, dir: Direction) {
         if let Ok(dir) = TwoDimDirection::try_from(dir) {
-            self.world.player_mut().vision = dir;
+            self.world.borrow_mut().player_mut().vision = dir;
         }
     }
 
     pub fn examine(&mut self, dir: Direction) {
-        let pos = self.world.player().pos + dir;
+        let pos = self.world.borrow().player().pos + dir;
         self.log
-            .log(self.world.this_is(pos, false), Colors::WHITE_SMOKE);
+            .log(self.world.borrow().this_is(pos, false), Colors::WHITE_SMOKE);
     }
 
     pub fn try_start_action(&mut self, typ: ActionType) {
-        match Action::new(0, typ, &self.world) {
+        let action = Action::new(0, typ, &self.world.borrow());
+        match action {
             Ok(action) => {
-                self.world.player_mut().action = Some(action);
+                self.world.borrow_mut().player_mut().action = Some(action);
             }
             Err(msg) => {
                 if !self.log.same_message(&msg) {
@@ -141,11 +143,11 @@ impl Game {
     }
 
     pub fn tile_size(&self) -> f32 {
-        self.assets.tileset.tile_size as f32 * self.world.game_view.zoom.as_view()
+        self.assets.tileset.tile_size as f32 * self.world.borrow().game_view.zoom.as_view()
     }
 
     fn make_world_tick(&mut self) {
-        for action in self.world.tick() {
+        for action in self.world.borrow_mut().tick() {
             match action {
                 ActionResult::LogMessage(message) => {
                     self.log.log(message, Colors::WHITE_SMOKE);
@@ -160,10 +162,10 @@ impl Game {
 
 impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
-        if self.world.player().action.is_some() {
+        if self.world.borrow().player().action.is_some() {
             self.make_world_tick();
             self.current_time_label.borrow_mut().update(
-                format!("{}", self.world.meta.current_tick),
+                format!("{}", self.world.borrow().meta.current_tick),
                 ctx,
                 self.window_size,
             );
@@ -178,9 +180,10 @@ impl SceneImpl for Game {
         tetra::graphics::clear(ctx, Colors::BLACK);
         let width = self.window_size.0 as f32;
         let height = self.window_size.1 as f32;
-        let zoom = self.world.game_view.zoom.as_view();
+        let zoom = self.world.borrow().game_view.zoom;
+        let scale = zoom.as_scale();
+        let zoom = zoom.as_view();
         let tile_size = self.tile_size();
-        let scale = self.world.game_view.zoom.as_scale();
         let window_size_in_tiles = (
             (width as f32 / tile_size).ceil() as i32,
             (height as f32 / tile_size).ceil() as i32,
@@ -189,10 +192,15 @@ impl SceneImpl for Game {
             width / 2.0 - tile_size / 2.0,
             height / 2.0 - tile_size / 2.0,
         );
-        let center_tile = self.world.player().pos + self.shift_of_view;
+        let center_tile = self.world.borrow().player().pos + self.shift_of_view;
         let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
         let right_bottom = center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
-        for (pos, tile) in self.world.tiles_between(left_top, right_bottom).into_iter() {
+        for (pos, tile) in self
+            .world
+            .borrow_mut()
+            .tiles_between(left_top, right_bottom)
+            .into_iter()
+        {
             let dx = pos.x - center_tile.x;
             let dy = pos.y - center_tile.y;
             let region = tile.terrain.region(&self.assets.tileset);
@@ -221,8 +229,9 @@ impl SceneImpl for Game {
                 }
             }
         }
-        for i in self.world.loaded_units.iter().copied() {
-            let unit = self.world.units.get(i).unwrap();
+        for i in self.world.borrow().loaded_units.iter().copied() {
+            let world = self.world.borrow();
+            let unit = world.units.get(i).unwrap();
             let dx = unit.pos.x - center_tile.x;
             let dy = unit.pos.y - center_tile.y;
             let position = Vec2::new(
@@ -231,12 +240,12 @@ impl SceneImpl for Game {
             );
             unit.draw(ctx, &self.assets.tileset, position, zoom, true);
         }
-        // if self.world.player().action.is_some() {
+        // if self.world.borrow().player().action.is_some() {
         //     self.draw_action_loader(ctx, center);
         // } else {
         //     self.action_text = None;
         // }
-        for (delta, color) in self.current_mode().borrow().cursors(&self.world) {
+        for (delta, color) in self.current_mode().borrow().cursors(&self.world.borrow()) {
             let delta = delta * tile_size;
             self.cursor.draw(
                 ctx,
@@ -254,9 +263,13 @@ impl SceneImpl for Game {
 
     fn after_draw(&mut self, ctx: &mut Context) {
         // UI
-        self.world
-            .player()
-            .draw(ctx, &self.assets.tileset, Vec2::new(5.0, 5.0), 3.0, false);
+        self.world.borrow().player().draw(
+            ctx,
+            &self.assets.tileset,
+            Vec2::new(5.0, 5.0),
+            3.0,
+            false,
+        );
         self.current_mode().borrow_mut().draw(ctx, self);
     }
 
@@ -271,6 +284,6 @@ impl SceneImpl for Game {
 
 impl Drop for Game {
     fn drop(&mut self) {
-        self.world.save();
+        self.world.borrow_mut().save();
     }
 }

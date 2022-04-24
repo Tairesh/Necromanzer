@@ -7,9 +7,14 @@ use tetra::graphics::Rectangle;
 pub struct Knife {}
 
 impl Knife {
-    #[allow(dead_code)]
     pub fn new() -> Self {
         Self {}
+    }
+}
+
+impl Default for Knife {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

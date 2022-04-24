@@ -59,7 +59,7 @@ impl Observing {
 
     fn update_mouse(&mut self, ctx: &mut Context, game: &mut Game) {
         let mouse = input::get_mouse_position(ctx);
-        let zoom = game.world.game_view.zoom.as_view();
+        let zoom = game.world.borrow().game_view.zoom.as_view();
         if mouse != self.last_mouse_position || zoom != self.last_zoom {
             self.last_mouse_position = mouse;
             self.last_zoom = zoom;
@@ -74,8 +74,8 @@ impl Observing {
     }
 
     fn update_sprite(&mut self, ctx: &mut Context, game: &mut Game) {
-        let pos = game.world.player().pos + game.shift_of_view + self.mouse_moved_pos;
-        let msg = game.world.this_is(pos, true);
+        let pos = game.world.borrow().player().pos + game.shift_of_view + self.mouse_moved_pos;
+        let msg = game.world.borrow().this_is(pos, true);
         let tile_size = game.tile_size();
         let position = Vec2::from(self.mouse_moved_pos * tile_size);
         let position_shift = tile_size / 2.0 + 5.0;
@@ -140,14 +140,14 @@ impl GameModeImpl for Observing {
             game.shift_of_view = Point::zero();
             return UpdateResult::Pop.into();
         } else if input::is_mouse_scrolled_down(ctx) {
-            game.world.game_view.zoom.dec();
+            game.world.borrow_mut().game_view.zoom.dec();
             shifted = true;
         } else if input::is_mouse_scrolled_up(ctx) {
-            game.world.game_view.zoom.inc();
+            game.world.borrow_mut().game_view.zoom.inc();
             shifted = true;
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
-            if now.duration_since(self.last_shift).as_millis()
+            if now.duration_since(self.last_shift).subsec_millis()
                 > game.settings.borrow().repeat_interval
                 || input::is_key_modifier_down(ctx, KeyModifier::Shift)
             {

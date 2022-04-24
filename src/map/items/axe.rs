@@ -7,9 +7,14 @@ use tetra::graphics::Rectangle;
 pub struct Axe {}
 
 impl Axe {
-    #[allow(dead_code)]
     pub fn new() -> Self {
         Self {}
+    }
+}
+
+impl Default for Axe {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
