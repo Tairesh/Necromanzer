@@ -36,7 +36,7 @@ impl Settings {
         let title = title("Settings", &app.assets);
 
         let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
-            vec![(Key::F, Some(KeyModifier::Alt))],
+            vec![(Key::F, KeyModifier::Alt).into()],
             "[Alt+F] Fullscreen",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
@@ -48,7 +48,7 @@ impl Settings {
             Transition::CustomEvent(FULLSCREEN_MODE_EVENT),
         )));
         let window_btn = Rc::new(RefCell::new(Button::fixed(
-            vec![(Key::W, Some(KeyModifier::Alt))],
+            vec![(Key::W, KeyModifier::Alt).into()],
             "[Alt+W] Window",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),

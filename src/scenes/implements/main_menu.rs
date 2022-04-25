@@ -37,7 +37,7 @@ impl MainMenu {
         )));
         let select_btn = Rc::new(RefCell::new(
             Button::text(
-                vec![(Key::E, None)],
+                vec![Key::E.into()],
                 "[e] Select world",
                 app.assets.fonts.default.clone(),
                 app.assets.button.clone(),
@@ -47,7 +47,7 @@ impl MainMenu {
             .with_disabled(true),
         ));
         let create_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::C, None)],
+            vec![Key::C.into()],
             "[c] Create new world",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
@@ -55,7 +55,7 @@ impl MainMenu {
             Transition::Push(Scene::CreateWorld),
         )));
         let settings_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::S, None)],
+            vec![Key::S.into()],
             "[s] Settings",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
@@ -63,7 +63,7 @@ impl MainMenu {
             Transition::Push(Scene::Settings),
         )));
         let exit_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::X, None)],
+            vec![Key::X.into()],
             "[x] Exit",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),

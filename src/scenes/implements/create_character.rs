@@ -222,8 +222,8 @@ impl CreateCharacter {
 
         let randomize_btn = Rc::new(RefCell::new(Button::text(
             vec![
-                (Key::NumPadMultiply, None),
-                (Key::Num8, Some(KeyModifier::Shift)),
+                Key::NumPadMultiply.into(),
+                (Key::Num8, KeyModifier::Shift).into(),
             ],
             "[*] Randomize",
             app.assets.fonts.default.clone(),
@@ -245,7 +245,7 @@ impl CreateCharacter {
             &app.assets,
         );
         let create_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::Enter, Some(KeyModifier::Alt))],
+            vec![(Key::Enter, KeyModifier::Alt).into()],
             "[Alt+Enter] Create",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),

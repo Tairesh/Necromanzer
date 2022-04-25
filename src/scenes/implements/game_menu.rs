@@ -23,7 +23,7 @@ impl GameMenu {
             Position::center(),
         )));
         let back_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::Escape, None)],
+            vec![Key::Escape.into()],
             "[Esc] Back",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
@@ -34,7 +34,7 @@ impl GameMenu {
             Transition::Pop,
         )));
         let settings_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::S, None)],
+            vec![Key::S.into()],
             "[S] Settings",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
@@ -45,7 +45,7 @@ impl GameMenu {
             Transition::Replace(Scene::Settings),
         )));
         let quit_btn = Rc::new(RefCell::new(Button::text(
-            vec![(Key::Q, None)],
+            vec![Key::Q.into()],
             "[q] Quit",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),

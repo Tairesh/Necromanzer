@@ -8,10 +8,11 @@ use crate::sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, U
 use assets::button::Button as ButtonAsset;
 use assets::prepared_font::PreparedFont;
 use geometry::{Rect, Vec2};
+use input::KeyWithMod;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
 use tetra::graphics::{DrawParams, Rectangle, Texture};
-use tetra::input::{Key, KeyModifier, MouseButton};
+use tetra::input::MouseButton;
 use tetra::Context;
 
 enum ButtonContent {
@@ -42,7 +43,7 @@ enum ButtonState {
 }
 
 pub struct Button {
-    keys: Vec<(Key, Option<KeyModifier>)>,
+    keys: Vec<KeyWithMod>,
     content: ButtonContent,
     on_click: Transition,
     position: Position,
@@ -58,7 +59,7 @@ pub struct Button {
 
 impl Button {
     fn new(
-        keys: Vec<(Key, Option<KeyModifier>)>, // TODO: create type or struct
+        keys: Vec<KeyWithMod>,
         content: ButtonContent,
         asset: Rc<ButtonAsset>,
         position: Position,
@@ -81,7 +82,7 @@ impl Button {
     }
 
     pub fn text<S>(
-        keys: Vec<(Key, Option<KeyModifier>)>,
+        keys: Vec<KeyWithMod>,
         text: S,
         font: PreparedFont,
         asset: Rc<ButtonAsset>,
@@ -101,7 +102,7 @@ impl Button {
     }
 
     pub fn empty(
-        keys: Vec<(Key, Option<KeyModifier>)>,
+        keys: Vec<KeyWithMod>,
         asset: Rc<ButtonAsset>,
         size: Vec2,
         position: Position,
@@ -111,7 +112,7 @@ impl Button {
     }
 
     pub fn fixed(
-        keys: Vec<(Key, Option<KeyModifier>)>,
+        keys: Vec<KeyWithMod>,
         text: &str,
         font: PreparedFont,
         asset: Rc<ButtonAsset>,
@@ -127,7 +128,7 @@ impl Button {
     }
 
     pub fn icon(
-        keys: Vec<(Key, Option<KeyModifier>)>,
+        keys: Vec<KeyWithMod>,
         region: Rectangle,
         tileset: Texture,
         asset: Rc<ButtonAsset>,
@@ -270,11 +271,11 @@ impl Update for Button {
         if !self.keys.is_empty() && !focused {
             let mut on_pressed = false;
             let mut off_pressed = false;
-            for (key, key_mod) in self.keys.iter().copied() {
-                if input::is_pressed_key_with_mod(ctx, key, key_mod) {
+            for kwm in self.keys.iter().copied() {
+                if input::is_key_with_mod_pressed(ctx, kwm) {
                     on_pressed = true;
                 }
-                if input::is_key_released(ctx, key) && self.is_pressed {
+                if input::is_key_released(ctx, kwm.key) && self.is_pressed {
                     off_pressed = true
                 }
             }

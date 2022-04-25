@@ -4,12 +4,46 @@ pub use tetra::input::*;
 use tetra::math::num_traits::Zero;
 use tetra::Context;
 
+#[derive(Debug, Copy, Clone)]
+pub struct KeyWithMod {
+    pub key: Key,
+    pub key_mod: Option<KeyModifier>,
+}
+
+impl KeyWithMod {
+    pub fn new(key: Key, key_mod: Option<KeyModifier>) -> Self {
+        Self { key, key_mod }
+    }
+
+    pub fn key(key: Key) -> Self {
+        Self::new(key, None)
+    }
+
+    pub fn with(mut self, key_mod: KeyModifier) -> Self {
+        self.key_mod = Some(key_mod);
+        self
+    }
+}
+
+impl From<Key> for KeyWithMod {
+    fn from(key: Key) -> Self {
+        Self::key(key)
+    }
+}
+
+impl From<(Key, KeyModifier)> for KeyWithMod {
+    fn from((key, key_mod): (Key, KeyModifier)) -> Self {
+        Self::key(key).with(key_mod)
+    }
+}
+
 /// Check key is pressed and key mod is on
-pub fn is_pressed_key_with_mod(ctx: &mut Context, key: Key, key_mod: Option<KeyModifier>) -> bool {
-    if !is_key_pressed(ctx, key) {
+pub fn is_key_with_mod_pressed<K: Into<KeyWithMod>>(ctx: &mut Context, kwm: K) -> bool {
+    let kwm: KeyWithMod = kwm.into();
+    if !is_key_pressed(ctx, kwm.key) {
         return false;
     }
-    if let Some(key_mod) = key_mod {
+    if let Some(key_mod) = kwm.key_mod {
         is_key_modifier_down(ctx, key_mod)
     } else {
         is_no_key_modifiers(ctx)

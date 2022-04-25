@@ -116,11 +116,7 @@ impl LoadWorld {
                 },
             ))));
             sprites.push(Rc::new(RefCell::new(Button::text(
-                if i < 10 {
-                    vec![(KEYS[i], None)]
-                } else {
-                    vec![]
-                },
+                if i < 10 { vec![KEYS[i].into()] } else { vec![] },
                 if i < 10 {
                     format!("[{}] Load", if i < 9 { i + 1 } else { 0 })
                 } else {
@@ -136,7 +132,7 @@ impl LoadWorld {
             ))));
             sprites.push(Rc::new(RefCell::new(Button::text(
                 if i < 10 {
-                    vec![(KEYS[i], Some(KeyModifier::Alt))]
+                    vec![(KEYS[i], KeyModifier::Alt).into()]
                 } else {
                     vec![]
                 },

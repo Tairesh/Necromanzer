@@ -56,7 +56,7 @@ pub(crate) fn title(title: &str, assets: &Assets) -> Rc<RefCell<Label>> {
 
 pub(crate) fn back_btn(position: Position, assets: &Assets) -> Rc<RefCell<Button>> {
     Rc::new(RefCell::new(Button::text(
-        vec![(Key::Escape, None)],
+        vec![Key::Escape.into()],
         "[Esc] Back",
         assets.fonts.default.clone(),
         assets.button.clone(),
