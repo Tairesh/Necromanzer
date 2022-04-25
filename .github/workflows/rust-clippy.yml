@@ -11,8 +11,14 @@ name: rust-clippy analyze
 
 on:
   push:
+    paths:
+      - '**/*.rs'
+      - 'Cargo.toml'
     branches: [ main ]
   pull_request:
+    paths:                                                                                                                     
+      - '**/*.rs'                                                                                                              
+      - 'Cargo.toml'
     # The branches below must be a subset of the branches above
     branches: [ main ]
   schedule:
