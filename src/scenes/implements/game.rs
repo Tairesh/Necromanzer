@@ -19,6 +19,7 @@ use sprites::label::Label;
 use sprites::position::{Position, Vertical};
 use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::convert::TryFrom;
 use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
@@ -37,6 +38,7 @@ pub struct Game {
     pub settings: Rc<RefCell<GameSettings>>,
     pub assets: Rc<Assets>,
     pub window_size: (i32, i32),
+    pub fov: HashSet<Point>,
 }
 
 impl Game {
@@ -54,6 +56,7 @@ impl Game {
             Colors::WHITE_SMOKE,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 5.0 }),
         )));
+        let fov = world.borrow().fov.clone();
         Self {
             sprites: vec![name_label, current_time_label.clone()],
             game_data: app.assets.game_data.clone(),
@@ -76,6 +79,7 @@ impl Game {
             window_size: app.window_size,
             current_time_label,
             world,
+            fov,
         }
     }
 
@@ -146,8 +150,9 @@ impl Game {
         self.assets.tileset.tile_size as f32 * self.world.borrow().game_view.zoom.as_view()
     }
 
-    fn make_world_tick(&mut self) {
-        for action in self.world.borrow_mut().tick() {
+    fn make_world_tick(&mut self, ctx: &mut Context) {
+        let mut world = self.world.borrow_mut();
+        for action in world.tick() {
             match action {
                 ActionResult::LogMessage(message) => {
                     self.log.log(message, Colors::WHITE_SMOKE);
@@ -157,18 +162,23 @@ impl Game {
                 }
             }
         }
+
+        self.current_time_label.borrow_mut().update(
+            format!("{}", world.meta.current_tick),
+            ctx,
+            self.window_size,
+        );
+        if world.fov_dirty {
+            self.fov = world.fov.clone();
+            world.fov_dirty = false;
+        }
     }
 }
 
 impl SceneImpl for Game {
     fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
         if self.world.borrow().player().action.is_some() {
-            self.make_world_tick();
-            self.current_time_label.borrow_mut().update(
-                format!("{}", self.world.borrow().meta.current_tick),
-                ctx,
-                self.window_size,
-            );
+            self.make_world_tick(ctx);
 
             None
         } else {
@@ -201,9 +211,12 @@ impl SceneImpl for Game {
             .tiles_between(left_top, right_bottom)
             .into_iter()
         {
+            if !self.fov.contains(&pos.into()) {
+                continue; // TODO: TileView struct for remembering tiles and optimizing drawing
+            }
             let dx = pos.x - center_tile.x;
             let dy = pos.y - center_tile.y;
-            let region = tile.terrain.region(&self.assets.tileset);
+            let terrain_region = tile.terrain.region(&self.assets.tileset);
             let params = DrawParams::new()
                 .position(Vec2::new(
                     center.x + dx as f32 * tile_size,
@@ -213,7 +226,7 @@ impl SceneImpl for Game {
             self.assets
                 .tileset
                 .texture
-                .draw_region(ctx, region, params.clone());
+                .draw_region(ctx, terrain_region, params.clone());
             if let Some(item) = tile.top_item() {
                 self.assets.tileset.texture.draw_region(
                     ctx,
@@ -232,6 +245,9 @@ impl SceneImpl for Game {
         for i in self.world.borrow().loaded_units.iter().copied() {
             let world = self.world.borrow();
             let unit = world.units.get(i).unwrap();
+            if !self.fov.contains(&unit.pos.into()) {
+                continue;
+            }
             let dx = unit.pos.x - center_tile.x;
             let dy = unit.pos.y - center_tile.y;
             let position = Vec2::new(

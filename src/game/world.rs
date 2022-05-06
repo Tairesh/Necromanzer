@@ -1,9 +1,11 @@
 #![allow(dead_code)]
 
 use assets::game_data::GameData;
+use fov::{field_of_view_set, FovMap};
 use game::actions::{owner_mut, Action, ActionResult};
 use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
+use geometry::point::Point;
 use map::chunk::Chunk;
 use map::item::ItemView;
 use map::pos::{ChunkPos, TilePos};
@@ -25,6 +27,8 @@ pub struct World {
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
     game_data: Rc<GameData>,
+    pub fov: HashSet<Point>,
+    pub fov_dirty: bool,
 }
 
 impl World {
@@ -45,14 +49,22 @@ impl World {
             chunks,
             changed,
             game_data,
+            fov: HashSet::default(),
+            fov_dirty: true,
         };
         world.load_units();
+        world.calc_fov();
         world
     }
 
     pub fn init(mut self) -> Self {
         self.kill_grass(self.player().pos, 13, 0.8);
         self
+    }
+
+    fn calc_fov(&mut self) {
+        self.fov = field_of_view_set(self.player().pos.into(), 64, self);
+        self.fov_dirty = true;
     }
 
     pub fn save(&mut self) {
@@ -154,11 +166,15 @@ impl World {
             }
         }
         self.load_tile_mut(pos).on_step(unit_id);
-        if old_chunk != pos.chunk_and_pos().0 {
+        if unit_id == 0 && old_chunk != pos.chunk_and_pos().0 {
             self.load_units();
+        }
+        if unit_id == 0 {
+            self.calc_fov();
         }
     }
 
+    // TODO: move this somewhere else
     pub fn this_is(&self, pos: TilePos, multiline: bool) -> String {
         if let Some(tile) = self.get_tile(pos) {
             let mut this_is = format!("This is the {}", tile.terrain.name());
@@ -298,6 +314,14 @@ impl World {
     }
 }
 
+impl FovMap for World {
+    fn is_transparent(&self, point: Point) -> bool {
+        self.get_tile(point.into())
+            .map(|t| t.terrain.is_transparent())
+            .unwrap_or(false)
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use super::World;
@@ -305,13 +329,15 @@ pub mod tests {
     use game::actions::{Action, ActionType};
     use game::Avatar;
     use geometry::direction::Direction;
+    use geometry::point::Point;
     use human::body::{Body, Freshness};
     use human::character::Character;
     use human::gender::Gender;
     use human::main_hand::MainHand;
     use human::skin_tone::SkinTone;
     use map::pos::TilePos;
-    use map::terrains::Dirt;
+    use map::terrain::TerrainView;
+    use map::terrains::{Boulder, BoulderSize, Dirt};
     use savefile::{GameView, Meta};
     use std::collections::HashMap;
     use std::rc::Rc;
@@ -370,5 +396,21 @@ pub mod tests {
         }
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(TilePos::new(2, 0), world.units.get(1).unwrap().pos)
+    }
+
+    #[test]
+    pub fn test_fov() {
+        let mut world = prepare_world();
+        assert!(world.fov.contains(&world.player().pos.into()));
+
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
+        world.load_tile_mut(TilePos::new(2, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
+        assert!(!world.load_tile(TilePos::new(2, 0)).terrain.is_transparent());
+        world.load_tile_mut(TilePos::new(3, 0));
+
+        world.move_avatar(0, Direction::East);
+        assert!(world.fov.contains(&Point::new(1, 0)));
+        assert!(world.fov.contains(&Point::new(2, 0)));
+        assert!(!world.fov.contains(&Point::new(3, 0)));
     }
 }

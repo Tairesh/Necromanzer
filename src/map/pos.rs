@@ -47,6 +47,12 @@ impl From<Point> for TilePos {
     }
 }
 
+impl From<TilePos> for Point {
+    fn from(p: TilePos) -> Self {
+        Self { x: p.x, y: p.y }
+    }
+}
+
 impl Add<Direction> for TilePos {
     type Output = TilePos;
 

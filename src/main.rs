@@ -15,6 +15,7 @@ mod app;
 mod assets;
 mod colors;
 mod enums;
+mod fov;
 mod game;
 mod geometry;
 mod human;
