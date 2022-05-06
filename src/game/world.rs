@@ -3,6 +3,8 @@
 use assets::game_data::GameData;
 use fov::{field_of_view_set, FovMap};
 use game::actions::{owner_mut, Action, ActionResult};
+use game::ai::brain::Brain;
+use game::avatar::Soul;
 use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use geometry::point::Point;
@@ -307,6 +309,21 @@ impl World {
             if let Some(action) = self.act() {
                 actions.push(action);
             }
+
+            let mut unit_wants_actions = HashMap::new();
+            for (unit_id, unit) in self.units.iter_mut().skip(1).enumerate() {
+                if unit.action.is_none() {
+                    if let Soul::Npc(brain) = &unit.soul {
+                        if let Some(action_type) = brain.get_action() {
+                            // +1 is because we skipped first one in enumeration
+                            unit_wants_actions.insert(unit_id + 1, action_type);
+                        }
+                    }
+                }
+            }
+            for (unit_id, typ) in unit_wants_actions.into_iter() {
+                self.units.get_mut(unit_id).unwrap().action = Action::new(unit_id, typ, self).ok();
+            }
             // self.kill_grass(self.player().pos, 13, 0.01);
         }
 
@@ -377,6 +394,7 @@ pub mod tests {
         let body = Body::human(&character, Freshness::Rotten);
         let zombie = Avatar::zombie(character, body, TilePos::new(1, 0));
         world.load_tile(TilePos::new(1, 0));
+        world.load_tile(TilePos::new(1, -1)); // TODO: autoload tiles when trying to move via AI system
         world.add_unit(zombie);
 
         assert_eq!(2, world.units.len());

@@ -3,6 +3,7 @@
 use assets::tileset::Tileset;
 use colors::Colors;
 use game::actions::Action;
+use game::ai::ZombieBrain;
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
 use human::body::{Body, Freshness};
@@ -15,9 +16,9 @@ use tetra::graphics::DrawParams;
 use tetra::Context;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub enum Brain {
+pub enum Soul {
     Player,
-    Zombie,
+    Npc(ZombieBrain), // TODO: it should be enum or Box<dyn Brain>
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -29,7 +30,7 @@ pub struct Avatar {
     pub vision: TwoDimDirection,
     pub wield: Vec<Item>, // TODO: custom struct with hands counter
     pub stamina: u8,
-    pub brain: Brain,
+    pub soul: Soul,
     // TODO: traits
     // TODO: skills
 }
@@ -39,18 +40,18 @@ impl Avatar {
         let mut body = Body::human(&character, Freshness::Fresh);
         body.wear.push(Cloak::new().into());
         body.wear.push(Hat::new().into());
-        Self::new(character, body, Brain::Player, pos)
+        Self::new(character, body, Soul::Player, pos)
     }
 
     pub fn zombie(character: Character, body: Body, pos: TilePos) -> Self {
-        Self::new(character, body, Brain::Zombie, pos)
+        Self::new(character, body, Soul::Npc(ZombieBrain {}), pos)
     }
 
-    pub fn new(character: Character, body: Body, brain: Brain, pos: TilePos) -> Self {
+    pub fn new(character: Character, body: Body, soul: Soul, pos: TilePos) -> Self {
         Avatar {
             body,
             character,
-            brain,
+            soul,
             pos,
             action: None,
             vision: TwoDimDirection::East,
@@ -60,9 +61,9 @@ impl Avatar {
     }
 
     pub fn name_for_actions(&self) -> String {
-        match self.brain {
-            Brain::Player => "You".to_string(),
-            Brain::Zombie => format!("Zombie {}", self.character.name),
+        match self.soul {
+            Soul::Player => "You".to_string(),
+            Soul::Npc(..) => format!("Zombie {}", self.character.name),
         }
     }
 
@@ -81,7 +82,7 @@ impl Avatar {
             position.x += 10.0 * zoom;
             Vec2::new(-zoom, zoom)
         };
-        if let Brain::Zombie = self.brain {
+        if let Soul::Npc(..) = self.soul {
             let freshness = self
                 .body
                 .parts

@@ -1,4 +1,5 @@
 export NECROMANZER_VERSION_POSTFIX=
+export RUST_BACKTRACE=1
 
 build:
 	cargo build --release

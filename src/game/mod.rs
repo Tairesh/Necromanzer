@@ -1,4 +1,5 @@
 pub mod actions;
+pub mod ai;
 mod avatar;
 mod log;
 mod world;
