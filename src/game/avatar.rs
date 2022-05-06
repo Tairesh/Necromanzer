@@ -18,7 +18,7 @@ use tetra::Context;
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum Soul {
     Player,
-    Npc(ZombieBrain), // TODO: it should be enum or Box<dyn Brain>
+    Zombie(ZombieBrain),
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -44,7 +44,7 @@ impl Avatar {
     }
 
     pub fn zombie(character: Character, body: Body, pos: TilePos) -> Self {
-        Self::new(character, body, Soul::Npc(ZombieBrain {}), pos)
+        Self::new(character, body, Soul::Zombie(ZombieBrain {}), pos)
     }
 
     pub fn new(character: Character, body: Body, soul: Soul, pos: TilePos) -> Self {
@@ -63,7 +63,7 @@ impl Avatar {
     pub fn name_for_actions(&self) -> String {
         match self.soul {
             Soul::Player => "You".to_string(),
-            Soul::Npc(..) => format!("Zombie {}", self.character.name),
+            Soul::Zombie(..) => format!("Zombie {}", self.character.name),
         }
     }
 
@@ -82,7 +82,7 @@ impl Avatar {
             position.x += 10.0 * zoom;
             Vec2::new(-zoom, zoom)
         };
-        if let Soul::Npc(..) = self.soul {
+        if let Soul::Zombie(..) = self.soul {
             let freshness = self
                 .body
                 .parts

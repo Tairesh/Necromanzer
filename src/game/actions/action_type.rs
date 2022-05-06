@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use game::actions::action::owner;
+use game::avatar::Soul;
 use game::World;
 use geometry::direction::Direction;
 use map::item::{Item, ItemInteract, ItemTag};
@@ -32,9 +33,13 @@ impl ActionType {
             ActionType::SkippingTime => 1,
             ActionType::Walking(dir) => {
                 // TODO: check avatar perks for calculating speed
+                let k = match owner(owner_id, world).soul {
+                    Soul::Zombie(..) => 0.75,
+                    _ => 1.0,
+                };
                 let pos = owner(owner_id, world).pos + dir;
                 match world.get_tile(pos).unwrap().terrain.passage() {
-                    Passage::Passable(length) => length.round() as u32,
+                    Passage::Passable(length) => (length * k).round() as u32,
                     Passage::Unpassable => 0,
                 }
             }

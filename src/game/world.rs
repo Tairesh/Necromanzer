@@ -313,7 +313,7 @@ impl World {
             let mut unit_wants_actions = HashMap::new();
             for (unit_id, unit) in self.units.iter_mut().skip(1).enumerate() {
                 if unit.action.is_none() {
-                    if let Soul::Npc(brain) = &unit.soul {
+                    if let Soul::Zombie(brain) = &unit.soul {
                         if let Some(action_type) = brain.get_action() {
                             // +1 is because we skipped first one in enumeration
                             unit_wants_actions.insert(unit_id + 1, action_type);
