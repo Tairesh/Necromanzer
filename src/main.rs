@@ -4,6 +4,7 @@ extern crate arrayvec;
 extern crate core;
 extern crate enum_dispatch;
 extern crate num_enum;
+extern crate phf;
 extern crate rand;
 extern crate serde;
 extern crate serde_json;

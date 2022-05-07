@@ -86,8 +86,8 @@ impl Settings {
         )));
         let repeat_interval_minus = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.minus,
-            app.assets.tileset.texture.clone(),
+            "minus",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 0.0 },
@@ -107,8 +107,8 @@ impl Settings {
         )));
         let repeat_interval_plus = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.plus,
-            app.assets.tileset.texture.clone(),
+            "plus",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 200.0 },

@@ -33,6 +33,7 @@ impl ActionType {
             ActionType::SkippingTime => 1,
             ActionType::Walking(dir) => {
                 // TODO: check avatar perks for calculating speed
+                // TODO: add sqrt(2) for diagonal movement
                 let k = match owner(owner_id, world).soul {
                     Soul::Zombie(..) => 0.75,
                     _ => 1.0,

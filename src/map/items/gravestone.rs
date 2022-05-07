@@ -1,7 +1,5 @@
-use assets::tileset::Tileset;
 use map::item::{ItemInteract, ItemView};
 use map::terrains::GraveData;
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Gravestone {
@@ -19,8 +17,8 @@ impl ItemView for Gravestone {
         "gravestone".to_string()
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
-        tileset.grave_stone
+    fn looks_like(&self) -> &'static str {
+        "grave_stone"
     }
 }
 

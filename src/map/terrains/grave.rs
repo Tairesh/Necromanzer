@@ -1,4 +1,3 @@
-use assets::tileset::Tileset;
 use human::body::{Body, Freshness};
 use human::character::Character;
 use map::item::Item;
@@ -8,7 +7,6 @@ use map::terrain::{Terrain, TerrainInteract, TerrainView};
 use map::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Grave {
@@ -32,10 +30,10 @@ impl TerrainView for Grave {
         }
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
+    fn looks_like(&self) -> &'static str {
         match self.variant {
-            GraveVariant::New => tileset.grave_new,
-            GraveVariant::Old => tileset.grave_old,
+            GraveVariant::New => "grave_new",
+            GraveVariant::Old => "grave_old",
         }
     }
 

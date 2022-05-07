@@ -14,3 +14,5 @@ pub mod sprite;
 
 pub type BunchOfSprites = Vec<Rc<RefCell<dyn Sprite>>>;
 pub type SomeSprites<'a> = Option<&'a BunchOfSprites>;
+
+// TODO: rename sprites to UI

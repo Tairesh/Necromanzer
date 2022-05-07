@@ -1,6 +1,4 @@
-use assets::tileset::Tileset;
 use map::item::{ItemInteract, ItemView};
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Cloak {}
@@ -22,8 +20,8 @@ impl ItemView for Cloak {
         "cloak".to_string()
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
-        tileset.cloak
+    fn looks_like(&self) -> &'static str {
+        "cloak"
     }
 }
 

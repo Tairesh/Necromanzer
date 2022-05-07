@@ -7,20 +7,21 @@ use crate::sprites::position::Position;
 use crate::sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Update};
 use assets::button::Button as ButtonAsset;
 use assets::prepared_font::PreparedFont;
+use assets::tileset::Tileset;
 use geometry::{Rect, Vec2};
 use input::KeyWithMod;
 use std::rc::Rc;
 use tetra::graphics::text::Text;
-use tetra::graphics::{DrawParams, Rectangle, Texture};
+use tetra::graphics::DrawParams;
 use tetra::input::MouseButton;
 use tetra::Context;
 
 enum ButtonContent {
     Text(Text, f32),
     Icon {
-        region: Rectangle,
+        name: &'static str,
         scale: Vec2,
-        tileset: Texture,
+        tileset: Rc<Tileset>,
     },
     Empty(Vec2),
 }
@@ -129,8 +130,8 @@ impl Button {
 
     pub fn icon(
         keys: Vec<KeyWithMod>,
-        region: Rectangle,
-        tileset: Texture,
+        name: &'static str,
+        tileset: Rc<Tileset>,
         asset: Rc<ButtonAsset>,
         position: Position,
         on_click: Transition,
@@ -138,7 +139,7 @@ impl Button {
         Self::new(
             keys,
             ButtonContent::Icon {
-                region,
+                name,
                 scale: Vec2::new(3.0, 3.0),
                 tileset,
             },
@@ -168,9 +169,10 @@ impl Button {
                 .map(|b| Vec2::new(b.width, *height))
                 .unwrap(),
             ButtonContent::Empty(size) => *size,
-            ButtonContent::Icon { region, scale, .. } => {
-                Vec2::new(region.width * scale.x, region.height * scale.y)
-            }
+            ButtonContent::Icon { scale, tileset, .. } => Vec2::new(
+                tileset.tile_size as f32 * scale.x,
+                tileset.tile_size as f32 * scale.y,
+            ),
         }
     }
 
@@ -219,12 +221,12 @@ impl Draw for Button {
                 );
             }
             ButtonContent::Icon {
-                region,
+                name,
                 scale,
                 tileset,
             } => {
                 vec.y -= 1.0;
-                tileset.draw_region(ctx, *region, DrawParams::new().position(vec).scale(*scale));
+                tileset.draw_region(ctx, name, DrawParams::new().position(vec).scale(*scale));
             }
             ButtonContent::Empty(_) => {}
         }

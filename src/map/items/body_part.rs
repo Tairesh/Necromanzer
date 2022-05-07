@@ -1,7 +1,5 @@
-use assets::tileset::Tileset;
 use human::body::{BodyPartData, Freshness};
 use map::item::{ItemInteract, ItemView};
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct BodyPart {
@@ -47,8 +45,8 @@ impl ItemView for BodyPart {
         format!("{} {} {}", adjective, self.data.age_name(with_gender), name)
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
-        tileset.flesh
+    fn looks_like(&self) -> &'static str {
+        "flesh"
     }
 }
 

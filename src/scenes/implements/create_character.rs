@@ -105,8 +105,8 @@ impl CreateCharacter {
         )));
         let gender_left = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.lt,
-            app.assets.tileset.texture.clone(),
+            "lt",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -129,8 +129,8 @@ impl CreateCharacter {
         )));
         let gender_right = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.mt,
-            app.assets.tileset.texture.clone(),
+            "mt",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -149,8 +149,8 @@ impl CreateCharacter {
         )));
         let age_minus = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.minus,
-            app.assets.tileset.texture.clone(),
+            "minus",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -170,8 +170,8 @@ impl CreateCharacter {
         )));
         let age_plus = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.plus,
-            app.assets.tileset.texture.clone(),
+            "plus",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
@@ -190,8 +190,8 @@ impl CreateCharacter {
         )));
         let hand_left = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.lt,
-            app.assets.tileset.texture.clone(),
+            "lt",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
@@ -210,8 +210,8 @@ impl CreateCharacter {
         )));
         let hand_right = Rc::new(RefCell::new(Button::icon(
             vec![],
-            app.assets.tileset.mt,
-            app.assets.tileset.texture.clone(),
+            "mt",
+            app.assets.tileset.clone(),
             app.assets.button.clone(),
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },

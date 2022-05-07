@@ -1,11 +1,9 @@
-use assets::tileset::Tileset;
 use map::item::Item;
 use map::passage::Passage;
 use map::terrain::{Terrain, TerrainInteract, TerrainView};
 use map::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Dirt {
@@ -33,13 +31,13 @@ impl TerrainView for Dirt {
         }
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
+    fn looks_like(&self) -> &'static str {
         match self.variant {
-            DirtVariant::LotOfChunks => tileset.dirt1,
-            DirtVariant::SomeChunks => tileset.dirt2,
-            DirtVariant::Flat => tileset.dirt3,
-            DirtVariant::LittleChunks => tileset.dirt4,
-            DirtVariant::AlmostNoChunks => tileset.dirt5,
+            DirtVariant::LotOfChunks => "dirt1",
+            DirtVariant::SomeChunks => "dirt2",
+            DirtVariant::Flat => "dirt3",
+            DirtVariant::LittleChunks => "dirt4",
+            DirtVariant::AlmostNoChunks => "dirt5",
         }
     }
 

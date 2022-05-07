@@ -1,11 +1,9 @@
-use assets::tileset::Tileset;
 use map::item::Item;
 use map::passage::Passage;
 use map::terrain::{Terrain, TerrainInteract, TerrainView};
 use map::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Grass {
@@ -68,36 +66,36 @@ impl TerrainView for Grass {
         }
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
+    fn looks_like(&self) -> &'static str {
         match self.variant {
-            GrassVariant::Grass1 => tileset.grass1,
-            GrassVariant::Grass2 => tileset.grass2,
-            GrassVariant::Grass3 => tileset.grass3,
-            GrassVariant::Grass4 => tileset.grass4,
-            GrassVariant::Grass5 => tileset.grass5,
-            GrassVariant::Grass6 => tileset.grass6,
-            GrassVariant::Grass7 => tileset.grass7,
-            GrassVariant::Grass8 => tileset.grass8,
-            GrassVariant::Grass9 => tileset.grass9,
-            GrassVariant::Grass10 => tileset.grass10,
-            GrassVariant::Grass11 => tileset.grass11,
-            GrassVariant::Grass12 => tileset.grass12,
-            GrassVariant::Grass13 => tileset.grass13,
-            GrassVariant::Grass14 => tileset.grass14,
-            GrassVariant::DeadGrass1 => tileset.dead_grass1,
-            GrassVariant::DeadGrass2 => tileset.dead_grass2,
-            GrassVariant::DeadGrass3 => tileset.dead_grass3,
-            GrassVariant::DeadGrass4 => tileset.dead_grass4,
-            GrassVariant::DeadGrass5 => tileset.dead_grass5,
-            GrassVariant::DeadGrass6 => tileset.dead_grass6,
-            GrassVariant::DeadGrass7 => tileset.dead_grass7,
-            GrassVariant::DeadGrass8 => tileset.dead_grass8,
-            GrassVariant::DeadGrass9 => tileset.dead_grass9,
-            GrassVariant::DeadGrass10 => tileset.dead_grass10,
-            GrassVariant::DeadGrass11 => tileset.dead_grass11,
-            GrassVariant::DeadGrass12 => tileset.dead_grass12,
-            GrassVariant::DeadGrass13 => tileset.dead_grass13,
-            GrassVariant::DeadGrass14 => tileset.dead_grass14,
+            GrassVariant::Grass1 => "grass1",
+            GrassVariant::Grass2 => "grass2",
+            GrassVariant::Grass3 => "grass3",
+            GrassVariant::Grass4 => "grass4",
+            GrassVariant::Grass5 => "grass5",
+            GrassVariant::Grass6 => "grass6",
+            GrassVariant::Grass7 => "grass7",
+            GrassVariant::Grass8 => "grass8",
+            GrassVariant::Grass9 => "grass9",
+            GrassVariant::Grass10 => "grass10",
+            GrassVariant::Grass11 => "grass11",
+            GrassVariant::Grass12 => "grass12",
+            GrassVariant::Grass13 => "grass13",
+            GrassVariant::Grass14 => "grass14",
+            GrassVariant::DeadGrass1 => "dead_grass1",
+            GrassVariant::DeadGrass2 => "dead_grass2",
+            GrassVariant::DeadGrass3 => "dead_grass3",
+            GrassVariant::DeadGrass4 => "dead_grass4",
+            GrassVariant::DeadGrass5 => "dead_grass5",
+            GrassVariant::DeadGrass6 => "dead_grass6",
+            GrassVariant::DeadGrass7 => "dead_grass7",
+            GrassVariant::DeadGrass8 => "dead_grass8",
+            GrassVariant::DeadGrass9 => "dead_grass9",
+            GrassVariant::DeadGrass10 => "dead_grass10",
+            GrassVariant::DeadGrass11 => "dead_grass11",
+            GrassVariant::DeadGrass12 => "dead_grass12",
+            GrassVariant::DeadGrass13 => "dead_grass13",
+            GrassVariant::DeadGrass14 => "dead_grass14",
         }
     }
 

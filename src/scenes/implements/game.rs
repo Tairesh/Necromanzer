@@ -216,7 +216,6 @@ impl SceneImpl for Game {
             }
             let dx = pos.x - center_tile.x;
             let dy = pos.y - center_tile.y;
-            let terrain_region = tile.terrain.region(&self.assets.tileset);
             let params = DrawParams::new()
                 .position(Vec2::new(
                     center.x + dx as f32 * tile_size,
@@ -225,20 +224,13 @@ impl SceneImpl for Game {
                 .scale(scale);
             self.assets
                 .tileset
-                .texture
-                .draw_region(ctx, terrain_region, params.clone());
+                .draw_region(ctx, tile.terrain.looks_like(), params.clone());
             if let Some(item) = tile.top_item() {
-                self.assets.tileset.texture.draw_region(
-                    ctx,
-                    item.region(&self.assets.tileset),
-                    params.clone(),
-                );
-                if tile.items.len() > 1 || (!tile.items.is_empty() && !tile.units.is_empty()) {
-                    self.assets.tileset.texture.draw_region(
-                        ctx,
-                        self.assets.tileset.highlight,
-                        params,
-                    );
+                self.assets
+                    .tileset
+                    .draw_region(ctx, item.looks_like(), params.clone());
+                if tile.items.len() > 1 {
+                    self.assets.tileset.draw_region(ctx, "highlight", params);
                 }
             }
         }

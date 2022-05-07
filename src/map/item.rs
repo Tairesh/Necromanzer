@@ -1,11 +1,9 @@
 use super::items::*;
-use assets::tileset::Tileset;
 use enum_dispatch::enum_dispatch;
 use game::Avatar;
 use human::main_hand::MainHand;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use tetra::graphics::Rectangle;
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -25,7 +23,7 @@ pub enum Item {
 #[enum_dispatch(Item)]
 pub trait ItemView {
     fn name(&self) -> String;
-    fn region(&self, tileset: &Tileset) -> Rectangle;
+    fn looks_like(&self) -> &'static str;
 }
 
 #[enum_dispatch(Item)]

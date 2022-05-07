@@ -21,3 +21,6 @@ test:
 
 clippy:
 	cargo clippy -- -Dwarnings --verbose
+
+clean:
+	cargo clean

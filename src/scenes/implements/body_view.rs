@@ -87,7 +87,7 @@ impl BodyView {
                 Some(i),
                 app.assets.fonts.default2.clone(),
                 Colors::LIGHT_GRAY,
-                &app.assets.tileset,
+                app.assets.tileset.clone(),
                 Vec2::new(2.0, 2.0),
                 Position::by_right_top(-20.0, 60.0 + y as f32),
             );

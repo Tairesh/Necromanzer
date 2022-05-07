@@ -1,10 +1,8 @@
 use super::terrains::*;
-use assets::tileset::Tileset;
 use enum_dispatch::enum_dispatch;
 use map::item::Item;
 use map::passage::Passage;
 use serde::{Deserialize, Serialize};
-use tetra::graphics::Rectangle;
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -20,7 +18,7 @@ pub enum Terrain {
 #[enum_dispatch(Terrain)]
 pub trait TerrainView {
     fn name(&self) -> &str; // TODO: probably use String
-    fn region(&self, tileset: &Tileset) -> Rectangle;
+    fn looks_like(&self) -> &'static str;
     fn is_transparent(&self) -> bool; // for FOV
 }
 

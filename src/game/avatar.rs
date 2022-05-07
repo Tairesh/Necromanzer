@@ -23,7 +23,7 @@ pub enum Soul {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
-    pub character: Character,
+    pub character: Character, // TODO: move this into Soul struct
     pub body: Body,
     pub pos: TilePos,
     pub action: Option<Action>,
@@ -95,35 +95,35 @@ impl Avatar {
                     }
                 })
                 .unwrap_or(Freshness::Rotten);
-            let (region, color) = match freshness {
+            let (name, color) = match freshness {
                 Freshness::Fresh => (
                     if self.character.age > 15 {
-                        tileset.raw_zombie
+                        "raw_zombie"
                     } else {
-                        tileset.raw_zombie_child
+                        "raw_zombie_child"
                     },
                     self.character.skin_tone.into(),
                 ),
                 Freshness::Rotten => (
                     if self.character.age > 15 {
-                        tileset.zombie
+                        "zombie"
                     } else {
-                        tileset.zombie_child
+                        "zombie_child"
                     },
                     Colors::WHITE,
                 ),
                 Freshness::Skeletal => (
                     if self.character.age > 15 {
-                        tileset.skeleton
+                        "skeleton"
                     } else {
-                        tileset.skeleton_child
+                        "skeleton_child"
                     },
                     Colors::WARM_IVORY,
                 ),
             };
-            tileset.texture.draw_region(
+            tileset.draw_region(
                 ctx,
-                region,
+                name,
                 DrawParams::new()
                     .position(position)
                     .scale(scale)
@@ -131,12 +131,12 @@ impl Avatar {
             );
         } else {
             // TODO: draw wear
-            tileset.texture.draw_region(
+            tileset.draw_region(
                 ctx,
                 match self.character.gender {
-                    Gender::Female => tileset.female,
-                    Gender::Male => tileset.male,
-                    Gender::Custom(_) => tileset.queer,
+                    Gender::Female => "female",
+                    Gender::Male => "male",
+                    Gender::Custom(_) => "queer",
                 },
                 DrawParams::new()
                     .position(position)
@@ -150,9 +150,9 @@ impl Avatar {
             } else {
                 Vec2::new(-15.0 * zoom, 10.0 * zoom)
             };
-            tileset.texture.draw_region(
+            tileset.draw_region(
                 ctx,
-                item.region(tileset),
+                item.looks_like(),
                 DrawParams::new()
                     .position(position + offset)
                     .scale(scale * -1.0),

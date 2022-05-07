@@ -1,8 +1,6 @@
-use assets::tileset::Tileset;
 use human::body::Body;
 use human::character::Character;
 use map::item::{Item, ItemInteract, ItemView};
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Corpse {
@@ -35,8 +33,8 @@ impl ItemView for Corpse {
         format!("{} {} corpse", adjectives.join(" "), age_name)
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
-        tileset.corpse
+    fn looks_like(&self) -> &'static str {
+        "corpse"
     }
 }
 

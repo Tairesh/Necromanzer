@@ -1,7 +1,5 @@
-use assets::tileset::Tileset;
 use map::item::{ItemInteract, ItemTag, ItemView};
 use std::collections::HashSet;
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Shovel {}
@@ -23,8 +21,8 @@ impl ItemView for Shovel {
         "shovel".to_string()
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
-        tileset.shovel
+    fn looks_like(&self) -> &'static str {
+        "shovel"
     }
 }
 

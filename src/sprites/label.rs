@@ -1,12 +1,14 @@
 #![allow(dead_code)]
+
 use crate::assets::prepared_font::PreparedFont;
 use crate::sprites::position::Position;
 use crate::sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
 use assets::tileset::Tileset;
 use geometry::{Rect, Vec2};
 use map::item::{Item, ItemView};
+use std::rc::Rc;
 use tetra::graphics::text::Text;
-use tetra::graphics::{Color, DrawParams, Rectangle, Texture};
+use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
 
 pub struct Label {
@@ -127,8 +129,8 @@ pub struct ItemDisplay {
     text: Text,
     color: Color,
     icon: bool,
-    tileset: Texture,
-    region: Rectangle,
+    tileset: Rc<Tileset>,
+    looks_like: &'static str,
     scale: Vec2,
     position: Position,
     rect: Option<Rect>,
@@ -140,21 +142,21 @@ impl ItemDisplay {
         item: Option<&Item>,
         font: PreparedFont,
         color: Color,
-        tileset: &Tileset,
+        tileset: Rc<Tileset>,
         scale: Vec2,
         position: Position,
     ) -> Self {
-        let (name, region) = if let Some(item) = item {
-            (item.name(), item.region(tileset))
+        let (name, looks_like) = if let Some(item) = item {
+            (item.name(), item.looks_like())
         } else {
-            ("(empty)".to_string(), Rectangle::default())
+            ("(empty)".to_string(), "")
         };
         Self {
             text: Text::new(name, font.font),
             color,
             icon: item.is_some(),
-            tileset: tileset.texture.clone(),
-            region,
+            tileset,
+            looks_like,
             scale,
             position,
             rect: None,
@@ -162,22 +164,16 @@ impl ItemDisplay {
         }
     }
 
-    pub fn set_item(
-        &mut self,
-        item: Option<&Item>,
-        ctx: &mut Context,
-        tileset: &Tileset,
-        window_size: (i32, i32),
-    ) {
-        let (name, region) = if let Some(item) = item {
-            (item.name(), Some(item.region(tileset)))
+    pub fn set_item(&mut self, item: Option<&Item>, ctx: &mut Context, window_size: (i32, i32)) {
+        let (name, looks_like) = if let Some(item) = item {
+            (item.name(), Some(item.looks_like()))
         } else {
             ("(empty)".to_string(), None)
         };
-        if name != self.text.content() || region.is_some() != self.icon {
-            if let Some(region) = region {
+        if name != self.text.content() || looks_like.is_some() != self.icon {
+            if let Some(looks_like) = looks_like {
                 self.icon = true;
-                self.region = region;
+                self.looks_like = looks_like;
             } else {
                 self.icon = false;
             }
@@ -193,12 +189,15 @@ impl Draw for ItemDisplay {
         let text_pos = if self.icon {
             self.tileset.draw_region(
                 ctx,
-                self.region,
+                self.looks_like,
                 DrawParams::new()
                     .position(Vec2::new(rect.x, rect.y))
                     .scale(self.scale),
             );
-            Vec2::new(rect.x + self.region.width * self.scale.x + 5.0, rect.y)
+            Vec2::new(
+                rect.x + self.tileset.tile_size as f32 * self.scale.x + 5.0,
+                rect.y,
+            )
         } else {
             Vec2::new(rect.x, rect.y)
         };
@@ -228,7 +227,7 @@ impl Positionate for ItemDisplay {
         let rect = self.text.get_bounds(ctx).unwrap();
         if self.icon {
             Vec2::new(
-                self.region.width * self.scale.x + 5.0 + rect.width,
+                self.tileset.tile_size as f32 * self.scale.x + 5.0 + rect.width,
                 rect.height,
             )
         } else {

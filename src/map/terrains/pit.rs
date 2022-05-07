@@ -1,7 +1,5 @@
-use assets::tileset::Tileset;
 use map::passage::Passage;
 use map::terrain::{TerrainInteract, TerrainView};
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Pit {}
@@ -23,8 +21,8 @@ impl TerrainView for Pit {
         "pit"
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
-        tileset.pit
+    fn looks_like(&self) -> &'static str {
+        "pit"
     }
 
     fn is_transparent(&self) -> bool {

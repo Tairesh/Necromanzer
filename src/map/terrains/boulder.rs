@@ -1,9 +1,7 @@
-use assets::tileset::Tileset;
 use map::passage::Passage;
 use map::terrain::{TerrainInteract, TerrainView};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
-use tetra::graphics::Rectangle;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Boulder {
@@ -27,11 +25,11 @@ impl TerrainView for Boulder {
         }
     }
 
-    fn region(&self, tileset: &Tileset) -> Rectangle {
+    fn looks_like(&self) -> &'static str {
         match self.size {
-            BoulderSize::Huge => tileset.boulder_huge,
-            BoulderSize::Middle => tileset.boulder_middle,
-            BoulderSize::Small => tileset.boulder_small,
+            BoulderSize::Huge => "boulder_huge",
+            BoulderSize::Middle => "boulder_middle",
+            BoulderSize::Small => "boulder_small",
         }
     }
 
