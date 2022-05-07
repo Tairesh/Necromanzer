@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 use crate::scenes::transition::Transition;
-use crate::sprites::position::Position;
-use crate::sprites::sprite::{Draw, Positionate, Sprite, Update};
+use crate::ui::position::Position;
+use crate::ui::sprite::{Draw, Positionate, Sprite, Update};
 use assets::alert::Alert as AlertAsset;
 use geometry::{Rect, Vec2};
 use std::rc::Rc;

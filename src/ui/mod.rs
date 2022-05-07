@@ -1,6 +1,6 @@
-use sprites::sprite::Sprite;
 use std::cell::RefCell;
 use std::rc::Rc;
+use ui::sprite::Sprite;
 
 pub mod alert;
 pub mod bg;
@@ -14,5 +14,3 @@ pub mod sprite;
 
 pub type BunchOfSprites = Vec<Rc<RefCell<dyn Sprite>>>;
 pub type SomeSprites<'a> = Option<&'a BunchOfSprites>;
-
-// TODO: rename sprites to UI

@@ -5,16 +5,16 @@ use scenes::bg;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::Transition;
-use sprites::button::Button;
-use sprites::image::Image;
-use sprites::label::Label;
-use sprites::position::{Position, Vertical};
-use sprites::sprite::Disable;
-use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
 use tetra::Context;
+use ui::button::Button;
+use ui::image::Image;
+use ui::label::Label;
+use ui::position::{Position, Vertical};
+use ui::sprite::Disable;
+use ui::{BunchOfSprites, SomeSprites};
 use VERSION;
 
 pub struct MainMenu {

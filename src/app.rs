@@ -6,14 +6,14 @@ use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
-use sprites::label::Label;
-use sprites::position::Position;
-use sprites::sprite::{Draw, Positionate, Stringify};
 use std::cell::RefCell;
 use std::path::Path;
 use std::rc::Rc;
 use tetra::input::Key;
 use tetra::{window, Context, Event, State};
+use ui::label::Label;
+use ui::position::Position;
+use ui::sprite::{Draw, Positionate, Stringify};
 
 pub struct App {
     pub assets: Rc<Assets>,

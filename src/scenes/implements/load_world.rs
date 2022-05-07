@@ -6,13 +6,6 @@ use scenes::easy_back;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use sprites::alert::Alert;
-use sprites::button::Button;
-use sprites::label::Label;
-use sprites::meshy::HoverableMesh;
-use sprites::position::{Horizontal, Position, Vertical};
-use sprites::sprite::Positionate;
-use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -22,6 +15,13 @@ use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 use time::format_description::FormatItem;
 use time::OffsetDateTime;
+use ui::alert::Alert;
+use ui::button::Button;
+use ui::label::Label;
+use ui::meshy::HoverableMesh;
+use ui::position::{Horizontal, Position, Vertical};
+use ui::sprite::Positionate;
+use ui::{BunchOfSprites, SomeSprites};
 use {savefile, VERSION};
 
 const KEYS: [Key; 10] = [

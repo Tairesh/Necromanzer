@@ -1,6 +1,6 @@
 use scenes::transition::SomeTransitions;
-use sprites::SomeSprites;
 use tetra::{Context, Event};
+use ui::SomeSprites;
 
 pub trait SceneImpl {
     fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {

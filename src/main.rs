@@ -15,7 +15,7 @@ extern crate variant_count;
 mod app;
 mod assets;
 mod colors;
-mod enums;
+mod enums_iter;
 mod fov;
 mod game;
 mod geometry;
@@ -25,7 +25,7 @@ mod map;
 mod savefile;
 mod scenes;
 mod settings;
-mod sprites;
+mod ui;
 mod window;
 
 const NAME: &str = "NecromanZer";

@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::enums;
+use crate::enums_iter;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
@@ -24,11 +24,11 @@ impl MainHand {
     }
 
     pub fn next(self) -> Self {
-        enums::next(self)
+        enums_iter::next(self)
     }
 
     pub fn prev(self) -> Self {
-        enums::prev(self, 2)
+        enums_iter::prev(self, 2)
     }
 }
 

@@ -3,8 +3,8 @@
 use crate::colors::Colors;
 use crate::input;
 use crate::scenes::transition::Transition;
-use crate::sprites::position::Position;
-use crate::sprites::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Update};
+use crate::ui::position::Position;
+use crate::ui::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Update};
 use assets::button::Button as ButtonAsset;
 use assets::prepared_font::PreparedFont;
 use assets::tileset::Tileset;

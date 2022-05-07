@@ -7,17 +7,17 @@ use map::item::{Item, ItemView};
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use scenes::{back_btn, easy_back};
-use sprites::alert::Alert;
-use sprites::label::{ItemDisplay, Label};
-use sprites::meshy::HoverableMesh;
-use sprites::position::{Horizontal, Position, Vertical};
-use sprites::sprite::Positionate;
-use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::Rectangle;
 use tetra::{Context, Event};
+use ui::alert::Alert;
+use ui::label::{ItemDisplay, Label};
+use ui::meshy::HoverableMesh;
+use ui::position::{Horizontal, Position, Vertical};
+use ui::sprite::Positionate;
+use ui::{BunchOfSprites, SomeSprites};
 
 pub struct BodyView {
     sprites: BunchOfSprites,

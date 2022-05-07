@@ -7,15 +7,15 @@ use input;
 use scenes::game_modes::update_result::UpdateResult;
 use scenes::game_modes::{GameModeImpl, SomeResults};
 use scenes::implements::Game;
-use sprites::label::Label;
-use sprites::meshy::JustMesh;
-use sprites::position::Position;
-use sprites::sprite::{Draw, Positionate, Stringify};
 use std::time::Instant;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{Color, Rectangle};
 use tetra::input::{Key, KeyModifier};
 use tetra::Context;
+use ui::label::Label;
+use ui::meshy::JustMesh;
+use ui::position::Position;
+use ui::sprite::{Draw, Positionate, Stringify};
 
 struct ObservingSprite {
     pub label: Label,

@@ -14,12 +14,6 @@ use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
-use sprites::button::Button;
-use sprites::input::TextInput;
-use sprites::label::Label;
-use sprites::position::{Horizontal, Position, Vertical};
-use sprites::sprite::{Draw, Positionate, Stringify};
-use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -27,6 +21,12 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
+use ui::button::Button;
+use ui::input::TextInput;
+use ui::label::Label;
+use ui::position::{Horizontal, Position, Vertical};
+use ui::sprite::{Draw, Positionate, Stringify};
+use ui::{BunchOfSprites, SomeSprites};
 use variant_count::VariantCount;
 
 #[derive(IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone)]

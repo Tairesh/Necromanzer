@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 use crate::assets::prepared_font::PreparedFont;
-use crate::sprites::position::Position;
-use crate::sprites::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
+use crate::ui::position::Position;
+use crate::ui::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
 use assets::tileset::Tileset;
 use geometry::{Rect, Vec2};
 use map::item::{Item, ItemView};

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-use crate::sprites::position::Position;
-use crate::sprites::sprite::{Draw, Positionate, Sprite, Update};
+use crate::ui::position::Position;
+use crate::ui::sprite::{Draw, Positionate, Sprite, Update};
 use geometry::{Rect, Vec2};
 use tetra::graphics::Color;
 use tetra::{graphics, Context};

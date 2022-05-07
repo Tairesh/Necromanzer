@@ -2,13 +2,13 @@ use app::App;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::Transition;
-use sprites::alert::Alert;
-use sprites::button::Button;
-use sprites::position::{Horizontal, Position, Vertical};
-use sprites::{BunchOfSprites, SomeSprites};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tetra::input::Key;
+use ui::alert::Alert;
+use ui::button::Button;
+use ui::position::{Horizontal, Position, Vertical};
+use ui::{BunchOfSprites, SomeSprites};
 
 pub struct GameMenu {
     sprites: BunchOfSprites,

@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::scenes::transition::Transition;
-use crate::sprites::position::Position;
-use crate::sprites::sprite::{Colorize, Draw, Hover, Positionate, Sprite, Update};
+use crate::ui::position::Position;
+use crate::ui::sprite::{Colorize, Draw, Hover, Positionate, Sprite, Update};
 use geometry::{Rect, Vec2};
 use tetra::graphics::mesh::Mesh;
 use tetra::graphics::{Color, DrawParams};
