@@ -1,33 +1,33 @@
-use map::item::{ItemInteract, ItemView};
+use super::super::item::{ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub struct Hat {}
+pub struct Cloak {}
 
-impl Hat {
+impl Cloak {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl Default for Hat {
+impl Default for Cloak {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl ItemView for Hat {
+impl ItemView for Cloak {
     fn name(&self) -> String {
-        "hat".to_string()
+        "cloak".to_string()
     }
 
     fn looks_like(&self) -> &'static str {
-        "hat"
+        "cloak"
     }
 }
 
-impl ItemInteract for Hat {
+impl ItemInteract for Cloak {
     fn mass(&self) -> u32 {
-        100
+        300
     }
 
     fn is_wearable(&self) -> bool {

@@ -1,5 +1,5 @@
-use human::body::{BodyPartData, Freshness};
-use map::item::{ItemInteract, ItemView};
+use super::super::super::human::body::{BodyPartData, Freshness};
+use super::super::item::{ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct BodyPart {

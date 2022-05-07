@@ -1,6 +1,6 @@
-use human::body::Body;
-use human::character::Character;
-use map::item::{Item, ItemInteract, ItemView};
+use super::super::super::human::body::Body;
+use super::super::super::human::character::Character;
+use super::super::item::{Item, ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Corpse {

@@ -2,11 +2,11 @@
 
 use game::actions::action::owner;
 use game::avatar::Soul;
+use game::map::item::{Item, ItemInteract, ItemTag};
+use game::map::passage::Passage;
+use game::map::terrain::{Terrain, TerrainInteract, TerrainView};
 use game::World;
 use geometry::direction::Direction;
-use map::item::{Item, ItemInteract, ItemTag};
-use map::passage::Passage;
-use map::terrain::{Terrain, TerrainInteract, TerrainView};
 
 pub enum ActionPossibility {
     Yes,
@@ -184,19 +184,19 @@ impl ActionType {
 
 #[cfg(test)]
 mod tests {
-    use game::actions::{Action, ActionResult, ActionType};
-    use game::world::tests::prepare_world;
+    use super::super::super::human::body::{BodyPartData, Freshness};
+    use super::super::super::human::character::Character;
+    use super::super::super::human::gender::Gender;
+    use super::super::super::human::main_hand::MainHand;
+    use super::super::super::human::skin_tone::SkinTone;
+    use super::super::super::map::item::Item;
+    use super::super::super::map::items::{Axe, BodyPart, Gravestone, Shovel};
+    use super::super::super::map::pos::TilePos;
+    use super::super::super::map::terrain::Terrain;
+    use super::super::super::map::terrains::{Dirt, Grave, GraveData, GraveVariant};
+    use super::super::super::world::tests::prepare_world;
+    use super::super::{Action, ActionResult, ActionType};
     use geometry::direction::{Direction, DIR8};
-    use human::body::{BodyPartData, Freshness};
-    use human::character::Character;
-    use human::gender::Gender;
-    use human::main_hand::MainHand;
-    use human::skin_tone::SkinTone;
-    use map::item::Item;
-    use map::items::{Axe, BodyPart, Gravestone, Shovel};
-    use map::pos::TilePos;
-    use map::terrain::Terrain;
-    use map::terrains::{Dirt, Grave, GraveData, GraveVariant};
 
     #[test]
     fn test_walking() {

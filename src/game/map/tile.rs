@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use map::item::{Item, ItemInteract};
-use map::terrain::{Terrain, TerrainInteract};
-use map::terrains::{Dirt, DirtVariant};
+use super::item::{Item, ItemInteract};
+use super::terrain::{Terrain, TerrainInteract};
+use super::terrains::{Dirt, DirtVariant};
 use rand::Rng;
 use std::collections::HashSet;
 

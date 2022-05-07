@@ -1,11 +1,11 @@
 #![allow(dead_code)]
+use super::super::human::character::Character;
+use super::items::Shovel;
+use super::pos::ChunkPos;
+use super::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
+use super::tile::Tile;
 use arrayvec::ArrayVec;
 use assets::game_data::GameData;
-use human::character::Character;
-use map::items::Shovel;
-use map::pos::ChunkPos;
-use map::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
-use map::tile::Tile;
 use rand::distributions::Standard;
 use rand::rngs::StdRng;
 use rand::Rng;

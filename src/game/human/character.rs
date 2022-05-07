@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
+use super::gender::Gender;
+use super::main_hand::MainHand;
+use super::skin_tone::SkinTone;
 use assets::game_data::GameData;
-use human::gender::Gender;
-use human::main_hand::MainHand;
-use human::skin_tone::SkinTone;
 use rand::distributions::Standard;
 use rand::seq::SliceRandom;
 use rand::Rng;

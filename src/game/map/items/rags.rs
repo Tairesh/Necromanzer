@@ -1,4 +1,4 @@
-use map::item::{ItemInteract, ItemView};
+use super::super::item::{ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Rags {}

@@ -1,8 +1,8 @@
 use colors::Colors;
 use game::actions::ActionType;
+use game::map::item::ItemView;
 use geometry::direction::Direction;
 use input;
-use map::item::ItemView;
 use scenes::game_modes::implements::*;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;

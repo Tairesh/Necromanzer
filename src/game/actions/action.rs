@@ -1,10 +1,10 @@
 use super::{ActionResult, ActionType};
 use colors::Colors;
 use game::actions::action_type::ActionPossibility;
+use game::map::item::{Item, ItemView};
+use game::map::terrain::TerrainInteract;
 use game::{Avatar, World};
 use geometry::direction::{Direction, DIR8};
-use map::item::{Item, ItemView};
-use map::terrain::TerrainInteract;
 use rand::seq::SliceRandom;
 
 pub fn owner(owner: usize, world: &World) -> &Avatar {

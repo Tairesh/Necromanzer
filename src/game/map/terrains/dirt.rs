@@ -1,7 +1,7 @@
-use map::item::Item;
-use map::passage::Passage;
-use map::terrain::{Terrain, TerrainInteract, TerrainView};
-use map::terrains::pit::Pit;
+use super::super::item::Item;
+use super::super::passage::Passage;
+use super::super::terrain::{Terrain, TerrainInteract, TerrainView};
+use super::super::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 

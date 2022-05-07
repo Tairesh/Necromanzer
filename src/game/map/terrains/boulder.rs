@@ -1,5 +1,5 @@
-use map::passage::Passage;
-use map::terrain::{TerrainInteract, TerrainView};
+use super::super::passage::Passage;
+use super::super::terrain::{TerrainInteract, TerrainView};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 

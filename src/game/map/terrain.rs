@@ -1,7 +1,7 @@
+use super::item::Item;
+use super::passage::Passage;
 use super::terrains::*;
 use enum_dispatch::enum_dispatch;
-use map::item::Item;
-use map::passage::Passage;
 use serde::{Deserialize, Serialize};
 
 #[enum_dispatch]
@@ -47,8 +47,8 @@ pub trait TerrainInteract {
 
 #[cfg(test)]
 mod tests {
+    use super::super::terrains::{Dirt, DirtVariant, Grass, GrassVariant};
     use super::{Terrain, TerrainInteract, TerrainView};
-    use map::terrains::{Dirt, DirtVariant, Grass, GrassVariant};
 
     #[test]
     fn test_dirt() {

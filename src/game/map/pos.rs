@@ -1,8 +1,8 @@
 #![allow(dead_code)]
+use super::chunk::Chunk;
 use geometry::direction::Direction;
 use geometry::point::Point;
 use geometry::Vec2;
-use map::chunk::Chunk;
 use std::ops::{Add, AddAssign, Sub};
 
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -151,8 +151,8 @@ impl ChunkPos {
 
 #[cfg(test)]
 mod tests {
-    use map::chunk::Chunk;
-    use map::pos::{ChunkPos, TilePos};
+    use super::super::chunk::Chunk;
+    use super::{ChunkPos, TilePos};
 
     #[test]
     fn test_pos_to_chunk() {

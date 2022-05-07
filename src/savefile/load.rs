@@ -1,8 +1,8 @@
 use super::Meta;
 use super::SAVEFILES_FOLDER;
 use assets::Assets;
+use game::map::chunk::Chunk;
 use game::{Avatar, World};
-use map::chunk::Chunk;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};

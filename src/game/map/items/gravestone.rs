@@ -1,5 +1,5 @@
-use map::item::{ItemInteract, ItemView};
-use map::terrains::GraveData;
+use super::super::item::{ItemInteract, ItemView};
+use super::super::terrains::GraveData;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Gravestone {

@@ -1,10 +1,10 @@
-use human::body::{Body, Freshness};
-use human::character::Character;
-use map::item::Item;
-use map::items::{Corpse, Gravestone, Rags};
-use map::passage::Passage;
-use map::terrain::{Terrain, TerrainInteract, TerrainView};
-use map::terrains::pit::Pit;
+use super::super::super::human::body::{Body, Freshness};
+use super::super::super::human::character::Character;
+use super::super::item::Item;
+use super::super::items::{Corpse, Gravestone, Rags};
+use super::super::passage::Passage;
+use super::super::terrain::{Terrain, TerrainInteract, TerrainView};
+use super::super::terrains::pit::Pit;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 

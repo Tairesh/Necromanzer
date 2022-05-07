@@ -1,9 +1,9 @@
 #![allow(dead_code)]
-use human::character::{age_name, Character};
-use human::gender::Gender;
-use human::skin_tone::SkinTone;
-use map::item::Item;
-use map::items::{BodyPart, BodyPartType};
+use super::super::map::item::Item;
+use super::super::map::items::{BodyPart, BodyPartType};
+use super::character::{age_name, Character};
+use super::gender::Gender;
+use super::skin_tone::SkinTone;
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -68,7 +68,7 @@ impl BodyPartData {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Body {
-    pub parts: HashMap<String, Item>,
+    pub parts: HashMap<String, Item>, // TODO: use static str
     // TODO: schema for placing items to different tiles
     pub wear: Vec<Item>, // TODO: some schema for bodyparts to wear
 }
@@ -189,13 +189,13 @@ impl Body {
 
 #[cfg(test)]
 mod tests {
-    use human::body::{Body, Freshness};
-    use human::character::Character;
-    use human::gender::Gender;
-    use human::main_hand::MainHand;
-    use human::skin_tone::SkinTone;
-    use map::item::Item;
-    use map::items::{BodyPart, BodyPartType};
+    use super::super::super::human::character::Character;
+    use super::super::super::human::gender::Gender;
+    use super::super::super::human::main_hand::MainHand;
+    use super::super::super::human::skin_tone::SkinTone;
+    use super::super::super::map::item::Item;
+    use super::super::super::map::items::{BodyPart, BodyPartType};
+    use super::{Body, Freshness};
 
     #[test]
     fn test_human_creating() {

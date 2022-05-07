@@ -1,7 +1,7 @@
+use super::super::human::main_hand::MainHand;
+use super::super::Avatar;
 use super::items::*;
 use enum_dispatch::enum_dispatch;
-use game::Avatar;
-use human::main_hand::MainHand;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -64,14 +64,16 @@ pub enum ItemTag {
 
 #[cfg(test)]
 mod tests {
+    use super::super::super::human::body::{Body, BodyPartData, Freshness};
+    use super::super::super::human::character::Character;
+    use super::super::super::human::gender::Gender;
+    use super::super::super::human::main_hand::MainHand;
+    use super::super::super::human::skin_tone::SkinTone;
+    use super::super::super::map::items::{
+        Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel,
+    };
+    use super::super::super::map::terrains::GraveData;
     use super::{Item, ItemInteract, ItemTag, ItemView};
-    use human::body::{Body, BodyPartData, Freshness};
-    use human::character::Character;
-    use human::gender::Gender;
-    use human::main_hand::MainHand;
-    use human::skin_tone::SkinTone;
-    use map::items::{Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel};
-    use map::terrains::GraveData;
 
     #[test]
     fn test_shovel() {

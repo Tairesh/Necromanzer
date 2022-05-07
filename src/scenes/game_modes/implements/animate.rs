@@ -1,10 +1,10 @@
 use colors::Colors;
 use game::actions::ActionType;
+use game::map::item::Item;
 use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
-use map::item::Item;
 use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
 use scenes::implements::Game;
 use tetra::graphics::Color;

@@ -1,9 +1,9 @@
 use app::App;
 use colors::Colors;
+use game::human::body::Freshness;
+use game::map::item::{Item, ItemView};
 use game::World;
 use geometry::Vec2;
-use human::body::Freshness;
-use map::item::{Item, ItemView};
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use scenes::{back_btn, easy_back};

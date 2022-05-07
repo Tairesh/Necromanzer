@@ -1,12 +1,12 @@
 use app::App;
 use assets::game_data::GameData;
 use colors::Colors;
+use game::human::character::Character;
+use game::human::main_hand::MainHand;
+use game::human::skin_tone::SkinTone;
+use game::map::pos::TilePos;
 use game::Avatar;
 use game::World;
-use human::character::Character;
-use human::main_hand::MainHand;
-use human::skin_tone::SkinTone;
-use map::pos::TilePos;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use savefile;
 use savefile::{GameView, Meta};

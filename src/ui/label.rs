@@ -1,15 +1,15 @@
 #![allow(dead_code)]
 
-use crate::assets::prepared_font::PreparedFont;
-use crate::ui::position::Position;
-use crate::ui::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
+use assets::prepared_font::PreparedFont;
 use assets::tileset::Tileset;
+use game::map::item::{Item, ItemView};
 use geometry::{Rect, Vec2};
-use map::item::{Item, ItemView};
 use std::rc::Rc;
 use tetra::graphics::text::Text;
 use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
+use ui::position::Position;
+use ui::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
 
 pub struct Label {
     text: Text,

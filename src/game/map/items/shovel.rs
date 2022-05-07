@@ -1,37 +1,37 @@
-use map::item::{ItemInteract, ItemTag, ItemView};
+use super::super::item::{ItemInteract, ItemTag, ItemView};
 use std::collections::HashSet;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub struct Knife {}
+pub struct Shovel {}
 
-impl Knife {
+impl Shovel {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl Default for Knife {
+impl Default for Shovel {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl ItemView for Knife {
+impl ItemView for Shovel {
     fn name(&self) -> String {
-        "knife".to_string()
+        "shovel".to_string()
     }
 
     fn looks_like(&self) -> &'static str {
-        "knife"
+        "shovel"
     }
 }
 
-impl ItemInteract for Knife {
+impl ItemInteract for Shovel {
     fn tags(&self) -> HashSet<ItemTag> {
-        HashSet::from([ItemTag::Butch])
+        HashSet::from([ItemTag::Dig])
     }
 
     fn mass(&self) -> u32 {
-        500
+        2_000 // 2 kg (probably it's a very small shovel)
     }
 }
