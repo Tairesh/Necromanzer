@@ -15,7 +15,7 @@ where
         .resizable(true);
     let mut ctx = ctx_builder.build()?;
 
-    let mut icon = ImageData::from_encoded(include_bytes!("../inc/img/zombie.png"))?;
+    let mut icon = ImageData::from_encoded(include_bytes!("../assets/img/zombie.png"))?;
     window::set_icon(&mut ctx, &mut icon)?;
     window::set_minimum_size(&mut ctx, 1024, 768)?;
     window::set_maximum_size(&mut ctx, 1920, 1280)?;

@@ -75,7 +75,7 @@ impl Tileset {
     pub fn load(ctx: &mut Context) -> tetra::Result<Self> {
         Ok(Self {
             tile_size: 10, // TODO: support custom tilesets
-            texture: Texture::from_encoded(ctx, include_bytes!("../../inc/img/tileset.png"))?, // TODO: rename inc to assets
+            texture: Texture::from_encoded(ctx, include_bytes!("../../assets/img/tileset.png"))?,
         })
     }
 

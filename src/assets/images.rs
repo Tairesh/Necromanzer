@@ -11,9 +11,12 @@ pub struct Images {
 impl Images {
     pub fn load(ctx: &mut Context) -> tetra::Result<Self> {
         Ok(Self {
-            logo: Texture::from_encoded(ctx, include_bytes!("../../inc/img/logo.png"))?,
-            bg: Texture::from_encoded(ctx, include_bytes!("../../inc/img/bg.jpg"))?,
-            halloween: Texture::from_encoded(ctx, include_bytes!("../../inc/img/halloween.jpg"))?,
+            logo: Texture::from_encoded(ctx, include_bytes!("../../assets/img/logo.png"))?,
+            bg: Texture::from_encoded(ctx, include_bytes!("../../assets/img/bg.jpg"))?,
+            halloween: Texture::from_encoded(
+                ctx,
+                include_bytes!("../../assets/img/halloween.jpg"),
+            )?,
         })
     }
 }

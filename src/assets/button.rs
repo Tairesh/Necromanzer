@@ -13,7 +13,7 @@ pub struct Button {
 impl Button {
     pub fn load(ctx: &mut Context) -> tetra::Result<Self> {
         Ok(Self {
-            texture: Texture::from_encoded(ctx, include_bytes!("../../inc/img/button.png"))?,
+            texture: Texture::from_encoded(ctx, include_bytes!("../../assets/img/button.png"))?,
             default: NineSlice::new(Rectangle::new(0.0, 0.0, 46.0, 14.0), 3.0, 3.0, 3.0, 4.0),
             hovered: NineSlice::new(Rectangle::new(0.0, 14.0, 46.0, 14.0), 3.0, 3.0, 3.0, 4.0),
             pressed: NineSlice::new(Rectangle::new(0.0, 28.0, 46.0, 14.0), 3.0, 3.0, 4.0, 3.0),

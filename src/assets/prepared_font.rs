@@ -10,7 +10,7 @@ pub struct PreparedFont {
 impl PreparedFont {
     pub fn new(ctx: &mut Context, font: Font) -> tetra::Result<Self> {
         // TODO: implement more adequate way to detect tallest symbol
-        let bounds = Text::new("IjqgpT})@", font.clone())
+        let bounds = Text::new("IjqgpT})@|", font.clone())
             .get_bounds(ctx)
             .unwrap();
         Ok(Self {

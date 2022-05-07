@@ -12,10 +12,10 @@ pub struct Fonts {
 
 impl Fonts {
     pub fn load(ctx: &mut Context) -> tetra::Result<Self> {
-        let consolab = include_bytes!("../../inc/fonts/consolab.ttf");
+        let consolab = include_bytes!("../../assets/fonts/consolab.ttf");
         let consolab16 = Font::from_vector_file_data(ctx, consolab, 16.0)?;
         let consolab24 = Font::from_vector_file_data(ctx, consolab, 24.0)?;
-        let avqest = include_bytes!("../../inc/fonts/avqest.ttf");
+        let avqest = include_bytes!("../../assets/fonts/avqest.ttf");
         let avqest86 = Font::from_vector_file_data(ctx, avqest, 86.0)?;
         let avqest32 = Font::from_vector_file_data(ctx, avqest, 32.0)?;
 

@@ -10,7 +10,7 @@ impl Names {
         let mut male_names = Vec::with_capacity(259);
         let mut female_names = Vec::with_capacity(199);
         let mut names = Vec::with_capacity(458);
-        for row in include_str!("../../inc/data/names.txt").lines() {
+        for row in include_str!("../../assets/data/names.txt").lines() {
             let mut split = row.split(',');
             let name = split.next().unwrap();
             if name.is_empty() {
