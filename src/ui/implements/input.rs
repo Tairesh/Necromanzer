@@ -3,7 +3,7 @@ use crate::assets::prepared_font::PreparedFont;
 use crate::colors::Colors;
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
-use crate::ui::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Stringify, Update};
+use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, Stringify, UiSprite, Update};
 use geometry::{Rect, Vec2};
 use std::time::{Duration, Instant};
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
@@ -373,7 +373,7 @@ impl Press for TextInput {
     }
 }
 
-impl Sprite for TextInput {
+impl UiSprite for TextInput {
     fn focused(&self) -> bool {
         self.is_focused
     }

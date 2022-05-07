@@ -13,7 +13,7 @@ use ui::button::Button;
 use ui::input::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::sprite::{Positionate, Press, Stringify};
+use ui::traits::{Positionate, Press, Stringify};
 use ui::{BunchOfSprites, SomeSprites};
 
 const WINDOW_MODE_EVENT: u8 = 1;

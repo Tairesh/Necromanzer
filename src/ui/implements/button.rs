@@ -4,7 +4,7 @@ use crate::colors::Colors;
 use crate::input;
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
-use crate::ui::sprite::{Disable, Draw, Hover, Positionate, Press, Sprite, Update};
+use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, UiSprite, Update};
 use assets::button::Button as ButtonAsset;
 use assets::prepared_font::PreparedFont;
 use assets::tileset::Tileset;
@@ -349,4 +349,4 @@ impl Press for Button {
     }
 }
 
-impl Sprite for Button {}
+impl UiSprite for Button {}

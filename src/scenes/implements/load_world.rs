@@ -20,7 +20,7 @@ use ui::button::Button;
 use ui::label::Label;
 use ui::meshy::HoverableMesh;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::sprite::Positionate;
+use ui::traits::Positionate;
 use ui::{BunchOfSprites, SomeSprites};
 use {savefile, VERSION};
 

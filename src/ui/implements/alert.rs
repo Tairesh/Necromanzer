@@ -2,7 +2,7 @@
 
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
-use crate::ui::sprite::{Draw, Positionate, Sprite, Update};
+use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
 use assets::alert::Alert as AlertAsset;
 use geometry::{Rect, Vec2};
 use std::rc::Rc;
@@ -110,4 +110,4 @@ impl Update for Alert {
         None
     }
 }
-impl Sprite for Alert {}
+impl UiSprite for Alert {}

@@ -4,6 +4,8 @@ use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
 
+// TODO: this log is for drawing lines in game screen so it should be in UI, I suppose
+
 #[derive(Debug)]
 pub struct LogMessageText {
     pub text: Text,

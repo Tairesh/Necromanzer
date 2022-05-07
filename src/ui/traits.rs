@@ -70,7 +70,7 @@ pub trait Press {
     fn unpress(&mut self);
 }
 
-pub trait Sprite: Draw + Positionate + Update {
+pub trait UiSprite: Draw + Positionate + Update {
     fn focused(&self) -> bool {
         false
     }

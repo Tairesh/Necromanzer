@@ -9,7 +9,7 @@ use tetra::graphics::text::Text;
 use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
 use ui::position::Position;
-use ui::sprite::{Colorize, Draw, Positionate, Sprite, Stringify, Update};
+use ui::traits::{Colorize, Draw, Positionate, Stringify, UiSprite, Update};
 
 pub struct Label {
     text: Text,
@@ -123,7 +123,7 @@ impl Update for Label {
         false
     }
 }
-impl Sprite for Label {}
+impl UiSprite for Label {}
 
 pub struct ItemDisplay {
     text: Text,
@@ -255,4 +255,4 @@ impl Colorize for ItemDisplay {
 }
 
 impl Update for ItemDisplay {}
-impl Sprite for ItemDisplay {}
+impl UiSprite for ItemDisplay {}

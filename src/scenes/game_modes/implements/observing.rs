@@ -15,7 +15,7 @@ use tetra::Context;
 use ui::label::Label;
 use ui::meshy::JustMesh;
 use ui::position::Position;
-use ui::sprite::{Draw, Positionate, Stringify};
+use ui::traits::{Draw, Positionate, Stringify};
 
 struct ObservingSprite {
     pub label: Label,

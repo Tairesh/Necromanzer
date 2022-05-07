@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
-use crate::ui::sprite::{Colorize, Draw, Hover, Positionate, Sprite, Update};
+use crate::ui::traits::{Colorize, Draw, Hover, Positionate, UiSprite, Update};
 use geometry::{Rect, Vec2};
 use tetra::graphics::mesh::Mesh;
 use tetra::graphics::{Color, DrawParams};
@@ -85,7 +85,7 @@ impl Colorize for JustMesh {
 }
 
 impl Update for JustMesh {}
-impl Sprite for JustMesh {}
+impl UiSprite for JustMesh {}
 
 pub struct HoverableMesh {
     mesh: Mesh,
@@ -195,4 +195,4 @@ impl Hover for HoverableMesh {
     }
 }
 
-impl Sprite for HoverableMesh {}
+impl UiSprite for HoverableMesh {}

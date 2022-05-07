@@ -16,7 +16,7 @@ use ui::button::Button;
 use ui::input::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::sprite::{Draw, Positionate, Stringify};
+use ui::traits::{Draw, Positionate, Stringify};
 use ui::{BunchOfSprites, SomeSprites};
 
 const RANDOMIZE_EVENT: u8 = 1;

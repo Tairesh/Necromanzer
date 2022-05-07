@@ -108,18 +108,22 @@ impl ActionType {
             ActionType::SkippingTime => Yes,
             ActionType::Walking(dir) => {
                 let pos = owner(owner_id, world).pos + dir;
-                let tile = world.get_tile(pos).unwrap();
-                if !tile.terrain.is_passable() {
-                    return No(format!("You can't walk to the {}", tile.terrain.name()));
+                if let Some(tile) = world.get_tile(pos) {
+                    if !tile.terrain.is_passable() {
+                        return No(format!("You can't walk to the {}", tile.terrain.name()));
+                    }
+                    if !tile.units.is_empty() {
+                        let i = tile.units.iter().copied().next().unwrap();
+                        return No(format!(
+                            "{} is on the way",
+                            world.units.get(i).unwrap().character.name
+                        ));
+                    }
+
+                    Yes
+                } else {
+                    No("Tile isn't loaded yet".to_string())
                 }
-                if !tile.units.is_empty() {
-                    let i = tile.units.iter().copied().next().unwrap();
-                    return No(format!(
-                        "{} is on the way",
-                        world.units.get(i).unwrap().character.name
-                    ));
-                }
-                Yes
             }
             ActionType::Wielding(dir) => {
                 if !owner(owner_id, world).wield.is_empty() {

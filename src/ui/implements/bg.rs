@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use crate::ui::position::Position;
-use crate::ui::sprite::{Draw, Positionate, Sprite, Update};
+use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
 use geometry::{Rect, Vec2};
 use tetra::graphics::Color;
 use tetra::{graphics, Context};
@@ -60,4 +60,4 @@ impl Positionate for Bg {
 }
 
 impl Update for Bg {}
-impl Sprite for Bg {}
+impl UiSprite for Bg {}

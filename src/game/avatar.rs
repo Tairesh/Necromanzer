@@ -67,6 +67,7 @@ impl Avatar {
         }
     }
 
+    // TODO: instead of draw, just return some sort of Glyph struct that doesnt reference Context
     pub fn draw(
         &self,
         ctx: &mut Context,

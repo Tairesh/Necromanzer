@@ -13,7 +13,7 @@ use tetra::input::Key;
 use tetra::{window, Context, Event, State};
 use ui::label::Label;
 use ui::position::Position;
-use ui::sprite::{Draw, Positionate, Stringify};
+use ui::traits::{Draw, Positionate, Stringify};
 
 pub struct App {
     pub assets: Rc<Assets>,

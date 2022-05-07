@@ -13,7 +13,7 @@ use ui::button::Button;
 use ui::image::Image;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
-use ui::sprite::Disable;
+use ui::traits::Disable;
 use ui::{BunchOfSprites, SomeSprites};
 use VERSION;
 

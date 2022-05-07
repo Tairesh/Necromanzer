@@ -16,7 +16,7 @@ use ui::alert::Alert;
 use ui::label::{ItemDisplay, Label};
 use ui::meshy::HoverableMesh;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::sprite::Positionate;
+use ui::traits::Positionate;
 use ui::{BunchOfSprites, SomeSprites};
 
 pub struct BodyView {
