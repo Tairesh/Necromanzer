@@ -19,8 +19,7 @@ pub struct Action {
 impl Action {
     pub fn new(owner: usize, typ: ActionType, world: &World) -> Result<Self, String> {
         match typ.is_possible(world.get_unit(owner), world) {
-            ActionPossibility::Yes => {
-                let length = typ.length(world.get_unit(owner), world);
+            ActionPossibility::Yes(length) => {
                 let finish = world.meta.current_tick + length as u128;
                 Ok(Self {
                     owner,

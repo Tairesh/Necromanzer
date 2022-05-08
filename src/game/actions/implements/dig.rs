@@ -11,19 +11,6 @@ pub struct Dig {
 }
 
 impl ActionImpl for Dig {
-    fn length(&self, actor: &Avatar, world: &World) -> u32 {
-        // TODO: check tool quality, avatar perks
-        let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            return match tile.terrain {
-                Terrain::Grave(..) => 2000,
-                _ => 1000,
-            };
-        }
-
-        0
-    }
-
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
         if let Some(tile) = world.get_tile(pos) {
@@ -35,6 +22,13 @@ impl ActionImpl for Dig {
             return No("You need a shovel to dig!".to_string());
         }
 
-        Yes
+        if let Some(tile) = world.get_tile(pos) {
+            Yes(match tile.terrain {
+                Terrain::Grave(..) => 2000,
+                _ => 1000,
+            })
+        } else {
+            No("TIle isn't loaded yet".to_string())
+        }
     }
 }

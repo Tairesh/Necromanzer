@@ -6,11 +6,7 @@ use game::{Avatar, World};
 pub struct Skip {}
 
 impl ActionImpl for Skip {
-    fn length(&self, _actor: &Avatar, _world: &World) -> u32 {
-        1
-    }
-
     fn is_possible(&self, _actor: &Avatar, _world: &World) -> ActionPossibility {
-        Yes
+        Yes(1)
     }
 }

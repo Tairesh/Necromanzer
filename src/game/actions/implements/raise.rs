@@ -10,26 +10,11 @@ pub struct Raise {
 }
 
 impl ActionImpl for Raise {
-    fn length(&self, actor: &Avatar, world: &World) -> u32 {
-        let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            return tile
-                .items
-                .iter()
-                .filter(|i| matches!(i, Item::Corpse(..)))
-                .map(|i| i.mass() / 10)
-                .next()
-                .unwrap_or(0);
-        }
-
-        0
-    }
-
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
         if let Some(tile) = world.get_tile(pos) {
-            if tile.items.iter().any(|i| matches!(i, Item::Corpse(..))) {
-                return Yes;
+            if let Some(item) = tile.items.iter().find(|i| matches!(i, Item::Corpse(..))) {
+                return Yes(item.mass() / 10);
             }
         }
 

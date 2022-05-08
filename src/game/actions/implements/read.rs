@@ -9,23 +9,12 @@ pub struct Read {
 }
 
 impl ActionImpl for Read {
-    fn length(&self, actor: &Avatar, world: &World) -> u32 {
-        let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if tile.is_readable() {
-                return tile.read().len() as u32;
-            }
-        }
-
-        0
-    }
-
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
         // TODO: check skill of reading, and probably even another languages
         if let Some(tile) = world.get_tile(pos) {
             if tile.is_readable() {
-                return Yes;
+                return Yes(tile.read().len() as u32);
             }
         }
 

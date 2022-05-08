@@ -11,7 +11,7 @@ pub struct Walk {
     pub dir: Direction,
 }
 
-impl ActionImpl for Walk {
+impl Walk {
     fn length(&self, actor: &Avatar, world: &World) -> u32 {
         // TODO: check avatar perks for calculating speed
         // TODO: add sqrt(2) for diagonal movement
@@ -25,10 +25,11 @@ impl ActionImpl for Walk {
                 return (length * koeff).round() as u32;
             }
         }
-
         0
     }
+}
 
+impl ActionImpl for Walk {
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
         if let Some(tile) = world.get_tile(pos) {
@@ -42,7 +43,7 @@ impl ActionImpl for Walk {
                 }
             }
 
-            Yes
+            Yes(self.length(actor, world))
         } else {
             No("Tile isn't loaded yet".to_string())
         }

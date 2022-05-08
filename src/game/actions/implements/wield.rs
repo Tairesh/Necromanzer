@@ -10,27 +10,19 @@ pub struct Wield {
 }
 
 impl ActionImpl for Wield {
-    fn length(&self, actor: &Avatar, world: &World) -> u32 {
-        let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if let Some(item) = tile.items.last() {
-                return item.wield_time(actor).round() as u32;
-            }
-        }
-
-        0
-    }
-
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         if !actor.wield.is_empty() {
             return No("You already have something in your hands".to_string());
         }
         let pos = actor.pos + self.dir;
         if let Some(tile) = world.get_tile(pos) {
-            if tile.items.is_empty() {
-                return No("There is nothing to pick up".to_string());
+            if let Some(item) = tile.items.last() {
+                Yes(item.wield_time(actor).round() as u32)
+            } else {
+                No("There is nothing to pick up".to_string())
             }
+        } else {
+            No("Tile isn't loaded".to_string())
         }
-        Yes
     }
 }

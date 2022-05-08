@@ -34,7 +34,6 @@ mod tests {
     use super::super::super::world::tests::prepare_world;
     use super::super::{Action, ActionResult};
     use game::actions::implements::*;
-    use game::actions::ActionImpl;
     use geometry::direction::{Direction, DIR8};
 
     #[test]
@@ -45,11 +44,9 @@ mod tests {
         let typ = Walk {
             dir: Direction::East,
         };
-        let length = typ.length(world.player(), &world);
         world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         world.tick();
 
-        assert_eq!(length as u128, world.meta.current_tick);
         assert_eq!(TilePos::new(1, 0), world.player().pos);
     }
 
@@ -58,12 +55,15 @@ mod tests {
         let mut world = prepare_world();
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
 
-        let typ = Walk {
-            dir: Direction::East,
-        };
-        let length = typ.length(world.player(), &world);
-        assert_eq!(0, length);
-        assert!(Action::new(0, typ.into(), &world).is_err());
+        assert!(Action::new(
+            0,
+            Walk {
+                dir: Direction::East,
+            }
+            .into(),
+            &world
+        )
+        .is_err());
     }
 
     #[test]
@@ -137,14 +137,19 @@ mod tests {
         assert!(world.player().wield.is_empty());
         assert_eq!(0, world.meta.current_tick);
 
-        let typ = Wield {
-            dir: Direction::East,
-        };
-        let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
+        world.player_mut().action = Some(
+            Action::new(
+                0,
+                Wield {
+                    dir: Direction::East,
+                }
+                .into(),
+                &world,
+            )
+            .unwrap(),
+        );
         world.tick();
 
-        assert_eq!(length as u128, world.meta.current_tick);
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(1, world.player().wield.len());
         let item = world.player().wield.first().unwrap();
@@ -156,10 +161,7 @@ mod tests {
         let mut world = prepare_world();
 
         assert_eq!(0, world.meta.current_tick);
-        let typ = Skip {};
-        let length = typ.length(world.player(), &world);
-        assert_eq!(1, length);
-        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, Skip {}.into(), &world).unwrap());
         world.tick();
         assert_eq!(1, world.meta.current_tick);
     }
@@ -172,15 +174,20 @@ mod tests {
         world.player_mut().wield.clear();
         world.player_mut().wield.push(Axe::new().into());
 
-        let typ = Drop {
-            item_id: 0,
-            dir: Direction::Here,
-        };
-        let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
+        world.player_mut().action = Some(
+            Action::new(
+                0,
+                Drop {
+                    item_id: 0,
+                    dir: Direction::Here,
+                }
+                .into(),
+                &world,
+            )
+            .unwrap(),
+        );
         world.tick();
 
-        assert_eq!(length as u128, world.meta.current_tick);
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(0, world.player().wield.len());
         assert_eq!(1, world.load_tile(TilePos::new(0, 0)).items.len());
@@ -197,7 +204,6 @@ mod tests {
         let typ = Dig {
             dir: Direction::East,
         };
-        let length = typ.length(world.player(), &world);
         assert!(Action::new(0, typ.into(), &world).is_err());
 
         world.player_mut().wield.push(Shovel::new().into());
@@ -206,7 +212,6 @@ mod tests {
             world.tick();
         }
 
-        assert_eq!(length as u128, world.meta.current_tick);
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert!(matches!(
             world.load_tile(TilePos::new(1, 0)).terrain,
@@ -299,11 +304,17 @@ mod tests {
         };
         world.load_tile_mut(TilePos::new(1, 0)).terrain =
             Grave::new(GraveVariant::New, data.clone()).into();
-        let typ = Read {
-            dir: Direction::East,
-        };
-        let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
+        world.player_mut().action = Some(
+            Action::new(
+                0,
+                Read {
+                    dir: Direction::East,
+                }
+                .into(),
+                &world,
+            )
+            .unwrap(),
+        );
         while world.player().action.is_some() {
             let results = world.tick();
             for result in results {
@@ -315,7 +326,6 @@ mod tests {
                 }
             }
         }
-        assert_eq!(length as u128, world.meta.current_tick);
 
         world.load_tile_mut(TilePos::new(0, 1)).terrain = Dirt::default().into();
         world.load_tile_mut(TilePos::new(0, 1)).items.clear();
@@ -329,7 +339,6 @@ mod tests {
             .items
             .push(Gravestone::new(data).into());
 
-        let length = typ.length(world.player(), &world);
         world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         while world.player().action.is_some() {
             let results = world.tick();
@@ -342,6 +351,5 @@ mod tests {
                 }
             }
         }
-        assert_eq!(length as u128 * 2, world.meta.current_tick);
     }
 }
