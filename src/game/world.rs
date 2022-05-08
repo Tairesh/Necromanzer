@@ -5,6 +5,7 @@ use fov::{field_of_view_set, FovMap};
 use game::actions::{Action, ActionResult};
 use game::ai::brain::Brain;
 use game::avatar::Soul;
+use game::fov::Fov;
 use game::map::chunk::Chunk;
 use game::map::item::ItemView;
 use game::map::pos::{ChunkPos, TilePos};
@@ -29,8 +30,7 @@ pub struct World {
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
     game_data: Rc<GameData>,
-    pub fov: HashSet<Point>, // TODO: create struct for FOV
-    pub fov_dirty: bool,
+    pub fov: Fov,
     // TODO: add Rng created with seed
 }
 
@@ -52,8 +52,7 @@ impl World {
             chunks,
             changed,
             game_data,
-            fov: HashSet::default(),
-            fov_dirty: true,
+            fov: Fov::default(),
         };
         world.load_units();
         world.calc_fov();
@@ -66,8 +65,8 @@ impl World {
     }
 
     pub fn calc_fov(&mut self) {
-        self.fov = field_of_view_set(self.player().pos.into(), 64, self);
-        self.fov_dirty = true;
+        self.fov
+            .set_set(field_of_view_set(self.player().pos.into(), 64, self));
     }
 
     pub fn save(&mut self) {
@@ -436,7 +435,8 @@ pub mod tests {
     #[test]
     pub fn test_fov() {
         let mut world = prepare_world();
-        assert!(world.fov.contains(&world.player().pos.into()));
+        let fov = world.fov.last_set();
+        assert!(fov.contains(&world.player().pos.into()));
 
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
         world.load_tile_mut(TilePos::new(2, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
@@ -444,8 +444,9 @@ pub mod tests {
         world.load_tile_mut(TilePos::new(3, 0));
 
         world.move_avatar(0, Direction::East);
-        assert!(world.fov.contains(&Point::new(1, 0)));
-        assert!(world.fov.contains(&Point::new(2, 0)));
-        assert!(!world.fov.contains(&Point::new(3, 0)));
+        let fov = world.fov.updated_set().unwrap();
+        assert!(fov.contains(&Point::new(1, 0)));
+        assert!(fov.contains(&Point::new(2, 0)));
+        assert!(!fov.contains(&Point::new(3, 0)));
     }
 }

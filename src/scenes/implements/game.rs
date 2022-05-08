@@ -56,7 +56,7 @@ impl Game {
             Colors::WHITE_SMOKE,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 5.0 }),
         )));
-        let fov = world.borrow().fov.clone();
+        let fov = world.borrow().fov.last_set();
         Self {
             sprites: vec![name_label, current_time_label.clone()],
             game_data: app.assets.game_data.clone(),
@@ -152,9 +152,8 @@ impl Game {
             ctx,
             self.window_size,
         );
-        if world.fov_dirty {
-            self.fov = world.fov.clone();
-            world.fov_dirty = false;
+        if let Some(fov) = world.fov.updated_set() {
+            self.fov = fov;
         }
     }
 }

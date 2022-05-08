@@ -117,10 +117,9 @@ impl ActionType {
                     }
                     let unit_on_tile = tile.units.iter().next();
                     if let Some(unit_id) = unit_on_tile {
-                        return No(format!(
-                            "{} is on the way",
-                            world.units.get(*unit_id).unwrap().character.name
-                        ));
+                        if let Some(unit) = world.units.get(*unit_id) {
+                            return No(format!("{} is on the way", unit.character.name));
+                        }
                     }
 
                     Yes

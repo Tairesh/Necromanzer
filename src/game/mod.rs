@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod ai;
 mod avatar;
+mod fov;
 pub mod human;
 mod log;
 pub mod map;
