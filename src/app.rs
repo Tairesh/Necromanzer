@@ -132,27 +132,8 @@ impl App {
 
 impl State for App {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
-        // TODO: find a way to optimize this shit
         if let Some(scene) = self.current_scene() {
-            let mut transitions = if let Some(t) = scene.update(ctx) {
-                t
-            } else {
-                vec![]
-            };
-            let focused = scene.is_there_focused_sprite();
-            if let Some(sprites) = scene.sprites() {
-                // creating same big useless vec of Rects EVERY frame
-                let mut blocked = Vec::with_capacity(sprites.len());
-                for sprite in sprites.iter().rev() {
-                    let mut sprite = sprite.borrow_mut();
-                    if let Some(transition) = sprite.update(ctx, focused, &blocked) {
-                        transitions.push(transition);
-                    }
-                    if sprite.visible() && sprite.block_mouse() {
-                        blocked.push(sprite.rect());
-                    }
-                }
-            }
+            let transitions = scene.update(ctx);
             self.exec_transitions(ctx, Some(transitions));
         } else {
             self.transit(ctx, Transition::Quit);

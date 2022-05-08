@@ -296,7 +296,7 @@ impl CreateCharacter {
 }
 
 impl SceneImpl for CreateCharacter {
-    fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
+    fn on_update(&mut self, _ctx: &mut Context) -> SomeTransitions {
         let mut name_error = self.name_empty.borrow_mut();
         if !self.name_input.borrow().danger() && name_error.visible() {
             name_error.set_visible(false);

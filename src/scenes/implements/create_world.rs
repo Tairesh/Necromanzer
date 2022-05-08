@@ -170,7 +170,7 @@ impl CreateWorld {
 }
 
 impl SceneImpl for CreateWorld {
-    fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
+    fn on_update(&mut self, _ctx: &mut Context) -> SomeTransitions {
         let name = self.name_input.borrow();
         let mut name_empty = self.name_empty.borrow_mut();
         let mut name_error = self.name_error.borrow_mut();

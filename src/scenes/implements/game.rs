@@ -176,7 +176,7 @@ impl Game {
 }
 
 impl SceneImpl for Game {
-    fn update(&mut self, ctx: &mut Context) -> SomeTransitions {
+    fn on_update(&mut self, ctx: &mut Context) -> SomeTransitions {
         if self.world.borrow().player().action.is_some() {
             self.make_world_tick(ctx);
 

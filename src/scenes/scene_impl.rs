@@ -1,9 +1,9 @@
-use scenes::transition::SomeTransitions;
+use scenes::transition::{SomeTransitions, Transition};
 use tetra::{Context, Event};
 use ui::SomeSprites;
 
 pub trait SceneImpl {
-    fn update(&mut self, _ctx: &mut Context) -> SomeTransitions {
+    fn on_update(&mut self, _ctx: &mut Context) -> SomeTransitions {
         None
     }
     fn event(&mut self, _ctx: &mut Context, _event: Event) -> SomeTransitions {
@@ -32,5 +32,26 @@ pub trait SceneImpl {
                 sprite.borrow_mut().positionate(ctx, window_size);
             }
         }
+    }
+
+    fn update(&mut self, ctx: &mut Context) -> Vec<Transition> {
+        // TODO: find a way to optimize this shit
+        let mut transitions = self.on_update(ctx).unwrap_or_default();
+        let focused = self.is_there_focused_sprite();
+        if let Some(sprites) = self.sprites() {
+            // creating same big useless vec of Rects EVERY frame
+            let mut blocked = Vec::with_capacity(sprites.len());
+            for sprite in sprites.iter().rev() {
+                let mut sprite = sprite.borrow_mut();
+                if let Some(transition) = sprite.update(ctx, focused, &blocked) {
+                    transitions.push(transition);
+                }
+                if sprite.visible() && sprite.block_mouse() {
+                    blocked.push(sprite.rect());
+                }
+            }
+        }
+
+        transitions
     }
 }
