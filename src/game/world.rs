@@ -29,8 +29,9 @@ pub struct World {
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
     game_data: Rc<GameData>,
-    pub fov: HashSet<Point>,
+    pub fov: HashSet<Point>, // TODO: create struct for FOV
     pub fov_dirty: bool,
+    // TODO: add Rng created with seed
 }
 
 impl World {
@@ -322,8 +323,9 @@ impl World {
             let mut unit_wants_actions = HashMap::new();
             for (unit_id, unit) in self.units.iter_mut().skip(1).enumerate() {
                 if unit.action.is_none() {
-                    if let Soul::Zombie(brain) = &unit.soul {
-                        if let Some(action_type) = brain.get_action() {
+                    if let Soul::Zombie(brain) = &mut unit.soul {
+                        brain.plan();
+                        if let Some(action_type) = brain.action() {
                             // +1 is because we skipped first one in enumeration
                             unit_wants_actions.insert(unit_id + 1, action_type);
                         }

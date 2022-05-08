@@ -1,7 +1,8 @@
 use game::actions::ActionType;
-use game::World;
 
 pub trait Brain {
-    fn plan(&mut self, world: &World);
-    fn get_action(&self) -> Option<ActionType>;
+    // TODO: Brain need to know who its owner is and check the world
+    // TODO: async call plan() probably?
+    fn plan(&mut self);
+    fn action(&self) -> Option<ActionType>;
 }

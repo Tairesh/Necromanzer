@@ -44,7 +44,7 @@ impl Avatar {
     }
 
     pub fn zombie(character: Character, body: Body, pos: TilePos) -> Self {
-        Self::new(character, body, Soul::Zombie(ZombieBrain {}), pos)
+        Self::new(character, body, Soul::Zombie(ZombieBrain::default()), pos)
     }
 
     pub fn new(character: Character, body: Body, soul: Soul, pos: TilePos) -> Self {

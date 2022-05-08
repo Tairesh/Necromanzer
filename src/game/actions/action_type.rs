@@ -202,11 +202,11 @@ mod tests {
     use super::super::super::map::items::{Axe, BodyPart, Gravestone, Shovel};
     use super::super::super::map::pos::TilePos;
     use super::super::super::map::terrain::Terrain;
+    use super::super::super::map::terrains::{Boulder, BoulderSize};
     use super::super::super::map::terrains::{Dirt, Grave, GraveData, GraveVariant};
+    use super::super::super::world::tests::add_zombie;
     use super::super::super::world::tests::prepare_world;
     use super::super::{Action, ActionResult, ActionType};
-    use game::map::terrains::{Boulder, BoulderSize};
-    use game::world::tests::add_zombie;
     use geometry::direction::{Direction, DIR8};
 
     #[test]
@@ -260,8 +260,8 @@ mod tests {
 
         world.player_mut().action = Some(Action::new(0, ActionType::SkippingTime, &world).unwrap());
         world.tick();
+        // do not check zombie.action because it can be already new one, selected by AI
         assert_eq!(TilePos::new(1, 0), world.get_unit(zombie).pos);
-        assert!(world.get_unit(zombie).action.is_none());
         assert_eq!(1, world.get_tile(TilePos::new(1, 1)).unwrap().units.len());
         assert_eq!(1, world.get_tile(TilePos::new(1, 0)).unwrap().units.len());
         assert_eq!(0, world.get_tile(TilePos::new(0, 0)).unwrap().units.len());
