@@ -345,7 +345,7 @@ impl FovMap for World {
     fn is_transparent(&self, point: Point) -> bool {
         self.get_tile(point.into())
             .map(|t| t.terrain.is_transparent())
-            .unwrap_or(false)
+            .unwrap_or(true)
     }
 }
 
