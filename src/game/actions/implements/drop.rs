@@ -1,8 +1,9 @@
-use game::actions::action_impl::ActionImpl;
-use game::actions::ActionPossibility::{self, No, Yes};
-use game::map::item::ItemInteract;
-use game::map::terrain::{TerrainInteract, TerrainView};
-use game::{Avatar, World};
+use super::super::super::map::item::{ItemInteract, ItemView};
+use super::super::super::map::terrain::{TerrainInteract, TerrainView};
+use super::super::super::{Avatar, World};
+use super::super::action_impl::ActionImpl;
+use super::super::ActionPossibility::{No, Yes};
+use super::super::{Action, ActionPossibility, ActionResult};
 use geometry::direction::Direction;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -33,5 +34,18 @@ impl ActionImpl for Drop {
         } else {
             No("Item doesn't exists".to_string())
         }
+    }
+    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
+        let item = action.owner_mut(world).wield.remove(self.item_id);
+        let name = item.name();
+        world
+            .load_tile_mut(action.owner(world).pos + self.dir)
+            .items
+            .push(item);
+        Some(ActionResult::LogMessage(format!(
+            "{} drop the {}",
+            action.owner(world).name_for_actions(),
+            name
+        )))
     }
 }

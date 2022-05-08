@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use super::implements::*;
-use super::{ActionImpl, ActionPossibility};
+use super::{Action, ActionImpl, ActionPossibility, ActionResult};
 use enum_dispatch::enum_dispatch;
 use game::{Avatar, World};
 

@@ -1,7 +1,8 @@
-use game::actions::action_impl::ActionImpl;
-use game::actions::ActionPossibility::{self, No, Yes};
-use game::map::item::ItemInteract;
-use game::{Avatar, World};
+use super::super::super::map::item::{ItemInteract, ItemView};
+use super::super::super::{Avatar, World};
+use super::super::action_impl::ActionImpl;
+use super::super::ActionPossibility::{self, No, Yes};
+use super::super::{Action, ActionResult};
 use geometry::direction::Direction;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -23,6 +24,24 @@ impl ActionImpl for Wield {
             }
         } else {
             No("Tile isn't loaded".to_string())
+        }
+    }
+
+    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
+        if let Some(item) = world
+            .load_tile_mut(action.owner(world).pos + self.dir)
+            .items
+            .pop()
+        {
+            let name = item.name();
+            action.owner_mut(world).wield.push(item);
+            Some(ActionResult::LogMessage(format!(
+                "{} wield the {}",
+                action.owner(world).name_for_actions(),
+                name
+            )))
+        } else {
+            None
         }
     }
 }
