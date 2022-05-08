@@ -276,12 +276,14 @@ impl World {
         result
     }
 
-    pub fn add_unit(&mut self, unit: Avatar) {
+    pub fn add_unit(&mut self, unit: Avatar) -> usize {
         let pos = unit.pos;
         self.units.push(unit);
         self.load_units();
         let new_id = self.units.len() - 1;
         self.load_tile_mut(pos).units.insert(new_id);
+
+        new_id
     }
 
     fn load_units(&mut self) {
@@ -388,9 +390,7 @@ pub mod tests {
         world
     }
 
-    #[test]
-    pub fn test_moving_other_unit() {
-        let mut world = prepare_world();
+    pub fn add_zombie(world: &mut World, pos: TilePos) -> usize {
         let character = Character::new(
             "zombie",
             Gender::Female,
@@ -399,10 +399,16 @@ pub mod tests {
             SkinTone::Espresso,
         );
         let body = Body::human(&character, Freshness::Rotten);
-        let zombie = Avatar::zombie(character, body, TilePos::new(1, 0));
-        world.load_tile(TilePos::new(1, 0));
+        let zombie = Avatar::zombie(character, body, pos);
+        world.load_tile(pos);
+        world.add_unit(zombie)
+    }
+
+    #[test]
+    pub fn test_moving_other_unit() {
+        let mut world = prepare_world();
+        add_zombie(&mut world, TilePos::new(1, 0));
         world.load_tile(TilePos::new(1, -1)); // TODO: autoload tiles when trying to move via AI system
-        world.add_unit(zombie);
 
         assert_eq!(2, world.units.len());
         world.load_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();

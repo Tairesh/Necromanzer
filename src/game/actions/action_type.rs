@@ -205,16 +205,14 @@ mod tests {
     use super::super::super::map::terrains::{Dirt, Grave, GraveData, GraveVariant};
     use super::super::super::world::tests::prepare_world;
     use super::super::{Action, ActionResult, ActionType};
+    use game::map::terrains::{Boulder, BoulderSize};
+    use game::world::tests::add_zombie;
     use geometry::direction::{Direction, DIR8};
 
     #[test]
     fn test_walking() {
-        // TODO: add checks for failing to move to impassable terrains and units
         let mut world = prepare_world();
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
-
-        assert_eq!(TilePos::new(0, 0), world.player().pos);
-        assert_eq!(0, world.meta.current_tick);
 
         let typ = ActionType::Walking(Direction::East);
         let length = typ.length(world.player(), &world);
@@ -223,6 +221,50 @@ mod tests {
 
         assert_eq!(length as u128, world.meta.current_tick);
         assert_eq!(TilePos::new(1, 0), world.player().pos);
+    }
+
+    #[test]
+    fn test_walking_fail_to_impassable_terrain() {
+        let mut world = prepare_world();
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
+
+        let typ = ActionType::Walking(Direction::East);
+        let length = typ.length(world.player(), &world);
+        assert_eq!(0, length);
+        assert!(Action::new(0, typ, &world).is_err());
+    }
+
+    #[test]
+    fn test_walking_fail_to_unit() {
+        let mut world = prepare_world();
+        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
+        add_zombie(&mut world, TilePos::new(1, 0));
+
+        assert!(Action::new(0, ActionType::Walking(Direction::East), &world).is_err());
+    }
+
+    #[test]
+    fn test_fail_walking_two_units_to_same_place() {
+        let mut world = prepare_world();
+        world.load_tile_mut(TilePos::new(1, 1)).terrain = Dirt::default().into();
+        let zombie = add_zombie(&mut world, TilePos::new(1, 0));
+
+        world.player_mut().action =
+            Some(Action::new(0, ActionType::Walking(Direction::SouthEast), &world).unwrap());
+        world.get_unit_mut(zombie).action =
+            Some(Action::new(zombie, ActionType::Walking(Direction::South), &world).unwrap());
+        world.tick();
+        assert_eq!(TilePos::new(1, 1), world.player().pos);
+        assert_eq!(TilePos::new(1, 0), world.get_unit(zombie).pos);
+        assert!(world.player().action.is_none());
+
+        world.player_mut().action = Some(Action::new(0, ActionType::SkippingTime, &world).unwrap());
+        world.tick();
+        assert_eq!(TilePos::new(1, 0), world.get_unit(zombie).pos);
+        assert!(world.get_unit(zombie).action.is_none());
+        assert_eq!(1, world.get_tile(TilePos::new(1, 1)).unwrap().units.len());
+        assert_eq!(1, world.get_tile(TilePos::new(1, 0)).unwrap().units.len());
+        assert_eq!(0, world.get_tile(TilePos::new(0, 0)).unwrap().units.len());
     }
 
     #[test]
