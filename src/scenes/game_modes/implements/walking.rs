@@ -1,5 +1,5 @@
 use colors::Colors;
-use game::actions::ActionType;
+use game::actions::implements::{Drop, Skip, Walk};
 use game::map::item::ItemView;
 use geometry::direction::Direction;
 use input;
@@ -44,7 +44,13 @@ impl GameModeImpl for Walking {
             game.push_mode(Examining::new().into());
             None
         } else if input::is_key_with_mod_pressed(ctx, Key::D) {
-            game.try_start_action(ActionType::Dropping(0, Direction::Here));
+            game.try_start_action(
+                Drop {
+                    item_id: 0,
+                    dir: Direction::Here,
+                }
+                .into(),
+            );
             None
         } else if input::is_key_with_mod_pressed(ctx, (Key::D, KeyModifier::Shift)) {
             game.push_mode(Dropping::new().into());
@@ -93,10 +99,10 @@ impl GameModeImpl for Walking {
             {
                 self.last_walk = now;
                 if dir.is_here() {
-                    game.try_start_action(ActionType::SkippingTime);
+                    game.try_start_action(Skip {}.into());
                 } else {
                     game.try_rotate_player(dir);
-                    game.try_start_action(ActionType::Walking(dir));
+                    game.try_start_action(Walk { dir }.into());
                 }
             }
             None

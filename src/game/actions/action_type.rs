@@ -1,193 +1,20 @@
 #![allow(dead_code)]
 
-use game::avatar::Soul;
-use game::map::item::{Item, ItemInteract, ItemTag};
-use game::map::passage::Passage;
-use game::map::terrain::{Terrain, TerrainInteract, TerrainView};
+use super::implements::*;
+use super::{ActionImpl, ActionPossibility};
+use enum_dispatch::enum_dispatch;
 use game::{Avatar, World};
-use geometry::direction::Direction;
 
-pub enum ActionPossibility {
-    Yes,
-    No(String),
-}
-
-use self::ActionPossibility::{No, Yes};
-
+#[enum_dispatch(ActionImpl)]
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum ActionType {
-    SkippingTime,
-    Walking(Direction),
-    Wielding(Direction),
-    Dropping(usize, Direction),
-    Digging(Direction),
-    Reading(Direction),
-    Animate(Direction), // TODO: write test for animate
-}
-
-impl ActionType {
-    pub fn length(&self, actor: &Avatar, world: &World) -> u32 {
-        match self {
-            ActionType::SkippingTime => 1,
-            ActionType::Walking(dir) => {
-                // TODO: check avatar perks for calculating speed
-                // TODO: add sqrt(2) for diagonal movement
-                let koeff = match actor.soul {
-                    Soul::Zombie(..) => 1.5,
-                    _ => 1.0,
-                };
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if let Passage::Passable(length) = tile.terrain.passage() {
-                        return (length * koeff).round() as u32;
-                    }
-                }
-
-                0
-            }
-            ActionType::Wielding(dir) => {
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if let Some(item) = tile.items.last() {
-                        return item.wield_time(actor).round() as u32;
-                    }
-                }
-
-                0
-            }
-            ActionType::Dropping(i, dir) => {
-                if let Some(item) = actor.wield.get(*i) {
-                    let k = if matches!(dir, Direction::Here) {
-                        1.0
-                    } else {
-                        1.5
-                    };
-                    return (item.drop_time(actor) * k).round() as u32;
-                }
-
-                0
-            }
-            ActionType::Digging(dir) => {
-                // TODO: check tool quality, avatar perks
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    return match tile.terrain {
-                        Terrain::Grave(..) => 2000,
-                        _ => 1000,
-                    };
-                }
-
-                0
-            }
-            ActionType::Reading(dir) => {
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if tile.is_readable() {
-                        return tile.read().len() as u32;
-                    }
-                }
-
-                0
-            }
-            ActionType::Animate(dir) => {
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    return tile
-                        .items
-                        .iter()
-                        .filter(|i| matches!(i, Item::Corpse(..)))
-                        .map(|i| i.mass() / 10)
-                        .next()
-                        .unwrap_or(0);
-                }
-
-                0
-            }
-        }
-    }
-
-    pub fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
-        match self {
-            ActionType::SkippingTime => Yes,
-            ActionType::Walking(dir) => {
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if !tile.terrain.is_passable() {
-                        return No(format!("You can't walk to the {}", tile.terrain.name()));
-                    }
-                    let unit_on_tile = tile.units.iter().next();
-                    if let Some(unit_id) = unit_on_tile {
-                        if let Some(unit) = world.units.get(*unit_id) {
-                            return No(format!("{} is on the way", unit.character.name));
-                        }
-                    }
-
-                    Yes
-                } else {
-                    No("Tile isn't loaded yet".to_string())
-                }
-            }
-            ActionType::Wielding(dir) => {
-                if !actor.wield.is_empty() {
-                    return No("You already have something in your hands".to_string());
-                }
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if tile.items.is_empty() {
-                        return No("There is nothing to pick up".to_string());
-                    }
-                }
-                Yes
-            }
-            ActionType::Dropping(_, dir) => {
-                if actor.wield.is_empty() {
-                    return No("You have nothing to drop".to_string());
-                }
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if !tile.terrain.is_passable() {
-                        return No(format!("You can't put items on {}", tile.terrain.name()));
-                    }
-                }
-
-                Yes
-            }
-            ActionType::Digging(dir) => {
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if !tile.terrain.is_diggable() {
-                        return No(format!("You can't dig the {}", tile.terrain.name()));
-                    }
-                }
-                if !actor.wield.iter().any(|i| i.tags().contains(&ItemTag::Dig)) {
-                    return No("You need a shovel to dig!".to_string());
-                }
-
-                Yes
-            }
-            ActionType::Reading(dir) => {
-                let pos = actor.pos + dir;
-                // TODO: check skill of reading, and probably even another languages
-                if let Some(tile) = world.get_tile(pos) {
-                    if tile.is_readable() {
-                        return Yes;
-                    }
-                }
-
-                No("There is nothing to read".to_string())
-            }
-            ActionType::Animate(dir) => {
-                let pos = actor.pos + dir;
-                if let Some(tile) = world.get_tile(pos) {
-                    if tile.items.iter().any(|i| matches!(i, Item::Corpse(..))) {
-                        return Yes;
-                    }
-                }
-
-                No("There is nothing to rise".to_string())
-            }
-        }
-    }
+    Skip,
+    Walk,
+    Wield,
+    Drop,
+    Dig,
+    Read,
+    Raise, // TODO: write test for animate
 }
 
 #[cfg(test)]
@@ -205,7 +32,9 @@ mod tests {
     use super::super::super::map::terrains::{Dirt, Grave, GraveData, GraveVariant};
     use super::super::super::world::tests::add_zombie;
     use super::super::super::world::tests::prepare_world;
-    use super::super::{Action, ActionResult, ActionType};
+    use super::super::{Action, ActionResult};
+    use game::actions::implements::*;
+    use game::actions::ActionImpl;
     use geometry::direction::{Direction, DIR8};
 
     #[test]
@@ -213,9 +42,11 @@ mod tests {
         let mut world = prepare_world();
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
 
-        let typ = ActionType::Walking(Direction::East);
+        let typ = Walk {
+            dir: Direction::East,
+        };
         let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         world.tick();
 
         assert_eq!(length as u128, world.meta.current_tick);
@@ -227,10 +58,12 @@ mod tests {
         let mut world = prepare_world();
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
 
-        let typ = ActionType::Walking(Direction::East);
+        let typ = Walk {
+            dir: Direction::East,
+        };
         let length = typ.length(world.player(), &world);
         assert_eq!(0, length);
-        assert!(Action::new(0, typ, &world).is_err());
+        assert!(Action::new(0, typ.into(), &world).is_err());
     }
 
     #[test]
@@ -239,7 +72,15 @@ mod tests {
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
         add_zombie(&mut world, TilePos::new(1, 0));
 
-        assert!(Action::new(0, ActionType::Walking(Direction::East), &world).is_err());
+        assert!(Action::new(
+            0,
+            Walk {
+                dir: Direction::East
+            }
+            .into(),
+            &world
+        )
+        .is_err());
     }
 
     #[test]
@@ -248,16 +89,34 @@ mod tests {
         world.load_tile_mut(TilePos::new(1, 1)).terrain = Dirt::default().into();
         let zombie = add_zombie(&mut world, TilePos::new(1, 0));
 
-        world.player_mut().action =
-            Some(Action::new(0, ActionType::Walking(Direction::SouthEast), &world).unwrap());
-        world.get_unit_mut(zombie).action =
-            Some(Action::new(zombie, ActionType::Walking(Direction::South), &world).unwrap());
+        world.player_mut().action = Some(
+            Action::new(
+                0,
+                Walk {
+                    dir: Direction::SouthEast,
+                }
+                .into(),
+                &world,
+            )
+            .unwrap(),
+        );
+        world.get_unit_mut(zombie).action = Some(
+            Action::new(
+                zombie,
+                Walk {
+                    dir: Direction::South,
+                }
+                .into(),
+                &world,
+            )
+            .unwrap(),
+        );
         world.tick();
         assert_eq!(TilePos::new(1, 1), world.player().pos);
         assert_eq!(TilePos::new(1, 0), world.get_unit(zombie).pos);
         assert!(world.player().action.is_none());
 
-        world.player_mut().action = Some(Action::new(0, ActionType::SkippingTime, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, Skip {}.into(), &world).unwrap());
         world.tick();
         // do not check zombie.action because it can be already new one, selected by AI
         assert_eq!(TilePos::new(1, 0), world.get_unit(zombie).pos);
@@ -278,9 +137,11 @@ mod tests {
         assert!(world.player().wield.is_empty());
         assert_eq!(0, world.meta.current_tick);
 
-        let typ = ActionType::Wielding(Direction::East);
+        let typ = Wield {
+            dir: Direction::East,
+        };
         let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         world.tick();
 
         assert_eq!(length as u128, world.meta.current_tick);
@@ -295,10 +156,10 @@ mod tests {
         let mut world = prepare_world();
 
         assert_eq!(0, world.meta.current_tick);
-        let typ = ActionType::SkippingTime;
+        let typ = Skip {};
         let length = typ.length(world.player(), &world);
         assert_eq!(1, length);
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         world.tick();
         assert_eq!(1, world.meta.current_tick);
     }
@@ -311,9 +172,12 @@ mod tests {
         world.player_mut().wield.clear();
         world.player_mut().wield.push(Axe::new().into());
 
-        let typ = ActionType::Dropping(0, Direction::Here);
+        let typ = Drop {
+            item_id: 0,
+            dir: Direction::Here,
+        };
         let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         world.tick();
 
         assert_eq!(length as u128, world.meta.current_tick);
@@ -330,12 +194,14 @@ mod tests {
         world.player_mut().wield.clear();
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
 
-        let typ = ActionType::Digging(Direction::East);
+        let typ = Dig {
+            dir: Direction::East,
+        };
         let length = typ.length(world.player(), &world);
-        assert!(Action::new(0, typ, &world).is_err());
+        assert!(Action::new(0, typ.into(), &world).is_err());
 
         world.player_mut().wield.push(Shovel::new().into());
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         while world.player().action.is_some() {
             world.tick();
         }
@@ -356,7 +222,7 @@ mod tests {
             },
         )
         .into();
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         while world.player().action.is_some() {
             world.tick();
         }
@@ -433,9 +299,11 @@ mod tests {
         };
         world.load_tile_mut(TilePos::new(1, 0)).terrain =
             Grave::new(GraveVariant::New, data.clone()).into();
-        let typ = ActionType::Reading(Direction::East);
+        let typ = Read {
+            dir: Direction::East,
+        };
         let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         while world.player().action.is_some() {
             let results = world.tick();
             for result in results {
@@ -451,8 +319,10 @@ mod tests {
 
         world.load_tile_mut(TilePos::new(0, 1)).terrain = Dirt::default().into();
         world.load_tile_mut(TilePos::new(0, 1)).items.clear();
-        let typ = ActionType::Reading(Direction::South);
-        assert!(Action::new(0, typ, &world).is_err());
+        let typ = Read {
+            dir: Direction::South,
+        };
+        assert!(Action::new(0, typ.into(), &world).is_err());
 
         world
             .load_tile_mut(TilePos::new(0, 1))
@@ -460,7 +330,7 @@ mod tests {
             .push(Gravestone::new(data).into());
 
         let length = typ.length(world.player(), &world);
-        world.player_mut().action = Some(Action::new(0, typ, &world).unwrap());
+        world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         while world.player().action.is_some() {
             let results = world.tick();
             for result in results {

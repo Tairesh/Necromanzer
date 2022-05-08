@@ -1,6 +1,7 @@
-use super::{ActionResult, ActionType};
+use super::{ActionImpl, ActionResult, ActionType};
 use colors::Colors;
-use game::actions::action_type::ActionPossibility;
+use game::actions::implements::{Dig, Drop, Raise, Read, Walk, Wield};
+use game::actions::ActionPossibility;
 use game::map::item::{Item, ItemView};
 use game::map::terrain::TerrainInteract;
 use game::{Avatar, World};
@@ -49,7 +50,7 @@ impl Action {
         let steps = (self.finish - world.meta.current_tick) as u32;
         if steps == self.length {
             match self.typ {
-                ActionType::Digging(..) => Some(ActionResult::LogMessage(format!(
+                ActionType::Dig(..) => Some(ActionResult::LogMessage(format!(
                     "{} start digging",
                     self.owner(world).name_for_actions()
                 ))),
@@ -58,12 +59,12 @@ impl Action {
         } else if steps == 0 {
             // finish
             match self.typ {
-                ActionType::SkippingTime => None,
-                ActionType::Walking(dir) => {
+                ActionType::Skip(..) => None,
+                ActionType::Walk(Walk { dir }) => {
                     world.move_avatar(self.owner, dir);
                     None
                 }
-                ActionType::Wielding(dir) => {
+                ActionType::Wield(Wield { dir }) => {
                     if let Some(item) = world.load_tile_mut(self.owner(world).pos + dir).items.pop()
                     {
                         let name = item.name();
@@ -77,8 +78,8 @@ impl Action {
                         None
                     }
                 }
-                ActionType::Dropping(i, dir) => {
-                    let item = self.owner_mut(world).wield.remove(i);
+                ActionType::Drop(Drop { item_id, dir }) => {
+                    let item = self.owner_mut(world).wield.remove(item_id);
                     let name = item.name();
                     world
                         .load_tile_mut(self.owner(world).pos + dir)
@@ -90,7 +91,7 @@ impl Action {
                         name
                     )))
                 }
-                ActionType::Digging(dir) => {
+                ActionType::Dig(Dig { dir }) => {
                     let pos = self.owner(world).pos + dir;
                     let items = world.load_tile_mut(pos).dig();
                     if !items.is_empty() {
@@ -114,11 +115,11 @@ impl Action {
                         self.owner(world).name_for_actions()
                     )))
                 }
-                ActionType::Reading(dir) => {
+                ActionType::Read(Read { dir }) => {
                     let pos = self.owner(world).pos + dir;
                     Some(ActionResult::LogMessage(world.load_tile(pos).read()))
                 }
-                ActionType::Animate(dir) => {
+                ActionType::Raise(Raise { dir }) => {
                     let pos = self.owner(world).pos + dir;
                     if let Some(i) = world
                         .load_tile(pos)

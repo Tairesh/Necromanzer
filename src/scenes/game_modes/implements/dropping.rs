@@ -1,5 +1,5 @@
 use colors::Colors;
-use game::actions::ActionType;
+use game::actions::implements::Drop;
 use game::map::terrain::TerrainInteract;
 use game::World;
 use geometry::direction::{Direction, DIR9};
@@ -62,7 +62,7 @@ impl GameModeImpl for Dropping {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
         } else if let Some(dir) = self.selected {
-            game.try_start_action(ActionType::Dropping(0, dir));
+            game.try_start_action(Drop { item_id: 0, dir }.into());
             game.modes.pop();
         }
         None

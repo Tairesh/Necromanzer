@@ -351,7 +351,7 @@ impl FovMap for World {
 
 #[cfg(test)]
 pub mod tests {
-    use super::super::actions::{Action, ActionType};
+    use super::super::actions::{Action, ActionImpl};
     use super::super::human::body::{Body, Freshness};
     use super::super::human::character::Character;
     use super::super::human::gender::Gender;
@@ -363,6 +363,7 @@ pub mod tests {
     use super::super::Avatar;
     use super::World;
     use assets::game_data::GameData;
+    use game::actions::implements::{Skip, Walk};
     use geometry::direction::Direction;
     use geometry::point::Point;
     use savefile::{GameView, Meta};
@@ -413,9 +414,11 @@ pub mod tests {
 
         assert_eq!(2, world.units.len());
         world.load_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();
-        let typ = ActionType::Walking(Direction::East);
+        let typ = Walk {
+            dir: Direction::East,
+        };
         let length = typ.length(world.get_unit(1), &world);
-        let action = Action::new(1, typ, &world).unwrap();
+        let action = Action::new(1, typ.into(), &world).unwrap();
         if let Some(zombie) = world.units.get_mut(1) {
             zombie.action = Some(action);
         } else {
@@ -424,8 +427,7 @@ pub mod tests {
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(TilePos::new(1, 0), world.units.get(1).unwrap().pos);
         for _ in 0..length {
-            world.player_mut().action =
-                Some(Action::new(0, ActionType::SkippingTime, &world).unwrap());
+            world.player_mut().action = Some(Action::new(0, Skip {}.into(), &world).unwrap());
             world.tick();
         }
         assert_eq!(TilePos::new(0, 0), world.player().pos);

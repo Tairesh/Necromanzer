@@ -1,5 +1,5 @@
 use colors::Colors;
-use game::actions::ActionType;
+use game::actions::implements::Raise;
 use game::map::item::Item;
 use game::World;
 use geometry::direction::{Direction, DIR9};
@@ -54,7 +54,7 @@ impl GameModeImpl for Animate {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
         } else if let Some(dir) = self.selected {
-            game.try_start_action(ActionType::Animate(dir));
+            game.try_start_action(Raise { dir }.into());
             game.modes.pop();
         }
         None

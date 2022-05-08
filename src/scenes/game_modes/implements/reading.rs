@@ -1,5 +1,5 @@
 use colors::Colors;
-use game::actions::ActionType;
+use game::actions::implements::Read;
 use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
@@ -53,7 +53,7 @@ impl GameModeImpl for Reading {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
         } else if let Some(dir) = self.selected {
-            game.try_start_action(ActionType::Reading(dir));
+            game.try_start_action(Read { dir }.into());
             game.modes.pop();
         }
         None

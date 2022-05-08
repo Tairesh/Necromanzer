@@ -1,5 +1,5 @@
 use colors::Colors;
-use game::actions::ActionType;
+use game::actions::implements::Wield;
 use game::map::item::ItemView;
 use game::World;
 use geometry::direction::{Direction, DIR9};
@@ -66,7 +66,7 @@ impl GameModeImpl for Wielding {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
         } else if let Some(dir) = self.selected {
-            game.try_start_action(ActionType::Wielding(dir));
+            game.try_start_action(Wield { dir }.into());
             game.modes.pop();
         }
         None

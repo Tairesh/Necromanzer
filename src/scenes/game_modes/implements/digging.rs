@@ -1,5 +1,5 @@
 use colors::Colors;
-use game::actions::ActionType;
+use game::actions::implements::Dig;
 use game::map::item::{ItemInteract, ItemTag};
 use game::map::terrain::TerrainInteract;
 use game::World;
@@ -68,7 +68,7 @@ impl GameModeImpl for Digging {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
         } else if let Some(dir) = self.selected {
-            game.try_start_action(ActionType::Digging(dir));
+            game.try_start_action(Dig { dir }.into());
             game.modes.pop();
         }
         None
