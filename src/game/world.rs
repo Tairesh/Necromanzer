@@ -147,13 +147,16 @@ impl World {
     pub fn get_unit(&self, unit_id: usize) -> &Avatar {
         self.units.get(unit_id).unwrap()
     }
+    pub fn get_unit_mut(&mut self, unit_id: usize) -> &mut Avatar {
+        self.units.get_mut(unit_id).unwrap()
+    }
 
     pub fn player(&self) -> &Avatar {
         self.get_unit(0)
     }
 
     pub fn player_mut(&mut self) -> &mut Avatar {
-        self.units.get_mut(0).unwrap()
+        self.get_unit_mut(0)
     }
 
     pub fn move_avatar(&mut self, unit_id: usize, dir: Direction) {
@@ -400,10 +403,12 @@ pub mod tests {
         assert_eq!(2, world.units.len());
         world.load_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();
         let typ = ActionType::Walking(Direction::East);
-        let length = typ.length(1, &world);
+        let length = typ.length(world.get_unit(1), &world);
         let action = Action::new(1, typ, &world).unwrap();
         if let Some(zombie) = world.units.get_mut(1) {
             zombie.action = Some(action);
+        } else {
+            unreachable!();
         }
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(TilePos::new(1, 0), world.units.get(1).unwrap().pos);
