@@ -3,8 +3,8 @@ use enum_dispatch::enum_dispatch;
 use game::World;
 use geometry::point::Point;
 use scenes::game_modes::implements::*;
-use scenes::game_modes::SomeResults;
 use scenes::implements::Game;
+use scenes::transition::SomeTransitions;
 use tetra::graphics::Color;
 use tetra::Context;
 
@@ -16,6 +16,6 @@ pub trait GameModeImpl {
     fn can_push(&self, _world: &World) -> Result<(), String> {
         Ok(())
     }
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults;
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions;
     fn draw(&mut self, _ctx: &mut Context, _game: &mut Game) {}
 }

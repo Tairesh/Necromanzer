@@ -10,8 +10,8 @@ use geometry::direction::{Direction, TwoDimDirection};
 use geometry::point::Point;
 use geometry::Vec2;
 use scenes::game_modes::implements::Walking;
+use scenes::game_modes::GameMode;
 use scenes::game_modes::GameModeImpl;
-use scenes::game_modes::{GameMode, UpdateResult};
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use settings::game::GameSettings;
@@ -108,42 +108,24 @@ impl Game {
             .log(self.world.borrow().this_is(pos, false), Colors::WHITE_SMOKE);
     }
 
+    fn cancel_action_msg(&mut self, msg: String) {
+        if !self.log.same_message(&msg) {
+            self.log.log(msg, Colors::LIGHT_CORAL);
+        }
+    }
+
     pub fn try_start_action(&mut self, typ: ActionType) {
         let action = Action::new(0, typ, &self.world.borrow());
         match action {
             Ok(action) => {
                 self.world.borrow_mut().player_mut().action = Some(action);
             }
-            Err(msg) => {
-                if !self.log.same_message(&msg) {
-                    self.log.log(msg, Colors::LIGHT_CORAL);
-                }
-            }
+            Err(msg) => self.cancel_action_msg(msg),
         }
     }
 
     pub fn mode_update(&mut self, ctx: &mut Context) -> SomeTransitions {
-        if let Some(updates) = self.current_mode().borrow_mut().update(ctx, self) {
-            for update in updates {
-                match update {
-                    UpdateResult::Push(mode) => {
-                        self.push_mode(mode);
-                    }
-                    UpdateResult::Replace(mode) => {
-                        self.modes.pop();
-                        self.push_mode(mode);
-                    }
-                    UpdateResult::Pop => {
-                        self.modes.pop();
-                    }
-                    UpdateResult::SceneTransit(t) => {
-                        return Some(t);
-                    }
-                }
-            }
-        }
-
-        None
+        self.current_mode().borrow_mut().update(ctx, self)
     }
 
     pub fn tile_size(&self) -> f32 {
@@ -151,8 +133,8 @@ impl Game {
     }
 
     fn make_world_tick(&mut self, ctx: &mut Context) {
-        let mut world = self.world.borrow_mut();
-        for action in world.tick() {
+        let actions = self.world.borrow_mut().tick();
+        for action in actions {
             match action {
                 ActionResult::LogMessage(message) => {
                     self.log.log(message, Colors::WHITE_SMOKE);
@@ -160,12 +142,11 @@ impl Game {
                 ActionResult::ColoredLogMessage(message, color) => {
                     self.log.log(message, color);
                 }
-                ActionResult::CancelAction(message) => {
-                    self.log.log(message, Colors::LIGHT_CORAL);
-                }
+                ActionResult::CancelAction(msg) => self.cancel_action_msg(msg),
             }
         }
 
+        let mut world = self.world.borrow_mut();
         self.current_time_label.borrow_mut().update(
             format!("{}", world.meta.current_tick),
             ctx,

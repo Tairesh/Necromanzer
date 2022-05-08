@@ -3,10 +3,10 @@ use game::World;
 use geometry::direction::Direction;
 use geometry::point::Point;
 use input;
-use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
+use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::scene::Scene::BodyView;
-use scenes::transition::Transition;
+use scenes::transition::{SomeTransitions, Transition};
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -36,30 +36,25 @@ impl GameModeImpl for Examining {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
         if input::is_key_pressed(ctx, Key::Escape) {
-            UpdateResult::Pop.into()
+            game.modes.pop();
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
-            None
         } else if let Some(dir) = self.selected {
             let mut world = game.world.borrow_mut();
             let pos = world.player().pos + dir;
             let tile = world.load_tile(pos);
-            if !tile.units.is_empty() {
-                return Some(vec![
-                    UpdateResult::Pop,
-                    UpdateResult::SceneTransit(vec![Transition::Push(BodyView(
-                        *tile.units.iter().next().unwrap(),
-                    ))]),
-                ]);
+            let unit_id = tile.units.iter().next();
+            if let Some(unit_id) = unit_id {
+                game.modes.pop();
+                return Some(vec![Transition::Push(BodyView(*unit_id))]);
             }
             drop(world);
             game.examine(dir);
-            UpdateResult::Pop.into()
-        } else {
-            None
+            game.modes.pop();
         }
+        None
     }
 }

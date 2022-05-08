@@ -65,7 +65,7 @@ impl World {
         self
     }
 
-    fn calc_fov(&mut self) {
+    pub fn calc_fov(&mut self) {
         self.fov = field_of_view_set(self.player().pos.into(), 64, self);
         self.fov_dirty = true;
     }

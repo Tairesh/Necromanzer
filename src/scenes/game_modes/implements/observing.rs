@@ -4,9 +4,9 @@ use geometry::direction::Direction;
 use geometry::point::Point;
 use geometry::{Rect, Vec2};
 use input;
-use scenes::game_modes::update_result::UpdateResult;
-use scenes::game_modes::{GameModeImpl, SomeResults};
+use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
+use scenes::transition::SomeTransitions;
 use std::time::Instant;
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::{Color, Rectangle};
@@ -133,12 +133,14 @@ impl GameModeImpl for Observing {
     fn cursors(&self, _world: &World) -> Vec<(Point, Color)> {
         vec![(self.mouse_moved_pos, Colors::LIME)]
     }
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
+
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
         self.update_mouse(ctx, game);
         let mut shifted = false;
         if input::is_key_pressed(ctx, Key::Escape) {
             game.shift_of_view = Point::zero();
-            return UpdateResult::Pop.into();
+            game.modes.pop();
+            return None;
         } else if input::is_mouse_scrolled_down(ctx) {
             game.world.borrow_mut().game_view.zoom.dec();
             shifted = true;
@@ -162,6 +164,7 @@ impl GameModeImpl for Observing {
 
         None
     }
+
     fn draw(&mut self, ctx: &mut Context, _game: &mut Game) {
         if let Some(sprite) = &mut self.sprite {
             sprite.mesh.draw(ctx);

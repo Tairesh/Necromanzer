@@ -108,6 +108,7 @@ impl Action {
                             world.load_tile_mut(pos + delta).items.push(item);
                         }
                     }
+                    world.calc_fov();
                     Some(ActionResult::LogMessage(format!(
                         "{} dig a hole",
                         self.owner(world).name_for_actions()

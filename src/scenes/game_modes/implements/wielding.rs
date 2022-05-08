@@ -5,9 +5,9 @@ use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
-use scenes::game_modes::update_result::UpdateResult;
-use scenes::game_modes::{GameModeImpl, SomeResults};
+use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
+use scenes::transition::SomeTransitions;
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -59,18 +59,16 @@ impl GameModeImpl for Wielding {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
         if input::is_key_pressed(ctx, Key::Escape) {
-            UpdateResult::Pop.into()
+            game.modes.pop();
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
-            None
-        } else {
-            self.selected.map(|dir| {
-                game.try_start_action(ActionType::Wielding(dir));
-                vec![UpdateResult::Pop]
-            })
+        } else if let Some(dir) = self.selected {
+            game.try_start_action(ActionType::Wielding(dir));
+            game.modes.pop();
         }
+        None
     }
 }

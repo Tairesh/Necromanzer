@@ -4,8 +4,9 @@ use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
-use scenes::game_modes::{GameModeImpl, SomeResults, UpdateResult};
+use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
+use scenes::transition::SomeTransitions;
 use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
@@ -45,18 +46,16 @@ impl GameModeImpl for Reading {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeResults {
+    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
         if input::is_key_pressed(ctx, Key::Escape) {
-            UpdateResult::Pop.into()
+            game.modes.pop();
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
-            None
         } else if let Some(dir) = self.selected {
             game.try_start_action(ActionType::Reading(dir));
-            UpdateResult::Pop.into()
-        } else {
-            None
+            game.modes.pop();
         }
+        None
     }
 }
