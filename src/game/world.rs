@@ -2,7 +2,7 @@
 
 use assets::game_data::GameData;
 use fov::{field_of_view_set, FovMap};
-use game::actions::{owner_mut, Action, ActionResult};
+use game::actions::{Action, ActionResult};
 use game::ai::brain::Brain;
 use game::avatar::Soul;
 use game::map::chunk::Chunk;
@@ -265,7 +265,7 @@ impl World {
                 }
             }
             if self.meta.current_tick == action.finish {
-                owner_mut(action.owner, self).action = None;
+                self.get_unit_mut(action.owner).action = None;
             }
         }
 

@@ -7,14 +7,6 @@ use game::{Avatar, World};
 use geometry::direction::{Direction, DIR8};
 use rand::seq::SliceRandom;
 
-pub fn owner(owner: usize, world: &World) -> &Avatar {
-    world.units.get(owner).unwrap()
-}
-
-pub fn owner_mut(owner: usize, world: &mut World) -> &mut Avatar {
-    world.units.get_mut(owner).unwrap()
-}
-
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Action {
     pub owner: usize,
@@ -41,11 +33,11 @@ impl Action {
     }
 
     fn owner<'a>(&self, world: &'a World) -> &'a Avatar {
-        owner(self.owner, world)
+        world.get_unit(self.owner)
     }
 
     fn owner_mut<'a>(&self, world: &'a mut World) -> &'a mut Avatar {
-        owner_mut(self.owner, world)
+        world.get_unit_mut(self.owner)
     }
 
     /// called every tick
