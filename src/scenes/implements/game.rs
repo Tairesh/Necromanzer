@@ -160,6 +160,9 @@ impl Game {
                 ActionResult::ColoredLogMessage(message, color) => {
                     self.log.log(message, color);
                 }
+                ActionResult::CancelAction(message) => {
+                    self.log.log(message, Colors::LIGHT_CORAL);
+                }
             }
         }
 

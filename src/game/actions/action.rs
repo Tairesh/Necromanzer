@@ -42,7 +42,10 @@ impl Action {
 
     /// called every tick
     pub fn act(&self, world: &mut World) -> Option<ActionResult> {
-        // TODO: if action is still possible
+        if let ActionPossibility::No(reason) = self.typ.is_possible(self.owner(world), world) {
+            return Some(ActionResult::CancelAction(reason));
+        }
+
         let steps = (self.finish - world.meta.current_tick) as u32;
         if steps == self.length {
             match self.typ {

@@ -33,7 +33,7 @@ impl ActionType {
                 // TODO: check avatar perks for calculating speed
                 // TODO: add sqrt(2) for diagonal movement
                 let koeff = match actor.soul {
-                    Soul::Zombie(..) => 0.75,
+                    Soul::Zombie(..) => 1.5,
                     _ => 1.0,
                 };
                 let pos = actor.pos + dir;

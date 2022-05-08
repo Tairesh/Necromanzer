@@ -254,12 +254,16 @@ impl World {
         let actions: Vec<Action> = self
             .units
             .iter()
+            .rev()
             .filter(|u| u.action.is_some())
             .map(|u| u.action.as_ref().unwrap().clone())
             .collect();
         for action in actions {
             if action.finish >= self.meta.current_tick {
                 let res = action.act(self);
+                if let Some(ActionResult::CancelAction(..)) = &res {
+                    self.get_unit_mut(action.owner).action = None;
+                }
                 if action.owner == 0 {
                     result = res;
                 }
