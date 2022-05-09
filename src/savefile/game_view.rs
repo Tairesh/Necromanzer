@@ -12,14 +12,14 @@ impl Default for GameView {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
-pub struct Zoom(u8);
+pub struct Zoom(pub u8);
 
 impl Zoom {
-    pub fn as_view(&self) -> f32 {
-        (*self).into()
+    pub fn as_view(self) -> f32 {
+        self.into()
     }
 
-    pub fn as_scale(&self) -> Vec2 {
+    pub fn as_scale(self) -> Vec2 {
         let f = self.as_view();
         Vec2::new(f, f)
     }

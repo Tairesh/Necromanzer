@@ -157,7 +157,7 @@ impl BodyView {
 
 impl SceneImpl for BodyView {
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
-        easy_back(event, false)
+        easy_back(&event, false)
     }
 
     fn on_resize(&mut self, ctx: &mut Context, window_size: (i32, i32)) {

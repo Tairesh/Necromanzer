@@ -1,5 +1,6 @@
 pub mod direction;
 pub mod point;
+pub mod two_dim_direction;
 
 pub type Vec2 = tetra::math::Vec2<f32>;
 pub type Rect = tetra::math::Rect<f32, f32>;

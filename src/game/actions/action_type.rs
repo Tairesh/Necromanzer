@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use enum_dispatch::enum_dispatch;
 
 use game::{Avatar, World};

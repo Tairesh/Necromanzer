@@ -14,15 +14,16 @@ use game::actions::{Action, ActionResult, ActionType};
 use game::map::item::ItemView;
 use game::map::terrain::TerrainView;
 use game::{Log, World};
-use geometry::direction::{Direction, TwoDimDirection};
+use geometry::direction::Direction;
 use geometry::point::Point;
+use geometry::two_dim_direction::TwoDimDirection;
 use geometry::Vec2;
 use scenes::game_modes::implements::Walking;
 use scenes::game_modes::GameMode;
 use scenes::game_modes::GameModeImpl;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
-use settings::game::GameSettings;
+use settings::game::Settings;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
 use ui::{BunchOfSprites, SomeSprites};
@@ -36,7 +37,7 @@ pub struct Game {
     pub current_time_label: Rc<RefCell<Label>>,
     pub log: Log,
     pub shift_of_view: Point,
-    pub settings: Rc<RefCell<GameSettings>>,
+    pub settings: Rc<RefCell<Settings>>,
     pub assets: Rc<Assets>,
     pub window_size: (i32, i32),
 }
@@ -187,7 +188,7 @@ impl SceneImpl for Game {
             .borrow_mut()
             .load_tiles_between(left_top, right_bottom);
         let world = self.world.borrow();
-        for (pos, tile) in world.tiles_between(left_top, right_bottom).into_iter() {
+        for (pos, tile) in world.tiles_between(left_top, right_bottom) {
             if !world.fov.visible().contains(&pos.into()) {
                 continue; // TODO: TileView struct for remembering tiles and optimizing drawing
             }

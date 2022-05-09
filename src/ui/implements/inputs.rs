@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::time::{Duration, Instant};
 
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
@@ -17,7 +15,7 @@ use crate::ui::position::Position;
 use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, Stringify, UiSprite, Update};
 
 enum ValueType {
-    String { max_length: u32 },
+    String { max_length: usize },
     Unsigned { min: u32, max: u32 },
 }
 
@@ -166,8 +164,7 @@ impl Draw for TextInput {
         let text_width = self
             .text_with_spaces
             .get_bounds(ctx)
-            .map(|r| r.width + 3.0)
-            .unwrap_or(-1.0f32);
+            .map_or(-1.0, |r| r.width + 3.0);
         let y = (rect.y + rect.h / 2.0 - self.line_height / 2.0 - 4.0).round();
         let text_pos = if !self.is_focused || self.is_disabled {
             Vec2::new(rect.x + rect.w / 2.0 - text_width / 2.0, y)
@@ -283,7 +280,7 @@ impl Update for TextInput {
             if let Some(text_input) = input::get_text_input(ctx) {
                 let allow = match self.value_type {
                     ValueType::String { max_length } => {
-                        (self.text.content().len() + text_input.len()) as u32 <= max_length
+                        (self.text.content().len() + text_input.len()) <= max_length
                     }
                     ValueType::Unsigned { .. } => matches!(text_input.parse::<u32>(), Ok(_)),
                 };
@@ -306,9 +303,14 @@ impl Update for TextInput {
                         .map(|c| if c == '\n' { ' ' } else { c })
                         .collect();
                     self.text.push_str(clipboard.as_str());
-                    while self.text.content().len() as u32 > max_length {
-                        self.text.pop();
-                        self.text_with_spaces.pop();
+                    self.text_with_spaces
+                        .push_str(clipboard.replace(' ', "_").as_str());
+                    if self.text.content().len() > max_length {
+                        self.text
+                            .set_content(String::from(&self.text.content()[..max_length]));
+                        self.text_with_spaces.set_content(String::from(
+                            &self.text_with_spaces.content()[..max_length],
+                        ));
                     }
                     self.is_danger = false;
                 }

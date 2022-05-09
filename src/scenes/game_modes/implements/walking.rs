@@ -8,7 +8,9 @@ use game::actions::implements::{Drop, Skip, Walk};
 use game::map::item::ItemView;
 use geometry::direction::Direction;
 use input;
-use scenes::game_modes::implements::*;
+use scenes::game_modes::implements::{
+    Animate, Digging, Dropping, Examining, Observing, Reading, Wielding,
+};
 use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::scene::Scene;
@@ -83,7 +85,7 @@ impl GameModeImpl for Walking {
                 .body
                 .wear
                 .iter()
-                .map(|i| i.name())
+                .map(ItemView::name)
                 .collect();
             game.log.log(
                 format!("You wear: {}", items.join(", ")),

@@ -177,12 +177,15 @@ pub fn human_body(character: &Character, freshness: Freshness) -> Body {
 
 #[cfg(test)]
 mod tests {
-    use game::bodies::helpers::human_torso;
-    use game::bodies::{BodyPartData, Freshness};
-    use game::human::character::tests::{dead_boy, tester_girl};
+    use game::bodies::helpers::{human_body, human_torso};
+    use game::bodies::{BodyPartData, BodySize, Freshness};
+    use game::human::character::tests::{dead_boy, old_queer, tester_girl};
     use game::human::gender::Sex;
+    use game::human::hair_color::HairColor;
+    use game::human::skin_tone::SkinTone;
     use game::map::item::ItemView;
     use game::map::items::{BodyPart, BodyPartType};
+    use game::map::pos::TilePos;
 
     use super::human_head;
 
@@ -378,5 +381,26 @@ mod tests {
                 .filter(|bp| matches!(bp.typ, BodyPartType::RightLeg))
                 .count()
         );
+    }
+
+    #[test]
+    fn test_old_man_body() {
+        let character = old_queer();
+        let body = human_body(&character, Freshness::Fresh);
+        let torso = body.parts.get(&TilePos::new(0, 0)).unwrap();
+        let head = torso.outside.first().unwrap();
+        assert!(matches!(head.typ, BodyPartType::Head));
+        assert!(matches!(
+            head.data,
+            BodyPartData {
+                freshness: Freshness::Fresh,
+                age: 75,
+                sex: Sex::Female,
+                skin_tone: SkinTone::Almond,
+                size: BodySize::Large,
+                alive: true,
+                hair_color: HairColor::Gray,
+            }
+        ))
     }
 }

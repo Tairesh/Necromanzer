@@ -281,7 +281,7 @@ impl Update for Button {
                     on_pressed = true;
                 }
                 if input::is_key_released(ctx, kwm.key) && self.is_pressed {
-                    off_pressed = true
+                    off_pressed = true;
                 }
             }
             if on_pressed {

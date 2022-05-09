@@ -15,7 +15,7 @@ use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
 use ui::button::Button;
-use ui::input::TextInput;
+use ui::inputs::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
 use ui::traits::{Draw, Positionate, Stringify};
@@ -192,7 +192,7 @@ impl SceneImpl for CreateWorld {
 
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
         let focused = self.is_there_focused_sprite();
-        easy_back(event, focused)
+        easy_back(&event, focused)
     }
 
     fn sprites(&self) -> SomeSprites {
@@ -226,13 +226,13 @@ impl SceneImpl for CreateWorld {
                     match savefile::create(name.as_str(), seed.as_str()) {
                         Ok(path) => Some(vec![Transition::Replace(Scene::CreateCharacter(path))]),
                         Err(err) => match err {
-                            savefile::SaveError::SystemError(err) => {
+                            savefile::Error::System(err) => {
                                 panic!("Can't write savefile: {}", err)
                             }
-                            savefile::SaveError::SerializeError(err) => {
+                            savefile::Error::Serialize(err) => {
                                 panic!("Can't create savefile: {}", err)
                             }
-                            savefile::SaveError::FileExists => {
+                            savefile::Error::FileExists => {
                                 self.name_input.borrow_mut().set_danger(true);
                                 self.name_error.borrow_mut().set_visible(true);
                                 None

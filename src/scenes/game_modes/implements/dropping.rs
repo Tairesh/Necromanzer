@@ -40,8 +40,7 @@ impl GameModeImpl for Dropping {
                     let pos = world.player().pos + d;
                     world
                         .get_tile(pos)
-                        .map(|t| t.terrain.is_passable())
-                        .unwrap_or(false)
+                        .map_or(false, |t| t.terrain.is_passable())
                 })
                 .map(|d| (d.into(), Colors::WHITE_SMOKE))
                 .collect()

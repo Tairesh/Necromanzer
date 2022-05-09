@@ -4,7 +4,9 @@ use tetra::Context;
 
 use game::World;
 use geometry::point::Point;
-use scenes::game_modes::implements::*;
+use scenes::game_modes::implements::{
+    Animate, Digging, Dropping, Examining, Observing, Reading, Walking, Wielding,
+};
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
 

@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;

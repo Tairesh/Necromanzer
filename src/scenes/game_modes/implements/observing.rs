@@ -42,7 +42,7 @@ pub struct Observing {
     last_shift: Instant,
     last_mouse_position: Vec2,
     mouse_moved: bool,
-    last_zoom: f32,
+    last_zoom: u8,
     mouse_moved_pos: Point,
     sprite: Option<Box<ObservingSprite>>,
 }
@@ -53,7 +53,7 @@ impl Observing {
             last_shift: Instant::now(),
             last_mouse_position: Vec2::zero(),
             mouse_moved: false,
-            last_zoom: 0.0,
+            last_zoom: 0,
             mouse_moved_pos: Point::zero(),
             sprite: None,
         }
@@ -61,14 +61,15 @@ impl Observing {
 
     fn update_mouse(&mut self, ctx: &mut Context, game: &mut Game) {
         let mouse = input::get_mouse_position(ctx);
-        let zoom = game.world.borrow().game_view.zoom.as_view();
+        let zoom_view = game.world.borrow().game_view.zoom.as_view();
+        let zoom = game.world.borrow().game_view.zoom.0;
         if mouse != self.last_mouse_position || zoom != self.last_zoom {
             self.last_mouse_position = mouse;
             self.last_zoom = zoom;
             if self.mouse_moved {
                 let (w, h) = game.window_size;
                 self.mouse_moved_pos = ((mouse - Vec2::new((w / 2) as f32, (h / 2) as f32))
-                    / (game.assets.tileset.tile_size as f32 * zoom))
+                    / (game.assets.tileset.tile_size as f32 * zoom_view))
                     .into();
             }
             self.mouse_moved = true;

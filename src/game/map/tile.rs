@@ -71,7 +71,7 @@ impl Tile {
             return true;
         }
 
-        self.items.iter().any(|i| i.is_readable())
+        self.items.iter().any(ItemInteract::is_readable)
     }
 
     pub fn read(&self) -> String {
@@ -84,7 +84,7 @@ impl Tile {
             .iter()
             .rev()
             .filter(|i| i.is_readable())
-            .map(|i| i.read())
+            .map(ItemInteract::read)
             .next()
             .unwrap_or_else(|| "You can't find anything to read here.".to_string())
     }

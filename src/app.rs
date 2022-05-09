@@ -12,14 +12,14 @@ use savefile;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use settings::game::GameSettings;
+use settings::game::Settings;
 use ui::label::Label;
 use ui::position::Position;
 use ui::traits::{Draw, Positionate, Stringify};
 
 pub struct App {
     pub assets: Rc<Assets>,
-    pub settings: Rc<RefCell<GameSettings>>,
+    pub settings: Rc<RefCell<Settings>>,
     pub world: Option<Rc<RefCell<World>>>,
     pub window_size: (i32, i32),
     scenes: Vec<Box<dyn SceneImpl>>,
@@ -27,9 +27,8 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(ctx: &mut Context, mut settings: GameSettings) -> tetra::Result<Self> {
+    pub fn new(ctx: &mut Context, settings: Settings) -> tetra::Result<Self> {
         let assets = Assets::load(ctx)?;
-        settings.tile_size = assets.tileset.tile_size as f32;
         let fps_counter = Label::new(
             "00",
             assets.fonts.default.clone(),
@@ -92,7 +91,7 @@ impl App {
     }
 
     fn load_world(&mut self, path: &Path) {
-        self.world = savefile::load_world(path, &self.assets)
+        self.world = savefile::init_world(path, &self.assets)
             .ok() // TODO: catch errors
             .map(|w| Rc::new(RefCell::new(w)));
     }
@@ -175,8 +174,8 @@ impl State for App {
             Event::Resized { width, height } => {
                 if !window::is_fullscreen(ctx) {
                     let mut settings = self.settings.borrow_mut();
-                    settings.window_settings.width = width;
-                    settings.window_settings.height = height;
+                    settings.window.width = width;
+                    settings.window.height = height;
                 }
                 self.on_resize(ctx, (width, height));
             }

@@ -104,8 +104,8 @@ impl LoadWorld {
             )));
             let version_label_size = version_label.borrow_mut().calc_size(ctx);
             sprites.push(version_label);
-            let time = OffsetDateTime::from(savefile.time)
-                .to_offset(app.settings.borrow().time_settings.offset);
+            let time =
+                OffsetDateTime::from(savefile.time).to_offset(app.settings.borrow().time.offset);
             sprites.push(Rc::new(RefCell::new(Label::new(
                 time.format(&DATETIME_FORMAT).unwrap(),
                 app.assets.fonts.default.clone(),
@@ -163,7 +163,7 @@ impl LoadWorld {
 
 impl SceneImpl for LoadWorld {
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
-        easy_back(event, false)
+        easy_back(&event, false)
     }
 
     fn sprites(&self) -> SomeSprites {
@@ -190,10 +190,10 @@ impl SceneImpl for LoadWorld {
         } else {
             // delete
             savefile::delete(path);
-            if !savefiles_exists() {
-                Some(vec![Transition::Pop])
-            } else {
+            if savefiles_exists() {
                 Some(vec![Transition::Replace(Scene::LoadWorld)])
+            } else {
+                Some(vec![Transition::Pop])
             }
         }
     }

@@ -60,7 +60,7 @@ pub fn is_no_key_modifiers(ctx: &Context) -> bool {
 }
 
 /// Sum of downed keys that assumes direction
-/// For example if Key::Up and Key::Left is pressed it will return Some(Direction::NorthWest)
+/// For example if `Key::Up` and `Key::Left` is pressed it will return `Some(Direction::NorthWest)`
 pub fn get_direction_keys_down(ctx: &Context) -> Option<Direction> {
     let key_down = |np: Key, n: Key| -> bool {
         is_key_down(ctx, np) || (is_key_down(ctx, n) && is_key_modifier_up(ctx, KeyModifier::Shift))

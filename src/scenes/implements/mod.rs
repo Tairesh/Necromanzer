@@ -6,7 +6,7 @@ pub use self::game::Game;
 pub use self::game_menu::GameMenu;
 pub use self::load_world::LoadWorld;
 pub use self::main_menu::MainMenu;
-pub use self::settings::Settings;
+pub use self::settings_scene::SettingsScene;
 
 mod body_view;
 mod create_character;
@@ -16,4 +16,4 @@ mod game;
 mod game_menu;
 mod load_world;
 mod main_menu;
-mod settings;
+mod settings_scene;

@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::rc::Rc;
@@ -18,8 +16,9 @@ use game::map::pos::{ChunkPos, TilePos};
 use game::map::terrain::TerrainView;
 use game::map::tile::Tile;
 use game::Avatar;
-use geometry::direction::{Direction, TwoDimDirection};
+use geometry::direction::Direction;
 use geometry::point::Point;
+use geometry::two_dim_direction::TwoDimDirection;
 use savefile::{GameView, Meta};
 use {geometry, savefile};
 
@@ -333,7 +332,7 @@ impl World {
                     }
                 }
             }
-            for (unit_id, typ) in unit_wants_actions.into_iter() {
+            for (unit_id, typ) in unit_wants_actions {
                 self.units.get_mut(unit_id).unwrap().action = Action::new(unit_id, typ, self).ok();
             }
             // self.kill_grass(self.player().pos, 13, 0.01);
@@ -346,8 +345,7 @@ impl World {
 impl FovMap for World {
     fn is_transparent(&self, point: Point) -> bool {
         self.get_tile(point.into())
-            .map(|t| t.terrain.is_transparent())
-            .unwrap_or(true)
+            .map_or(true, |t| t.terrain.is_transparent())
     }
 }
 

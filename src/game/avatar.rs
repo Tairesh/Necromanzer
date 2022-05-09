@@ -14,7 +14,7 @@ use game::human::gender::Gender;
 use game::map::item::{Item, ItemView};
 use game::map::items::{Cloak, Hat};
 use game::map::pos::TilePos;
-use geometry::direction::TwoDimDirection;
+use geometry::two_dim_direction::TwoDimDirection;
 use geometry::Vec2;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]

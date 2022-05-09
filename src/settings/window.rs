@@ -1,11 +1,11 @@
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct WindowSettings {
+pub struct Window {
     pub width: i32,
     pub height: i32,
     pub fullscreen: bool,
 }
 
-impl Default for WindowSettings {
+impl Default for Window {
     fn default() -> Self {
         Self {
             width: 800,

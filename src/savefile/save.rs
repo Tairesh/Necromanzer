@@ -7,48 +7,48 @@ use savefile::meta::Meta;
 use savefile::SAVEFILES_FOLDER;
 
 #[derive(Debug)]
-pub enum SaveError {
-    SystemError(String),
-    SerializeError(String),
+pub enum Error {
+    System(String),
+    Serialize(String),
     FileExists,
 }
 
-impl From<serde_json::Error> for SaveError {
+impl From<serde_json::Error> for Error {
     fn from(e: serde_json::Error) -> Self {
-        SaveError::SerializeError(e.to_string())
+        Error::Serialize(e.to_string())
     }
 }
 
-impl From<std::io::Error> for SaveError {
+impl From<std::io::Error> for Error {
     fn from(e: std::io::Error) -> Self {
-        SaveError::SystemError(e.to_string())
+        Error::System(e.to_string())
     }
 }
 
-pub fn create(name: &str, seed: &str) -> Result<PathBuf, SaveError> {
+pub fn create(name: &str, seed: &str) -> Result<PathBuf, Error> {
     make_dir()?;
     let name = name.trim().replace('\n', "");
     let path = name_to_path(name.as_str());
     if path.is_file() {
-        return Err(SaveError::FileExists);
+        return Err(Error::FileExists);
     }
-    let mut file = File::create(&path).map_err(SaveError::from)?;
+    let mut file = File::create(&path).map_err(Error::from)?;
     file.write_all(make_data(name.as_str(), seed)?.as_bytes())
-        .map_err(|e| e.into())
+        .map_err(Into::into)
         .map(|_| path)
 }
 
-pub fn save(world: &mut World) -> Result<(), SaveError> {
+pub fn save(world: &mut World) -> Result<(), Error> {
     world.meta.update_before_save();
-    let mut file = File::create(&world.meta.path).map_err(SaveError::from)?;
+    let mut file = File::create(&world.meta.path).map_err(Error::from)?;
     file.write_all(make_data_form_world(world)?.as_bytes())
-        .map_err(|e| e.into())
+        .map_err(Into::into)
 }
 
-fn make_dir() -> Result<(), SaveError> {
+fn make_dir() -> Result<(), Error> {
     let dir = Path::new(SAVEFILES_FOLDER);
     if !dir.exists() {
-        std::fs::create_dir(dir).map_err(SaveError::from)?;
+        std::fs::create_dir(dir).map_err(Error::from)?;
     }
     Ok(())
 }
@@ -60,36 +60,28 @@ fn name_to_path(name: &str) -> PathBuf {
         .collect()
 }
 
-fn make_data(name: &str, seed: &str) -> Result<String, SaveError> {
+fn make_data(name: &str, seed: &str) -> Result<String, Error> {
     let metadata = Meta::new(name, seed);
-    serde_json::to_string(&metadata).map_err(SaveError::from)
+    serde_json::to_string(&metadata).map_err(Error::from)
 }
 
-fn make_data_form_world(world: &World) -> Result<String, SaveError> {
-    let mut data = serde_json::to_string(&world.meta).map_err(SaveError::from)?;
+fn make_data_form_world(world: &World) -> Result<String, Error> {
+    let mut data = serde_json::to_string(&world.meta).map_err(Error::from)?;
     data.push('\n');
     data.push_str(
         serde_json::to_string(&world.game_view)
-            .map_err(SaveError::from)?
+            .map_err(Error::from)?
             .as_str(),
     );
-    for unit in world.units.iter() {
+    for unit in &world.units {
         data.push('\n');
-        data.push_str(
-            serde_json::to_string(unit)
-                .map_err(SaveError::from)?
-                .as_str(),
-        );
+        data.push_str(serde_json::to_string(unit).map_err(Error::from)?.as_str());
     }
     data.push_str("\n/units");
-    for coords in world.changed.clone().iter() {
-        let chunk = world.get_chunk(*coords).unwrap();
+    for coords in world.changed.clone() {
+        let chunk = world.get_chunk(coords).unwrap();
         data.push('\n');
-        data.push_str(
-            serde_json::to_string(chunk)
-                .map_err(SaveError::from)?
-                .as_str(),
-        );
+        data.push_str(serde_json::to_string(chunk).map_err(Error::from)?.as_str());
     }
     data.push_str("\n/chunks");
 

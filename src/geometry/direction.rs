@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
 use std::cmp::Ordering;
-use std::convert::TryFrom;
 
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use serde::{Deserialize, Serialize};
@@ -46,7 +45,7 @@ impl Direction {
         }
     }
 
-    pub fn dx(&self) -> i32 {
+    pub fn dx(self) -> i32 {
         match self {
             Direction::NorthWest | Direction::West | Direction::SouthWest => -1,
             Direction::NorthEast | Direction::East | Direction::SouthEast => 1,
@@ -54,7 +53,7 @@ impl Direction {
         }
     }
 
-    pub fn dy(&self) -> i32 {
+    pub fn dy(self) -> i32 {
         match self {
             Direction::NorthEast | Direction::North | Direction::NorthWest => -1,
             Direction::SouthEast | Direction::South | Direction::SouthWest => 1,
@@ -62,7 +61,7 @@ impl Direction {
         }
     }
 
-    pub fn is_here(&self) -> bool {
+    pub fn is_here(self) -> bool {
         matches!(self, Direction::Here)
     }
 }
@@ -91,37 +90,6 @@ impl From<&Direction> for Vec2 {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub enum TwoDimDirection {
-    East,
-    West,
-}
-
-#[derive(Debug)]
-pub enum DirectionConvertError {
-    North,
-    South,
-    Here,
-}
-
-impl TryFrom<Direction> for TwoDimDirection {
-    type Error = DirectionConvertError;
-
-    fn try_from(value: Direction) -> Result<Self, Self::Error> {
-        match value {
-            Direction::NorthEast | Direction::East | Direction::SouthEast => {
-                Ok(TwoDimDirection::East)
-            }
-            Direction::SouthWest | Direction::West | Direction::NorthWest => {
-                Ok(TwoDimDirection::West)
-            }
-            Direction::North => Err(DirectionConvertError::North),
-            Direction::South => Err(DirectionConvertError::South),
-            Direction::Here => Err(DirectionConvertError::Here),
-        }
-    }
-}
-
 pub const DIR8: [Direction; 8] = [
     Direction::East,
     Direction::SouthEast,
@@ -147,10 +115,8 @@ pub const DIR9: [Direction; 9] = [
 
 #[cfg(test)]
 mod tests {
-    use std::convert::{TryFrom, TryInto};
-
     use super::super::point::Point;
-    use super::{Direction, DirectionConvertError, TwoDimDirection};
+    use super::Direction;
 
     #[test]
     fn from_delta() {
@@ -173,17 +139,7 @@ mod tests {
     #[test]
     fn from_point_diff() {
         let pt = Point::new(1, 2);
-        let dir = pt.dir_to(&Point::new(3, 4));
+        let dir = pt.dir_to(Point::new(3, 4));
         assert!(matches!(dir, Direction::SouthEast));
-    }
-
-    #[test]
-    fn to_two_dim() {
-        let dir: TwoDimDirection = Direction::SouthEast.try_into().unwrap();
-        assert!(matches!(dir, TwoDimDirection::East));
-        let dir: TwoDimDirection = Direction::West.try_into().unwrap();
-        assert!(matches!(dir, TwoDimDirection::West));
-        let dir = TwoDimDirection::try_from(Direction::North);
-        assert!(matches!(dir, Err(DirectionConvertError::North)));
     }
 }

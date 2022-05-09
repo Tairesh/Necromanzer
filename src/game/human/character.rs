@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use rand::distributions::Standard;
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -156,5 +154,28 @@ pub mod tests {
                 alive: true,
             },
         )
+    }
+
+    pub fn old_queer() -> Character {
+        Character::new(
+            Appearance {
+                age: 75,
+                skin_tone: SkinTone::Almond,
+                hair_color: HairColor::Black,
+                body_size: BodySize::Large,
+            },
+            Mind {
+                name: "Old Queer".to_string(),
+                gender: Gender::Custom("X".to_string()),
+                main_hand: MainHand::Ambidexter,
+                alive: true,
+            },
+        )
+    }
+
+    #[test]
+    fn test_age_name() {
+        let character = tester_girl();
+        assert_eq!("girl", character.age_name());
     }
 }

@@ -38,10 +38,7 @@ impl GameModeImpl for Wielding {
                 .copied()
                 .filter(|d| {
                     let pos = world.player().pos + d;
-                    world
-                        .get_tile(pos)
-                        .map(|t| !t.items.is_empty())
-                        .unwrap_or(false)
+                    world.get_tile(pos).map_or(false, |t| !t.items.is_empty())
                 })
                 .map(|d| (d.into(), Colors::WHITE_SMOKE))
                 .collect()

@@ -22,9 +22,9 @@ pub trait SceneImpl {
     }
 
     fn is_there_focused_sprite(&self) -> bool {
-        self.sprites()
-            .map(|sprites| sprites.iter().any(|s| s.borrow().focused()))
-            .unwrap_or(false)
+        self.sprites().map_or(false, |sprites| {
+            sprites.iter().any(|s| s.borrow().focused())
+        })
     }
 
     fn reposition_all_sprites(&mut self, ctx: &mut Context, window_size: (i32, i32)) {

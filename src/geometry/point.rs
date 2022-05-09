@@ -46,18 +46,18 @@ impl Point {
     }
 
     /// Direction to other point
-    pub fn dir_to(&self, other: &Point) -> Direction {
-        Direction::from(*other - *self)
+    pub fn dir_to(self, other: Point) -> Direction {
+        Direction::from(other - self)
     }
 
     /// Square distance to other point
-    pub fn square_distance(&self, other: &Self) -> i32 {
-        let p = *self - *other;
+    pub fn square_distance(self, other: Self) -> i32 {
+        let p = self - other;
         p.x * p.x + p.y * p.y
     }
 
     /// Distance (pythagorean) to other point
-    pub fn distance(&self, other: &Self) -> f32 {
+    pub fn distance(self, other: Self) -> f32 {
         f32::sqrt(self.square_distance(other) as f32)
     }
 }
@@ -289,7 +289,7 @@ mod tests {
     fn test_dist() {
         let pt = Point::new(1, 2);
         let pt2 = Point::new(3, 4);
-        assert_eq!(pt.square_distance(&pt2), 8);
-        assert!(f32::abs(pt.distance(&pt2) - 2.828_427) < f32::EPSILON);
+        assert_eq!(pt.square_distance(pt2), 8);
+        assert!(f32::abs(pt.distance(pt2) - 2.828_427) < f32::EPSILON);
     }
 }

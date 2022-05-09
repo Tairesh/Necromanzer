@@ -41,8 +41,7 @@ impl GameModeImpl for Digging {
                     let pos = world.player().pos + d;
                     world
                         .get_tile(pos)
-                        .map(|t| t.terrain.is_diggable())
-                        .unwrap_or(false)
+                        .map_or(false, |t| t.terrain.is_diggable())
                 })
                 .map(|d| (d.into(), Colors::LIGHT_YELLOW))
                 .collect()

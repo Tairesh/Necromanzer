@@ -21,7 +21,7 @@ impl Meta {
         S: Into<String>,
     {
         Self {
-            path: Default::default(),
+            path: PathBuf::default(),
             name: name.into(),
             seed: seed.into(),
             version: VERSION.to_string(),

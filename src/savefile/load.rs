@@ -18,11 +18,7 @@ pub fn savefiles_exists() -> bool {
                 entry
                     .map(|entry| {
                         entry.file_type().map(|t| t.is_file()).unwrap_or(false)
-                            && entry
-                                .path()
-                                .extension()
-                                .map(|ext| ext == "save")
-                                .unwrap_or(false)
+                            && entry.path().extension().map_or(false, |ext| ext == "save")
                     })
                     .unwrap_or(false)
             })
@@ -48,20 +44,20 @@ pub fn savefiles() -> Vec<Meta> {
 }
 
 #[derive(Debug)]
-pub enum LoadError {
+pub enum Error {
     SystemError(String),
     DeserializeError(String),
 }
 
-impl From<serde_json::Error> for LoadError {
+impl From<serde_json::Error> for Error {
     fn from(e: serde_json::Error) -> Self {
-        LoadError::DeserializeError(e.to_string())
+        Error::DeserializeError(e.to_string())
     }
 }
 
-impl From<std::io::Error> for LoadError {
+impl From<std::io::Error> for Error {
     fn from(e: std::io::Error) -> Self {
-        LoadError::SystemError(e.to_string())
+        Error::SystemError(e.to_string())
     }
 }
 
@@ -82,7 +78,7 @@ pub fn have_avatar(path: &Path) -> bool {
     }
 }
 
-pub fn load_world(path: &Path, assets: &Assets) -> Result<World, LoadError> {
+pub fn init_world(path: &Path, assets: &Assets) -> Result<World, Error> {
     let file = File::open(path)?;
     let mut lines = BufReader::new(&file).lines();
     let meta = lines.next().unwrap()?;
@@ -105,13 +101,13 @@ pub fn load_world(path: &Path, assets: &Assets) -> Result<World, LoadError> {
     }
 
     let mut units = Vec::with_capacity(units_data.len());
-    for unit in units_data.iter() {
+    for unit in &units_data {
         let unit: Avatar = serde_json::from_str(unit).unwrap();
         units.push(unit);
     }
 
     let mut chunks = HashMap::with_capacity(chunks_data.len());
-    for chunk in chunks_data.iter() {
+    for chunk in &chunks_data {
         let chunk: Chunk = serde_json::from_str(chunk).unwrap();
         chunks.insert(chunk.pos, chunk);
     }

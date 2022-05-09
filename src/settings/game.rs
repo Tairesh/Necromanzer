@@ -1,44 +1,47 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use tetra::TetraError;
 
-use settings::time::TimeSettings;
-use settings::window::WindowSettings;
+use settings::time::Time;
+use settings::window::Window;
 
 const PATH: &str = "./settings.json";
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct GameSettings {
-    pub window_settings: WindowSettings,
+pub struct Settings {
+    pub window: Window,
     #[serde(skip)]
-    pub time_settings: TimeSettings,
+    pub time: Time,
     pub show_fps: bool,
     pub repeat_interval: u32,
-    pub tile_size: f32,
 }
 
-impl Default for GameSettings {
+impl Default for Settings {
     fn default() -> Self {
         Self {
-            window_settings: WindowSettings::default(),
-            time_settings: TimeSettings::default(),
+            window: Window::default(),
+            time: Time::default(),
             show_fps: false,
             repeat_interval: 75,
-            tile_size: 10.0,
         }
     }
 }
 
-impl GameSettings {
+impl Settings {
     pub fn load() -> tetra::Result<Self> {
         let path = Path::new(PATH);
         let settings = if path.is_file() {
-            let file = File::open(path).unwrap();
+            let file = File::open(path).map_err(|e| TetraError::PlatformError(e.to_string()))?;
             let reader = BufReader::new(file);
-            serde_json::from_reader(reader).unwrap_or_else(|_| GameSettings::default())
+            serde_json::from_reader(reader).unwrap_or_else(|_| Settings::default())
         } else {
-            let settings = GameSettings::default();
-            serde_json::to_writer(&File::create(path).unwrap(), &settings).unwrap();
+            let settings = Settings::default();
+            serde_json::to_writer(
+                &File::create(path).map_err(|e| TetraError::PlatformError(e.to_string()))?,
+                &settings,
+            )
+            .map_err(|e| TetraError::PlatformError(e.to_string()))?;
             settings
         };
         // TODO: settings.validate();

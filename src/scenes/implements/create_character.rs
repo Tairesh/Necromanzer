@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::path::PathBuf;
+use std::path::Path;
 use std::rc::Rc;
 
 use num_enum::{IntoPrimitive, TryFromPrimitive};
@@ -27,7 +27,7 @@ use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
 use ui::button::Button;
-use ui::input::TextInput;
+use ui::inputs::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
 use ui::traits::{Draw, Positionate, Stringify};
@@ -60,8 +60,8 @@ pub struct CreateCharacter {
 }
 
 impl CreateCharacter {
-    pub fn new(path: PathBuf, app: &App, ctx: &mut Context) -> Self {
-        let meta = savefile::load(&path).unwrap();
+    pub fn new(path: &Path, app: &App, ctx: &mut Context) -> Self {
+        let meta = savefile::load(path).unwrap();
         let bg = bg(&app.assets, &app.settings.borrow());
         let title = title("Create new character:", &app.assets);
         let subtitle = Rc::new(RefCell::new(Label::new(
@@ -309,7 +309,7 @@ impl SceneImpl for CreateCharacter {
     }
 
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
-        easy_back(event, self.is_there_focused_sprite())
+        easy_back(&event, self.is_there_focused_sprite())
     }
 
     fn on_resize(&mut self, _ctx: &mut Context, window_size: (i32, i32)) {

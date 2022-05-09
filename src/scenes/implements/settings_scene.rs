@@ -10,9 +10,9 @@ use colors::Colors;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
-use settings::game::GameSettings;
+use settings::game::Settings;
 use ui::button::Button;
-use ui::input::TextInput;
+use ui::inputs::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
 use ui::traits::{Positionate, Press, Stringify};
@@ -23,15 +23,15 @@ const FULLSCREEN_MODE_EVENT: u8 = 2;
 const REPEAT_INTERVAL_MINUS: u8 = 3;
 const REPEAT_INTERVAL_PLUS: u8 = 4;
 
-pub struct Settings {
+pub struct SettingsScene {
     sprites: BunchOfSprites,
     window_btn: Rc<RefCell<Button>>,
     fullscreen_btn: Rc<RefCell<Button>>,
     repeat_interval_input: Rc<RefCell<TextInput>>,
-    settings: Rc<RefCell<GameSettings>>,
+    settings: Rc<RefCell<Settings>>,
 }
 
-impl Settings {
+impl SettingsScene {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let settings = app.settings.borrow();
         let bg = bg(&app.assets, &settings);
@@ -42,7 +42,7 @@ impl Settings {
             "[Alt+F] Fullscreen",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
-            settings.window_settings.fullscreen,
+            settings.window.fullscreen,
             Position {
                 x: Horizontal::AtWindowCenterByLeft { offset: 100.0 },
                 y: Vertical::ByCenter { y: 150.0 },
@@ -54,7 +54,7 @@ impl Settings {
             "[Alt+W] Window",
             app.assets.fonts.default.clone(),
             app.assets.button.clone(),
-            !settings.window_settings.fullscreen,
+            !settings.window.fullscreen,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: 98.0 },
                 y: Vertical::ByCenter { y: 150.0 },
@@ -145,9 +145,9 @@ impl Settings {
     }
 }
 
-impl SceneImpl for Settings {
+impl SceneImpl for SettingsScene {
     fn event(&mut self, _ctx: &mut Context, event: Event) -> SomeTransitions {
-        easy_back(event, self.is_there_focused_sprite())
+        easy_back(&event, self.is_there_focused_sprite())
     }
 
     fn sprites(&self) -> SomeSprites {
@@ -159,7 +159,7 @@ impl SceneImpl for Settings {
             FULLSCREEN_MODE_EVENT => {
                 self.window_btn.borrow_mut().unpress();
                 if !tetra::window::is_fullscreen(ctx) {
-                    self.settings.borrow_mut().window_settings.fullscreen = true;
+                    self.settings.borrow_mut().window.fullscreen = true;
                     tetra::window::set_fullscreen(ctx, true).ok();
                 }
                 None
@@ -167,13 +167,13 @@ impl SceneImpl for Settings {
             WINDOW_MODE_EVENT => {
                 self.fullscreen_btn.borrow_mut().unpress();
                 if tetra::window::is_fullscreen(ctx) {
-                    self.settings.borrow_mut().window_settings.fullscreen = false;
+                    self.settings.borrow_mut().window.fullscreen = false;
                     tetra::window::set_fullscreen(ctx, false).ok();
                     tetra::window::set_decorated(ctx, true);
                     tetra::window::set_size(
                         ctx,
-                        self.settings.borrow().window_settings.width as i32,
-                        self.settings.borrow().window_settings.height as i32,
+                        self.settings.borrow().window.width as i32,
+                        self.settings.borrow().window.height as i32,
                     )
                     .ok();
                     let current_monitor = tetra::window::get_current_monitor(ctx).unwrap_or(0);
@@ -206,7 +206,7 @@ impl SceneImpl for Settings {
     }
 }
 
-impl Drop for Settings {
+impl Drop for SettingsScene {
     fn drop(&mut self) {
         if let Ok(repeat_interval) = self.repeat_interval_input.borrow().value().parse() {
             self.settings.borrow_mut().repeat_interval = repeat_interval;

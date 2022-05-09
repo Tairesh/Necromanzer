@@ -34,7 +34,7 @@ pub struct Position {
     pub y: Vertical,
 }
 
-#[allow(dead_code)]
+#[derive(Copy, Clone)]
 pub enum AnchorX {
     Left,
     Center,
@@ -42,7 +42,7 @@ pub enum AnchorX {
 }
 
 impl AnchorX {
-    pub fn to_position(&self, x: f32) -> Horizontal {
+    pub fn to_position(self, x: f32) -> Horizontal {
         match self {
             AnchorX::Left => Horizontal::ByLeft { x },
             AnchorX::Center => Horizontal::ByCenter { x },
@@ -51,7 +51,7 @@ impl AnchorX {
     }
 }
 
-#[allow(dead_code)]
+#[derive(Copy, Clone)]
 pub enum AnchorY {
     Top,
     Center,
@@ -59,7 +59,7 @@ pub enum AnchorY {
 }
 
 impl AnchorY {
-    pub fn to_position(&self, y: f32) -> Vertical {
+    pub fn to_position(self, y: f32) -> Vertical {
         match self {
             AnchorY::Top => Vertical::ByTop { y },
             AnchorY::Center => Vertical::ByCenter { y },

@@ -35,7 +35,7 @@ const VERSION: &str = concat!(
 );
 
 fn main() -> tetra::Result {
-    let settings = settings::game::GameSettings::load()?;
-    window::create_context(format!("{} {}", NAME, VERSION), &settings.window_settings)?
+    let settings = settings::game::Settings::load()?;
+    window::create_context(format!("{} {}", NAME, VERSION), &settings.window)?
         .run(|ctx| app::App::new(ctx, settings))
 }
