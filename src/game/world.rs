@@ -358,16 +358,14 @@ pub mod tests {
 
     use assets::game_data::GameData;
     use game::actions::implements::{Skip, Walk};
+    use game::bodies::helpers::human_body;
+    use game::bodies::Freshness;
+    use game::human::character::tests::{dead_boy, tester_girl};
     use geometry::direction::Direction;
     use geometry::point::Point;
     use savefile::{GameView, Meta};
 
     use super::super::actions::Action;
-    use super::super::human::body::{Body, Freshness};
-    use super::super::human::character::Character;
-    use super::super::human::gender::Gender;
-    use super::super::human::main_hand::MainHand;
-    use super::super::human::skin_tone::SkinTone;
     use super::super::map::pos::TilePos;
     use super::super::map::terrain::TerrainView;
     use super::super::map::terrains::{Boulder, BoulderSize, Dirt};
@@ -378,16 +376,7 @@ pub mod tests {
         let mut world = World::new(
             Meta::new("test", "test"),
             GameView::default(),
-            vec![Avatar::player(
-                Character::new(
-                    "player",
-                    Gender::Female,
-                    16,
-                    MainHand::Left,
-                    SkinTone::Espresso,
-                ),
-                TilePos::new(0, 0),
-            )],
+            vec![Avatar::player(tester_girl(), TilePos::new(0, 0))],
             HashMap::new(),
             Rc::new(GameData::load().unwrap()),
         );
@@ -397,14 +386,8 @@ pub mod tests {
     }
 
     pub fn add_zombie(world: &mut World, pos: TilePos) -> usize {
-        let character = Character::new(
-            "zombie",
-            Gender::Female,
-            16,
-            MainHand::Left,
-            SkinTone::Espresso,
-        );
-        let body = Body::human(&character, Freshness::Rotten);
+        let character = dead_boy();
+        let body = human_body(&character, Freshness::Rotten);
         let zombie = Avatar::zombie(character, body, pos);
         world.load_tile(pos);
         world.add_unit(zombie)

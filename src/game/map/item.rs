@@ -66,7 +66,12 @@ pub enum ItemTag {
 
 #[cfg(test)]
 mod tests {
-    use super::super::super::human::body::{Body, BodyPartData, Freshness};
+    use game::bodies::helpers::human_body;
+    use game::bodies::BodySize;
+    use game::human::character::tests::dead_boy;
+    use game::human::hair_color::HairColor;
+
+    use super::super::super::bodies::{BodyPartData, Freshness};
     use super::super::super::human::character::Character;
     use super::super::super::human::gender::Gender;
     use super::super::super::human::main_hand::MainHand;
@@ -102,22 +107,33 @@ mod tests {
 
     #[test]
     fn test_corpse() {
-        let character = Character::new("test", Gender::Male, 15, MainHand::Right, SkinTone::Almond);
-        let body = Body::human(&character, Freshness::Rotten);
+        let character = dead_boy();
+        let body = human_body(&character, Freshness::Rotten);
         let corpse: Item = Corpse::new(character, body).into();
         assert_eq!("naked rotten boy corpse", corpse.name());
     }
 
     #[test]
     fn test_bodypart() {
-        let character = Character::new("test", Gender::Male, 15, MainHand::Right, SkinTone::Almond);
+        let character = Character::new(
+            "test",
+            Gender::Male,
+            15,
+            MainHand::Right,
+            SkinTone::Almond,
+            HairColor::Black,
+            BodySize::Tiny,
+            false,
+        );
         let brain: Item = BodyPart::new(
+            "brain",
             BodyPartData::new(&character, Freshness::Fresh),
             BodyPartType::Brain,
         )
         .into();
         assert_eq!("fresh child brain", brain.name());
         let head: Item = BodyPart::new(
+            "head",
             BodyPartData::new(&character, Freshness::Skeletal),
             BodyPartType::Head,
         )
@@ -127,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_gravestone() {
-        let character = Character::new("test", Gender::Male, 15, MainHand::Right, SkinTone::Almond);
+        let character = dead_boy();
         let gravestone: Item = Gravestone::new(GraveData {
             character,
             death_year: 255,
@@ -135,7 +151,7 @@ mod tests {
         .into();
         assert_eq!("gravestone", gravestone.name());
         assert!(gravestone.is_readable());
-        assert!(gravestone.read().contains("test"));
+        assert!(gravestone.read().contains("Dead Boy"));
     }
 
     #[test]

@@ -1,7 +1,9 @@
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use super::super::super::human::body::{Body, Freshness};
+use game::bodies::helpers::human_body;
+
+use super::super::super::bodies::Freshness;
 use super::super::super::human::character::Character;
 use super::super::item::Item;
 use super::super::items::{Corpse, Gravestone, Rags};
@@ -53,7 +55,7 @@ impl TerrainInteract for Grave {
     }
 
     fn dig_result(&self) -> (Terrain, Vec<Item>) {
-        let mut body = Body::human(
+        let mut body = human_body(
             &self.data.character,
             match self.data.death_year {
                 253..=255 => Freshness::Rotten,

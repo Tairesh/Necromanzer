@@ -7,7 +7,8 @@ use assets::tileset::Tileset;
 use colors::Colors;
 use game::actions::Action;
 use game::ai::ZombieBrain;
-use game::human::body::{Body, Freshness};
+use game::bodies::helpers::human_body;
+use game::bodies::{Body, Freshness};
 use game::human::character::Character;
 use game::human::gender::Gender;
 use game::map::item::{Item, ItemView};
@@ -38,7 +39,7 @@ pub struct Avatar {
 
 impl Avatar {
     pub fn player(character: Character, pos: TilePos) -> Self {
-        let mut body = Body::human(&character, Freshness::Fresh);
+        let mut body = human_body(&character, Freshness::Fresh);
         body.wear.push(Cloak::new().into());
         body.wear.push(Hat::new().into());
         Self::new(character, body, Soul::Player, pos)
@@ -88,14 +89,8 @@ impl Avatar {
             let freshness = self
                 .body
                 .parts
-                .get("torso")
-                .map(|i| {
-                    if let Item::BodyPart(bp) = i {
-                        bp.data.freshness
-                    } else {
-                        unreachable!()
-                    }
-                })
+                .get(&TilePos::new(0, 0))
+                .map(|i| i.data.freshness)
                 .unwrap_or(Freshness::Rotten);
             let (name, color) = match freshness {
                 Freshness::Fresh => (

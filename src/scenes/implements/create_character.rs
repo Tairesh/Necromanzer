@@ -12,7 +12,9 @@ use variant_count::VariantCount;
 use app::App;
 use assets::game_data::GameData;
 use colors::Colors;
+use game::bodies::BodySize;
 use game::human::character::Character;
+use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;
 use game::human::skin_tone::SkinTone;
 use game::map::pos::TilePos;
@@ -356,7 +358,7 @@ impl SceneImpl for CreateCharacter {
             }
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
-                let character = Character::random(&mut rng, &self.game_data);
+                let character = Character::random(&mut rng, &self.game_data, true);
                 self.gender_input.borrow_mut().set_value(character.gender);
                 self.name_input.borrow_mut().set_value(character.name);
                 self.age_input
@@ -377,8 +379,16 @@ impl SceneImpl for CreateCharacter {
                 } else {
                     let gender = self.gender_input.borrow().value().into();
                     let age = self.age_input.borrow().value().parse::<u8>().unwrap();
-                    let character =
-                        Character::new(name, gender, age, self.main_hand, SkinTone::PaleIvory);
+                    let character = Character::new(
+                        name,
+                        gender,
+                        age,
+                        self.main_hand,
+                        SkinTone::PaleIvory,
+                        HairColor::White,
+                        BodySize::Normal,
+                        true,
+                    );
                     // TODO: find available starting pos in the world
                     let avatar = Avatar::player(character, TilePos::new(0, 0));
                     let mut world = World::new(

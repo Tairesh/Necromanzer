@@ -8,6 +8,7 @@ extern crate phf;
 extern crate rand;
 extern crate serde;
 extern crate serde_json;
+extern crate serde_with;
 extern crate tetra;
 extern crate time;
 extern crate variant_count;

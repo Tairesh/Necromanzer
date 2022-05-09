@@ -22,9 +22,12 @@ pub enum ActionType {
 #[cfg(test)]
 mod tests {
     use game::actions::implements::*;
+    use game::bodies::{BodyPartData, BodySize, Freshness};
+    use game::human::character::tests::dead_boy;
+    use game::human::hair_color::HairColor;
+    use game::map::items::BodyPartType;
     use geometry::direction::{Direction, DIR8};
 
-    use super::super::super::human::body::{BodyPartData, Freshness};
     use super::super::super::human::character::Character;
     use super::super::super::human::gender::Gender;
     use super::super::super::human::main_hand::MainHand;
@@ -221,7 +224,16 @@ mod tests {
             Terrain::Pit(..)
         ));
 
-        let character = Character::new("test", Gender::Male, 25, MainHand::Right, SkinTone::Amber);
+        let character = Character::new(
+            "test",
+            Gender::Male,
+            25,
+            MainHand::Right,
+            SkinTone::Amber,
+            HairColor::Black,
+            BodySize::Large,
+            false,
+        );
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Grave::new(
             GraveVariant::New,
             GraveData {
@@ -264,14 +276,15 @@ mod tests {
                 assert_eq!(25, ch.age);
                 assert_eq!(MainHand::Right, ch.main_hand);
                 assert!(matches!(
-                    body.parts.get("torso"),
-                    Some(Item::BodyPart(BodyPart {
+                    body.parts.get(&TilePos::new(0, 0)),
+                    Some(BodyPart {
+                        typ: BodyPartType::Torso,
                         data: BodyPartData {
                             freshness: Freshness::Rotten,
                             ..
                         },
                         ..
-                    }))
+                    })
                 ));
             } else {
                 unreachable!();
@@ -300,7 +313,7 @@ mod tests {
     fn test_reading() {
         let mut world = prepare_world();
 
-        let character = Character::new("test", Gender::Male, 25, MainHand::Right, SkinTone::Amber);
+        let character = dead_boy();
         let data = GraveData {
             character,
             death_year: 255,
@@ -323,7 +336,7 @@ mod tests {
             for result in results {
                 match result {
                     ActionResult::LogMessage(s) => {
-                        assert_eq!("You read on gravestone: test. 230 — 255", s);
+                        assert_eq!("You read on gravestone: Dead Boy. 246 — 255", s);
                     }
                     _ => {}
                 }
@@ -348,7 +361,7 @@ mod tests {
             for result in results {
                 match result {
                     ActionResult::LogMessage(s) => {
-                        assert_eq!("You read on gravestone: test. 230 — 255", s);
+                        assert_eq!("You read on gravestone: Dead Boy. 246 — 255", s);
                     }
                     _ => {}
                 }

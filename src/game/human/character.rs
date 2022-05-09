@@ -6,6 +6,8 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use assets::game_data::GameData;
+use game::bodies::BodySize;
+use game::human::hair_color::HairColor;
 
 use super::gender::Gender;
 use super::main_hand::MainHand;
@@ -19,11 +21,18 @@ pub struct Character {
     pub gender: Gender,
     #[serde(rename = "a")]
     pub age: u8,
-    #[serde(rename = "h")]
+    #[serde(rename = "m")]
     pub main_hand: MainHand,
     #[serde(rename = "s")]
     pub skin_tone: SkinTone,
+    #[serde(rename = "h")]
+    pub hair_color: HairColor,
+    #[serde(rename = "z")]
+    pub body_size: BodySize,
+    #[serde(rename = "l")]
+    pub alive: bool,
     // TODO: profession
+    // TODO: probably move appearance and mind attributes to separate structs
 }
 
 impl Character {
@@ -33,6 +42,9 @@ impl Character {
         age: u8,
         main_hand: MainHand,
         skin_tone: SkinTone,
+        hair_color: HairColor,
+        body_size: BodySize,
+        alive: bool,
     ) -> Self {
         Self {
             name: name.into(),
@@ -40,10 +52,13 @@ impl Character {
             age,
             main_hand,
             skin_tone,
+            hair_color,
+            body_size,
+            alive,
         }
     }
 
-    pub fn random<R: Rng + ?Sized>(rng: &mut R, game_data: &GameData) -> Character {
+    pub fn random<R: Rng + ?Sized>(rng: &mut R, game_data: &GameData, alive: bool) -> Character {
         let gender = rng.sample(Standard);
         let name = format!(
             "{} {}",
@@ -62,6 +77,9 @@ impl Character {
             rng.gen_range(0..=99),
             rng.sample(Standard),
             rng.sample(Standard),
+            rng.sample(Standard),
+            rng.sample(Standard),
+            alive,
         )
     }
 
@@ -95,5 +113,42 @@ pub fn age_name(age: u8, gender: Option<&Gender>) -> &'static str {
                 "human"
             }
         }
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use game::bodies::BodySize;
+    use game::human::gender::Gender;
+    use game::human::hair_color::HairColor;
+    use game::human::main_hand::MainHand;
+    use game::human::skin_tone::SkinTone;
+
+    use super::Character;
+
+    pub fn dead_boy() -> Character {
+        Character::new(
+            "Dead Boy",
+            Gender::Male,
+            9,
+            MainHand::Right,
+            SkinTone::Almond,
+            HairColor::Black,
+            BodySize::Tiny,
+            false,
+        )
+    }
+
+    pub fn tester_girl() -> Character {
+        Character::new(
+            "Tester Girl",
+            Gender::Female,
+            15, // Fifteen is the best age
+            MainHand::Left,
+            SkinTone::WarmIvory,
+            HairColor::Ginger,
+            BodySize::Small,
+            true,
+        )
     }
 }

@@ -14,6 +14,7 @@ features = ["serde_support","texture_png","texture_jpeg","font_ttf"]
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_with = "1.13"
 rand = "0.8"
 time = { version = "0.3", features = ["formatting", "local-offset", "macros"] }
 num_enum = "0.5"

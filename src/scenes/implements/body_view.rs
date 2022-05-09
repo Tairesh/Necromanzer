@@ -7,8 +7,9 @@ use tetra::{Context, Event};
 
 use app::App;
 use colors::Colors;
-use game::human::body::Freshness;
-use game::map::item::{Item, ItemView};
+use game::bodies::Freshness;
+use game::map::item::ItemView;
+use game::map::pos::TilePos;
 use game::World;
 use geometry::Vec2;
 use scenes::scene_impl::SceneImpl;
@@ -109,9 +110,9 @@ impl BodyView {
             sprites.push(Rc::new(RefCell::new(disp)));
         });
         let mut y = 0;
-        avatar.body.parts.iter().for_each(|(key, item)| {
+        if let Some(item) = avatar.body.parts.get(&TilePos::new(0, 0)) {
             y += 35;
-            let mut name = key.clone();
+            let mut name = item.name.clone();
             name.push(':');
             sprites.push(Rc::new(RefCell::new(Label::new(
                 name,
@@ -119,14 +120,10 @@ impl BodyView {
                 Colors::LIGHT_GRAY,
                 Position::by_left_top(20.0, 60.0 + y as f32),
             ))));
-            let color = if let Item::BodyPart(bp) = item {
-                match bp.data.freshness {
-                    Freshness::Fresh => Colors::LIGHT_PINK,
-                    Freshness::Rotten => Colors::LIME_GREEN,
-                    Freshness::Skeletal => Colors::WARM_IVORY,
-                }
-            } else {
-                Colors::LIGHT_CORAL
+            let color = match item.data.freshness {
+                Freshness::Fresh => Colors::LIGHT_PINK,
+                Freshness::Rotten => Colors::LIME_GREEN,
+                Freshness::Skeletal => Colors::WARM_IVORY,
             };
             let mut bp = Label::new(
                 item.name(),
@@ -148,7 +145,7 @@ impl BodyView {
                 Position::by_left_top(165.0, 57.0 + y as f32),
             ))));
             sprites.push(Rc::new(RefCell::new(bp)));
-        });
+        }
         Self {
             world: app.clone_world(),
             sprites,

@@ -22,5 +22,8 @@ test:
 clippy:
 	cargo clippy -- -Dwarnings --verbose
 
+clippy-pedantic:
+	cargo clippy -- -D clippy::pedantic -A clippy::cast_precision_loss --verbose --no-deps
+
 clean:
 	cargo clean

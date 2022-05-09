@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Sub};
 
 use geometry::direction::Direction;
@@ -7,6 +8,8 @@ use geometry::point::Point;
 use geometry::Vec2;
 
 use super::chunk::Chunk;
+
+// TODO: move methods that we really need to geometry::Point and delete this
 
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct TilePos {
@@ -125,6 +128,12 @@ impl AddAssign<Point> for TilePos {
     fn add_assign(&mut self, rhs: Point) {
         self.x += rhs.x;
         self.y += rhs.y;
+    }
+}
+
+impl Display for TilePos {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "{}x{}", self.x, self.y)
     }
 }
 

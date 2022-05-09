@@ -5,6 +5,7 @@ pub use self::world::World;
 pub mod actions;
 pub mod ai;
 mod avatar;
+pub mod bodies;
 mod fov;
 pub mod human;
 mod log;

@@ -1,6 +1,8 @@
-use super::super::super::human::body::Body;
+use game::bodies::Body;
+use game::map::pos::TilePos;
+
 use super::super::super::human::character::Character;
-use super::super::item::{Item, ItemInteract, ItemView};
+use super::super::item::{ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Corpse {
@@ -20,15 +22,11 @@ impl ItemView for Corpse {
         if self.body.wear.is_empty() {
             adjectives.push("naked");
         }
-        let age_name = if let Some(torso) = self.body.parts.get("torso") {
-            if let Item::BodyPart(bp) = torso {
-                adjectives.push(bp.data.freshness.adjective());
-                bp.data.age_name(true)
-            } else {
-                "dismembered"
-            }
+        let age_name = if let Some(bp) = self.body.parts.get(&TilePos::new(0, 0)) {
+            adjectives.push(bp.data.freshness.adjective());
+            bp.data.age_name(true)
         } else {
-            self.character.age_name()
+            "dismembered"
         };
         format!("{} {} corpse", adjectives.join(" "), age_name)
     }
@@ -40,7 +38,7 @@ impl ItemView for Corpse {
 
 impl ItemInteract for Corpse {
     fn mass(&self) -> u32 {
-        // TODO: return body mass
+        // TODO: return bodies mass
         60_000
     }
 }

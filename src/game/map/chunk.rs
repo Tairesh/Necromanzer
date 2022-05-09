@@ -81,7 +81,7 @@ impl Chunk {
                         GraveVariant::New
                     },
                     GraveData {
-                        character: Character::random(&mut rng, game_data),
+                        character: Character::random(&mut rng, game_data, false),
                         death_year,
                     },
                 )

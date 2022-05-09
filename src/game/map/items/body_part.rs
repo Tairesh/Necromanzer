@@ -1,15 +1,43 @@
-use super::super::super::human::body::{BodyPartData, Freshness};
+use game::bodies::{BodyPartData, Freshness};
+
 use super::super::item::{ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct BodyPart {
+    #[serde(rename = "n")]
+    pub name: String, // like "second head", TODO: probably rename to ID or "key"
+    #[serde(rename = "d")]
     pub data: BodyPartData,
+    #[serde(rename = "t")]
     pub typ: BodyPartType,
+    #[serde(rename = "o")]
+    pub outside: Vec<BodyPart>,
+    #[serde(rename = "i")]
+    pub inside: Vec<BodyPart>,
+    #[serde(rename = "w")]
+    pub wear: Vec<usize>,
 }
 
 impl BodyPart {
-    pub fn new(data: BodyPartData, typ: BodyPartType) -> Self {
-        Self { data, typ }
+    pub fn new<S: Into<String>>(name: S, data: BodyPartData, typ: BodyPartType) -> Self {
+        Self {
+            name: name.into(),
+            data,
+            typ,
+            outside: Vec::default(),
+            inside: Vec::default(),
+            wear: Vec::default(),
+        }
+    }
+
+    pub fn with_inside(mut self, inside: Vec<BodyPart>) -> Self {
+        self.inside = inside;
+        self
+    }
+
+    pub fn with_outside(mut self, outside: Vec<BodyPart>) -> Self {
+        self.outside = outside;
+        self
     }
 }
 
@@ -33,6 +61,7 @@ impl ItemView for BodyPart {
             BodyPartType::Lung => ("lung", false),
             BodyPartType::Kidney => ("kidney", false),
             BodyPartType::Liver => ("liver", false),
+            BodyPartType::Intestines => ("intestines", false),
             BodyPartType::LeftArm => ("left arm", true),
             BodyPartType::LeftHand => ("left hand", true),
             BodyPartType::RightArm => ("right arm", true),
@@ -65,6 +94,7 @@ impl ItemInteract for BodyPart {
             BodyPartType::Lung => 500,
             BodyPartType::Kidney => 100,
             BodyPartType::Liver => 1_500,
+            BodyPartType::Intestines => 2_000,
             BodyPartType::LeftArm => 3_000,
             BodyPartType::LeftHand => 500,
             BodyPartType::RightArm => 3_000,
@@ -92,6 +122,7 @@ pub enum BodyPartType {
     Lung,
     Kidney,
     Liver,
+    Intestines,
     LeftArm,
     LeftHand,
     RightArm,
