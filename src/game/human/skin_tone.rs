@@ -50,7 +50,7 @@ impl SkinTone {
         self.into()
     }
 
-    pub fn text_color(&self) -> Color {
+    pub fn text_color(self) -> Color {
         match self {
             SkinTone::Almond
             | SkinTone::Umber

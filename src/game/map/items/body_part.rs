@@ -82,27 +82,23 @@ impl ItemView for BodyPart {
 impl ItemInteract for BodyPart {
     fn mass(&self) -> u32 {
         match self.typ {
-            BodyPartType::Head => 3_000,
+            BodyPartType::Head => 3_500,
             BodyPartType::Eye => 8,
-            BodyPartType::Nose => 50,
-            BodyPartType::Mouth => 100,
+            BodyPartType::Nose => 60,
+            BodyPartType::Mouth => 200,
             BodyPartType::Ear => 50,
             BodyPartType::Brain => 1_400,
             BodyPartType::Torso => 25_000,
             BodyPartType::Heart => 250,
             BodyPartType::Stomach => 125,
-            BodyPartType::Lung => 500,
+            BodyPartType::Lung => 600,
             BodyPartType::Kidney => 100,
             BodyPartType::Liver => 1_500,
             BodyPartType::Intestines => 2_000,
-            BodyPartType::LeftArm => 3_000,
-            BodyPartType::LeftHand => 500,
-            BodyPartType::RightArm => 3_000,
-            BodyPartType::RightHand => 500,
-            BodyPartType::LeftLeg => 10_000,
-            BodyPartType::LeftFoot => 750,
-            BodyPartType::RightLeg => 10_000,
-            BodyPartType::RightFoot => 750,
+            BodyPartType::LeftArm | BodyPartType::RightArm => 3_000,
+            BodyPartType::LeftHand | BodyPartType::RightHand => 500,
+            BodyPartType::LeftLeg | BodyPartType::RightLeg => 10_000,
+            BodyPartType::LeftFoot | BodyPartType::RightFoot => 750,
         }
     }
 }

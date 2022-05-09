@@ -30,7 +30,7 @@ impl TilePos {
         TilePos::new(left_top.x + dx, left_top.y + dy)
     }
 
-    pub fn chunk_and_pos(&self) -> (ChunkPos, usize) {
+    pub fn chunk_and_pos(self) -> (ChunkPos, usize) {
         let chunk = ChunkPos::new(
             (self.x as f32 / Chunk::SIZE as f32).floor() as i32,
             (self.y as f32 / Chunk::SIZE as f32).floor() as i32,
@@ -40,7 +40,7 @@ impl TilePos {
         (chunk, pos)
     }
 
-    pub fn square_dist_to(&self, other: TilePos) -> u32 {
+    pub fn square_dist_to(self, other: TilePos) -> u32 {
         let dx = self.x.abs_diff(other.x);
         let dy = self.y.abs_diff(other.y);
         dx * dx + dy * dy
@@ -148,12 +148,12 @@ impl ChunkPos {
         ChunkPos { x, y }
     }
 
-    pub fn left_top(&self) -> TilePos {
+    pub fn left_top(self) -> TilePos {
         TilePos::new(self.x * Chunk::SIZE, self.y * Chunk::SIZE)
     }
 
     #[allow(dead_code)]
-    pub fn right_bottom(&self) -> TilePos {
+    pub fn right_bottom(self) -> TilePos {
         TilePos::new(
             self.x * Chunk::SIZE + Chunk::SIZE - 1,
             self.y * Chunk::SIZE + Chunk::SIZE - 1,

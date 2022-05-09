@@ -9,11 +9,6 @@ pub trait FovMap {
 }
 
 pub fn field_of_view_set(center: Point, range: i32, fov_check: &dyn FovMap) -> HashSet<Point> {
-    let mut visible_points: HashSet<Point> =
-        HashSet::with_capacity(((range * 2) * (range * 2)) as usize);
-
-    visible_points.insert(center);
-
     /* N, NE, E, SE, S, SW, W, NW */
     const SECTORS: [(i32, i32); 8] = [
         (0, -1),
@@ -25,6 +20,11 @@ pub fn field_of_view_set(center: Point, range: i32, fov_check: &dyn FovMap) -> H
         (-1, 0),
         (-1, -1),
     ];
+
+    let mut visible_points: HashSet<Point> =
+        HashSet::with_capacity(((range * 2) * (range * 2)) as usize);
+
+    visible_points.insert(center);
 
     let r2 = range * range;
 

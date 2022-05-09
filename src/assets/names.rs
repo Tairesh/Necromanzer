@@ -6,7 +6,7 @@ pub struct Names {
 }
 
 impl Names {
-    pub fn load() -> tetra::Result<Self> {
+    pub fn load() -> Self {
         let mut male_names = Vec::with_capacity(259);
         let mut female_names = Vec::with_capacity(199);
         let mut names = Vec::with_capacity(458);
@@ -25,11 +25,11 @@ impl Names {
             names.push(name);
         }
 
-        Ok(Self {
+        Self {
             male_names,
             female_names,
             names,
-        })
+        }
     }
 }
 
@@ -39,7 +39,7 @@ mod tests {
 
     #[test]
     fn names_load() {
-        let names = Names::load().unwrap();
+        let names = Names::load();
         assert!(names.male_names.len() > 0);
         assert!(names.female_names.len() > 0);
         assert!(names.names.len() > 0);

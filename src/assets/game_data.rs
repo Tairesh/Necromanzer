@@ -6,10 +6,10 @@ pub struct GameData {
 }
 
 impl GameData {
-    pub fn load() -> tetra::Result<Self> {
-        Ok(Self {
-            names: Names::load()?,
-        })
+    pub fn load() -> Self {
+        Self {
+            names: Names::load(),
+        }
     }
 }
 
@@ -19,7 +19,7 @@ mod tests {
 
     #[test]
     fn data_load() {
-        let data = GameData::load().unwrap();
+        let data = GameData::load();
         assert!(data.names.male_names.len() > 0);
         assert!(data.names.female_names.len() > 0);
         assert!(data.names.names.len() > 0);

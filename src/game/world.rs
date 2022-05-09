@@ -376,7 +376,7 @@ pub mod tests {
             GameView::default(),
             vec![Avatar::player(tester_girl(), TilePos::new(0, 0))],
             HashMap::new(),
-            Rc::new(GameData::load().unwrap()),
+            Rc::new(GameData::load()),
         );
         world.load_tile(TilePos::new(0, 0));
 

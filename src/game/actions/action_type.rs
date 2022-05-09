@@ -2,7 +2,7 @@ use enum_dispatch::enum_dispatch;
 
 use game::{Avatar, World};
 
-use super::implements::*;
+use super::implements::{Dig, Drop, Raise, Read, Skip, Walk, Wield};
 use super::{Action, ActionImpl, ActionPossibility, ActionResult};
 
 #[enum_dispatch(ActionImpl)]

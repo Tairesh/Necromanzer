@@ -87,7 +87,7 @@ impl Tileset {
     ) {
         let region = REGIONS
             .get(name)
-            .cloned()
+            .copied()
             .unwrap_or_else(|| Rectangle::new(30.0, 90.0, 10.0, 10.0));
         self.texture.draw_region(ctx, region, params);
     }

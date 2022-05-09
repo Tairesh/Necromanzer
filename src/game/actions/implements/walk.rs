@@ -14,12 +14,12 @@ pub struct Walk {
 }
 
 impl Walk {
-    fn length(&self, actor: &Avatar, world: &World) -> u32 {
+    fn length(self, actor: &Avatar, world: &World) -> u32 {
         // TODO: check avatar perks for calculating speed
         // TODO: add sqrt(2) for diagonal movement
         let koeff = match actor.soul {
             Soul::Zombie(..) => 1.5,
-            _ => 1.0,
+            Soul::Player => 1.0,
         } * match actor.character.appearance.age {
             0 => 100.0,
             1..=3 => 10.0,

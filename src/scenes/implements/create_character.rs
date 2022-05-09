@@ -60,6 +60,8 @@ pub struct CreateCharacter {
 }
 
 impl CreateCharacter {
+    // TODO: refactor and delete this allow
+    #[allow(clippy::too_many_lines)]
     pub fn new(path: &Path, app: &App, ctx: &mut Context) -> Self {
         let meta = savefile::load(path).unwrap();
         let bg = bg(&app.assets, &app.settings.borrow());

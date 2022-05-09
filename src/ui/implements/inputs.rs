@@ -19,6 +19,7 @@ enum ValueType {
     Unsigned { min: u32, max: u32 },
 }
 
+#[allow(clippy::struct_excessive_bools)]
 pub struct TextInput {
     text: Text,
     text_with_spaces: Text,
@@ -27,7 +28,7 @@ pub struct TextInput {
     line_height: f32,
     value_type: ValueType,
     rect: Option<Rect>,
-    is_focused: bool,
+    is_focused: bool, // TODO: use state-machine
     is_disabled: bool,
     is_hovered: bool,
     is_danger: bool,

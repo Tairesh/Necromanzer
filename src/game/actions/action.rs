@@ -19,8 +19,8 @@ impl Action {
                 Ok(Self {
                     owner,
                     typ,
-                    finish,
                     length,
+                    finish,
                 })
             }
             ActionPossibility::No(s) => Err(s),

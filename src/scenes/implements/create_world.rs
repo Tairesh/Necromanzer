@@ -39,6 +39,8 @@ pub struct CreateWorld {
 }
 
 impl CreateWorld {
+    // TODO: refactor and delete this allow
+    #[allow(clippy::too_many_lines)]
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let mut rng = thread_rng();
 

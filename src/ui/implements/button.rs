@@ -46,6 +46,7 @@ enum ButtonState {
     Disabled,
 }
 
+#[allow(clippy::struct_excessive_bools)]
 pub struct Button {
     keys: Vec<KeyWithMod>,
     content: ButtonContent,
@@ -54,7 +55,7 @@ pub struct Button {
     asset: Rc<ButtonAsset>,
     scale: Vec2,
     rect: Option<Rect>,
-    is_pressed: bool,
+    is_pressed: bool, // TODO: use state-machine
     is_disabled: bool,
     is_hovered: bool,
     fixable: bool,

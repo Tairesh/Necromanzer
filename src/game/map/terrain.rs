@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::item::Item;
 use super::passage::Passage;
-use super::terrains::*;
+use super::terrains::{Boulder, Dirt, Grass, Grave, Pit};
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -90,8 +90,7 @@ impl Avatar {
                 .body
                 .parts
                 .get(&TilePos::new(0, 0))
-                .map(|i| i.data.freshness)
-                .unwrap_or(Freshness::Rotten);
+                .map_or(Freshness::Rotten, |i| i.data.freshness);
             let (name, color) = match freshness {
                 Freshness::Fresh => (
                     if self.character.appearance.age > 15 {

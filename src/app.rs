@@ -19,6 +19,7 @@ use ui::traits::{Draw, Positionate, Stringify};
 
 pub struct App {
     pub assets: Rc<Assets>,
+    // TODO: probably use OnceCell https://docs.rs/once_cell/latest/once_cell/
     pub settings: Rc<RefCell<Settings>>,
     pub world: Option<Rc<RefCell<World>>>,
     pub window_size: (i32, i32),

@@ -48,6 +48,8 @@ pub struct LoadWorld {
 }
 
 impl LoadWorld {
+    // TODO: refactor and delete this allow
+    #[allow(clippy::too_many_lines)]
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let savefiles = savefiles();
         let mut sprites: BunchOfSprites = Vec::with_capacity(savefiles.len() * 6 + 1);

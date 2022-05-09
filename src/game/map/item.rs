@@ -4,7 +4,7 @@ use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 
 use super::super::Avatar;
-use super::items::*;
+use super::items::{Axe, BodyPart, Cloak, Corpse, Gravestone, Hat, Knife, Rags, Shovel};
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]

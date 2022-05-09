@@ -2,6 +2,7 @@ use tetra::graphics::Color;
 
 pub struct Colors;
 
+#[allow(clippy::unreadable_literal, clippy::too_many_lines)]
 const fn u8tof32(i: u8) -> f32 {
     match i {
         0 => 0.0,

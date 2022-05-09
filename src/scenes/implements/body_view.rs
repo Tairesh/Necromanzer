@@ -30,6 +30,8 @@ pub struct BodyView {
 }
 
 impl BodyView {
+    // TODO: refactor and delete this allow
+    #[allow(clippy::too_many_lines)]
     pub fn new(unit_id: usize, app: &App, ctx: &mut Context) -> Self {
         let world = app.world.as_ref().unwrap().borrow();
         let avatar = world.get_unit(unit_id);

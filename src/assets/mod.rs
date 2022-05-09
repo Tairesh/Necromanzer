@@ -35,7 +35,7 @@ impl Assets {
             tileset: Rc::new(Tileset::load(ctx)?),
             button: Rc::new(Button::load(ctx)?),
             alert: Rc::new(Alert::load(ctx)?),
-            game_data: Rc::new(GameData::load()?),
+            game_data: Rc::new(GameData::load()),
         })
     }
 }

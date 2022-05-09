@@ -19,7 +19,7 @@ pub enum Freshness {
 }
 
 impl Freshness {
-    pub fn adjective(&self) -> &'static str {
+    pub fn adjective(self) -> &'static str {
         match self {
             Self::Fresh => "fresh",
             Self::Rotten => "rotten",

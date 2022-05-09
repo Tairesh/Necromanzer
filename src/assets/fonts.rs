@@ -21,10 +21,10 @@ impl Fonts {
         let avqest32 = Font::from_vector_file_data(ctx, avqest, 32.0)?;
 
         Ok(Self {
-            default: PreparedFont::new(ctx, consolab16)?,
-            default2: PreparedFont::new(ctx, consolab24)?,
-            header1: PreparedFont::new(ctx, avqest86)?,
-            header2: PreparedFont::new(ctx, avqest32)?,
+            default: PreparedFont::new(ctx, consolab16),
+            default2: PreparedFont::new(ctx, consolab24),
+            header1: PreparedFont::new(ctx, avqest86),
+            header2: PreparedFont::new(ctx, avqest32),
         })
     }
 }

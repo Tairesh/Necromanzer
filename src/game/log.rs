@@ -24,7 +24,7 @@ impl LogMessageText {
 
     pub fn draw(&mut self, position: Vec2, ctx: &mut Context) {
         self.text
-            .draw(ctx, DrawParams::new().position(position).color(self.color))
+            .draw(ctx, DrawParams::new().position(position).color(self.color));
     }
 }
 
@@ -53,13 +53,12 @@ impl Log {
     }
 
     pub fn clear(&mut self) {
-        self.texts.clear()
+        self.texts.clear();
     }
 
     pub fn same_message(&self, new_msg: &String) -> bool {
         self.texts
             .front()
-            .map(|t| new_msg == t.text.content())
-            .unwrap_or(false)
+            .map_or(false, |t| new_msg == t.text.content())
     }
 }
