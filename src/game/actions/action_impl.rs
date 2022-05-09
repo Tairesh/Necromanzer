@@ -1,4 +1,5 @@
 use enum_dispatch::enum_dispatch;
+
 use game::actions::{Action, ActionPossibility, ActionResult};
 use game::{Avatar, World};
 

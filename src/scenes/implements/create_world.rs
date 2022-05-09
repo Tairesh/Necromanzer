@@ -1,17 +1,19 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use rand::seq::SliceRandom;
+use rand::{thread_rng, Rng};
+use tetra::input::{Key, KeyModifier};
+use tetra::{Context, Event};
+
 use app::App;
 use assets::game_data::GameData;
 use colors::Colors;
-use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
 use savefile;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::input::{Key, KeyModifier};
-use tetra::{Context, Event};
 use ui::button::Button;
 use ui::input::TextInput;
 use ui::label::Label;

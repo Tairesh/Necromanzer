@@ -1,5 +1,6 @@
-use super::super::item::{ItemInteract, ItemTag, ItemView};
 use std::collections::HashSet;
+
+use super::super::item::{ItemInteract, ItemTag, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Shovel {}

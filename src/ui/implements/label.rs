@@ -1,13 +1,15 @@
 #![allow(dead_code)]
 
+use std::rc::Rc;
+
+use tetra::graphics::text::Text;
+use tetra::graphics::{Color, DrawParams};
+use tetra::Context;
+
 use assets::prepared_font::PreparedFont;
 use assets::tileset::Tileset;
 use game::map::item::{Item, ItemView};
 use geometry::{Rect, Vec2};
-use std::rc::Rc;
-use tetra::graphics::text::Text;
-use tetra::graphics::{Color, DrawParams};
-use tetra::Context;
 use ui::position::Position;
 use ui::traits::{Colorize, Draw, Positionate, Stringify, UiSprite, Update};
 

@@ -1,3 +1,10 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::Rectangle;
+use tetra::{Context, Event};
+
 use app::App;
 use colors::Colors;
 use game::human::body::Freshness;
@@ -7,11 +14,6 @@ use geometry::Vec2;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use scenes::{back_btn, easy_back};
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::Rectangle;
-use tetra::{Context, Event};
 use ui::alert::Alert;
 use ui::label::{ItemDisplay, Label};
 use ui::meshy::HoverableMesh;

@@ -1,9 +1,11 @@
 #![allow(dead_code)]
 
+use enum_dispatch::enum_dispatch;
+
+use game::{Avatar, World};
+
 use super::implements::*;
 use super::{Action, ActionImpl, ActionPossibility, ActionResult};
-use enum_dispatch::enum_dispatch;
-use game::{Avatar, World};
 
 #[enum_dispatch(ActionImpl)]
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -19,6 +21,9 @@ pub enum ActionType {
 
 #[cfg(test)]
 mod tests {
+    use game::actions::implements::*;
+    use geometry::direction::{Direction, DIR8};
+
     use super::super::super::human::body::{BodyPartData, Freshness};
     use super::super::super::human::character::Character;
     use super::super::super::human::gender::Gender;
@@ -33,8 +38,6 @@ mod tests {
     use super::super::super::world::tests::add_zombie;
     use super::super::super::world::tests::prepare_world;
     use super::super::{Action, ActionResult};
-    use game::actions::implements::*;
-    use geometry::direction::{Direction, DIR8};
 
     #[test]
     fn test_walking() {

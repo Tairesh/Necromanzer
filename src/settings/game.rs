@@ -1,8 +1,9 @@
-use settings::time::TimeSettings;
-use settings::window::WindowSettings;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+
+use settings::time::TimeSettings;
+use settings::window::WindowSettings;
 
 const PATH: &str = "./settings.json";
 

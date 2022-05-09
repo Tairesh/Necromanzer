@@ -1,3 +1,9 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use tetra::input::Key;
+use tetra::Context;
+
 use app::App;
 use colors::Colors;
 use savefile::savefiles_exists;
@@ -5,10 +11,6 @@ use scenes::bg;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::Transition;
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::input::Key;
-use tetra::Context;
 use ui::button::Button;
 use ui::image::Image;
 use ui::label::Label;

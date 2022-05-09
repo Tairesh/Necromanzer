@@ -1,8 +1,9 @@
+use enum_dispatch::enum_dispatch;
+use serde::{Deserialize, Serialize};
+
 use super::item::Item;
 use super::passage::Passage;
 use super::terrains::*;
-use enum_dispatch::enum_dispatch;
-use serde::{Deserialize, Serialize};
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]

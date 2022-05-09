@@ -1,11 +1,14 @@
 #![allow(dead_code)]
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use crate::ui::traits::{Colorize, Draw, Hover, Positionate, UiSprite, Update};
-use geometry::{Rect, Vec2};
+
 use tetra::graphics::mesh::Mesh;
 use tetra::graphics::{Color, DrawParams};
 use tetra::{input, Context};
+
+use geometry::{Rect, Vec2};
+
+use crate::scenes::transition::Transition;
+use crate::ui::position::Position;
+use crate::ui::traits::{Colorize, Draw, Hover, Positionate, UiSprite, Update};
 
 pub struct JustMesh {
     mesh: Mesh,

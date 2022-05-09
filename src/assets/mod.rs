@@ -1,11 +1,13 @@
+use std::rc::Rc;
+
+use tetra::Context;
+
 use assets::alert::Alert;
 use assets::button::Button;
 use assets::fonts::Fonts;
 use assets::game_data::GameData;
 use assets::images::Images;
 use assets::tileset::Tileset;
-use std::rc::Rc;
-use tetra::Context;
 
 pub mod alert;
 pub mod button;

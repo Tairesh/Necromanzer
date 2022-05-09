@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 use geometry::Vec2;
 
 #[derive(Copy, Clone)]
@@ -181,8 +182,9 @@ impl Position {
 
 #[cfg(test)]
 mod tests {
-    use super::{AnchorX, AnchorY, Horizontal, Position, Vertical};
     use geometry::Vec2;
+
+    use super::{AnchorX, AnchorY, Horizontal, Position, Vertical};
 
     #[test]
     fn test_positions() {

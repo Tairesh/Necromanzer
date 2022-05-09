@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 use game::actions::action_impl::ActionImpl;
 use game::actions::ActionPossibility::{self, No, Yes};
 use game::actions::{Action, ActionResult};
@@ -5,7 +7,6 @@ use game::map::item::{ItemInteract, ItemTag};
 use game::map::terrain::{Terrain, TerrainInteract, TerrainView};
 use game::{Avatar, World};
 use geometry::direction::{Direction, DIR8};
-use rand::seq::SliceRandom;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Dig {

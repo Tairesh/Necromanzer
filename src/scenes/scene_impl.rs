@@ -1,5 +1,6 @@
-use scenes::transition::{SomeTransitions, Transition};
 use tetra::{Context, Event};
+
+use scenes::transition::{SomeTransitions, Transition};
 use ui::SomeSprites;
 
 pub trait SceneImpl {

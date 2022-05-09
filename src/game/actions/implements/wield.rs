@@ -1,9 +1,10 @@
+use geometry::direction::Direction;
+
 use super::super::super::map::item::{ItemInteract, ItemView};
 use super::super::super::{Avatar, World};
 use super::super::action_impl::ActionImpl;
 use super::super::ActionPossibility::{self, No, Yes};
 use super::super::{Action, ActionResult};
-use geometry::direction::Direction;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Wield {

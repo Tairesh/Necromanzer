@@ -1,3 +1,7 @@
+use tetra::graphics::Color;
+use tetra::input::Key;
+use tetra::Context;
+
 use colors::Colors;
 use game::actions::implements::Read;
 use game::World;
@@ -7,9 +11,6 @@ use input;
 use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
-use tetra::graphics::Color;
-use tetra::input::Key;
-use tetra::Context;
 
 pub struct Reading {
     selected: Option<Direction>,

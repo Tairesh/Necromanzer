@@ -1,20 +1,23 @@
 #![allow(dead_code)]
 
-use crate::colors::Colors;
-use crate::input;
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, UiSprite, Update};
+use std::rc::Rc;
+
+use tetra::graphics::text::Text;
+use tetra::graphics::DrawParams;
+use tetra::input::MouseButton;
+use tetra::Context;
+
 use assets::button::Button as ButtonAsset;
 use assets::prepared_font::PreparedFont;
 use assets::tileset::Tileset;
 use geometry::{Rect, Vec2};
 use input::KeyWithMod;
-use std::rc::Rc;
-use tetra::graphics::text::Text;
-use tetra::graphics::DrawParams;
-use tetra::input::MouseButton;
-use tetra::Context;
+
+use crate::colors::Colors;
+use crate::input;
+use crate::scenes::transition::Transition;
+use crate::ui::position::Position;
+use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, UiSprite, Update};
 
 enum ButtonContent {
     Text(Text, f32),

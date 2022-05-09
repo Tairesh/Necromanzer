@@ -1,10 +1,14 @@
 #![allow(dead_code)]
-use crate::geometry::point::Point;
-use geometry::Vec2;
-use num_enum::{IntoPrimitive, TryFromPrimitive};
-use serde::{Deserialize, Serialize};
+
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+use serde::{Deserialize, Serialize};
+
+use geometry::Vec2;
+
+use crate::geometry::point::Point;
 
 #[derive(Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
 #[repr(u8)]
@@ -143,9 +147,10 @@ pub const DIR9: [Direction; 9] = [
 
 #[cfg(test)]
 mod tests {
+    use std::convert::{TryFrom, TryInto};
+
     use super::super::point::Point;
     use super::{Direction, DirectionConvertError, TwoDimDirection};
-    use std::convert::{TryFrom, TryInto};
 
     #[test]
     fn from_delta() {

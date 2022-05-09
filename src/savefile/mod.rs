@@ -1,7 +1,4 @@
-mod game_view;
-mod load;
-mod meta;
-mod save;
+use std::path::Path;
 
 pub use savefile::game_view::GameView;
 pub use savefile::load::have_avatar;
@@ -13,7 +10,11 @@ pub use savefile::meta::Meta;
 pub use savefile::save::create;
 pub use savefile::save::save;
 pub use savefile::save::SaveError;
-use std::path::Path;
+
+mod game_view;
+mod load;
+mod meta;
+mod save;
 
 const SAVEFILES_FOLDER: &str = "save";
 

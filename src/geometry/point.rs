@@ -1,8 +1,11 @@
-use crate::geometry::direction::Direction;
-use geometry::Vec2;
+use std::ops::{Add, AddAssign, Mul, Range, Sub, SubAssign};
+
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::ops::{Add, AddAssign, Mul, Range, Sub, SubAssign};
+
+use geometry::Vec2;
+
+use crate::geometry::direction::Direction;
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Point {
@@ -239,9 +242,11 @@ impl Mul<Vec2> for Point {
 
 #[cfg(test)]
 mod tests {
-    use super::Point;
-    use crate::geometry::direction::Direction;
     use geometry::Vec2;
+
+    use crate::geometry::direction::Direction;
+
+    use super::Point;
 
     #[test]
     fn index_converting() {

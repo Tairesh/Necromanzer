@@ -1,14 +1,17 @@
 #![allow(dead_code)]
 
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
-use assets::alert::Alert as AlertAsset;
-use geometry::{Rect, Vec2};
 use std::rc::Rc;
+
 use tetra::graphics::DrawParams;
 use tetra::input::{Key, MouseButton};
 use tetra::{input, Context};
+
+use assets::alert::Alert as AlertAsset;
+use geometry::{Rect, Vec2};
+
+use crate::scenes::transition::Transition;
+use crate::ui::position::Position;
+use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
 
 pub struct Alert {
     asset: Rc<AlertAsset>,

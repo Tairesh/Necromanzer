@@ -1,3 +1,8 @@
+use std::time::Instant;
+
+use tetra::input::{Key, KeyModifier};
+use tetra::Context;
+
 use colors::Colors;
 use game::actions::implements::{Drop, Skip, Walk};
 use game::map::item::ItemView;
@@ -8,9 +13,6 @@ use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
-use std::time::Instant;
-use tetra::input::{Key, KeyModifier};
-use tetra::Context;
 
 pub struct Walking {
     last_walk: Instant,

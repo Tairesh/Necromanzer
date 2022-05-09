@@ -1,6 +1,7 @@
-use super::{ActionImpl, ActionResult, ActionType};
 use game::actions::ActionPossibility;
 use game::{Avatar, World};
+
+use super::{ActionImpl, ActionResult, ActionType};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Action {

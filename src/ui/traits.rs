@@ -1,8 +1,10 @@
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use geometry::{Rect, Vec2};
 use tetra::graphics::Color;
 use tetra::Context;
+
+use geometry::{Rect, Vec2};
+
+use crate::scenes::transition::Transition;
+use crate::ui::position::Position;
 
 pub trait Draw {
     fn draw(&mut self, ctx: &mut Context);

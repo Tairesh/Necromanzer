@@ -1,10 +1,12 @@
 #![allow(dead_code)]
+
+use std::collections::HashMap;
+
 use super::super::map::item::Item;
 use super::super::map::items::{BodyPart, BodyPartType};
 use super::character::{age_name, Character};
 use super::gender::Gender;
 use super::skin_tone::SkinTone;
-use std::collections::HashMap;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum Freshness {

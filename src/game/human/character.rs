@@ -1,13 +1,15 @@
 #![allow(dead_code)]
 
-use super::gender::Gender;
-use super::main_hand::MainHand;
-use super::skin_tone::SkinTone;
-use assets::game_data::GameData;
 use rand::distributions::Standard;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+
+use assets::game_data::GameData;
+
+use super::gender::Gender;
+use super::main_hand::MainHand;
+use super::skin_tone::SkinTone;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Character {

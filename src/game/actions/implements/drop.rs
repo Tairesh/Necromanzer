@@ -1,10 +1,11 @@
+use geometry::direction::Direction;
+
 use super::super::super::map::item::{ItemInteract, ItemView};
 use super::super::super::map::terrain::{TerrainInteract, TerrainView};
 use super::super::super::{Avatar, World};
 use super::super::action_impl::ActionImpl;
 use super::super::ActionPossibility::{No, Yes};
 use super::super::{Action, ActionPossibility, ActionResult};
-use geometry::direction::Direction;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Drop {

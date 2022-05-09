@@ -1,8 +1,10 @@
+use std::path::PathBuf;
+
+use tetra::Context;
+
 use app::App;
 use scenes::implements;
 use scenes::scene_impl::SceneImpl;
-use std::path::PathBuf;
-use tetra::Context;
 
 #[derive(Debug, Clone)]
 pub enum Scene {

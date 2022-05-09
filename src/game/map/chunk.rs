@@ -1,18 +1,22 @@
 #![allow(dead_code)]
+
+use std::collections::hash_map::DefaultHasher;
+use std::collections::HashSet;
+use std::hash::{Hash, Hasher};
+
+use arrayvec::ArrayVec;
+use rand::distributions::Standard;
+use rand::rngs::StdRng;
+use rand::Rng;
+use rand::SeedableRng;
+
+use assets::game_data::GameData;
+
 use super::super::human::character::Character;
 use super::items::Shovel;
 use super::pos::ChunkPos;
 use super::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
 use super::tile::Tile;
-use arrayvec::ArrayVec;
-use assets::game_data::GameData;
-use rand::distributions::Standard;
-use rand::rngs::StdRng;
-use rand::Rng;
-use rand::SeedableRng;
-use std::collections::hash_map::DefaultHasher;
-use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
 
 #[derive(Hash)]
 struct ChunkUnique {

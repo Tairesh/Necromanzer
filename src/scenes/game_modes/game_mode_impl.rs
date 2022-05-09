@@ -1,12 +1,14 @@
-use super::GameMode;
 use enum_dispatch::enum_dispatch;
+use tetra::graphics::Color;
+use tetra::Context;
+
 use game::World;
 use geometry::point::Point;
 use scenes::game_modes::implements::*;
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
-use tetra::graphics::Color;
-use tetra::Context;
+
+use super::GameMode;
 
 #[enum_dispatch]
 pub trait GameModeImpl {

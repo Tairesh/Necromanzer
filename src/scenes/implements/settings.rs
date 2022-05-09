@@ -1,14 +1,16 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use tetra::input::{Key, KeyModifier};
+use tetra::window::WindowPosition;
+use tetra::{Context, Event};
+
 use app::App;
 use colors::Colors;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
 use settings::game::GameSettings;
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::input::{Key, KeyModifier};
-use tetra::window::WindowPosition;
-use tetra::{Context, Event};
 use ui::button::Button;
 use ui::input::TextInput;
 use ui::label::Label;

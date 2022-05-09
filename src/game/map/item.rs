@@ -1,9 +1,11 @@
+use std::collections::HashSet;
+
+use enum_dispatch::enum_dispatch;
+use serde::{Deserialize, Serialize};
+
 use super::super::human::main_hand::MainHand;
 use super::super::Avatar;
 use super::items::*;
-use enum_dispatch::enum_dispatch;
-use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]

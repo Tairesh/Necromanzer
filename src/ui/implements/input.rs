@@ -1,16 +1,20 @@
 #![allow(dead_code)]
-use crate::assets::prepared_font::PreparedFont;
-use crate::colors::Colors;
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, Stringify, UiSprite, Update};
-use geometry::{Rect, Vec2};
+
 use std::time::{Duration, Instant};
+
 use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
 use tetra::graphics::text::Text;
 use tetra::graphics::{Color, DrawParams, Rectangle};
 use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
+
+use geometry::{Rect, Vec2};
+
+use crate::assets::prepared_font::PreparedFont;
+use crate::colors::Colors;
+use crate::scenes::transition::Transition;
+use crate::ui::position::Position;
+use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, Stringify, UiSprite, Update};
 
 enum ValueType {
     String { max_length: u32 },

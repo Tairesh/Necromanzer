@@ -1,10 +1,12 @@
 #![allow(dead_code)]
 
+use std::collections::HashSet;
+
+use rand::Rng;
+
 use super::item::{Item, ItemInteract};
 use super::terrain::{Terrain, TerrainInteract};
 use super::terrains::{Dirt, DirtVariant};
-use rand::Rng;
-use std::collections::HashSet;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Tile {

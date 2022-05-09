@@ -1,9 +1,11 @@
 #![allow(dead_code)]
-use crate::enums_iter;
+
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+
+use crate::enums_iter;
 
 #[derive(
     Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, Eq, PartialEq,

@@ -1,8 +1,10 @@
-use geometry::Vec2;
 use std::collections::VecDeque;
+
 use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
+
+use geometry::Vec2;
 
 // TODO: this log is for drawing lines in game screen so it should be in UI, I suppose
 

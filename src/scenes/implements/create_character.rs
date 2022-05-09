@@ -1,3 +1,14 @@
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::path::PathBuf;
+use std::rc::Rc;
+
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+use tetra::input::{Key, KeyModifier};
+use tetra::{Context, Event};
+use variant_count::VariantCount;
+
 use app::App;
 use assets::game_data::GameData;
 use colors::Colors;
@@ -7,27 +18,18 @@ use game::human::skin_tone::SkinTone;
 use game::map::pos::TilePos;
 use game::Avatar;
 use game::World;
-use num_enum::{IntoPrimitive, TryFromPrimitive};
 use savefile;
 use savefile::{GameView, Meta};
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::path::PathBuf;
-use std::rc::Rc;
-use tetra::input::{Key, KeyModifier};
-use tetra::{Context, Event};
 use ui::button::Button;
 use ui::input::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
 use ui::traits::{Draw, Positionate, Stringify};
 use ui::{BunchOfSprites, SomeSprites};
-use variant_count::VariantCount;
 
 #[derive(IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone)]
 #[repr(u8)]

@@ -1,7 +1,8 @@
-use settings::window::WindowSettings;
 use tetra::graphics::ImageData;
 use tetra::window::WindowPosition;
 use tetra::{window, Context, ContextBuilder};
+
+use settings::window::WindowSettings;
 
 pub fn create_context<S: Into<String>>(
     title: S,

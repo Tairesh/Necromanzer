@@ -1,23 +1,26 @@
 #![allow(dead_code)]
-mod game_modes;
-pub mod implements;
-pub mod scene;
-pub mod scene_impl;
-pub mod transition;
+
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use tetra::input::{Key, MouseButton};
+use tetra::Event;
+use time::{Month, OffsetDateTime};
 
 use assets::Assets;
 use colors::Colors;
 use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::input::{Key, MouseButton};
-use tetra::Event;
-use time::{Month, OffsetDateTime};
 use ui::button::Button;
 use ui::image::Image;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
+
+mod game_modes;
+pub mod implements;
+pub mod scene;
+pub mod scene_impl;
+pub mod transition;
 
 pub(crate) fn easy_back(event: Event, focused: bool) -> SomeTransitions {
     if focused {

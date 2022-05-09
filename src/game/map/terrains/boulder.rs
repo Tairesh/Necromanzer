@@ -1,7 +1,8 @@
-use super::super::passage::Passage;
-use super::super::terrain::{TerrainInteract, TerrainView};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
+
+use super::super::passage::Passage;
+use super::super::terrain::{TerrainInteract, TerrainView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Boulder {

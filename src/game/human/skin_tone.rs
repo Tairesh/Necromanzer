@@ -1,10 +1,12 @@
 #![allow(dead_code)]
-use crate::colors::Colors;
+
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tetra::graphics::Color;
+
+use crate::colors::Colors;
 
 #[derive(
     Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, Eq, PartialEq,

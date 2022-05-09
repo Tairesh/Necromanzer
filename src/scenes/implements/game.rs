@@ -1,3 +1,12 @@
+use std::cell::RefCell;
+use std::collections::HashSet;
+use std::convert::TryFrom;
+use std::rc::Rc;
+
+use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::{DrawParams, Rectangle};
+use tetra::Context;
+
 use app::App;
 use assets::game_data::GameData;
 use assets::Assets;
@@ -15,13 +24,6 @@ use scenes::game_modes::GameModeImpl;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use settings::game::GameSettings;
-use std::cell::RefCell;
-use std::collections::HashSet;
-use std::convert::TryFrom;
-use std::rc::Rc;
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::{DrawParams, Rectangle};
-use tetra::Context;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
 use ui::{BunchOfSprites, SomeSprites};

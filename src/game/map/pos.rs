@@ -1,9 +1,12 @@
 #![allow(dead_code)]
-use super::chunk::Chunk;
+
+use std::ops::{Add, AddAssign, Sub};
+
 use geometry::direction::Direction;
 use geometry::point::Point;
 use geometry::Vec2;
-use std::ops::{Add, AddAssign, Sub};
+
+use super::chunk::Chunk;
 
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct TilePos {

@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
-use scenes::scene::Scene;
 use std::path::PathBuf;
+
+use scenes::scene::Scene;
 
 #[derive(Debug, Clone)]
 pub enum Transition {

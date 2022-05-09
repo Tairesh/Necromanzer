@@ -1,3 +1,14 @@
+use std::cell::RefCell;
+use std::path::PathBuf;
+use std::rc::Rc;
+
+use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::Rectangle;
+use tetra::input::{Key, KeyModifier};
+use tetra::{Context, Event};
+use time::format_description::FormatItem;
+use time::OffsetDateTime;
+
 use app::App;
 use colors::Colors;
 use geometry::Vec2;
@@ -6,15 +17,6 @@ use scenes::easy_back;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use std::cell::RefCell;
-use std::path::PathBuf;
-use std::rc::Rc;
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::Rectangle;
-use tetra::input::{Key, KeyModifier};
-use tetra::{Context, Event};
-use time::format_description::FormatItem;
-use time::OffsetDateTime;
 use ui::alert::Alert;
 use ui::button::Button;
 use ui::label::Label;

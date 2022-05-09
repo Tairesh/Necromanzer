@@ -1,3 +1,7 @@
+use tetra::graphics::Color;
+use tetra::input::Key;
+use tetra::Context;
+
 use colors::Colors;
 use game::actions::implements::Drop;
 use game::map::terrain::TerrainInteract;
@@ -8,9 +12,6 @@ use input;
 use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
-use tetra::graphics::Color;
-use tetra::input::Key;
-use tetra::Context;
 
 pub struct Dropping {
     selected: Option<Direction>,

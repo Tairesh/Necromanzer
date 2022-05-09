@@ -1,10 +1,12 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use tetra::input::Key;
+
 use app::App;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::Transition;
-use std::cell::RefCell;
-use std::rc::Rc;
-use tetra::input::Key;
 use ui::alert::Alert;
 use ui::button::Button;
 use ui::position::{Horizontal, Position, Vertical};

@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 
+use tetra::graphics::DrawParams;
+use tetra::Context;
+
 use assets::tileset::Tileset;
 use colors::Colors;
 use game::actions::Action;
@@ -12,8 +15,6 @@ use game::map::items::{Cloak, Hat};
 use game::map::pos::TilePos;
 use geometry::direction::TwoDimDirection;
 use geometry::Vec2;
-use tetra::graphics::DrawParams;
-use tetra::Context;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum Soul {

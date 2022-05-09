@@ -1,3 +1,10 @@
+use std::time::Instant;
+
+use tetra::graphics::mesh::{Mesh, ShapeStyle};
+use tetra::graphics::{Color, Rectangle};
+use tetra::input::{Key, KeyModifier};
+use tetra::Context;
+
 use colors::Colors;
 use game::World;
 use geometry::direction::Direction;
@@ -7,11 +14,6 @@ use input;
 use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::transition::SomeTransitions;
-use std::time::Instant;
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::{Color, Rectangle};
-use tetra::input::{Key, KeyModifier};
-use tetra::Context;
 use ui::label::Label;
 use ui::meshy::JustMesh;
 use ui::position::Position;

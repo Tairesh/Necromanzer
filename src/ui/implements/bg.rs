@@ -1,9 +1,12 @@
 #![allow(dead_code)]
-use crate::ui::position::Position;
-use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
-use geometry::{Rect, Vec2};
+
 use tetra::graphics::Color;
 use tetra::{graphics, Context};
+
+use geometry::{Rect, Vec2};
+
+use crate::ui::position::Position;
+use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
 
 pub struct Bg {
     color: Color,

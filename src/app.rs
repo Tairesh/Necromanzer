@@ -1,3 +1,10 @@
+use std::cell::RefCell;
+use std::path::Path;
+use std::rc::Rc;
+
+use tetra::input::Key;
+use tetra::{window, Context, Event, State};
+
 use assets::Assets;
 use colors::Colors;
 use game::World;
@@ -6,11 +13,6 @@ use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use settings::game::GameSettings;
-use std::cell::RefCell;
-use std::path::Path;
-use std::rc::Rc;
-use tetra::input::Key;
-use tetra::{window, Context, Event, State};
 use ui::label::Label;
 use ui::position::Position;
 use ui::traits::{Draw, Positionate, Stringify};

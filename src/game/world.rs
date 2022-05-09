@@ -1,5 +1,11 @@
 #![allow(dead_code)]
 
+use std::collections::{HashMap, HashSet};
+use std::convert::TryFrom;
+use std::rc::Rc;
+
+use rand::Rng;
+
 use assets::game_data::GameData;
 use fov::{field_of_view_set, FovMap};
 use game::actions::{Action, ActionResult};
@@ -14,11 +20,7 @@ use game::map::tile::Tile;
 use game::Avatar;
 use geometry::direction::{Direction, TwoDimDirection};
 use geometry::point::Point;
-use rand::Rng;
 use savefile::{GameView, Meta};
-use std::collections::{HashMap, HashSet};
-use std::convert::TryFrom;
-use std::rc::Rc;
 use {geometry, savefile};
 
 #[derive(Debug)]
@@ -351,6 +353,15 @@ impl FovMap for World {
 
 #[cfg(test)]
 pub mod tests {
+    use std::collections::HashMap;
+    use std::rc::Rc;
+
+    use assets::game_data::GameData;
+    use game::actions::implements::{Skip, Walk};
+    use geometry::direction::Direction;
+    use geometry::point::Point;
+    use savefile::{GameView, Meta};
+
     use super::super::actions::Action;
     use super::super::human::body::{Body, Freshness};
     use super::super::human::character::Character;
@@ -362,13 +373,6 @@ pub mod tests {
     use super::super::map::terrains::{Boulder, BoulderSize, Dirt};
     use super::super::Avatar;
     use super::World;
-    use assets::game_data::GameData;
-    use game::actions::implements::{Skip, Walk};
-    use geometry::direction::Direction;
-    use geometry::point::Point;
-    use savefile::{GameView, Meta};
-    use std::collections::HashMap;
-    use std::rc::Rc;
 
     pub fn prepare_world() -> World {
         let mut world = World::new(

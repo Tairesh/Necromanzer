@@ -1,3 +1,7 @@
+use tetra::graphics::Color;
+use tetra::input::Key;
+use tetra::Context;
+
 use colors::Colors;
 use game::World;
 use geometry::direction::Direction;
@@ -7,9 +11,6 @@ use scenes::game_modes::GameModeImpl;
 use scenes::implements::Game;
 use scenes::scene::Scene::BodyView;
 use scenes::transition::{SomeTransitions, Transition};
-use tetra::graphics::Color;
-use tetra::input::Key;
-use tetra::Context;
 
 pub struct Examining {
     selected: Option<Direction>,
