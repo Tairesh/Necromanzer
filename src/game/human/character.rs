@@ -14,48 +14,41 @@ use super::main_hand::MainHand;
 use super::skin_tone::SkinTone;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Character {
-    #[serde(rename = "n")]
-    pub name: String,
-    #[serde(rename = "g")]
-    pub gender: Gender,
+pub struct Appearance {
     #[serde(rename = "a")]
     pub age: u8,
-    #[serde(rename = "m")]
-    pub main_hand: MainHand,
     #[serde(rename = "s")]
     pub skin_tone: SkinTone,
     #[serde(rename = "h")]
     pub hair_color: HairColor,
     #[serde(rename = "z")]
     pub body_size: BodySize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Mind {
+    #[serde(rename = "n")]
+    pub name: String,
+    #[serde(rename = "g")]
+    pub gender: Gender,
+    #[serde(rename = "m")]
+    pub main_hand: MainHand,
     #[serde(rename = "l")]
     pub alive: bool,
     // TODO: profession
-    // TODO: probably move appearance and mind attributes to separate structs
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Character {
+    #[serde(rename = "a")]
+    pub appearance: Appearance,
+    #[serde(rename = "m")]
+    pub mind: Mind,
 }
 
 impl Character {
-    pub fn new<S: Into<String>>(
-        name: S,
-        gender: Gender,
-        age: u8,
-        main_hand: MainHand,
-        skin_tone: SkinTone,
-        hair_color: HairColor,
-        body_size: BodySize,
-        alive: bool,
-    ) -> Self {
-        Self {
-            name: name.into(),
-            gender,
-            age,
-            main_hand,
-            skin_tone,
-            hair_color,
-            body_size,
-            alive,
-        }
+    pub fn new(appearance: Appearance, mind: Mind) -> Self {
+        Self { appearance, mind }
     }
 
     pub fn random<R: Rng + ?Sized>(rng: &mut R, game_data: &GameData, alive: bool) -> Character {
@@ -72,19 +65,23 @@ impl Character {
             game_data.names.male_names.choose(rng).unwrap()
         );
         Character::new(
-            name,
-            gender,
-            rng.gen_range(0..=99),
-            rng.sample(Standard),
-            rng.sample(Standard),
-            rng.sample(Standard),
-            rng.sample(Standard),
-            alive,
+            Appearance {
+                age: rng.gen_range(0..=99),
+                skin_tone: rng.sample(Standard),
+                hair_color: rng.sample(Standard),
+                body_size: rng.sample(Standard),
+            },
+            Mind {
+                name,
+                gender,
+                main_hand: rng.sample(Standard),
+                alive,
+            },
         )
     }
 
     pub fn age_name(&self) -> &str {
-        age_name(self.age, Some(&self.gender))
+        age_name(self.appearance.age, Some(&self.mind.gender))
     }
 }
 
@@ -119,6 +116,7 @@ pub fn age_name(age: u8, gender: Option<&Gender>) -> &'static str {
 #[cfg(test)]
 pub mod tests {
     use game::bodies::BodySize;
+    use game::human::character::{Appearance, Mind};
     use game::human::gender::Gender;
     use game::human::hair_color::HairColor;
     use game::human::main_hand::MainHand;
@@ -128,27 +126,35 @@ pub mod tests {
 
     pub fn dead_boy() -> Character {
         Character::new(
-            "Dead Boy",
-            Gender::Male,
-            9,
-            MainHand::Right,
-            SkinTone::Almond,
-            HairColor::Black,
-            BodySize::Tiny,
-            false,
+            Appearance {
+                age: 9,
+                skin_tone: SkinTone::Almond,
+                hair_color: HairColor::Black,
+                body_size: BodySize::Tiny,
+            },
+            Mind {
+                name: "Dead Boy".to_string(),
+                gender: Gender::Male,
+                main_hand: MainHand::Right,
+                alive: false,
+            },
         )
     }
 
     pub fn tester_girl() -> Character {
         Character::new(
-            "Tester Girl",
-            Gender::Female,
-            15, // Fifteen is the best age
-            MainHand::Left,
-            SkinTone::WarmIvory,
-            HairColor::Ginger,
-            BodySize::Small,
-            true,
+            Appearance {
+                age: 15,
+                skin_tone: SkinTone::WarmIvory,
+                hair_color: HairColor::Ginger,
+                body_size: BodySize::Small,
+            },
+            Mind {
+                name: "Tester Girl".to_string(),
+                gender: Gender::Female,
+                main_hand: MainHand::Left,
+                alive: true,
+            },
         )
     }
 }

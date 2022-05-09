@@ -1,10 +1,12 @@
+use std::convert::TryInto;
+
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
+
 use game::human::character::{age_name, Character};
 use game::human::gender::Sex;
 use game::human::hair_color::HairColor;
 use game::human::skin_tone::SkinTone;
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
-use std::convert::TryInto;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum Freshness {
@@ -77,16 +79,16 @@ impl BodyPartData {
     pub fn new(character: &Character, freshness: Freshness) -> Self {
         Self {
             freshness,
-            age: character.age,
-            skin_tone: character.skin_tone,
-            sex: (&character.gender).try_into().unwrap_or_default(),
-            hair_color: if character.age < 50 {
-                character.hair_color
+            age: character.appearance.age,
+            skin_tone: character.appearance.skin_tone,
+            sex: (&character.mind.gender).try_into().unwrap_or_default(),
+            hair_color: if character.appearance.age < 50 {
+                character.appearance.hair_color
             } else {
                 HairColor::Gray
             },
-            size: character.body_size,
-            alive: character.alive,
+            size: character.appearance.body_size,
+            alive: character.mind.alive,
         }
     }
 

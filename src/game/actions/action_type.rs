@@ -21,18 +21,15 @@ pub enum ActionType {
 
 #[cfg(test)]
 mod tests {
-    use game::actions::implements::*;
-    use game::bodies::{BodyPartData, BodySize, Freshness};
-    use game::human::character::tests::dead_boy;
-    use game::human::hair_color::HairColor;
-    use game::map::items::BodyPartType;
     use geometry::direction::{Direction, DIR8};
 
-    use super::super::super::human::character::Character;
+    use super::super::super::bodies::{BodyPartData, Freshness};
+    use super::super::super::human::character::tests::dead_boy;
     use super::super::super::human::gender::Gender;
     use super::super::super::human::main_hand::MainHand;
     use super::super::super::human::skin_tone::SkinTone;
     use super::super::super::map::item::Item;
+    use super::super::super::map::items::BodyPartType;
     use super::super::super::map::items::{Axe, BodyPart, Gravestone, Shovel};
     use super::super::super::map::pos::TilePos;
     use super::super::super::map::terrain::Terrain;
@@ -40,6 +37,7 @@ mod tests {
     use super::super::super::map::terrains::{Dirt, Grave, GraveData, GraveVariant};
     use super::super::super::world::tests::add_zombie;
     use super::super::super::world::tests::prepare_world;
+    use super::super::implements::*;
     use super::super::{Action, ActionResult};
 
     #[test]
@@ -224,16 +222,7 @@ mod tests {
             Terrain::Pit(..)
         ));
 
-        let character = Character::new(
-            "test",
-            Gender::Male,
-            25,
-            MainHand::Right,
-            SkinTone::Amber,
-            HairColor::Black,
-            BodySize::Large,
-            false,
-        );
+        let character = dead_boy();
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Grave::new(
             GraveVariant::New,
             GraveData {
@@ -270,11 +259,11 @@ mod tests {
             if let Item::Corpse(corpse) = corpse {
                 let ch = &corpse.character;
                 let body = &corpse.body;
-                assert_eq!("test", ch.name);
-                assert_eq!(SkinTone::Amber, ch.skin_tone);
-                assert_eq!(Gender::Male, ch.gender);
-                assert_eq!(25, ch.age);
-                assert_eq!(MainHand::Right, ch.main_hand);
+                assert_eq!("Dead Boy", ch.mind.name);
+                assert_eq!(SkinTone::Almond, ch.appearance.skin_tone);
+                assert_eq!(Gender::Male, ch.mind.gender);
+                assert_eq!(9, ch.appearance.age);
+                assert_eq!(MainHand::Right, ch.mind.main_hand);
                 assert!(matches!(
                     body.parts.get(&TilePos::new(0, 0)),
                     Some(BodyPart {
@@ -296,11 +285,11 @@ mod tests {
         if let Some(gravestone) = gravestone {
             if let Item::Gravestone(gravestone) = gravestone {
                 let data = &gravestone.data;
-                assert_eq!("test", data.character.name);
-                assert_eq!(SkinTone::Amber, data.character.skin_tone);
-                assert_eq!(Gender::Male, data.character.gender);
-                assert_eq!(25, data.character.age);
-                assert_eq!(MainHand::Right, data.character.main_hand);
+                assert_eq!("Dead Boy", data.character.mind.name);
+                assert_eq!(SkinTone::Almond, data.character.appearance.skin_tone);
+                assert_eq!(Gender::Male, data.character.mind.gender);
+                assert_eq!(9, data.character.appearance.age);
+                assert_eq!(MainHand::Right, data.character.mind.main_hand);
             } else {
                 unreachable!();
             }

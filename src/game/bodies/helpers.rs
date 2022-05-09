@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+
 use game::bodies::{Body, BodyPartData, Freshness};
 use game::human::character::Character;
 use game::map::items::{BodyPart, BodyPartType};
 use game::map::pos::TilePos;
-use std::collections::HashMap;
 
 pub fn human_brain(data: BodyPartData) -> BodyPart {
     BodyPart::new("brain", data, BodyPartType::Brain)
@@ -176,13 +177,14 @@ pub fn human_body(character: &Character, freshness: Freshness) -> Body {
 
 #[cfg(test)]
 mod tests {
-    use super::human_head;
     use game::bodies::helpers::human_torso;
     use game::bodies::{BodyPartData, Freshness};
     use game::human::character::tests::{dead_boy, tester_girl};
     use game::human::gender::Sex;
     use game::map::item::ItemView;
     use game::map::items::{BodyPart, BodyPartType};
+
+    use super::human_head;
 
     #[test]
     fn test_fresh_head() {
@@ -191,7 +193,7 @@ mod tests {
         let head = human_head(data);
         assert_eq!("head", head.name);
         assert_eq!(Sex::Female, head.data.sex);
-        assert_eq!(character.hair_color, head.data.hair_color);
+        assert_eq!(character.appearance.hair_color, head.data.hair_color);
         assert!(matches!(
             head.inside.iter().next(),
             Some(BodyPart {
@@ -252,7 +254,7 @@ mod tests {
         let head = human_head(data);
         assert_eq!("head", head.name);
         assert_eq!(Sex::Male, head.data.sex);
-        assert_eq!(character.hair_color, head.data.hair_color);
+        assert_eq!(character.appearance.hair_color, head.data.hair_color);
         assert!(matches!(
             head.inside.iter().next(),
             Some(BodyPart {

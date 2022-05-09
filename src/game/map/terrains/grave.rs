@@ -109,8 +109,8 @@ impl GraveData {
     pub fn read(&self) -> String {
         format!(
             "You read on gravestone: {}. {} — {}",
-            self.character.name, // TODO: random mottos, professions, etc.
-            self.death_year as i32 - self.character.age as i32,
+            self.character.mind.name, // TODO: random mottos, professions, etc.
+            self.death_year as i32 - self.character.appearance.age as i32,
             self.death_year
         )
     }

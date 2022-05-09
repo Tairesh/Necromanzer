@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 
-use super::super::human::main_hand::MainHand;
 use super::super::Avatar;
 use super::items::*;
 
@@ -34,14 +33,9 @@ pub trait ItemInteract {
         HashSet::new()
     }
     fn mass(&self) -> u32; // in grams
-    fn wield_time(&self, avatar: &Avatar) -> f64 {
-        let k = match avatar.character.main_hand {
-            MainHand::Left => 1.1,
-            MainHand::Right | MainHand::Ambidexter => 1.0,
-        };
-
+    fn wield_time(&self, _avatar: &Avatar) -> f64 {
         // 100 grams per tick
-        k * self.mass() as f64 / 100.0
+        self.mass() as f64 / 100.0
     }
     fn drop_time(&self, _avatar: &Avatar) -> f64 {
         10.0
@@ -67,15 +61,9 @@ pub enum ItemTag {
 #[cfg(test)]
 mod tests {
     use game::bodies::helpers::human_body;
-    use game::bodies::BodySize;
     use game::human::character::tests::dead_boy;
-    use game::human::hair_color::HairColor;
 
     use super::super::super::bodies::{BodyPartData, Freshness};
-    use super::super::super::human::character::Character;
-    use super::super::super::human::gender::Gender;
-    use super::super::super::human::main_hand::MainHand;
-    use super::super::super::human::skin_tone::SkinTone;
     use super::super::super::map::items::{
         Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel,
     };
@@ -115,16 +103,7 @@ mod tests {
 
     #[test]
     fn test_bodypart() {
-        let character = Character::new(
-            "test",
-            Gender::Male,
-            15,
-            MainHand::Right,
-            SkinTone::Almond,
-            HairColor::Black,
-            BodySize::Tiny,
-            false,
-        );
+        let character = dead_boy();
         let brain: Item = BodyPart::new(
             "brain",
             BodyPartData::new(&character, Freshness::Fresh),

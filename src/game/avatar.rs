@@ -65,7 +65,7 @@ impl Avatar {
     pub fn name_for_actions(&self) -> String {
         match self.soul {
             Soul::Player => "You".to_string(),
-            Soul::Zombie(..) => format!("Zombie {}", self.character.name),
+            Soul::Zombie(..) => format!("Zombie {}", self.character.mind.name),
         }
     }
 
@@ -94,15 +94,15 @@ impl Avatar {
                 .unwrap_or(Freshness::Rotten);
             let (name, color) = match freshness {
                 Freshness::Fresh => (
-                    if self.character.age > 15 {
+                    if self.character.appearance.age > 15 {
                         "raw_zombie"
                     } else {
                         "raw_zombie_child"
                     },
-                    self.character.skin_tone.into(),
+                    self.character.appearance.skin_tone.into(),
                 ),
                 Freshness::Rotten => (
-                    if self.character.age > 15 {
+                    if self.character.appearance.age > 15 {
                         "zombie"
                     } else {
                         "zombie_child"
@@ -110,7 +110,7 @@ impl Avatar {
                     Colors::WHITE,
                 ),
                 Freshness::Skeletal => (
-                    if self.character.age > 15 {
+                    if self.character.appearance.age > 15 {
                         "skeleton"
                     } else {
                         "skeleton_child"
@@ -130,7 +130,7 @@ impl Avatar {
             // TODO: draw wear
             tileset.draw_region(
                 ctx,
-                match self.character.gender {
+                match self.character.mind.gender {
                     Gender::Female => "female",
                     Gender::Male => "male",
                     Gender::Custom(_) => "queer",
@@ -138,7 +138,7 @@ impl Avatar {
                 DrawParams::new()
                     .position(position)
                     .scale(scale)
-                    .color(self.character.skin_tone.into()),
+                    .color(self.character.appearance.skin_tone.into()),
             );
         }
         if let Some(item) = self.wield.get(0) {

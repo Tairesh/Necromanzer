@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
+
 use game::map::item::Item;
 use game::map::items::BodyPart;
 use game::map::pos::TilePos;
-use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
-use std::collections::HashMap;
 
 pub type BodyPartsCollections = HashMap<TilePos, BodyPart>;
 

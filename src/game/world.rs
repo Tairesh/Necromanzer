@@ -218,7 +218,7 @@ impl World {
                         .map(|i| {
                             let unit = self.units.get(i).unwrap();
                             (if multiline { " - " } else { "" }).to_string()
-                                + unit.character.name.as_str()
+                                + unit.character.mind.name.as_str()
                         })
                         .collect(),
                 );
@@ -410,6 +410,7 @@ pub mod tests {
             &world,
         )
         .unwrap();
+        let length = action.length;
         if let Some(zombie) = world.units.get_mut(1) {
             zombie.action = Some(action);
         } else {
@@ -417,7 +418,7 @@ pub mod tests {
         }
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(TilePos::new(1, 0), world.units.get(1).unwrap().pos);
-        for _ in 0..15 {
+        for _ in 0..length {
             world.player_mut().action = Some(Action::new(0, Skip {}.into(), &world).unwrap());
             world.tick();
         }

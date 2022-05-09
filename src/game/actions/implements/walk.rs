@@ -20,6 +20,11 @@ impl Walk {
         let koeff = match actor.soul {
             Soul::Zombie(..) => 1.5,
             _ => 1.0,
+        } * match actor.character.appearance.age {
+            0 => 100.0,
+            1..=3 => 10.0,
+            4..=10 => 3.0,
+            11.. => 1.0,
         };
         let pos = actor.pos + self.dir;
         if let Some(tile) = world.get_tile(pos) {
@@ -41,7 +46,7 @@ impl ActionImpl for Walk {
             let unit_on_tile = tile.units.iter().next();
             if let Some(unit_id) = unit_on_tile {
                 if let Some(unit) = world.units.get(*unit_id) {
-                    return No(format!("{} is on the way", unit.character.name));
+                    return No(format!("{} is on the way", unit.character.mind.name));
                 }
             }
 

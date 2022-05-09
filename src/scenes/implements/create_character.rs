@@ -13,7 +13,7 @@ use app::App;
 use assets::game_data::GameData;
 use colors::Colors;
 use game::bodies::BodySize;
-use game::human::character::Character;
+use game::human::character::{Appearance, Character, Mind};
 use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;
 use game::human::skin_tone::SkinTone;
@@ -359,12 +359,14 @@ impl SceneImpl for CreateCharacter {
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
                 let character = Character::random(&mut rng, &self.game_data, true);
-                self.gender_input.borrow_mut().set_value(character.gender);
-                self.name_input.borrow_mut().set_value(character.name);
+                self.gender_input
+                    .borrow_mut()
+                    .set_value(character.mind.gender);
+                self.name_input.borrow_mut().set_value(character.mind.name);
                 self.age_input
                     .borrow_mut()
-                    .set_value(character.age.to_string());
-                self.main_hand = character.main_hand;
+                    .set_value(character.appearance.age.to_string());
+                self.main_hand = character.mind.main_hand;
                 let mut hand = self.hand_name.borrow_mut();
                 hand.set_value(self.main_hand.name());
                 hand.positionate(ctx, self.window_size);
@@ -380,14 +382,18 @@ impl SceneImpl for CreateCharacter {
                     let gender = self.gender_input.borrow().value().into();
                     let age = self.age_input.borrow().value().parse::<u8>().unwrap();
                     let character = Character::new(
-                        name,
-                        gender,
-                        age,
-                        self.main_hand,
-                        SkinTone::PaleIvory,
-                        HairColor::White,
-                        BodySize::Normal,
-                        true,
+                        Appearance {
+                            age,
+                            skin_tone: SkinTone::PaleIvory,
+                            hair_color: HairColor::White,
+                            body_size: BodySize::Normal,
+                        },
+                        Mind {
+                            name,
+                            gender,
+                            main_hand: self.main_hand,
+                            alive: true,
+                        },
                     );
                     // TODO: find available starting pos in the world
                     let avatar = Avatar::player(character, TilePos::new(0, 0));

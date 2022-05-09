@@ -23,3 +23,5 @@ pub fn delete(path: &Path) {
         std::fs::remove_file(path).ok();
     }
 }
+
+// TODO: add savefile create/loading tests
