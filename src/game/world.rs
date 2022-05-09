@@ -68,7 +68,7 @@ impl World {
 
     pub fn calc_fov(&mut self) {
         self.fov
-            .set_set(field_of_view_set(self.player().pos.into(), 64, self));
+            .set_visible(field_of_view_set(self.player().pos.into(), 64, self));
     }
 
     pub fn save(&mut self) {
@@ -116,21 +116,21 @@ impl World {
         &mut chunk.tiles[pos]
     }
 
-    pub fn tiles_between(
-        &mut self,
-        left_top: TilePos,
-        right_bottom: TilePos,
-    ) -> Vec<(TilePos, &Tile)> {
+    pub fn load_tiles_between(&mut self, left_top: TilePos, right_bottom: TilePos) {
         let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.chunk_and_pos();
         let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.chunk_and_pos();
 
-        // TODO: Find a way to get rid of this shit
         for x in lt_x..=rb_x {
             for y in lt_y..=rb_y {
                 let pos = ChunkPos::new(x, y);
                 self.load_chunk(pos);
             }
         }
+    }
+
+    pub fn tiles_between(&self, left_top: TilePos, right_bottom: TilePos) -> Vec<(TilePos, &Tile)> {
+        let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.chunk_and_pos();
+        let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.chunk_and_pos();
 
         let mut tiles =
             Vec::with_capacity(((rb_x - lt_x + 1) * (rb_y - lt_y + 1)) as usize * Chunk::USIZE);
@@ -303,7 +303,7 @@ impl World {
     }
 
     pub const BUBBLE_SQUARE_RADIUS: u32 = 128 * 128;
-    pub const SPEND_LIMIT: u32 = 100;
+    pub const SPEND_LIMIT: u32 = 100; // TODO: probably it should be about 10-50
 
     pub fn tick(&mut self) -> Vec<ActionResult> {
         let mut actions = vec![];
@@ -445,8 +445,7 @@ pub mod tests {
     #[test]
     pub fn test_fov() {
         let mut world = prepare_world();
-        let fov = world.fov.last_set();
-        assert!(fov.contains(&world.player().pos.into()));
+        assert!(world.fov.visible().contains(&world.player().pos.into()));
 
         world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
         world.load_tile_mut(TilePos::new(2, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
@@ -454,7 +453,7 @@ pub mod tests {
         world.load_tile_mut(TilePos::new(3, 0));
 
         world.move_avatar(0, Direction::East);
-        let fov = world.fov.updated_set().unwrap();
+        let fov = world.fov.visible();
         assert!(fov.contains(&Point::new(1, 0)));
         assert!(fov.contains(&Point::new(2, 0)));
         assert!(!fov.contains(&Point::new(3, 0)));

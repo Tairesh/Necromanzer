@@ -4,34 +4,22 @@ use geometry::point::Point;
 
 #[derive(Debug)]
 pub struct Fov {
-    set: HashSet<Point>,
-    is_dirty: bool,
+    visible: HashSet<Point>,
 }
 
 impl Fov {
     pub fn new() -> Self {
         Self {
-            set: HashSet::default(),
-            is_dirty: false,
+            visible: HashSet::default(),
         }
     }
 
-    pub fn set_set(&mut self, set: HashSet<Point>) {
-        self.set = set;
-        self.is_dirty = true;
+    pub fn set_visible(&mut self, set: HashSet<Point>) {
+        self.visible = set;
     }
 
-    pub fn updated_set(&mut self) -> Option<HashSet<Point>> {
-        if self.is_dirty {
-            self.is_dirty = false;
-            Some(self.set.clone())
-        } else {
-            None
-        }
-    }
-
-    pub fn last_set(&self) -> HashSet<Point> {
-        self.set.clone()
+    pub fn visible(&self) -> &HashSet<Point> {
+        &self.visible
     }
 }
 

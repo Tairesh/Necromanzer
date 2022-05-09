@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::collections::HashSet;
 use std::convert::TryFrom;
 use std::rc::Rc;
 
@@ -40,7 +39,6 @@ pub struct Game {
     pub settings: Rc<RefCell<GameSettings>>,
     pub assets: Rc<Assets>,
     pub window_size: (i32, i32),
-    pub fov: HashSet<Point>,
 }
 
 impl Game {
@@ -58,7 +56,6 @@ impl Game {
             Colors::WHITE_SMOKE,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 5.0 }),
         )));
-        let fov = world.borrow().fov.last_set();
         Self {
             sprites: vec![name_label, current_time_label.clone()],
             game_data: app.assets.game_data.clone(),
@@ -81,7 +78,6 @@ impl Game {
             window_size: app.window_size,
             current_time_label,
             world,
-            fov,
         }
     }
 
@@ -148,15 +144,12 @@ impl Game {
             }
         }
 
-        let mut world = self.world.borrow_mut();
+        let world = self.world.borrow();
         self.current_time_label.borrow_mut().update(
             format!("{}", world.meta.current_tick),
             ctx,
             self.window_size,
         );
-        if let Some(fov) = world.fov.updated_set() {
-            self.fov = fov;
-        }
     }
 }
 
@@ -190,13 +183,12 @@ impl SceneImpl for Game {
         let center_tile = self.world.borrow().player().pos + self.shift_of_view;
         let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
         let right_bottom = center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
-        for (pos, tile) in self
-            .world
+        self.world
             .borrow_mut()
-            .tiles_between(left_top, right_bottom)
-            .into_iter()
-        {
-            if !self.fov.contains(&pos.into()) {
+            .load_tiles_between(left_top, right_bottom);
+        let world = self.world.borrow();
+        for (pos, tile) in world.tiles_between(left_top, right_bottom).into_iter() {
+            if !world.fov.visible().contains(&pos.into()) {
                 continue; // TODO: TileView struct for remembering tiles and optimizing drawing
             }
             let dx = pos.x - center_tile.x;
@@ -219,10 +211,10 @@ impl SceneImpl for Game {
                 }
             }
         }
-        for i in self.world.borrow().loaded_units.iter().copied() {
+        for i in world.loaded_units.iter().copied() {
             let world = self.world.borrow();
             let unit = world.units.get(i).unwrap();
-            if !self.fov.contains(&unit.pos.into()) {
+            if !world.fov.visible().contains(&unit.pos.into()) {
                 continue;
             }
             let dx = unit.pos.x - center_tile.x;
@@ -238,7 +230,7 @@ impl SceneImpl for Game {
         // } else {
         //     self.action_text = None;
         // }
-        for (delta, color) in self.current_mode().borrow().cursors(&self.world.borrow()) {
+        for (delta, color) in self.current_mode().borrow().cursors(&world) {
             let delta = delta * tile_size;
             self.cursor.draw(
                 ctx,
