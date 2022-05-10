@@ -1,187 +1,205 @@
 use std::collections::HashMap;
+use std::convert::TryInto;
 
-use game::bodies::{Body, BodyPartData, Freshness};
+use game::bodies::{Body, Freshness, OrganData};
 use game::human::character::Character;
+use game::human::gender::Sex;
+use game::human::hair_color::HairColor;
+use game::human::skin_tone::SkinTone;
 use game::map::items::{BodyPart, BodyPartType};
 use game::map::pos::TilePos;
 
-pub fn human_brain(data: BodyPartData) -> BodyPart {
-    BodyPart::new("brain", data, BodyPartType::Brain)
+pub fn human_brain(organ_data: OrganData, character: Character) -> BodyPart {
+    BodyPart::new("brain", BodyPartType::Brain(organ_data, character))
 }
 
-pub fn human_eye(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_eye(organ_data: OrganData, left: bool) -> BodyPart {
     BodyPart::new(
         if left { "left eye" } else { "right eye" },
-        data,
-        BodyPartType::Eye,
+        BodyPartType::Eye(organ_data),
     )
 }
 
-pub fn human_nose(data: BodyPartData) -> BodyPart {
-    BodyPart::new("nose", data, BodyPartType::Nose)
+pub fn human_nose(organ_data: OrganData, skin_tone: SkinTone) -> BodyPart {
+    BodyPart::new("nose", BodyPartType::Nose(organ_data, skin_tone))
 }
 
-pub fn human_mouth(data: BodyPartData) -> BodyPart {
-    BodyPart::new("mouth", data, BodyPartType::Mouth)
+pub fn human_mouth(organ_data: OrganData, skin_tone: SkinTone, sex: Sex) -> BodyPart {
+    BodyPart::new("mouth", BodyPartType::Mouth(organ_data, skin_tone, sex))
 }
 
-pub fn human_ear(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_ear(organ_data: OrganData, skin_tone: SkinTone, left: bool) -> BodyPart {
     BodyPart::new(
         if left { "left ear" } else { "right ear" },
-        data,
-        BodyPartType::Ear,
+        BodyPartType::Ear(organ_data, skin_tone),
     )
 }
 
-pub fn human_head(data: BodyPartData) -> BodyPart {
-    BodyPart::new("head", data.clone(), BodyPartType::Head)
-        .with_inside(match data.freshness {
-            Freshness::Fresh | Freshness::Rotten => vec![human_brain(data.clone())],
-            Freshness::Skeletal => vec![],
-        })
-        .with_outside(match data.freshness {
-            Freshness::Fresh => vec![
-                human_eye(data.clone(), true),
-                human_eye(data.clone(), false),
-                human_nose(data.clone()),
-                human_ear(data.clone(), true),
-                human_ear(data.clone(), false),
-                human_mouth(data),
-            ],
-            Freshness::Rotten => vec![
-                human_nose(data.clone()),
-                human_mouth(data.clone()),
-                human_ear(data.clone(), true),
-                human_ear(data, false),
-            ],
-            Freshness::Skeletal => vec![human_mouth(data)],
-        })
+pub fn human_head(character: &Character, freshness: Freshness) -> BodyPart {
+    let organ_data = OrganData::new(character, freshness);
+    let sex = (&character.mind.gender).try_into().unwrap_or_default();
+    let hair_color = if character.appearance.age < 50 {
+        character.appearance.hair_color
+    } else {
+        HairColor::Gray
+    };
+    let skin_tone = character.appearance.skin_tone;
+    BodyPart::new(
+        "head",
+        BodyPartType::Head(organ_data.clone(), hair_color, skin_tone, sex),
+    )
+    .with_inside(match freshness {
+        Freshness::Fresh | Freshness::Rotten => {
+            vec![human_brain(organ_data.clone(), character.clone())]
+        }
+        Freshness::Skeletal => vec![],
+    })
+    .with_outside(match freshness {
+        Freshness::Fresh => vec![
+            human_eye(organ_data.clone(), true),
+            human_eye(organ_data.clone(), false),
+            human_nose(organ_data.clone(), skin_tone),
+            human_ear(organ_data.clone(), skin_tone, true),
+            human_ear(organ_data.clone(), skin_tone, false),
+            human_mouth(organ_data, skin_tone, sex),
+        ],
+        Freshness::Rotten => vec![
+            human_nose(organ_data.clone(), skin_tone),
+            human_mouth(organ_data.clone(), skin_tone, sex),
+            human_ear(organ_data.clone(), skin_tone, true),
+            human_ear(organ_data, skin_tone, false),
+        ],
+        Freshness::Skeletal => vec![human_mouth(organ_data, skin_tone, sex)],
+    })
 }
 
-pub fn human_heart(data: BodyPartData) -> BodyPart {
-    BodyPart::new("heart", data, BodyPartType::Heart)
+pub fn human_heart(organ_data: OrganData) -> BodyPart {
+    BodyPart::new("heart", BodyPartType::Heart(organ_data))
 }
 
-pub fn human_stomach(data: BodyPartData) -> BodyPart {
-    BodyPart::new("stomach", data, BodyPartType::Stomach)
+pub fn human_stomach(organ_data: OrganData) -> BodyPart {
+    BodyPart::new("stomach", BodyPartType::Stomach(organ_data))
 }
 
-pub fn human_liver(data: BodyPartData) -> BodyPart {
-    BodyPart::new("liver", data, BodyPartType::Liver)
+pub fn human_liver(organ_data: OrganData) -> BodyPart {
+    BodyPart::new("liver", BodyPartType::Liver(organ_data))
 }
 
-pub fn human_intestines(data: BodyPartData) -> BodyPart {
-    BodyPart::new("intestines", data, BodyPartType::Intestines)
+pub fn human_intestines(organ_data: OrganData) -> BodyPart {
+    BodyPart::new("intestines", BodyPartType::Intestines(organ_data))
 }
 
-pub fn human_lung(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_lung(organ_data: OrganData, left: bool) -> BodyPart {
     BodyPart::new(
         if left { "left lung" } else { "right lung" },
-        data,
-        BodyPartType::Lung,
+        BodyPartType::Lung(organ_data),
     )
 }
 
-pub fn human_kidney(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_kidney(organ_data: OrganData, left: bool) -> BodyPart {
     BodyPart::new(
         if left { "left kidney" } else { "right kidney" },
-        data,
-        BodyPartType::Kidney,
+        BodyPartType::Kidney(organ_data),
     )
 }
 
-pub fn human_torso(data: BodyPartData) -> BodyPart {
-    BodyPart::new("torso", data.clone(), BodyPartType::Torso)
-        .with_inside(match data.freshness {
-            Freshness::Fresh | Freshness::Rotten => vec![
-                human_heart(data.clone()),
-                human_lung(data.clone(), true),
-                human_lung(data.clone(), false),
-                human_stomach(data.clone()),
-                human_kidney(data.clone(), true),
-                human_kidney(data.clone(), false),
-                human_liver(data.clone()),
-                human_intestines(data.clone()),
-            ],
-            Freshness::Skeletal => vec![],
-        })
-        .with_outside(vec![
-            human_head(data.clone()),
-            human_arm(data.clone(), true),
-            human_arm(data.clone(), false),
-            human_leg(data.clone(), true),
-            human_leg(data, false),
-        ])
-}
-
-pub fn human_arm(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_arm(organ_data: OrganData, skin_tone: SkinTone, sex: Sex, left: bool) -> BodyPart {
     let mut arm = BodyPart::new(
         if left { "left arm" } else { "right arm" },
-        data.clone(),
         if left {
-            BodyPartType::LeftArm
+            BodyPartType::LeftArm(organ_data.clone(), skin_tone, sex)
         } else {
-            BodyPartType::RightArm
+            BodyPartType::RightArm(organ_data.clone(), skin_tone, sex)
         },
     );
-    arm.outside.push(human_hand(data, left));
+    arm.outside
+        .push(human_hand(organ_data, skin_tone, sex, left));
 
     arm
 }
 
-pub fn human_hand(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_hand(organ_data: OrganData, skin_tone: SkinTone, sex: Sex, left: bool) -> BodyPart {
     BodyPart::new(
         if left { "left hand" } else { "right hand" },
-        data,
         if left {
-            BodyPartType::LeftHand
+            BodyPartType::LeftHand(organ_data, skin_tone, sex)
         } else {
-            BodyPartType::RightHand
+            BodyPartType::RightHand(organ_data, skin_tone, sex)
         },
     )
 }
 
-pub fn human_leg(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_leg(organ_data: OrganData, skin_tone: SkinTone, sex: Sex, left: bool) -> BodyPart {
     let mut leg = BodyPart::new(
         if left { "left leg" } else { "right leg" },
-        data.clone(),
         if left {
-            BodyPartType::LeftLeg
+            BodyPartType::LeftLeg(organ_data.clone(), skin_tone, sex)
         } else {
-            BodyPartType::RightLeg
+            BodyPartType::RightLeg(organ_data.clone(), skin_tone, sex)
         },
     );
-    leg.outside.push(human_foot(data, left));
+    leg.outside
+        .push(human_foot(organ_data, skin_tone, sex, left));
 
     leg
 }
 
-pub fn human_foot(data: BodyPartData, left: bool) -> BodyPart {
+pub fn human_foot(organ_data: OrganData, skin_tone: SkinTone, sex: Sex, left: bool) -> BodyPart {
     BodyPart::new(
         if left { "left foot" } else { "right foot" },
-        data,
         if left {
-            BodyPartType::LeftFoot
+            BodyPartType::LeftFoot(organ_data, skin_tone, sex)
         } else {
-            BodyPartType::RightFoot
+            BodyPartType::RightFoot(organ_data, skin_tone, sex)
         },
     )
 }
 
+pub fn human_torso(character: &Character, freshness: Freshness) -> BodyPart {
+    let organ_data = OrganData::new(character, freshness);
+    let skin_tone = character.appearance.skin_tone;
+    let hair_color = character.appearance.hair_color;
+    let sex = (&character.mind.gender).try_into().unwrap_or_default();
+    BodyPart::new(
+        "torso",
+        BodyPartType::Torso(organ_data.clone(), hair_color, skin_tone, sex),
+    )
+    .with_inside(match freshness {
+        Freshness::Fresh | Freshness::Rotten => vec![
+            human_heart(organ_data.clone()),
+            human_lung(organ_data.clone(), true),
+            human_lung(organ_data.clone(), false),
+            human_stomach(organ_data.clone()),
+            human_kidney(organ_data.clone(), true),
+            human_kidney(organ_data.clone(), false),
+            human_liver(organ_data.clone()),
+            human_intestines(organ_data.clone()),
+        ],
+        Freshness::Skeletal => vec![],
+    })
+    .with_outside(vec![
+        human_head(character, freshness),
+        human_arm(organ_data.clone(), skin_tone, sex, true),
+        human_arm(organ_data.clone(), skin_tone, sex, false),
+        human_leg(organ_data.clone(), skin_tone, sex, true),
+        human_leg(organ_data, skin_tone, sex, false),
+    ])
+}
+
 pub fn human_body(character: &Character, freshness: Freshness) -> Body {
-    let pos = TilePos::new(0, 0);
-    let data = BodyPartData::new(character, freshness);
-    let parts = HashMap::from([(pos, human_torso(data))]);
+    let parts = HashMap::from([(TilePos::new(0, 0), human_torso(character, freshness))]);
     Body::new(parts)
 }
 
 #[cfg(test)]
 mod tests {
     use game::bodies::helpers::{human_body, human_torso};
-    use game::bodies::{BodyPartData, BodySize, Freshness};
+    use game::bodies::{BodySize, Freshness, OrganData};
     use game::human::character::tests::{dead_boy, old_queer, tester_girl};
-    use game::human::gender::Sex;
+    use game::human::character::{Appearance, Character, Mind};
+    use game::human::gender::{Gender, Sex};
     use game::human::hair_color::HairColor;
+    use game::human::main_hand::MainHand;
     use game::human::skin_tone::SkinTone;
     use game::map::item::ItemView;
     use game::map::items::{BodyPart, BodyPartType};
@@ -192,21 +210,50 @@ mod tests {
     #[test]
     fn test_fresh_head() {
         let character = tester_girl();
-        let data = BodyPartData::new(&character, Freshness::Fresh);
-        let head = human_head(data);
+        let head = human_head(&character, Freshness::Fresh);
         assert_eq!("head", head.name);
-        assert_eq!(Sex::Female, head.data.sex);
-        assert_eq!(character.appearance.hair_color, head.data.hair_color);
+        assert!(matches!(
+            head,
+            BodyPart {
+                typ: BodyPartType::Head(
+                    OrganData {
+                        age: 15,
+                        alive: true,
+                        size: BodySize::Small,
+                        freshness: Freshness::Fresh,
+                    },
+                    HairColor::Ginger,
+                    SkinTone::WarmIvory,
+                    Sex::Female,
+                ),
+                ..
+            }
+        ));
         assert!(matches!(
             head.inside.iter().next(),
             Some(BodyPart {
-                typ: BodyPartType::Brain,
-                data: BodyPartData {
-                    freshness: Freshness::Fresh,
-                    age: 15,
-                    sex: Sex::Female,
-                    ..
-                },
+                typ: BodyPartType::Brain(
+                    OrganData {
+                        freshness: Freshness::Fresh,
+                        age: 15,
+                        size: BodySize::Small,
+                        alive: true,
+                    },
+                    Character {
+                        appearance: Appearance {
+                            age: 15,
+                            hair_color: HairColor::Ginger,
+                            body_size: BodySize::Small,
+                            skin_tone: SkinTone::WarmIvory,
+                        },
+                        mind: Mind {
+                            alive: true,
+                            gender: Gender::Female,
+                            main_hand: MainHand::Left,
+                            ..
+                        }
+                    }
+                ),
                 ..
             })
         ));
@@ -217,13 +264,12 @@ mod tests {
                 .filter(|bp| matches!(
                     bp,
                     BodyPart {
-                        typ: BodyPartType::Eye,
-                        data: BodyPartData {
+                        typ: BodyPartType::Eye(OrganData {
                             freshness: Freshness::Fresh,
                             age: 15,
-                            sex: Sex::Female,
-                            ..
-                        },
+                            size: BodySize::Small,
+                            alive: true,
+                        }),
                         ..
                     }
                 ))
@@ -236,13 +282,15 @@ mod tests {
                 .filter(|bp| matches!(
                     bp,
                     BodyPart {
-                        typ: BodyPartType::Ear,
-                        data: BodyPartData {
-                            freshness: Freshness::Fresh,
-                            age: 15,
-                            sex: Sex::Female,
-                            ..
-                        },
+                        typ: BodyPartType::Ear(
+                            OrganData {
+                                freshness: Freshness::Fresh,
+                                age: 15,
+                                size: BodySize::Small,
+                                alive: true,
+                            },
+                            SkinTone::WarmIvory
+                        ),
                         ..
                     }
                 ))
@@ -253,21 +301,42 @@ mod tests {
     #[test]
     fn test_rotten_head() {
         let character = dead_boy();
-        let data = BodyPartData::new(&character, Freshness::Rotten);
-        let head = human_head(data);
+        let head = human_head(&character, Freshness::Rotten);
         assert_eq!("head", head.name);
-        assert_eq!(Sex::Male, head.data.sex);
-        assert_eq!(character.appearance.hair_color, head.data.hair_color);
+        assert!(matches!(
+            head,
+            BodyPart {
+                typ: BodyPartType::Head(
+                    OrganData {
+                        age: 9,
+                        alive: false,
+                        size: BodySize::Tiny,
+                        freshness: Freshness::Rotten,
+                    },
+                    HairColor::Black,
+                    SkinTone::Almond,
+                    Sex::Male,
+                ),
+                ..
+            }
+        ));
         assert!(matches!(
             head.inside.iter().next(),
             Some(BodyPart {
-                typ: BodyPartType::Brain,
-                data: BodyPartData {
-                    freshness: Freshness::Rotten,
-                    age: 9,
-                    sex: Sex::Male,
-                    ..
-                },
+                typ: BodyPartType::Brain(
+                    OrganData {
+                        freshness: Freshness::Rotten,
+                        age: 9,
+                        ..
+                    },
+                    Character {
+                        mind: Mind {
+                            gender: Gender::Male,
+                            ..
+                        },
+                        ..
+                    }
+                ),
                 ..
             })
         ));
@@ -275,14 +344,14 @@ mod tests {
             0,
             head.outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Eye))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Eye(..)))
                 .count()
         );
         assert_eq!(
             2,
             head.outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Ear))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Ear(..)))
                 .count()
         );
     }
@@ -290,23 +359,38 @@ mod tests {
     #[test]
     fn test_skeletal_head() {
         let character = dead_boy();
-        let data = BodyPartData::new(&character, Freshness::Skeletal);
-        let head = human_head(data);
+        let head = human_head(&character, Freshness::Skeletal);
         assert_eq!("head", head.name);
-        assert_eq!(Sex::Male, head.data.sex);
+        assert!(matches!(
+            head,
+            BodyPart {
+                typ: BodyPartType::Head(
+                    OrganData {
+                        age: 9,
+                        alive: false,
+                        size: BodySize::Tiny,
+                        freshness: Freshness::Skeletal,
+                    },
+                    HairColor::Black,
+                    SkinTone::Almond,
+                    Sex::Male,
+                ),
+                ..
+            }
+        ));
         assert!(head.inside.is_empty());
         assert_eq!(
             0,
             head.outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Eye))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Eye(..)))
                 .count()
         );
         assert_eq!(
             0,
             head.outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Ear))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Ear(..)))
                 .count()
         );
     }
@@ -314,18 +398,32 @@ mod tests {
     #[test]
     fn test_fresh_torso() {
         let character = tester_girl();
-        let data = BodyPartData::new(&character, Freshness::Fresh);
-        let torso = human_torso(data);
+        let torso = human_torso(&character, Freshness::Fresh);
         assert_eq!("torso", torso.name);
         assert_eq!("fresh girl torso", torso.name());
-        assert_eq!(Sex::Female, torso.data.sex);
-        assert_eq!(15, torso.data.age);
+        assert!(matches!(
+            torso,
+            BodyPart {
+                typ: BodyPartType::Torso(
+                    OrganData {
+                        age: 15,
+                        alive: true,
+                        freshness: Freshness::Fresh,
+                        size: BodySize::Small,
+                    },
+                    HairColor::Ginger,
+                    SkinTone::WarmIvory,
+                    Sex::Female,
+                ),
+                ..
+            }
+        ));
         assert_eq!(
             1,
             torso
                 .inside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Heart))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Heart(..)))
                 .count()
         );
         assert_eq!(
@@ -338,7 +436,7 @@ mod tests {
             torso
                 .inside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Lung))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Lung(..)))
                 .count()
         );
         assert_eq!(
@@ -346,7 +444,7 @@ mod tests {
             torso
                 .outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::Head))
+                .filter(|bp| matches!(bp.typ, BodyPartType::Head(..)))
                 .count()
         );
         assert_eq!(
@@ -354,7 +452,7 @@ mod tests {
             torso
                 .outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::LeftArm))
+                .filter(|bp| matches!(bp.typ, BodyPartType::LeftArm(..)))
                 .count()
         );
         assert_eq!(
@@ -362,7 +460,7 @@ mod tests {
             torso
                 .outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::RightArm))
+                .filter(|bp| matches!(bp.typ, BodyPartType::RightArm(..)))
                 .count()
         );
         assert_eq!(
@@ -370,7 +468,7 @@ mod tests {
             torso
                 .outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::LeftLeg))
+                .filter(|bp| matches!(bp.typ, BodyPartType::LeftLeg(..)))
                 .count()
         );
         assert_eq!(
@@ -378,7 +476,7 @@ mod tests {
             torso
                 .outside
                 .iter()
-                .filter(|bp| matches!(bp.typ, BodyPartType::RightLeg))
+                .filter(|bp| matches!(bp.typ, BodyPartType::RightLeg(..)))
                 .count()
         );
     }
@@ -389,18 +487,19 @@ mod tests {
         let body = human_body(&character, Freshness::Fresh);
         let torso = body.parts.get(&TilePos::new(0, 0)).unwrap();
         let head = torso.outside.first().unwrap();
-        assert!(matches!(head.typ, BodyPartType::Head));
         assert!(matches!(
-            head.data,
-            BodyPartData {
-                freshness: Freshness::Fresh,
-                age: 75,
-                sex: Sex::Female,
-                skin_tone: SkinTone::Almond,
-                size: BodySize::Large,
-                alive: true,
-                hair_color: HairColor::Gray,
-            }
-        ))
+            head.typ,
+            BodyPartType::Head(
+                OrganData {
+                    freshness: Freshness::Fresh,
+                    age: 75,
+                    size: BodySize::Large,
+                    alive: true,
+                },
+                HairColor::Gray,
+                SkinTone::Almond,
+                Sex::Female
+            )
+        ));
     }
 }

@@ -8,11 +8,11 @@ use colors::Colors;
 use game::actions::Action;
 use game::ai::ZombieBrain;
 use game::bodies::helpers::human_body;
-use game::bodies::{Body, Freshness};
+use game::bodies::{Body, Freshness, OrganData};
 use game::human::character::Character;
 use game::human::gender::Gender;
 use game::map::item::{Item, ItemView};
-use game::map::items::{Cloak, Hat};
+use game::map::items::{BodyPartType, Cloak, Hat};
 use game::map::pos::TilePos;
 use geometry::two_dim_direction::TwoDimDirection;
 use geometry::Vec2;
@@ -86,11 +86,17 @@ impl Avatar {
             Vec2::new(-zoom, zoom)
         };
         if let Soul::Zombie(..) = self.soul {
-            let freshness = self
-                .body
-                .parts
-                .get(&TilePos::new(0, 0))
-                .map_or(Freshness::Rotten, |i| i.data.freshness);
+            let freshness =
+                self.body
+                    .parts
+                    .get(&TilePos::new(0, 0))
+                    .map_or(Freshness::Rotten, |i| {
+                        if let BodyPartType::Torso(OrganData { freshness, .. }, ..) = i.typ {
+                            freshness
+                        } else {
+                            panic!("Root bodypart is not torso!")
+                        }
+                    });
             let (name, color) = match freshness {
                 Freshness::Fresh => (
                     if self.character.appearance.age > 15 {

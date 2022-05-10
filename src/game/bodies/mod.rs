@@ -1,5 +1,5 @@
 pub use self::body::Body;
-pub use self::data::{BodyPartData, BodySize, Freshness};
+pub use self::data::{BodySize, Freshness, OrganData};
 
 mod body;
 mod data;

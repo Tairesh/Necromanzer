@@ -23,8 +23,8 @@ impl ItemView for Corpse {
             adjectives.push("naked");
         }
         let age_name = if let Some(bp) = self.body.parts.get(&TilePos::new(0, 0)) {
-            adjectives.push(bp.data.freshness.adjective());
-            bp.data.age_name(true)
+            adjectives.push(bp.freshness().adjective());
+            bp.age_name()
         } else {
             "dismembered"
         };

@@ -60,10 +60,12 @@ pub enum ItemTag {
 
 #[cfg(test)]
 mod tests {
+    use std::convert::TryInto;
+
     use game::bodies::helpers::human_body;
     use game::human::character::tests::dead_boy;
 
-    use super::super::super::bodies::{BodyPartData, Freshness};
+    use super::super::super::bodies::{Freshness, OrganData};
     use super::super::super::map::items::{
         Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel,
     };
@@ -106,18 +108,27 @@ mod tests {
         let character = dead_boy();
         let brain: Item = BodyPart::new(
             "brain",
-            BodyPartData::new(&character, Freshness::Fresh),
-            BodyPartType::Brain,
+            BodyPartType::Brain(
+                OrganData::new(&character, Freshness::Fresh),
+                character.clone(),
+            ),
         )
         .into();
+        // We can't see the sex of the brain but can understand that is the child one
         assert_eq!("fresh child brain", brain.name());
+
         let head: Item = BodyPart::new(
             "head",
-            BodyPartData::new(&character, Freshness::Skeletal),
-            BodyPartType::Head,
+            BodyPartType::Head(
+                OrganData::new(&character, Freshness::Skeletal),
+                character.appearance.hair_color,
+                character.appearance.skin_tone,
+                (&character.mind.gender).try_into().unwrap_or_default(),
+            ),
         )
         .into();
-        assert_eq!("skeletal boy head", head.name());
+        // We can understand the sex of the skull due to our dark necromantic knowledge of skulls
+        assert_eq!("boy skull", head.name());
     }
 
     #[test]

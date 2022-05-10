@@ -1,4 +1,8 @@
-use game::bodies::{BodyPartData, Freshness};
+use game::bodies::{Freshness, OrganData};
+use game::human::character::{age_name, Character};
+use game::human::gender::{Gender, Sex};
+use game::human::hair_color::HairColor;
+use game::human::skin_tone::SkinTone;
 
 use super::super::item::{ItemInteract, ItemView};
 
@@ -6,27 +10,21 @@ use super::super::item::{ItemInteract, ItemView};
 pub struct BodyPart {
     #[serde(rename = "n")]
     pub name: String, // like "second head", TODO: probably rename to ID or "key"
-    #[serde(rename = "d")]
-    pub data: BodyPartData,
     #[serde(rename = "t")]
     pub typ: BodyPartType,
     #[serde(rename = "o")]
     pub outside: Vec<BodyPart>,
     #[serde(rename = "i")]
     pub inside: Vec<BodyPart>,
-    #[serde(rename = "w")]
-    pub wear: Vec<usize>,
 }
 
 impl BodyPart {
-    pub fn new<S: Into<String>>(name: S, data: BodyPartData, typ: BodyPartType) -> Self {
+    pub fn new<S: Into<String>>(name: S, typ: BodyPartType) -> Self {
         Self {
             name: name.into(),
-            data,
             typ,
             outside: Vec::default(),
             inside: Vec::default(),
-            wear: Vec::default(),
         }
     }
 
@@ -39,39 +37,107 @@ impl BodyPart {
         self.outside = outside;
         self
     }
+
+    pub fn organ_data(&self) -> &OrganData {
+        match &self.typ {
+            BodyPartType::Head(data, ..)
+            | BodyPartType::Eye(data)
+            | BodyPartType::Nose(data, ..)
+            | BodyPartType::Mouth(data, ..)
+            | BodyPartType::Ear(data, ..)
+            | BodyPartType::Brain(data, ..)
+            | BodyPartType::Torso(data, ..)
+            | BodyPartType::Heart(data, ..)
+            | BodyPartType::Stomach(data, ..)
+            | BodyPartType::Lung(data, ..)
+            | BodyPartType::Kidney(data, ..)
+            | BodyPartType::Liver(data, ..)
+            | BodyPartType::Intestines(data, ..)
+            | BodyPartType::LeftArm(data, ..)
+            | BodyPartType::LeftHand(data, ..)
+            | BodyPartType::RightArm(data, ..)
+            | BodyPartType::RightHand(data, ..)
+            | BodyPartType::LeftLeg(data, ..)
+            | BodyPartType::LeftFoot(data, ..)
+            | BodyPartType::RightLeg(data, ..)
+            | BodyPartType::RightFoot(data, ..) => data,
+        }
+    }
+
+    pub fn freshness(&self) -> Freshness {
+        self.organ_data().freshness
+    }
+
+    pub fn sex(&self) -> Option<Sex> {
+        match &self.typ {
+            BodyPartType::Head(.., sex)
+            | BodyPartType::Mouth(.., sex)
+            | BodyPartType::Torso(.., sex)
+            | BodyPartType::LeftArm(.., sex)
+            | BodyPartType::LeftHand(.., sex)
+            | BodyPartType::RightArm(.., sex)
+            | BodyPartType::RightHand(.., sex)
+            | BodyPartType::LeftLeg(.., sex)
+            | BodyPartType::LeftFoot(.., sex)
+            | BodyPartType::RightLeg(.., sex)
+            | BodyPartType::RightFoot(.., sex) => Some(*sex),
+            _ => None,
+        }
+    }
+
+    pub fn age_name(&self) -> &str {
+        let gender = self.sex().map(Gender::from);
+        age_name(
+            self.organ_data().age,
+            if let Some(gender) = &gender {
+                Some(gender)
+            } else {
+                None
+            },
+        )
+    }
 }
 
 impl ItemView for BodyPart {
     fn name(&self) -> String {
-        let adjective = match self.data.freshness {
-            Freshness::Fresh => "fresh",
-            Freshness::Rotten => "rotten",
-            Freshness::Skeletal => "skeletal",
+        let age_name = self.age_name();
+        if matches!(
+            self.typ,
+            BodyPartType::Head(
+                OrganData {
+                    freshness: Freshness::Skeletal,
+                    ..
+                },
+                ..
+            )
+        ) {
+            return format!("{} skull", age_name);
+        }
+        let adjective = self.freshness().adjective();
+        let name = match self.typ {
+            BodyPartType::Head(_, _, _, _) => "head",
+            BodyPartType::Eye(_) => "eye",
+            BodyPartType::Nose(_, _) => "nose",
+            BodyPartType::Mouth(_, _, _) => "mouth",
+            BodyPartType::Ear(_, _) => "ear",
+            BodyPartType::Brain(_, _) => "brain",
+            BodyPartType::Torso(_, _, _, _) => "torso",
+            BodyPartType::Heart(_) => "heart",
+            BodyPartType::Stomach(_) => "stomach",
+            BodyPartType::Lung(_) => "lung",
+            BodyPartType::Kidney(_) => "kidney",
+            BodyPartType::Liver(_) => "liver",
+            BodyPartType::Intestines(_) => "intestines",
+            BodyPartType::LeftArm(_, _, _) => "left arm",
+            BodyPartType::LeftHand(_, _, _) => "left hand",
+            BodyPartType::RightArm(_, _, _) => "right arm",
+            BodyPartType::RightHand(_, _, _) => "right hand",
+            BodyPartType::LeftLeg(_, _, _) => "left leg",
+            BodyPartType::LeftFoot(_, _, _) => "left foot",
+            BodyPartType::RightLeg(_, _, _) => "right leg",
+            BodyPartType::RightFoot(_, _, _) => "right foot",
         };
-        let (name, with_gender) = match self.typ {
-            BodyPartType::Head => ("head", true),
-            BodyPartType::Eye => ("eye", false),
-            BodyPartType::Nose => ("nose", true),
-            BodyPartType::Mouth => ("mouth", true),
-            BodyPartType::Ear => ("ear", true),
-            BodyPartType::Brain => ("brain", false),
-            BodyPartType::Torso => ("torso", true),
-            BodyPartType::Heart => ("heart", false),
-            BodyPartType::Stomach => ("stomach", false),
-            BodyPartType::Lung => ("lung", false),
-            BodyPartType::Kidney => ("kidney", false),
-            BodyPartType::Liver => ("liver", false),
-            BodyPartType::Intestines => ("intestines", false),
-            BodyPartType::LeftArm => ("left arm", true),
-            BodyPartType::LeftHand => ("left hand", true),
-            BodyPartType::RightArm => ("right arm", true),
-            BodyPartType::RightHand => ("right hand", true),
-            BodyPartType::LeftLeg => ("left leg", true),
-            BodyPartType::LeftFoot => ("left foot", true),
-            BodyPartType::RightLeg => ("right leg", true),
-            BodyPartType::RightFoot => ("right foot", true),
-        };
-        format!("{} {} {}", adjective, self.data.age_name(with_gender), name)
+        format!("{} {} {}", adjective, age_name, name)
     }
 
     fn looks_like(&self) -> &'static str {
@@ -82,23 +148,24 @@ impl ItemView for BodyPart {
 impl ItemInteract for BodyPart {
     fn mass(&self) -> u32 {
         match self.typ {
-            BodyPartType::Head => 3_500,
-            BodyPartType::Eye => 8,
-            BodyPartType::Nose => 60,
-            BodyPartType::Mouth => 200,
-            BodyPartType::Ear => 50,
-            BodyPartType::Brain => 1_400,
-            BodyPartType::Torso => 25_000,
-            BodyPartType::Heart => 250,
-            BodyPartType::Stomach => 125,
-            BodyPartType::Lung => 600,
-            BodyPartType::Kidney => 100,
-            BodyPartType::Liver => 1_500,
-            BodyPartType::Intestines => 2_000,
-            BodyPartType::LeftArm | BodyPartType::RightArm => 3_000,
-            BodyPartType::LeftHand | BodyPartType::RightHand => 500,
-            BodyPartType::LeftLeg | BodyPartType::RightLeg => 10_000,
-            BodyPartType::LeftFoot | BodyPartType::RightFoot => 750,
+            // TODO: use Sex and BodySize
+            BodyPartType::Head(..) => 3_500,
+            BodyPartType::Eye(..) => 8,
+            BodyPartType::Nose(..) => 60,
+            BodyPartType::Mouth(..) => 200,
+            BodyPartType::Ear(..) => 50,
+            BodyPartType::Brain(..) => 1_400,
+            BodyPartType::Torso(..) => 25_000,
+            BodyPartType::Heart(..) => 250,
+            BodyPartType::Stomach(..) => 125,
+            BodyPartType::Lung(..) => 600,
+            BodyPartType::Kidney(..) => 100,
+            BodyPartType::Liver(..) => 1_500,
+            BodyPartType::Intestines(..) => 2_000,
+            BodyPartType::LeftArm(..) | BodyPartType::RightArm(..) => 3_000,
+            BodyPartType::LeftHand(..) | BodyPartType::RightHand(..) => 500,
+            BodyPartType::LeftLeg(..) | BodyPartType::RightLeg(..) => 10_000,
+            BodyPartType::LeftFoot(..) | BodyPartType::RightFoot(..) => 750,
         }
     }
 }
@@ -106,25 +173,25 @@ impl ItemInteract for BodyPart {
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum BodyPartType {
-    Head,
-    Eye,
-    Nose,
-    Mouth, // TODO: jaws, teeth
-    Ear,
-    Brain,
-    Torso,
-    Heart,
-    Stomach,
-    Lung,
-    Kidney,
-    Liver,
-    Intestines,
-    LeftArm,
-    LeftHand,
-    RightArm,
-    RightHand, // TODO: fingers
-    LeftLeg,
-    LeftFoot,
-    RightLeg,
-    RightFoot,
+    Head(OrganData, HairColor, SkinTone, Sex),
+    Eye(OrganData), // TODO: eye color
+    Nose(OrganData, SkinTone),
+    Mouth(OrganData, SkinTone, Sex), // TODO: jaws, teeth, beard
+    Ear(OrganData, SkinTone),
+    Brain(OrganData, Character),
+    Torso(OrganData, HairColor, SkinTone, Sex),
+    Heart(OrganData),
+    Stomach(OrganData),
+    Lung(OrganData),
+    Kidney(OrganData),
+    Liver(OrganData),
+    Intestines(OrganData),
+    LeftArm(OrganData, SkinTone, Sex),  // TODO: shoulders
+    LeftHand(OrganData, SkinTone, Sex), // TODO: fingers
+    RightArm(OrganData, SkinTone, Sex),
+    RightHand(OrganData, SkinTone, Sex),
+    LeftLeg(OrganData, SkinTone, Sex),
+    LeftFoot(OrganData, SkinTone, Sex),
+    RightLeg(OrganData, SkinTone, Sex),
+    RightFoot(OrganData, SkinTone, Sex),
 }

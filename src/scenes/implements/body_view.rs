@@ -122,7 +122,7 @@ impl BodyView {
                 Colors::LIGHT_GRAY,
                 Position::by_left_top(20.0, 60.0 + y as f32),
             ))));
-            let color = match item.data.freshness {
+            let color = match item.freshness() {
                 Freshness::Fresh => Colors::LIGHT_PINK,
                 Freshness::Rotten => Colors::LIME_GREEN,
                 Freshness::Skeletal => Colors::WARM_IVORY,
