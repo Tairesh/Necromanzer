@@ -8,7 +8,7 @@ run:
 	cargo run --release
 
 before-commit: fmt check
-check: fmt-check test clippy clippy-pedantic
+check: fmt-check test clippy
 
 fmt:
 	cargo fmt --
@@ -20,10 +20,7 @@ test:
 	cargo test
 
 clippy:
-	cargo clippy -- -Dwarnings --verbose
-
-clippy-pedantic:
-	cargo clippy -- -D clippy::pedantic -A clippy::cast_precision_loss -A clippy::cast_possible_truncation -A clippy::cast_possible_wrap -A clippy::cast_sign_loss -A clippy::cast_lossless -A clippy::module_name_repetitions --verbose --no-deps
+	cargo clippy -- -D warnings -D clippy::pedantic -A clippy::cast_precision_loss -A clippy::cast_possible_truncation -A clippy::cast_possible_wrap -A clippy::cast_sign_loss -A clippy::cast_lossless -A clippy::module_name_repetitions --verbose --no-deps
 
 clean:
 	cargo clean
