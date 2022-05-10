@@ -64,7 +64,7 @@ impl CreateCharacter {
     #[allow(clippy::too_many_lines)]
     pub fn new(path: &Path, app: &App, ctx: &mut Context) -> Self {
         let meta = savefile::load(path).unwrap();
-        let bg = bg(&app.assets, &app.settings.borrow());
+        let bg = bg(&app.assets);
         let title = title("Create new character:", &app.assets);
         let subtitle = Rc::new(RefCell::new(Label::new(
             format!("New adventurer in the «{}» world", meta.name),

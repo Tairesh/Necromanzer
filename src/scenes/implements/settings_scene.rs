@@ -10,7 +10,7 @@ use colors::Colors;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
 use scenes::{back_btn, bg, easy_back, title};
-use settings::game::Settings;
+use settings::Settings;
 use ui::button::Button;
 use ui::inputs::TextInput;
 use ui::label::Label;
@@ -28,17 +28,16 @@ pub struct SettingsScene {
     window_btn: Rc<RefCell<Button>>,
     fullscreen_btn: Rc<RefCell<Button>>,
     repeat_interval_input: Rc<RefCell<TextInput>>,
-    settings: Rc<RefCell<Settings>>,
 }
 
 impl SettingsScene {
     // TODO: refactor and delete this allow
     #[allow(clippy::too_many_lines)]
     pub fn new(app: &App, ctx: &mut Context) -> Self {
-        let settings = app.settings.borrow();
-        let bg = bg(&app.assets, &settings);
+        let bg = bg(&app.assets);
         let title = title("Settings", &app.assets);
 
+        let settings = Settings::instance();
         let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
             vec![(Key::F, KeyModifier::Alt).into()],
             "[Alt+F] Fullscreen",
@@ -100,7 +99,7 @@ impl SettingsScene {
             Transition::CustomEvent(REPEAT_INTERVAL_MINUS),
         )));
         let repeat_interval_input = Rc::new(RefCell::new(TextInput::int(
-            app.settings.borrow().repeat_interval as u32,
+            settings.repeat_interval as u32,
             (1, 10000),
             190.0,
             app.assets.fonts.header2.clone(),
@@ -139,7 +138,6 @@ impl SettingsScene {
                 repeat_interval_plus,
                 back_btn,
             ],
-            settings: app.settings.clone(),
             fullscreen_btn,
             window_btn,
             repeat_interval_input,
@@ -161,7 +159,7 @@ impl SceneImpl for SettingsScene {
             FULLSCREEN_MODE_EVENT => {
                 self.window_btn.borrow_mut().unpress();
                 if !tetra::window::is_fullscreen(ctx) {
-                    self.settings.borrow_mut().window.fullscreen = true;
+                    Settings::instance().window.fullscreen = true;
                     tetra::window::set_fullscreen(ctx, true).ok();
                 }
                 None
@@ -169,13 +167,14 @@ impl SceneImpl for SettingsScene {
             WINDOW_MODE_EVENT => {
                 self.fullscreen_btn.borrow_mut().unpress();
                 if tetra::window::is_fullscreen(ctx) {
-                    self.settings.borrow_mut().window.fullscreen = false;
+                    Settings::instance().window.fullscreen = false;
                     tetra::window::set_fullscreen(ctx, false).ok();
                     tetra::window::set_decorated(ctx, true);
+                    let window_settings = &Settings::instance().window;
                     tetra::window::set_size(
                         ctx,
-                        self.settings.borrow().window.width as i32,
-                        self.settings.borrow().window.height as i32,
+                        window_settings.width as i32,
+                        window_settings.height as i32,
                     )
                     .ok();
                     let current_monitor = tetra::window::get_current_monitor(ctx).unwrap_or(0);
@@ -189,7 +188,7 @@ impl SceneImpl for SettingsScene {
             }
             REPEAT_INTERVAL_MINUS | REPEAT_INTERVAL_PLUS => {
                 let mut input = self.repeat_interval_input.borrow_mut();
-                if let Ok(mut value) = input.value().parse::<u8>() {
+                if let Ok(mut value) = input.value().parse::<u32>() {
                     match event {
                         REPEAT_INTERVAL_MINUS => {
                             value -= 1;
@@ -200,6 +199,7 @@ impl SceneImpl for SettingsScene {
                         _ => unreachable!(),
                     }
                     input.set_value(format!("{}", value).as_str());
+                    Settings::instance().repeat_interval = value;
                 }
                 None
             }
@@ -210,9 +210,6 @@ impl SceneImpl for SettingsScene {
 
 impl Drop for SettingsScene {
     fn drop(&mut self) {
-        if let Ok(repeat_interval) = self.repeat_interval_input.borrow().value().parse() {
-            self.settings.borrow_mut().repeat_interval = repeat_interval;
-            self.settings.borrow_mut().save();
-        }
+        Settings::instance().save();
     }
 }

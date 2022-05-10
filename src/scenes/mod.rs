@@ -10,7 +10,7 @@ use time::{Month, OffsetDateTime};
 use assets::Assets;
 use colors::Colors;
 use scenes::transition::{SomeTransitions, Transition};
-use settings::game::Settings;
+use settings::Settings;
 use ui::button::Button;
 use ui::image::Image;
 use ui::label::Label;
@@ -37,8 +37,8 @@ pub(crate) fn easy_back(event: &Event, focused: bool) -> SomeTransitions {
     }
 }
 
-pub(crate) fn bg(assets: &Assets, settings: &Settings) -> Rc<RefCell<Image>> {
-    let date = OffsetDateTime::now_utc().to_offset(settings.time.offset);
+pub(crate) fn bg(assets: &Assets) -> Rc<RefCell<Image>> {
+    let date = OffsetDateTime::now_utc().to_offset(Settings::instance().time.offset);
     Rc::new(RefCell::new(Image::repeat(
         if date.month() == Month::October && date.day() >= 19 && date.day() <= 31 {
             assets.images.halloween.clone()

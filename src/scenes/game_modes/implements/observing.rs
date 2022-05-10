@@ -14,6 +14,7 @@ use input;
 use scenes::game_modes::GameModeImpl;
 use scenes::implements::GameScene;
 use scenes::transition::SomeTransitions;
+use settings::Settings;
 use ui::label::Label;
 use ui::meshy::JustMesh;
 use ui::position::Position;
@@ -153,7 +154,7 @@ impl GameModeImpl for Observing {
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
             if now.duration_since(self.last_shift).subsec_millis()
-                > game.settings.borrow().repeat_interval
+                > Settings::instance().repeat_interval
                 || input::is_key_modifier_down(ctx, KeyModifier::Shift)
             {
                 self.last_shift = now;

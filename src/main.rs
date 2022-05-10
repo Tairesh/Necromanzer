@@ -4,6 +4,7 @@ extern crate arrayvec;
 extern crate core;
 extern crate enum_dispatch;
 extern crate num_enum;
+extern crate once_cell;
 extern crate phf;
 extern crate rand;
 extern crate serde;
@@ -35,7 +36,5 @@ const VERSION: &str = concat!(
 );
 
 fn main() -> tetra::Result {
-    let settings = settings::game::Settings::load()?;
-    window::create_context(format!("{} {}", NAME, VERSION), &settings.window)?
-        .run(|ctx| app::App::new(ctx, settings))
+    window::create_context(format!("{} {}", NAME, VERSION))?.run(app::App::new)
 }

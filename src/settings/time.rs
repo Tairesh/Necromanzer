@@ -8,7 +8,7 @@ pub struct Time {
 impl Default for Time {
     fn default() -> Self {
         Self {
-            offset: UtcOffset::current_local_offset().unwrap(),
+            offset: UtcOffset::current_local_offset().unwrap_or(UtcOffset::UTC),
         }
     }
 }

@@ -1,3 +1,5 @@
-pub mod game;
-pub mod time;
-pub mod window;
+pub use self::game::Settings;
+
+mod game;
+mod time;
+mod window;

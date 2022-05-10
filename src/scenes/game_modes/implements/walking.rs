@@ -15,6 +15,7 @@ use scenes::game_modes::GameModeImpl;
 use scenes::implements::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
+use settings::Settings;
 
 pub struct Walking {
     last_walk: Instant,
@@ -98,7 +99,7 @@ impl GameModeImpl for Walking {
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {
             let now = Instant::now();
             if now.duration_since(self.last_walk).subsec_millis()
-                > game.settings.borrow().repeat_interval
+                > Settings::instance().repeat_interval
                 || input::is_key_modifier_down(ctx, KeyModifier::Shift)
             {
                 self.last_walk = now;

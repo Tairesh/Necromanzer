@@ -12,15 +12,13 @@ use savefile;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use settings::game::Settings;
+use settings::Settings;
 use ui::label::Label;
 use ui::position::Position;
 use ui::traits::{Draw, Positionate, Stringify};
 
 pub struct App {
     pub assets: Rc<Assets>,
-    // TODO: probably use OnceCell https://docs.rs/once_cell/latest/once_cell/
-    pub settings: Rc<RefCell<Settings>>,
     pub world: Option<Rc<RefCell<World>>>,
     pub window_size: (i32, i32),
     scenes: Vec<Box<dyn SceneImpl>>,
@@ -28,7 +26,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(ctx: &mut Context, settings: Settings) -> tetra::Result<Self> {
+    pub fn new(ctx: &mut Context) -> tetra::Result<Self> {
         let assets = Assets::load(ctx)?;
         let fps_counter = Label::new(
             "00",
@@ -37,7 +35,6 @@ impl App {
             Position::by_right_top(-10.0, 10.0),
         );
         let mut app = Self {
-            settings: Rc::new(RefCell::new(settings)),
             assets: Rc::new(assets),
             scenes: vec![],
             window_size: window::get_size(ctx),
@@ -157,7 +154,7 @@ impl State for App {
             }
             scene.after_draw(ctx);
         }
-        if self.settings.borrow().show_fps {
+        if Settings::instance().show_fps {
             let fps = (tetra::time::get_fps(ctx).round() as u8).to_string();
             if !self.fps_counter.value().eq(&fps) {
                 self.fps_counter.set_value(fps);
@@ -170,11 +167,11 @@ impl State for App {
     fn event(&mut self, ctx: &mut Context, event: Event) -> tetra::Result {
         match event {
             Event::KeyPressed { key: Key::F2 } => {
-                self.settings.borrow_mut().show_fps ^= true; // ^_^
+                Settings::instance().show_fps ^= true; // ^_^
             }
             Event::Resized { width, height } => {
                 if !window::is_fullscreen(ctx) {
-                    let mut settings = self.settings.borrow_mut();
+                    let mut settings = Settings::instance();
                     settings.window.width = width;
                     settings.window.height = height;
                 }
@@ -194,6 +191,6 @@ impl State for App {
 
 impl Drop for App {
     fn drop(&mut self) {
-        self.settings.borrow_mut().save();
+        Settings::instance().save();
     }
 }

@@ -17,6 +17,7 @@ use scenes::easy_back;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
+use settings::Settings;
 use ui::alert::Alert;
 use ui::button::Button;
 use ui::label::Label;
@@ -107,7 +108,7 @@ impl LoadWorld {
             let version_label_size = version_label.borrow_mut().calc_size(ctx);
             sprites.push(version_label);
             let time =
-                OffsetDateTime::from(savefile.time).to_offset(app.settings.borrow().time.offset);
+                OffsetDateTime::from(savefile.time).to_offset(Settings::instance().time.offset);
             sprites.push(Rc::new(RefCell::new(Label::new(
                 time.format(&DATETIME_FORMAT).unwrap(),
                 app.assets.fonts.default.clone(),

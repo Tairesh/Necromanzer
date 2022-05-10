@@ -23,7 +23,6 @@ use scenes::game_modes::GameMode;
 use scenes::game_modes::GameModeImpl;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
-use settings::game::Settings;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
 use ui::{BunchOfSprites, SomeSprites};
@@ -37,7 +36,6 @@ pub struct GameScene {
     pub current_time_label: Rc<RefCell<Label>>,
     pub log: Log,
     pub shift_of_view: Point,
-    pub settings: Rc<RefCell<Settings>>,
     pub assets: Rc<Assets>,
     pub window_size: (i32, i32),
 }
@@ -74,7 +72,6 @@ impl GameScene {
             .unwrap(),
             log: Log::new(app.assets.fonts.default.font.clone()),
             shift_of_view: Point::zero(),
-            settings: app.settings.clone(),
             assets: app.assets.clone(),
             window_size: app.window_size,
             current_time_label,

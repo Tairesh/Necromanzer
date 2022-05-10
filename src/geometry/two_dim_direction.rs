@@ -1,5 +1,6 @@
-use geometry::direction::Direction;
 use std::convert::TryFrom;
+
+use geometry::direction::Direction;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum TwoDimDirection {
@@ -34,9 +35,11 @@ impl TryFrom<Direction> for TwoDimDirection {
 
 #[cfg(test)]
 mod tests {
-    use super::{ConvertError, TwoDimDirection};
-    use geometry::direction::Direction;
     use std::convert::{TryFrom, TryInto};
+
+    use geometry::direction::Direction;
+
+    use super::{ConvertError, TwoDimDirection};
 
     #[test]
     fn to_two_dim() {

@@ -2,9 +2,10 @@ use tetra::graphics::ImageData;
 use tetra::window::WindowPosition;
 use tetra::{window, Context, ContextBuilder};
 
-use settings::window::Window;
+use settings::Settings;
 
-pub fn create_context<S: Into<String>>(title: S, settings: &Window) -> tetra::Result<Context> {
+pub fn create_context<S: Into<String>>(title: S) -> tetra::Result<Context> {
+    let settings = &Settings::instance().window;
     let mut ctx_builder = ContextBuilder::new(title, settings.width, settings.height);
     ctx_builder
         .show_mouse(true)
