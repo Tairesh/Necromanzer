@@ -181,7 +181,7 @@ impl SceneImpl for LoadWorld {
                 if savefile::have_avatar(path) {
                     Some(vec![
                         Transition::LoadWorld(path.clone()),
-                        Transition::Replace(Scene::Game),
+                        Transition::Replace(Scene::GameScene),
                     ])
                 } else {
                     Some(vec![Transition::Replace(Scene::CreateCharacter(meta.path))])

@@ -4,7 +4,7 @@ use tetra::Context;
 
 use app::App;
 use scenes::implements::{
-    BodyView, CreateCharacter, CreateWorld, Empty, Game, GameMenu, LoadWorld, MainMenu,
+    BodyView, CreateCharacter, CreateWorld, Empty, GameMenu, GameScene, LoadWorld, MainMenu,
     SettingsScene,
 };
 use scenes::scene_impl::SceneImpl;
@@ -18,7 +18,7 @@ pub enum Scene {
     CreateWorld,
     LoadWorld,
     CreateCharacter(PathBuf),
-    Game,
+    GameScene,
     GameMenu,
     BodyView(usize),
 }
@@ -33,7 +33,7 @@ impl Scene {
             Scene::CreateWorld => Box::new(CreateWorld::new(app, ctx)),
             Scene::LoadWorld => Box::new(LoadWorld::new(app, ctx)),
             Scene::CreateCharacter(path) => Box::new(CreateCharacter::new(&path, app, ctx)),
-            Scene::Game => Box::new(Game::new(app, ctx)),
+            Scene::GameScene => Box::new(GameScene::new(app, ctx)),
             Scene::GameMenu => Box::new(GameMenu::new(app)),
             Scene::BodyView(unit_id) => Box::new(BodyView::new(unit_id, app, ctx)),
         }

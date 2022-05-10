@@ -410,7 +410,7 @@ impl SceneImpl for CreateCharacter {
                     world.save();
                     Some(vec![
                         Transition::LoadWorld(self.meta.path.clone()),
-                        Transition::Replace(Scene::Game),
+                        Transition::Replace(Scene::GameScene),
                     ])
                 }
             }

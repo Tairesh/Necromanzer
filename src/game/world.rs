@@ -305,6 +305,7 @@ impl World {
     pub const SPEND_LIMIT: u32 = 100; // TODO: probably it should be about 10-50
 
     pub fn tick(&mut self) -> Vec<ActionResult> {
+        // TODO: this should be outside of World, for passing it to actions and units
         let mut actions = vec![];
 
         // make zero ticks actions

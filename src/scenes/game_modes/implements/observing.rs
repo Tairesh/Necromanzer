@@ -12,7 +12,7 @@ use geometry::point::Point;
 use geometry::{Rect, Vec2};
 use input;
 use scenes::game_modes::GameModeImpl;
-use scenes::implements::Game;
+use scenes::implements::GameScene;
 use scenes::transition::SomeTransitions;
 use ui::label::Label;
 use ui::meshy::JustMesh;
@@ -59,7 +59,7 @@ impl Observing {
         }
     }
 
-    fn update_mouse(&mut self, ctx: &mut Context, game: &mut Game) {
+    fn update_mouse(&mut self, ctx: &mut Context, game: &mut GameScene) {
         let mouse = input::get_mouse_position(ctx);
         let zoom_view = game.world.borrow().game_view.zoom.as_view();
         let zoom = game.world.borrow().game_view.zoom.0;
@@ -76,7 +76,7 @@ impl Observing {
         }
     }
 
-    fn update_sprite(&mut self, ctx: &mut Context, game: &mut Game) {
+    fn update_sprite(&mut self, ctx: &mut Context, game: &mut GameScene) {
         let pos = game.world.borrow().player().pos + game.shift_of_view + self.mouse_moved_pos;
         let msg = game.world.borrow().this_is(pos, true);
         let tile_size = game.tile_size();
@@ -137,7 +137,7 @@ impl GameModeImpl for Observing {
         vec![(self.mouse_moved_pos, Colors::LIME)]
     }
 
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
+    fn update(&mut self, ctx: &mut Context, game: &mut GameScene) -> SomeTransitions {
         self.update_mouse(ctx, game);
         let mut shifted = false;
         if input::is_key_pressed(ctx, Key::Escape) {
@@ -168,7 +168,7 @@ impl GameModeImpl for Observing {
         None
     }
 
-    fn draw(&mut self, ctx: &mut Context, _game: &mut Game) {
+    fn draw(&mut self, ctx: &mut Context, _game: &mut GameScene) {
         if let Some(sprite) = &mut self.sprite {
             sprite.mesh.draw(ctx);
             sprite.label.draw(ctx);

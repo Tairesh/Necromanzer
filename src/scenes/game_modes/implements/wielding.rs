@@ -10,7 +10,7 @@ use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
 use input;
 use scenes::game_modes::GameModeImpl;
-use scenes::implements::Game;
+use scenes::implements::GameScene;
 use scenes::transition::SomeTransitions;
 
 pub struct Wielding {
@@ -57,7 +57,7 @@ impl GameModeImpl for Wielding {
         }
     }
 
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
+    fn update(&mut self, ctx: &mut Context, game: &mut GameScene) -> SomeTransitions {
         if input::is_key_pressed(ctx, Key::Escape) {
             game.modes.pop();
         } else if let Some(dir) = input::get_direction_keys_down(ctx) {

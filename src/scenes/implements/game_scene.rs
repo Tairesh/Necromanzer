@@ -28,7 +28,7 @@ use ui::label::Label;
 use ui::position::{Position, Vertical};
 use ui::{BunchOfSprites, SomeSprites};
 
-pub struct Game {
+pub struct GameScene {
     pub sprites: BunchOfSprites,
     pub world: Rc<RefCell<World>>,
     pub game_data: Rc<GameData>,
@@ -42,7 +42,7 @@ pub struct Game {
     pub window_size: (i32, i32),
 }
 
-impl Game {
+impl GameScene {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let world = app.clone_world();
         let name_label = Rc::new(RefCell::new(Label::new(
@@ -154,7 +154,7 @@ impl Game {
     }
 }
 
-impl SceneImpl for Game {
+impl SceneImpl for GameScene {
     fn on_update(&mut self, ctx: &mut Context) -> SomeTransitions {
         if self.world.borrow().player().action.is_some() {
             self.make_world_tick(ctx);
@@ -268,7 +268,7 @@ impl SceneImpl for Game {
     }
 }
 
-impl Drop for Game {
+impl Drop for GameScene {
     fn drop(&mut self) {
         self.world.borrow_mut().save();
     }

@@ -7,7 +7,7 @@ use geometry::point::Point;
 use scenes::game_modes::implements::{
     Animate, Digging, Dropping, Examining, Observing, Reading, Walking, Wielding,
 };
-use scenes::implements::Game;
+use scenes::implements::GameScene;
 use scenes::transition::SomeTransitions;
 
 use super::GameMode;
@@ -20,6 +20,6 @@ pub trait GameModeImpl {
     fn can_push(&self, _world: &World) -> Result<(), String> {
         Ok(())
     }
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions;
-    fn draw(&mut self, _ctx: &mut Context, _game: &mut Game) {}
+    fn update(&mut self, ctx: &mut Context, game: &mut GameScene) -> SomeTransitions;
+    fn draw(&mut self, _ctx: &mut Context, _game: &mut GameScene) {}
 }

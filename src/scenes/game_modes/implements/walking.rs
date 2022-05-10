@@ -12,7 +12,7 @@ use scenes::game_modes::implements::{
     Animate, Digging, Dropping, Examining, Observing, Reading, Wielding,
 };
 use scenes::game_modes::GameModeImpl;
-use scenes::implements::Game;
+use scenes::implements::GameScene;
 use scenes::scene::Scene;
 use scenes::transition::{SomeTransitions, Transition};
 
@@ -35,7 +35,7 @@ impl Default for Walking {
 }
 
 impl GameModeImpl for Walking {
-    fn update(&mut self, ctx: &mut Context, game: &mut Game) -> SomeTransitions {
+    fn update(&mut self, ctx: &mut Context, game: &mut GameScene) -> SomeTransitions {
         if input::is_mouse_scrolled_down(ctx) {
             game.world.borrow_mut().game_view.zoom.dec();
             None
