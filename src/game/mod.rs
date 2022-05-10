@@ -4,6 +4,7 @@ pub use self::world::World;
 
 pub mod actions;
 pub mod ai;
+mod animals;
 mod avatar;
 pub mod bodies;
 mod fov;

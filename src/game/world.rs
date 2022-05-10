@@ -357,9 +357,9 @@ pub mod tests {
 
     use assets::game_data::GameData;
     use game::actions::implements::{Skip, Walk};
-    use game::bodies::helpers::human_body;
     use game::bodies::Freshness;
     use game::human::character::tests::{dead_boy, tester_girl};
+    use game::human::helpers::human_body;
     use geometry::direction::Direction;
     use geometry::point::Point;
     use savefile::{GameView, Meta};

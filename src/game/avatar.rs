@@ -7,10 +7,10 @@ use assets::tileset::Tileset;
 use colors::Colors;
 use game::actions::Action;
 use game::ai::ZombieBrain;
-use game::bodies::helpers::human_body;
 use game::bodies::{Body, Freshness, OrganData};
 use game::human::character::Character;
 use game::human::gender::Gender;
+use game::human::helpers::human_body;
 use game::map::item::{Item, ItemView};
 use game::map::items::{BodyPartType, Cloak, Hat};
 use game::map::pos::TilePos;
@@ -29,8 +29,8 @@ pub struct Avatar {
     pub body: Body,
     pub pos: TilePos,
     pub action: Option<Action>,
-    pub vision: TwoDimDirection,
-    pub wield: Vec<Item>, // TODO: custom struct with hands counter
+    pub vision: TwoDimDirection, // TODO: rotation of multitile body
+    pub wield: Vec<Item>,        // TODO: custom struct with hands counter
     pub stamina: u8,
     pub soul: Soul,
     // TODO: traits
@@ -91,7 +91,7 @@ impl Avatar {
                     .parts
                     .get(&TilePos::new(0, 0))
                     .map_or(Freshness::Rotten, |i| {
-                        if let BodyPartType::Torso(OrganData { freshness, .. }, ..) = i.typ {
+                        if let BodyPartType::HumanTorso(OrganData { freshness, .. }, ..) = i.typ {
                             freshness
                         } else {
                             panic!("Root bodypart is not torso!")

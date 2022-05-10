@@ -70,8 +70,9 @@ fn save(settings: &Settings, path: &'static str) {
 
 #[cfg(test)]
 mod tests {
-    use super::load;
     use settings::game::save;
+
+    use super::load;
 
     const TEST_PATH: &str = "./settings-test.json";
 

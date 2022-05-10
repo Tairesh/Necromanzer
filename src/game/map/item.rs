@@ -62,8 +62,8 @@ pub enum ItemTag {
 mod tests {
     use std::convert::TryInto;
 
-    use game::bodies::helpers::human_body;
     use game::human::character::tests::dead_boy;
+    use game::human::helpers::human_body;
 
     use super::super::super::bodies::{Freshness, OrganData};
     use super::super::super::map::items::{
@@ -108,7 +108,7 @@ mod tests {
         let character = dead_boy();
         let brain: Item = BodyPart::new(
             "brain",
-            BodyPartType::Brain(
+            BodyPartType::HumanBrain(
                 OrganData::new(&character, Freshness::Fresh),
                 character.clone(),
             ),
@@ -119,7 +119,7 @@ mod tests {
 
         let head: Item = BodyPart::new(
             "head",
-            BodyPartType::Head(
+            BodyPartType::HumanHead(
                 OrganData::new(&character, Freshness::Skeletal),
                 character.appearance.hair_color,
                 character.appearance.skin_tone,

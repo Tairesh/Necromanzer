@@ -1,10 +1,9 @@
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use game::bodies::helpers::human_body;
-
 use super::super::super::bodies::Freshness;
 use super::super::super::human::character::Character;
+use super::super::super::human::helpers::human_body;
 use super::super::item::Item;
 use super::super::items::{Corpse, Gravestone, Rags};
 use super::super::passage::Passage;

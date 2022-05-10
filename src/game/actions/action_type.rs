@@ -265,7 +265,7 @@ mod tests {
                 assert!(matches!(
                     body.parts.get(&TilePos::new(0, 0)),
                     Some(BodyPart {
-                        typ: BodyPartType::Torso(
+                        typ: BodyPartType::HumanTorso(
                             OrganData {
                                 freshness: Freshness::Rotten,
                                 ..

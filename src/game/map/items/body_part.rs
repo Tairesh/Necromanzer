@@ -1,6 +1,7 @@
-use game::bodies::{Freshness, OrganData};
+use game::animals::FurColor;
+use game::bodies::{Freshness, OrganData, Sex};
 use game::human::character::{age_name, Character};
-use game::human::gender::{Gender, Sex};
+use game::human::gender::Gender;
 use game::human::hair_color::HairColor;
 use game::human::skin_tone::SkinTone;
 
@@ -40,27 +41,42 @@ impl BodyPart {
 
     pub fn organ_data(&self) -> &OrganData {
         match &self.typ {
-            BodyPartType::Head(data, ..)
-            | BodyPartType::Eye(data)
-            | BodyPartType::Nose(data, ..)
-            | BodyPartType::Mouth(data, ..)
-            | BodyPartType::Ear(data, ..)
-            | BodyPartType::Brain(data, ..)
-            | BodyPartType::Torso(data, ..)
-            | BodyPartType::Heart(data, ..)
-            | BodyPartType::Stomach(data, ..)
-            | BodyPartType::Lung(data, ..)
-            | BodyPartType::Kidney(data, ..)
-            | BodyPartType::Liver(data, ..)
-            | BodyPartType::Intestines(data, ..)
-            | BodyPartType::LeftArm(data, ..)
-            | BodyPartType::LeftHand(data, ..)
-            | BodyPartType::RightArm(data, ..)
-            | BodyPartType::RightHand(data, ..)
-            | BodyPartType::LeftLeg(data, ..)
-            | BodyPartType::LeftFoot(data, ..)
-            | BodyPartType::RightLeg(data, ..)
-            | BodyPartType::RightFoot(data, ..) => data,
+            BodyPartType::HumanHead(data, ..)
+            | BodyPartType::HumanEye(data)
+            | BodyPartType::HumanNose(data, ..)
+            | BodyPartType::HumanMouth(data, ..)
+            | BodyPartType::HumanEar(data, ..)
+            | BodyPartType::HumanBrain(data, ..)
+            | BodyPartType::HumanTorso(data, ..)
+            | BodyPartType::HumanHeart(data, ..)
+            | BodyPartType::HumanStomach(data, ..)
+            | BodyPartType::HumanLung(data, ..)
+            | BodyPartType::HumanKidney(data, ..)
+            | BodyPartType::HumanLiver(data, ..)
+            | BodyPartType::HumanIntestines(data, ..)
+            | BodyPartType::HumanLeftArm(data, ..)
+            | BodyPartType::HumanLeftHand(data, ..)
+            | BodyPartType::HumanRightArm(data, ..)
+            | BodyPartType::HumanRightHand(data, ..)
+            | BodyPartType::HumanLeftLeg(data, ..)
+            | BodyPartType::HumanLeftFoot(data, ..)
+            | BodyPartType::HumanRightLeg(data, ..)
+            | BodyPartType::HumanRightFoot(data, ..)
+            | BodyPartType::DogHead(data, ..)
+            | BodyPartType::DogMaw(data, ..)
+            | BodyPartType::DogEye(data, ..)
+            | BodyPartType::DogNose(data, ..)
+            | BodyPartType::DogEar(data, ..)
+            | BodyPartType::DogBrain(data, ..)
+            | BodyPartType::DogTorso(data, ..)
+            | BodyPartType::DogHeart(data, ..)
+            | BodyPartType::DogStomach(data, ..)
+            | BodyPartType::DogLung(data, ..)
+            | BodyPartType::DogKidney(data, ..)
+            | BodyPartType::DogLiver(data, ..)
+            | BodyPartType::DogIntestines(data, ..)
+            | BodyPartType::DogPaw(data, ..)
+            | BodyPartType::DogTail(data, ..) => data,
         }
     }
 
@@ -69,32 +85,68 @@ impl BodyPart {
     }
 
     pub fn sex(&self) -> Option<Sex> {
-        match &self.typ {
-            BodyPartType::Head(.., sex)
-            | BodyPartType::Mouth(.., sex)
-            | BodyPartType::Torso(.., sex)
-            | BodyPartType::LeftArm(.., sex)
-            | BodyPartType::LeftHand(.., sex)
-            | BodyPartType::RightArm(.., sex)
-            | BodyPartType::RightHand(.., sex)
-            | BodyPartType::LeftLeg(.., sex)
-            | BodyPartType::LeftFoot(.., sex)
-            | BodyPartType::RightLeg(.., sex)
-            | BodyPartType::RightFoot(.., sex) => Some(*sex),
+        match self.typ {
+            BodyPartType::HumanHead(.., sex)
+            | BodyPartType::HumanMouth(.., sex)
+            | BodyPartType::HumanTorso(.., sex)
+            | BodyPartType::HumanLeftArm(.., sex)
+            | BodyPartType::HumanLeftHand(.., sex)
+            | BodyPartType::HumanRightArm(.., sex)
+            | BodyPartType::HumanRightHand(.., sex)
+            | BodyPartType::HumanLeftLeg(.., sex)
+            | BodyPartType::HumanLeftFoot(.., sex)
+            | BodyPartType::HumanRightLeg(.., sex)
+            | BodyPartType::HumanRightFoot(.., sex)
+            | BodyPartType::DogTorso(.., sex)
+            | BodyPartType::DogHead(.., sex) => Some(sex),
             _ => None,
         }
     }
 
+    // TODO: AnimalType enum probably
+    pub fn is_human(&self) -> bool {
+        matches!(
+            self.typ,
+            BodyPartType::HumanHead(_, _, _, _)
+                | BodyPartType::HumanEye(_)
+                | BodyPartType::HumanNose(_, _)
+                | BodyPartType::HumanMouth(_, _, _)
+                | BodyPartType::HumanEar(_, _)
+                | BodyPartType::HumanBrain(_, _)
+                | BodyPartType::HumanTorso(_, _, _, _)
+                | BodyPartType::HumanHeart(_)
+                | BodyPartType::HumanStomach(_)
+                | BodyPartType::HumanLung(_)
+                | BodyPartType::HumanKidney(_)
+                | BodyPartType::HumanLiver(_)
+                | BodyPartType::HumanIntestines(_)
+                | BodyPartType::HumanLeftArm(_, _, _)
+                | BodyPartType::HumanLeftHand(_, _, _)
+                | BodyPartType::HumanRightArm(_, _, _)
+                | BodyPartType::HumanRightHand(_, _, _)
+                | BodyPartType::HumanLeftLeg(_, _, _)
+                | BodyPartType::HumanLeftFoot(_, _, _)
+                | BodyPartType::HumanRightLeg(_, _, _)
+                | BodyPartType::HumanRightFoot(_, _, _)
+        )
+    }
+
     pub fn age_name(&self) -> &str {
         let gender = self.sex().map(Gender::from);
-        age_name(
-            self.organ_data().age,
-            if let Some(gender) = &gender {
-                Some(gender)
-            } else {
-                None
-            },
-        )
+        if self.is_human() {
+            age_name(
+                self.organ_data().age,
+                if let Some(gender) = &gender {
+                    Some(gender)
+                } else {
+                    None
+                },
+            )
+        } else if self.organ_data().age < 1 {
+            "puppet"
+        } else {
+            "dog"
+        }
     }
 }
 
@@ -103,7 +155,7 @@ impl ItemView for BodyPart {
         let age_name = self.age_name();
         if matches!(
             self.typ,
-            BodyPartType::Head(
+            BodyPartType::HumanHead(
                 OrganData {
                     freshness: Freshness::Skeletal,
                     ..
@@ -115,27 +167,30 @@ impl ItemView for BodyPart {
         }
         let adjective = self.freshness().adjective();
         let name = match self.typ {
-            BodyPartType::Head(_, _, _, _) => "head",
-            BodyPartType::Eye(_) => "eye",
-            BodyPartType::Nose(_, _) => "nose",
-            BodyPartType::Mouth(_, _, _) => "mouth",
-            BodyPartType::Ear(_, _) => "ear",
-            BodyPartType::Brain(_, _) => "brain",
-            BodyPartType::Torso(_, _, _, _) => "torso",
-            BodyPartType::Heart(_) => "heart",
-            BodyPartType::Stomach(_) => "stomach",
-            BodyPartType::Lung(_) => "lung",
-            BodyPartType::Kidney(_) => "kidney",
-            BodyPartType::Liver(_) => "liver",
-            BodyPartType::Intestines(_) => "intestines",
-            BodyPartType::LeftArm(_, _, _) => "left arm",
-            BodyPartType::LeftHand(_, _, _) => "left hand",
-            BodyPartType::RightArm(_, _, _) => "right arm",
-            BodyPartType::RightHand(_, _, _) => "right hand",
-            BodyPartType::LeftLeg(_, _, _) => "left leg",
-            BodyPartType::LeftFoot(_, _, _) => "left foot",
-            BodyPartType::RightLeg(_, _, _) => "right leg",
-            BodyPartType::RightFoot(_, _, _) => "right foot",
+            BodyPartType::HumanHead(_, _, _, _) | BodyPartType::DogHead(_, _, _) => "head",
+            BodyPartType::HumanEye(_) | BodyPartType::DogEye(_) => "eye",
+            BodyPartType::HumanNose(_, _) | BodyPartType::DogNose(_, _) => "nose",
+            BodyPartType::HumanMouth(_, _, _) => "mouth",
+            BodyPartType::HumanEar(_, _) | BodyPartType::DogEar(_, _) => "ear",
+            BodyPartType::HumanBrain(_, _) | BodyPartType::DogBrain(_) => "brain",
+            BodyPartType::HumanTorso(_, _, _, _) | BodyPartType::DogTorso(_, _, _) => "torso",
+            BodyPartType::HumanHeart(_) | BodyPartType::DogHeart(_) => "heart",
+            BodyPartType::HumanStomach(_) | BodyPartType::DogStomach(_) => "stomach",
+            BodyPartType::HumanLung(_) | BodyPartType::DogLung(_) => "lung",
+            BodyPartType::HumanKidney(_) | BodyPartType::DogKidney(_) => "kidney",
+            BodyPartType::HumanLiver(_) | BodyPartType::DogLiver(_) => "liver",
+            BodyPartType::HumanIntestines(_) | BodyPartType::DogIntestines(_) => "intestines",
+            BodyPartType::HumanLeftArm(_, _, _) => "left arm",
+            BodyPartType::HumanLeftHand(_, _, _) => "left hand",
+            BodyPartType::HumanRightArm(_, _, _) => "right arm",
+            BodyPartType::HumanRightHand(_, _, _) => "right hand",
+            BodyPartType::HumanLeftLeg(_, _, _) => "left leg",
+            BodyPartType::HumanLeftFoot(_, _, _) => "left foot",
+            BodyPartType::HumanRightLeg(_, _, _) => "right leg",
+            BodyPartType::HumanRightFoot(_, _, _) => "right foot",
+            BodyPartType::DogMaw(_, _) => "maw",
+            BodyPartType::DogPaw(_, _) => "paw",
+            BodyPartType::DogTail(_, _) => "tail",
         };
         format!("{} {} {}", adjective, age_name, name)
     }
@@ -147,25 +202,39 @@ impl ItemView for BodyPart {
 
 impl ItemInteract for BodyPart {
     fn mass(&self) -> u32 {
+        // TODO: use Sex and BodySize
         match self.typ {
-            // TODO: use Sex and BodySize
-            BodyPartType::Head(..) => 3_500,
-            BodyPartType::Eye(..) => 8,
-            BodyPartType::Nose(..) => 60,
-            BodyPartType::Mouth(..) => 200,
-            BodyPartType::Ear(..) => 50,
-            BodyPartType::Brain(..) => 1_400,
-            BodyPartType::Torso(..) => 25_000,
-            BodyPartType::Heart(..) => 250,
-            BodyPartType::Stomach(..) => 125,
-            BodyPartType::Lung(..) => 600,
-            BodyPartType::Kidney(..) => 100,
-            BodyPartType::Liver(..) => 1_500,
-            BodyPartType::Intestines(..) => 2_000,
-            BodyPartType::LeftArm(..) | BodyPartType::RightArm(..) => 3_000,
-            BodyPartType::LeftHand(..) | BodyPartType::RightHand(..) => 500,
-            BodyPartType::LeftLeg(..) | BodyPartType::RightLeg(..) => 10_000,
-            BodyPartType::LeftFoot(..) | BodyPartType::RightFoot(..) => 750,
+            BodyPartType::HumanHead(..) => 3_500,
+            BodyPartType::HumanEye(..) | BodyPartType::DogEye(..) => 8,
+            BodyPartType::HumanNose(..) => 60,
+            BodyPartType::HumanMouth(..) => 200,
+            BodyPartType::HumanEar(..) => 50,
+            BodyPartType::HumanBrain(..) => 1_400,
+            BodyPartType::HumanTorso(..) => 25_000,
+            BodyPartType::HumanHeart(..) => 250,
+            BodyPartType::HumanStomach(..) => 125,
+            BodyPartType::HumanLung(..) => 600,
+            BodyPartType::HumanKidney(..) => 100,
+            BodyPartType::HumanLiver(..) => 1_500,
+            BodyPartType::HumanIntestines(..) => 2_000,
+            BodyPartType::HumanLeftArm(..) | BodyPartType::HumanRightArm(..) => 3_000,
+            BodyPartType::HumanLeftHand(..) | BodyPartType::HumanRightHand(..) => 500,
+            BodyPartType::HumanLeftLeg(..) | BodyPartType::HumanRightLeg(..) => 10_000,
+            BodyPartType::HumanLeftFoot(..) | BodyPartType::HumanRightFoot(..) => 750,
+            BodyPartType::DogHead(..) => 4_000,
+            BodyPartType::DogMaw(..) => 700,
+            BodyPartType::DogNose(..) => 70,
+            BodyPartType::DogEar(..) => 45,
+            BodyPartType::DogBrain(..) => 900,
+            BodyPartType::DogTorso(..) => 30_000,
+            BodyPartType::DogHeart(..) => 260,
+            BodyPartType::DogStomach(..) => 130,
+            BodyPartType::DogLung(..) => 650,
+            BodyPartType::DogKidney(..) => 120,
+            BodyPartType::DogLiver(..) => 1_600,
+            BodyPartType::DogIntestines(..) => 2_750,
+            BodyPartType::DogPaw(..) => 11_000,
+            BodyPartType::DogTail(..) => 2_500,
         }
     }
 }
@@ -173,25 +242,40 @@ impl ItemInteract for BodyPart {
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum BodyPartType {
-    Head(OrganData, HairColor, SkinTone, Sex),
-    Eye(OrganData), // TODO: eye color
-    Nose(OrganData, SkinTone),
-    Mouth(OrganData, SkinTone, Sex), // TODO: jaws, teeth, beard
-    Ear(OrganData, SkinTone),
-    Brain(OrganData, Character),
-    Torso(OrganData, HairColor, SkinTone, Sex),
-    Heart(OrganData),
-    Stomach(OrganData),
-    Lung(OrganData),
-    Kidney(OrganData),
-    Liver(OrganData),
-    Intestines(OrganData),
-    LeftArm(OrganData, SkinTone, Sex),  // TODO: shoulders
-    LeftHand(OrganData, SkinTone, Sex), // TODO: fingers
-    RightArm(OrganData, SkinTone, Sex),
-    RightHand(OrganData, SkinTone, Sex),
-    LeftLeg(OrganData, SkinTone, Sex),
-    LeftFoot(OrganData, SkinTone, Sex),
-    RightLeg(OrganData, SkinTone, Sex),
-    RightFoot(OrganData, SkinTone, Sex),
+    HumanHead(OrganData, HairColor, SkinTone, Sex),
+    HumanEye(OrganData), // TODO: eye color
+    HumanNose(OrganData, SkinTone),
+    HumanMouth(OrganData, SkinTone, Sex), // TODO: jaws, teeth, beard
+    HumanEar(OrganData, SkinTone),
+    HumanBrain(OrganData, Character),
+    HumanTorso(OrganData, HairColor, SkinTone, Sex),
+    HumanHeart(OrganData),
+    HumanStomach(OrganData),
+    HumanLung(OrganData),
+    HumanKidney(OrganData),
+    HumanLiver(OrganData),
+    HumanIntestines(OrganData),
+    HumanLeftArm(OrganData, SkinTone, Sex),  // TODO: shoulders
+    HumanLeftHand(OrganData, SkinTone, Sex), // TODO: fingers
+    HumanRightArm(OrganData, SkinTone, Sex),
+    HumanRightHand(OrganData, SkinTone, Sex),
+    HumanLeftLeg(OrganData, SkinTone, Sex),
+    HumanLeftFoot(OrganData, SkinTone, Sex),
+    HumanRightLeg(OrganData, SkinTone, Sex),
+    HumanRightFoot(OrganData, SkinTone, Sex),
+    DogHead(OrganData, FurColor, Sex),
+    DogMaw(OrganData, FurColor),
+    DogEye(OrganData),
+    DogNose(OrganData, FurColor),
+    DogEar(OrganData, FurColor),
+    DogBrain(OrganData), // TODO: dog-identity (Character-like struct with name)
+    DogTorso(OrganData, FurColor, Sex),
+    DogHeart(OrganData),
+    DogStomach(OrganData),
+    DogLung(OrganData),
+    DogKidney(OrganData),
+    DogLiver(OrganData),
+    DogIntestines(OrganData),
+    DogPaw(OrganData, FurColor),
+    DogTail(OrganData, FurColor),
 }
