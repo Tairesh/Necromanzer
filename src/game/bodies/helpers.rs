@@ -191,9 +191,18 @@ pub fn human_body(character: &Character, freshness: Freshness) -> Body {
     Body::new(parts)
 }
 
+#[allow(dead_code)]
+pub fn human_centipede(characters: Vec<Character>) -> Body {
+    let parts = characters
+        .into_iter()
+        .enumerate()
+        .map(|(i, c)| (TilePos::new(0, i as i32), human_torso(&c, Freshness::Fresh)))
+        .collect();
+    Body::new(parts)
+}
+
 #[cfg(test)]
 mod tests {
-    use game::bodies::helpers::{human_body, human_torso};
     use game::bodies::{BodySize, Freshness, OrganData};
     use game::human::character::tests::{dead_boy, old_queer, tester_girl};
     use game::human::character::{Appearance, Character, Mind};
@@ -205,7 +214,7 @@ mod tests {
     use game::map::items::{BodyPart, BodyPartType};
     use game::map::pos::TilePos;
 
-    use super::human_head;
+    use super::{human_body, human_centipede, human_head, human_torso};
 
     #[test]
     fn test_fresh_head() {
@@ -500,6 +509,72 @@ mod tests {
                 SkinTone::Almond,
                 Sex::Female
             )
+        ));
+    }
+
+    #[test]
+    fn test_human_centipede() {
+        let body = human_centipede(vec![dead_boy(), dead_boy(), dead_boy()]);
+
+        let torso1 = body.parts.get(&TilePos::new(0, 0)).unwrap();
+        let head1 = torso1.outside.first().unwrap();
+        assert_eq!("head", head1.name);
+        assert!(matches!(
+            head1,
+            BodyPart {
+                typ: BodyPartType::Head(
+                    OrganData {
+                        age: 9,
+                        alive: false,
+                        size: BodySize::Tiny,
+                        freshness: Freshness::Fresh,
+                    },
+                    HairColor::Black,
+                    SkinTone::Almond,
+                    Sex::Male,
+                ),
+                ..
+            }
+        ));
+        let torso2 = body.parts.get(&TilePos::new(0, 1)).unwrap();
+        let head2 = torso2.outside.first().unwrap();
+        assert_eq!("head", head2.name);
+        assert!(matches!(
+            head2,
+            BodyPart {
+                typ: BodyPartType::Head(
+                    OrganData {
+                        age: 9,
+                        alive: false,
+                        size: BodySize::Tiny,
+                        freshness: Freshness::Fresh,
+                    },
+                    HairColor::Black,
+                    SkinTone::Almond,
+                    Sex::Male,
+                ),
+                ..
+            }
+        ));
+        let torso3 = body.parts.get(&TilePos::new(0, 2)).unwrap();
+        let head3 = torso3.outside.first().unwrap();
+        assert_eq!("head", head3.name);
+        assert!(matches!(
+            head3,
+            BodyPart {
+                typ: BodyPartType::Head(
+                    OrganData {
+                        age: 9,
+                        alive: false,
+                        size: BodySize::Tiny,
+                        freshness: Freshness::Fresh,
+                    },
+                    HairColor::Black,
+                    SkinTone::Almond,
+                    Sex::Male,
+                ),
+                ..
+            }
         ));
     }
 }
