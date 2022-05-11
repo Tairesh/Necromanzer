@@ -10,7 +10,6 @@ use tetra::{Context, Event};
 use variant_count::VariantCount;
 
 use app::App;
-use assets::game_data::GameData;
 use colors::Colors;
 use game::bodies::BodySize;
 use game::human::character::{Appearance, Character, Mind};
@@ -18,8 +17,7 @@ use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;
 use game::human::skin_tone::SkinTone;
 use game::map::pos::TilePos;
-use game::Avatar;
-use game::World;
+use game::{Avatar, World};
 use savefile;
 use savefile::{GameView, Meta};
 use scenes::scene::Scene;
@@ -47,7 +45,6 @@ enum Events {
 }
 
 pub struct CreateCharacter {
-    game_data: Rc<GameData>,
     meta: Meta,
     sprites: BunchOfSprites,
     name_input: Rc<RefCell<TextInput>>,
@@ -265,7 +262,6 @@ impl CreateCharacter {
         )));
 
         Self {
-            game_data: app.assets.game_data.clone(),
             meta,
             sprites: vec![
                 bg,
@@ -360,7 +356,7 @@ impl SceneImpl for CreateCharacter {
             }
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
-                let character = Character::random(&mut rng, &self.game_data, true);
+                let character = Character::random(&mut rng, true);
                 self.gender_input
                     .borrow_mut()
                     .set_value(character.mind.gender);
@@ -404,7 +400,6 @@ impl SceneImpl for CreateCharacter {
                         GameView::default(),
                         vec![avatar],
                         HashMap::new(),
-                        self.game_data.clone(),
                     )
                     .init();
                     world.save();

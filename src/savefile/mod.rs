@@ -2,8 +2,8 @@ use std::path::Path;
 
 pub use savefile::game_view::GameView;
 pub use savefile::load::have_avatar;
-pub use savefile::load::init_world;
 pub use savefile::load::load;
+pub use savefile::load::load_world;
 pub use savefile::load::savefiles;
 pub use savefile::load::savefiles_exists;
 pub use savefile::meta::Meta;

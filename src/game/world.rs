@@ -1,10 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
-use std::rc::Rc;
 
 use rand::Rng;
 
-use assets::game_data::GameData;
 use fov::{field_of_view_set, FovMap};
 use game::actions::{Action, ActionResult};
 use game::ai::brain::Brain;
@@ -30,7 +28,6 @@ pub struct World {
     pub loaded_units: HashSet<usize>,
     pub chunks: HashMap<ChunkPos, Chunk>,
     pub changed: HashSet<ChunkPos>,
-    game_data: Rc<GameData>,
     pub fov: Fov,
     // TODO: add Rng created with seed
 }
@@ -41,7 +38,6 @@ impl World {
         game_view: GameView,
         units: Vec<Avatar>,
         chunks: HashMap<ChunkPos, Chunk>,
-        game_data: Rc<GameData>,
     ) -> Self {
         let changed = chunks.keys().copied().collect();
         let loaded_units = HashSet::from([0]);
@@ -52,7 +48,6 @@ impl World {
             loaded_units,
             chunks,
             changed,
-            game_data,
             fov: Fov::default(),
         };
         world.load_units();
@@ -82,19 +77,17 @@ impl World {
 
     pub fn load_chunk(&mut self, pos: ChunkPos) -> &Chunk {
         let seed = self.meta.seed.clone();
-        let game_data = self.game_data.clone();
         self.chunks
             .entry(pos)
-            .or_insert_with_key(|pos| Chunk::generate(seed, &game_data, *pos))
+            .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
     }
 
     pub fn load_chunk_mut(&mut self, pos: ChunkPos) -> &mut Chunk {
         let seed = self.meta.seed.clone();
-        let game_data = self.game_data.clone();
         self.changed.insert(pos);
         self.chunks
             .entry(pos)
-            .or_insert_with_key(|pos| Chunk::generate(seed, &game_data, *pos))
+            .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
     }
 
     pub fn get_tile(&self, pos: TilePos) -> Option<&Tile> {
@@ -353,9 +346,7 @@ impl FovMap for World {
 #[cfg(test)]
 pub mod tests {
     use std::collections::HashMap;
-    use std::rc::Rc;
 
-    use assets::game_data::GameData;
     use game::actions::implements::{Skip, Walk};
     use game::bodies::Freshness;
     use game::human::character::tests::{dead_boy, tester_girl};
@@ -377,7 +368,6 @@ pub mod tests {
             GameView::default(),
             vec![Avatar::player(tester_girl(), TilePos::new(0, 0))],
             HashMap::new(),
-            Rc::new(GameData::load()),
         );
         world.load_tile(TilePos::new(0, 0));
 

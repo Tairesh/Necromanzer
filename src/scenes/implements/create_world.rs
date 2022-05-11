@@ -1,14 +1,13 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
 use app::App;
-use assets::game_data::GameData;
 use colors::Colors;
+use game::GameData;
 use savefile;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
@@ -29,7 +28,6 @@ fn random_seed<R: Rng + ?Sized>(rng: &mut R) -> String {
 }
 
 pub struct CreateWorld {
-    game_data: Rc<GameData>,
     sprites: BunchOfSprites,
     name_input: Rc<RefCell<TextInput>>,
     name_empty: Rc<RefCell<Label>>,
@@ -57,7 +55,7 @@ impl CreateWorld {
             },
         )));
         let name_input = Rc::new(RefCell::new(TextInput::new(
-            *app.assets.game_data.names.names.choose(&mut rng).unwrap(),
+            GameData::instance().names.random_name(&mut rng),
             250.0,
             app.assets.fonts.header2.clone(),
             Position {
@@ -149,7 +147,6 @@ impl CreateWorld {
         )));
 
         Self {
-            game_data: app.assets.game_data.clone(),
             sprites: vec![
                 bg,
                 title,
@@ -207,7 +204,7 @@ impl SceneImpl for CreateWorld {
                 let mut rng = rand::thread_rng();
                 self.name_input
                     .borrow_mut()
-                    .set_value(*self.game_data.names.names.choose(&mut rng).unwrap());
+                    .set_value(GameData::instance().names.random_name(&mut rng));
                 self.seed_input
                     .borrow_mut()
                     .set_value(random_seed(&mut rng).as_str());

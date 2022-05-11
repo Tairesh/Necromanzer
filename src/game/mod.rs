@@ -1,4 +1,5 @@
 pub use self::avatar::Avatar;
+pub use self::game_data::GameData;
 pub use self::log::Log;
 pub use self::world::World;
 
@@ -8,6 +9,7 @@ mod animals;
 mod avatar;
 pub mod bodies;
 mod fov;
+mod game_data;
 pub mod human;
 mod log;
 pub mod map;

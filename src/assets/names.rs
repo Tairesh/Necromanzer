@@ -1,3 +1,6 @@
+use rand::seq::SliceRandom;
+use rand::Rng;
+
 #[derive(Debug)]
 pub struct Names {
     pub male_names: Vec<&'static str>,
@@ -30,6 +33,18 @@ impl Names {
             female_names,
             names,
         }
+    }
+
+    pub fn random_name<R: Rng + ?Sized>(&self, rng: &mut R) -> &str {
+        self.names.choose(rng).unwrap()
+    }
+
+    pub fn random_male_name<R: Rng + ?Sized>(&self, rng: &mut R) -> &str {
+        self.male_names.choose(rng).unwrap()
+    }
+
+    pub fn random_female_name<R: Rng + ?Sized>(&self, rng: &mut R) -> &str {
+        self.female_names.choose(rng).unwrap()
     }
 }
 

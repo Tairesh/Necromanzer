@@ -1,11 +1,10 @@
 use rand::distributions::Standard;
-use rand::seq::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-use assets::game_data::GameData;
 use game::bodies::BodySize;
 use game::human::hair_color::HairColor;
+use game::GameData;
 
 use super::gender::Gender;
 use super::main_hand::MainHand;
@@ -49,18 +48,17 @@ impl Character {
         Self { appearance, mind }
     }
 
-    pub fn random<R: Rng + ?Sized>(rng: &mut R, game_data: &GameData, alive: bool) -> Character {
+    pub fn random<R: Rng + ?Sized>(rng: &mut R, alive: bool) -> Character {
         let gender = rng.sample(Standard);
+        let game_data = GameData::instance();
         let name = format!(
             "{} {}",
             match gender {
-                Gender::Male => &game_data.names.male_names,
-                Gender::Female => &game_data.names.female_names,
-                Gender::Custom(_) => &game_data.names.names,
-            }
-            .choose(rng)
-            .unwrap(),
-            game_data.names.male_names.choose(rng).unwrap()
+                Gender::Male => game_data.names.random_male_name(rng),
+                Gender::Female => game_data.names.random_female_name(rng),
+                Gender::Custom(_) => game_data.names.random_name(rng),
+            },
+            game_data.names.random_name(rng)
         );
         Character::new(
             Appearance {

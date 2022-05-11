@@ -10,8 +10,6 @@ use rand::rngs::StdRng;
 use rand::Rng;
 use rand::SeedableRng;
 
-use assets::game_data::GameData;
-
 use super::super::human::character::Character;
 use super::items::Shovel;
 use super::pos::ChunkPos;
@@ -34,7 +32,7 @@ impl Chunk {
     pub const SIZE: i32 = 32;
     pub const USIZE: usize = (Chunk::SIZE * Chunk::SIZE) as usize;
 
-    pub fn generate(world_seed: String, game_data: &GameData, pos: ChunkPos) -> Self {
+    pub fn generate(world_seed: String, pos: ChunkPos) -> Self {
         let mut hasher = DefaultHasher::new();
         let seed = ChunkUnique { pos, world_seed };
         seed.hash(&mut hasher);
@@ -81,7 +79,7 @@ impl Chunk {
                         GraveVariant::New
                     },
                     GraveData {
-                        character: Character::random(&mut rng, game_data, false),
+                        character: Character::random(&mut rng, false),
                         death_year,
                     },
                 )

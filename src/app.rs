@@ -89,7 +89,7 @@ impl App {
     }
 
     fn load_world(&mut self, path: &Path) {
-        self.world = savefile::init_world(path, &self.assets)
+        self.world = savefile::load_world(path)
             .ok() // TODO: catch errors
             .map(|w| Rc::new(RefCell::new(w)));
     }

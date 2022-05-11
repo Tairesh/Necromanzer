@@ -1,4 +1,7 @@
 use assets::names::Names;
+use once_cell::sync::OnceCell;
+
+static INSTANCE: OnceCell<GameData> = OnceCell::new();
 
 #[derive(Debug)]
 pub struct GameData {
@@ -10,6 +13,10 @@ impl GameData {
         Self {
             names: Names::load(),
         }
+    }
+
+    pub fn instance() -> &'static Self {
+        INSTANCE.get_or_init(Self::load)
     }
 }
 

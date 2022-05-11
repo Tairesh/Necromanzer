@@ -7,7 +7,6 @@ use tetra::graphics::{DrawParams, Rectangle};
 use tetra::Context;
 
 use app::App;
-use assets::game_data::GameData;
 use assets::Assets;
 use colors::Colors;
 use game::actions::{Action, ActionResult, ActionType};
@@ -30,7 +29,6 @@ use ui::{BunchOfSprites, SomeSprites};
 pub struct GameScene {
     pub sprites: BunchOfSprites,
     pub world: Rc<RefCell<World>>,
-    pub game_data: Rc<GameData>,
     pub modes: Vec<Rc<RefCell<GameMode>>>,
     pub cursor: Mesh,
     pub current_time_label: Rc<RefCell<Label>>,
@@ -57,7 +55,6 @@ impl GameScene {
         )));
         Self {
             sprites: vec![name_label, current_time_label.clone()],
-            game_data: app.assets.game_data.clone(),
             modes: vec![Rc::new(RefCell::new(Walking::new().into()))],
             cursor: Mesh::rectangle(
                 ctx,

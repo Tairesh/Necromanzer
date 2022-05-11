@@ -3,7 +3,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-use assets::Assets;
 use game::map::chunk::Chunk;
 use game::{Avatar, World};
 
@@ -78,7 +77,7 @@ pub fn have_avatar(path: &Path) -> bool {
     }
 }
 
-pub fn init_world(path: &Path, assets: &Assets) -> Result<World, Error> {
+pub fn load_world(path: &Path) -> Result<World, Error> {
     let file = File::open(path)?;
     let mut lines = BufReader::new(&file).lines();
     let meta = lines.next().unwrap()?;
@@ -116,6 +115,5 @@ pub fn init_world(path: &Path, assets: &Assets) -> Result<World, Error> {
         serde_json::from_str(game_view.as_str())?,
         units,
         chunks,
-        assets.game_data.clone(),
     ))
 }
