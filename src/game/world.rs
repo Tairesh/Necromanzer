@@ -255,9 +255,6 @@ impl World {
         for action in actions {
             if action.finish >= self.meta.current_tick {
                 let res = action.act(self);
-                if let Some(ActionResult::CancelAction(..)) = &res {
-                    self.get_unit_mut(action.owner).action = None;
-                }
                 if action.owner == 0 {
                     result = res;
                 }

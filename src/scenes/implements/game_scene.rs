@@ -135,7 +135,6 @@ impl GameScene {
                 ActionResult::ColoredLogMessage(message, color) => {
                     self.log.log(message, color);
                 }
-                ActionResult::CancelAction(msg) => self.cancel_action_msg(msg),
             }
         }
 

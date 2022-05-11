@@ -16,8 +16,9 @@ pub mod names;
 pub mod prepared_font;
 pub mod tileset;
 
+// Can't put this to OnceCell because tetra::Font and tetra::Texture uses Rc<> inside
 pub struct Assets {
-    pub fonts: Fonts, // no need Rc<> because they are cloned one by one
+    pub fonts: Fonts,
     pub images: Images,
     pub tileset: Rc<Tileset>,
     pub button: Rc<Button>,

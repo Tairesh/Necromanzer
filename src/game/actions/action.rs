@@ -1,3 +1,4 @@
+use colors::Colors;
 use game::actions::ActionPossibility;
 use game::{Avatar, World};
 
@@ -35,11 +36,21 @@ impl Action {
         world.get_unit_mut(self.owner)
     }
 
+    fn cancel_action(&self, world: &mut World, reason: String) -> Option<ActionResult> {
+        self.owner_mut(world).action = None;
+        if self.owner == 0 {
+            Some(ActionResult::ColoredLogMessage(reason, Colors::LIGHT_CORAL))
+        } else {
+            None
+        }
+    }
+
     /// called every tick
     pub fn act(&self, world: &mut World) -> Option<ActionResult> {
         if let ActionPossibility::No(reason) = self.typ.is_possible(self.owner(world), world) {
-            return Some(ActionResult::CancelAction(reason));
+            return self.cancel_action(world, reason);
         }
+        // TODO: draw stamina
 
         let steps = (self.finish - world.meta.current_tick) as u32;
         if steps == self.length {
