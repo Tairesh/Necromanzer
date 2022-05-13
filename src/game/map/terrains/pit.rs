@@ -32,6 +32,6 @@ impl TerrainView for Pit {
 
 impl TerrainInteract for Pit {
     fn passage(&self) -> Passage {
-        Passage::Unpassable
+        Passage::Impassable
     }
 }

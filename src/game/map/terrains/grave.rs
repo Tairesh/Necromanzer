@@ -46,7 +46,7 @@ impl TerrainView for Grave {
 
 impl TerrainInteract for Grave {
     fn passage(&self) -> Passage {
-        Passage::Unpassable
+        Passage::Impassable
     }
 
     fn is_diggable(&self) -> bool {

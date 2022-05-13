@@ -13,7 +13,7 @@ use rand::SeedableRng;
 use super::super::human::character::Character;
 use super::items::Shovel;
 use super::pos::ChunkPos;
-use super::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant};
+use super::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant, Tree};
 use super::tile::Tile;
 
 #[derive(Hash)]
@@ -40,7 +40,9 @@ impl Chunk {
         let mut rng = StdRng::seed_from_u64(seed);
         let mut tiles = ArrayVec::new();
         for _ in 0..Chunk::USIZE {
-            tiles.push(Tile::new(if rng.gen_bool(0.01) {
+            tiles.push(Tile::new(if rng.gen_bool(0.005) {
+                Tree::new(rng.sample(Standard)).into()
+            } else if rng.gen_bool(0.01) {
                 Boulder::new(rng.sample(Standard)).into()
             } else if rng.gen_bool(0.5) {
                 Grass::new(rng.sample(Standard)).into()

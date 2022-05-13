@@ -7,6 +7,7 @@ use tetra::graphics::{DrawParams, Rectangle};
 use tetra::Context;
 
 use app::App;
+use assets::tileset::Tileset;
 use assets::Assets;
 use colors::Colors;
 use game::actions::{Action, ActionResult, ActionType};
@@ -187,10 +188,14 @@ impl SceneImpl for GameScene {
             }
             let dx = pos.x - center_tile.x;
             let dy = pos.y - center_tile.y;
+            let this_tile_size = Tileset::get_size(tile.terrain.looks_like());
+            let asset_tile_size = self.assets.tileset.tile_size as f32;
+            let x_correction = -(this_tile_size.x - asset_tile_size) / 2.0 * zoom;
+            let y_correction = -(this_tile_size.y - asset_tile_size) * zoom;
             let params = DrawParams::new()
                 .position(Vec2::new(
-                    center.x + dx as f32 * tile_size,
-                    center.y + dy as f32 * tile_size,
+                    (center.x + dx as f32 * tile_size + x_correction).round(),
+                    (center.y + dy as f32 * tile_size + y_correction).round(),
                 ))
                 .scale(scale);
             self.assets
@@ -204,20 +209,15 @@ impl SceneImpl for GameScene {
                     self.assets.tileset.draw_region(ctx, "highlight", params);
                 }
             }
-        }
-        for i in world.loaded_units.iter().copied() {
-            let world = self.world.borrow();
-            let unit = world.units.get(i).unwrap();
-            if !world.fov.visible().contains(&unit.pos.into()) {
-                continue;
-            }
-            let dx = unit.pos.x - center_tile.x;
-            let dy = unit.pos.y - center_tile.y;
+            // TODO: multitile units
             let position = Vec2::new(
                 center.x + dx as f32 * tile_size,
                 center.y + dy as f32 * tile_size,
             );
-            unit.draw(ctx, &self.assets.tileset, position, zoom, true);
+            for i in tile.units.iter().copied() {
+                let unit = world.units.get(i).unwrap();
+                unit.draw(ctx, &self.assets.tileset, position, zoom, true);
+            }
         }
         // if self.world.borrow().player().action.is_some() {
         //     self.draw_action_loader(ctx, center);

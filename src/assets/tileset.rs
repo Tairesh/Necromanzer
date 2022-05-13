@@ -1,3 +1,4 @@
+use geometry::Vec2;
 use tetra::graphics::{DrawParams, Rectangle, Texture};
 use tetra::Context;
 
@@ -63,6 +64,9 @@ static REGIONS: phf::Map<&'static str, Rectangle> = phf::phf_map! {
     "lt" => Rectangle::new(10.0, 90.0, 10.0, 10.0),
     "minus" => Rectangle::new(20.0, 90.0, 10.0, 10.0),
     "plus" => Rectangle::new(30.0, 90.0, 10.0, 10.0),
+    "dead_tree" => Rectangle::new(70.0, 20.0, 20.0, 20.0),
+    "dead_pine" => Rectangle::new(70.0, 40.0, 20.0, 20.0),
+    "dead_hickory" => Rectangle::new(70.0, 60.0, 20.0, 20.0),
 };
 
 #[derive(Debug)]
@@ -77,6 +81,13 @@ impl Tileset {
             tile_size: 10, // TODO: support custom tilesets
             texture: Texture::from_encoded(ctx, include_bytes!("../../assets/img/tileset.png"))?,
         })
+    }
+
+    pub fn get_size(name: &'static str) -> Vec2 {
+        REGIONS
+            .get(name)
+            .map(|r| Vec2::new(r.width, r.height))
+            .unwrap_or_default()
     }
 
     pub fn draw_region<P: Into<DrawParams>>(

@@ -24,12 +24,13 @@ use {geometry, savefile};
 pub struct World {
     pub meta: Meta,
     pub game_view: GameView,
-    pub units: Vec<Avatar>,
+    pub units: Vec<Avatar>, // TODO: move units to separate struct probably
     pub loaded_units: HashSet<usize>,
-    pub chunks: HashMap<ChunkPos, Chunk>,
+    pub chunks: HashMap<ChunkPos, Chunk>, // TODO: move to Map struct
     pub changed: HashSet<ChunkPos>,
     pub fov: Fov,
     // TODO: add Rng created with seed
+    // TODO: add WorldLog
 }
 
 impl World {
