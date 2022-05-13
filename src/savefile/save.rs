@@ -39,6 +39,7 @@ pub fn create(name: &str, seed: &str) -> Result<PathBuf, Error> {
 }
 
 pub fn save(world: &mut World) -> Result<(), Error> {
+    make_dir()?;
     world.meta.update_before_save();
     let mut file = File::create(&world.meta.path).map_err(Error::from)?;
     file.write_all(make_data_form_world(world)?.as_bytes())
