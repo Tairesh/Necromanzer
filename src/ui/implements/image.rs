@@ -37,6 +37,7 @@ impl Image {
         }
     }
 
+    // TODO: add centered with bg color image for backgrounds
     pub fn repeat(texture: Texture) -> Self {
         Self {
             repeat: true,

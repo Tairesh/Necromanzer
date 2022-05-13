@@ -43,10 +43,44 @@ enum ButtonState {
     Default,
     Pressed,
     Hovered,
+    PressedAndHovered,
     Disabled,
 }
 
-#[allow(clippy::struct_excessive_bools)]
+impl ButtonState {
+    pub fn on_hover(&mut self) {
+        (*self) = match self {
+            Self::Default | Self::Hovered | Self::PressedAndHovered => Self::Hovered,
+            Self::Pressed => Self::Pressed,
+            Self::Disabled => Self::Disabled,
+        }
+    }
+
+    pub fn off_hover(&mut self) {
+        (*self) = match self {
+            Self::Default | Self::Hovered => Self::Default,
+            Self::Pressed | Self::PressedAndHovered => Self::Pressed,
+            Self::Disabled => Self::Disabled,
+        }
+    }
+
+    pub fn on_press(&mut self) {
+        (*self) = match self {
+            Self::Default | Self::Hovered | Self::Pressed => Self::Pressed,
+            Self::PressedAndHovered => Self::PressedAndHovered,
+            Self::Disabled => Self::Disabled,
+        }
+    }
+
+    pub fn off_press(&mut self) {
+        (*self) = match self {
+            Self::Default | Self::Hovered | Self::Pressed => Self::Default,
+            Self::PressedAndHovered => Self::Hovered,
+            Self::Disabled => Self::Disabled,
+        }
+    }
+}
+
 pub struct Button {
     keys: Vec<KeyWithMod>,
     content: ButtonContent,
@@ -55,9 +89,7 @@ pub struct Button {
     asset: Rc<ButtonAsset>,
     scale: Vec2,
     rect: Option<Rect>,
-    is_pressed: bool, // TODO: use state-machine
-    is_disabled: bool,
-    is_hovered: bool,
+    state: ButtonState,
     fixable: bool,
     visible: bool,
 }
@@ -78,9 +110,7 @@ impl Button {
             asset,
             scale: Vec2::new(3.0, 3.0),
             rect: None,
-            is_pressed: false,
-            is_hovered: false,
-            is_disabled: false,
+            state: ButtonState::Default,
             fixable: false,
             visible: true,
         }
@@ -127,7 +157,11 @@ impl Button {
     ) -> Self {
         Self {
             fixable: true,
-            is_pressed: state,
+            state: if state {
+                ButtonState::Pressed
+            } else {
+                ButtonState::Default
+            },
             ..Self::text(keys, text, font, asset, position, on_click)
         }
     }
@@ -154,7 +188,7 @@ impl Button {
     }
 
     pub fn with_disabled(mut self, val: bool) -> Self {
-        self.is_disabled = val;
+        self.set_disabled(val);
         self
     }
 
@@ -180,16 +214,20 @@ impl Button {
         }
     }
 
-    fn state(&self) -> ButtonState {
-        if self.is_disabled {
-            ButtonState::Disabled
-        } else if self.is_pressed {
-            ButtonState::Pressed
-        } else if self.is_hovered {
-            ButtonState::Hovered
-        } else {
-            ButtonState::Default
-        }
+    // TODO: move this to Press trait
+    pub fn is_pressed(&self) -> bool {
+        matches!(
+            self.state,
+            ButtonState::Pressed | ButtonState::PressedAndHovered
+        )
+    }
+
+    // TODO: move this to Hover trait
+    pub fn is_hovered(&self) -> bool {
+        matches!(
+            self.state,
+            ButtonState::Hovered | ButtonState::PressedAndHovered
+        )
     }
 }
 
@@ -199,9 +237,9 @@ impl Draw for Button {
         let mut vec = Vec2::new(rect.x, rect.y);
         let content_size = self.content_size(ctx);
 
-        let config = match self.state() {
+        let config = match self.state {
             ButtonState::Default => &self.asset.default,
-            ButtonState::Pressed => &self.asset.pressed,
+            ButtonState::Pressed | ButtonState::PressedAndHovered => &self.asset.pressed,
             ButtonState::Hovered => &self.asset.hovered,
             ButtonState::Disabled => &self.asset.disabled,
         };
@@ -214,7 +252,7 @@ impl Draw for Button {
         );
 
         vec += Vec2::new(rect.w, rect.h) / 2.0 - content_size / 2.0;
-        if !self.is_pressed {
+        if !self.is_pressed() {
             vec.y -= 2.0;
         }
         match &mut self.content {
@@ -271,7 +309,7 @@ impl Positionate for Button {
 
 impl Update for Button {
     fn update(&mut self, ctx: &mut Context, focused: bool, blocked: &[Rect]) -> Option<Transition> {
-        if self.is_disabled {
+        if self.disabled() {
             return None;
         }
         if !self.keys.is_empty() && !focused {
@@ -281,7 +319,7 @@ impl Update for Button {
                 if input::is_key_with_mod_pressed(ctx, kwm) {
                     on_pressed = true;
                 }
-                if input::is_key_released(ctx, kwm.key) && self.is_pressed {
+                if input::is_key_released(ctx, kwm.key) && self.is_pressed() {
                     off_pressed = true;
                 }
             }
@@ -298,14 +336,15 @@ impl Update for Button {
         if collides && blocked.iter().any(|r| r.contains_point(mouse)) {
             return None;
         }
-        if !self.is_hovered && collides {
+        if !self.is_hovered() && collides {
             self.on_hovered();
-        } else if self.is_hovered && !collides {
+        } else if self.is_hovered() && !collides {
             self.off_hovered();
         }
-        if collides && !self.is_pressed && input::is_mouse_button_pressed(ctx, MouseButton::Left) {
+        if collides && !self.is_pressed() && input::is_mouse_button_pressed(ctx, MouseButton::Left)
+        {
             self.on_pressed();
-        } else if self.is_pressed && input::is_mouse_button_released(ctx, MouseButton::Left) {
+        } else if self.is_pressed() && input::is_mouse_button_released(ctx, MouseButton::Left) {
             self.off_pressed();
             if collides {
                 return Some(self.on_click.clone());
@@ -317,29 +356,31 @@ impl Update for Button {
 
 impl Disable for Button {
     fn disabled(&self) -> bool {
-        self.is_disabled
+        matches!(self.state, ButtonState::Disabled)
     }
 
-    fn set_disabled(&mut self, disabled: bool) {
-        if disabled != self.is_disabled {
-            self.is_disabled = disabled;
+    fn set_disabled(&mut self, value: bool) {
+        if value && !self.disabled() {
+            self.state = ButtonState::Disabled;
+        } else if !value && self.disabled() {
+            self.state = ButtonState::Default;
         }
     }
 }
 
 impl Hover for Button {
     fn on_hovered(&mut self) {
-        self.is_hovered = true;
+        self.state.on_hover();
     }
 
     fn off_hovered(&mut self) {
-        self.is_hovered = false;
+        self.state.off_hover();
     }
 }
 
 impl Press for Button {
     fn on_pressed(&mut self) {
-        self.is_pressed = true;
+        self.state.on_press();
     }
 
     fn off_pressed(&mut self) {
@@ -349,7 +390,7 @@ impl Press for Button {
     }
 
     fn unpress(&mut self) {
-        self.is_pressed = false;
+        self.state.off_press();
     }
 }
 

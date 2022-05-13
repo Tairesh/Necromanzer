@@ -24,7 +24,7 @@ pub enum Scene {
 }
 
 impl Scene {
-    // TODO: add Result<> to all Scene::new()
+    // TODO: add Result<> to all Scene::new() (why?)
     pub fn into_impl(self, app: &App, ctx: &mut Context) -> Box<dyn SceneImpl> {
         match self {
             Scene::MainMenu => Box::new(MainMenu::new(app)),

@@ -61,11 +61,13 @@ pub trait Stringify {
     fn set_value<C: Into<String>>(&mut self, value: C);
 }
 
+// TODO: fn hovered() -> bool
 pub trait Hover {
     fn on_hovered(&mut self);
     fn off_hovered(&mut self);
 }
 
+// TODO: fn pressed() -> bool
 pub trait Press {
     fn on_pressed(&mut self);
     fn off_pressed(&mut self);
