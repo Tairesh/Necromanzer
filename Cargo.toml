@@ -1,5 +1,6 @@
 [package]
 name = "necromanzer"
+description = "Roguelike where you play as a necromancer and construct dark creatures from dead bodies by adding and removing body parts."
 version = "0.1.0"
 authors = ["Ilya Agafonov <tairesh.rus@gmail.com>"]
 repository = "https://github.com/Tairesh/Necromanzer"
@@ -26,3 +27,13 @@ once_cell = "1.10"
 
 [build-dependencies]
 winres = "0.1"
+
+[package.metadata.bundle]
+name = "Necromanzer"
+identifier = "com.tairesh.necromanzer"
+icon = ["assets/img/zombie.ico", "assets/img/zombie.png"]
+#resources = ["assets"]
+copyright = "Copyright Ⓒ Ilya Agafonov"
+category = "RolePlaying"
+deb_depends = ["libsdl2-2.0-0 (>= 2.0.5)"]
+osx_frameworks = ["SDL2"]
