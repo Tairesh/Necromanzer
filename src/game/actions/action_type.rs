@@ -41,7 +41,7 @@ mod tests {
     #[test]
     fn test_walking() {
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
 
         let typ = Walk {
             dir: Direction::East,
@@ -54,8 +54,9 @@ mod tests {
 
     #[test]
     fn test_walking_fail_to_impassable_terrain() {
-        let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
+        let world = prepare_world();
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain =
+            Boulder::new(BoulderSize::Huge).into();
 
         assert!(Action::new(
             0,
@@ -71,7 +72,7 @@ mod tests {
     #[test]
     fn test_walking_fail_to_unit() {
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
         add_zombie(&mut world, TilePos::new(1, 0));
 
         assert!(Action::new(
@@ -88,7 +89,7 @@ mod tests {
     #[test]
     fn test_fail_walking_two_units_to_same_place() {
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(1, 1)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(1, 1)).terrain = Dirt::default().into();
         let zombie = add_zombie(&mut world, TilePos::new(1, 0));
 
         world.player_mut().action = Some(
@@ -122,17 +123,18 @@ mod tests {
         world.tick();
         // do not check zombie.action because it can be already new one, selected by AI
         assert_eq!(TilePos::new(1, 0), world.get_unit(zombie).pos);
-        assert_eq!(1, world.get_tile(TilePos::new(1, 1)).unwrap().units.len());
-        assert_eq!(1, world.get_tile(TilePos::new(1, 0)).unwrap().units.len());
-        assert_eq!(0, world.get_tile(TilePos::new(0, 0)).unwrap().units.len());
+        assert_eq!(1, world.map().get_tile(TilePos::new(1, 1)).units.len());
+        assert_eq!(1, world.map().get_tile(TilePos::new(1, 0)).units.len());
+        assert_eq!(0, world.map().get_tile(TilePos::new(0, 0)).units.len());
     }
 
     #[test]
     fn test_wielding() {
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(1, 0)).items.clear();
+        world.map().get_tile_mut(TilePos::new(1, 0)).items.clear();
         world
-            .load_tile_mut(TilePos::new(1, 0))
+            .map()
+            .get_tile_mut(TilePos::new(1, 0))
             .items
             .push(Axe::new().into());
 
@@ -171,8 +173,8 @@ mod tests {
     #[test]
     fn test_dropping() {
         let mut world = prepare_world();
-        world.load_tile_mut(TilePos::new(0, 0)).terrain = Dirt::default().into();
-        world.load_tile_mut(TilePos::new(0, 0)).items.clear();
+        world.map().get_tile_mut(TilePos::new(0, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(0, 0)).items.clear();
         world.player_mut().wield.clear();
         world.player_mut().wield.push(Axe::new().into());
 
@@ -192,8 +194,9 @@ mod tests {
 
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert_eq!(0, world.player().wield.len());
-        assert_eq!(1, world.load_tile(TilePos::new(0, 0)).items.len());
-        let item = world.load_tile(TilePos::new(0, 0)).items.first().unwrap();
+        let mut map = world.map();
+        assert_eq!(1, map.get_tile(TilePos::new(0, 0)).items.len());
+        let item = map.get_tile(TilePos::new(0, 0)).items.first().unwrap();
         assert!(matches!(item, Item::Axe(..)));
     }
 
@@ -201,7 +204,7 @@ mod tests {
     fn test_digging() {
         let mut world = prepare_world();
         world.player_mut().wield.clear();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
 
         let typ = Dig {
             dir: Direction::East,
@@ -216,12 +219,12 @@ mod tests {
 
         assert_eq!(TilePos::new(0, 0), world.player().pos);
         assert!(matches!(
-            world.load_tile(TilePos::new(1, 0)).terrain,
+            world.map().get_tile(TilePos::new(1, 0)).terrain,
             Terrain::Pit(..)
         ));
 
         let character = dead_boy();
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Grave::new(
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain = Grave::new(
             GraveVariant::New,
             GraveData {
                 character,
@@ -234,13 +237,18 @@ mod tests {
             world.tick();
         }
         assert!(matches!(
-            world.load_tile(TilePos::new(1, 0)).terrain,
+            world.map().get_tile(TilePos::new(1, 0)).terrain,
             Terrain::Pit(..)
         ));
         let mut corpse = None;
         let mut gravestone = None;
         for dir in DIR8 {
-            for item in world.load_tile_mut(TilePos::new(1, 0) + dir).items.iter() {
+            for item in world
+                .map()
+                .get_tile_mut(TilePos::new(1, 0) + dir)
+                .items
+                .iter()
+            {
                 match item {
                     Item::Corpse(..) => {
                         corpse = Some(item.clone());
@@ -307,7 +315,7 @@ mod tests {
             character,
             death_year: 255,
         };
-        world.load_tile_mut(TilePos::new(1, 0)).terrain =
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain =
             Grave::new(GraveVariant::New, data.clone()).into();
         world.player_mut().action = Some(
             Action::new(
@@ -332,15 +340,16 @@ mod tests {
             }
         }
 
-        world.load_tile_mut(TilePos::new(0, 1)).terrain = Dirt::default().into();
-        world.load_tile_mut(TilePos::new(0, 1)).items.clear();
+        world.map().get_tile_mut(TilePos::new(0, 1)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(0, 1)).items.clear();
         let typ = Read {
             dir: Direction::South,
         };
         assert!(Action::new(0, typ.into(), &world).is_err());
 
         world
-            .load_tile_mut(TilePos::new(0, 1))
+            .map()
+            .get_tile_mut(TilePos::new(0, 1))
             .items
             .push(Gravestone::new(data).into());
 

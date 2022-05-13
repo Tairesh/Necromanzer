@@ -161,9 +161,10 @@ impl SceneImpl for GameScene {
 
     fn before_draw(&mut self, ctx: &mut Context) {
         tetra::graphics::clear(ctx, Colors::BLACK);
+        let world = self.world.borrow();
         let width = self.window_size.0 as f32;
         let height = self.window_size.1 as f32;
-        let zoom = self.world.borrow().game_view.zoom;
+        let zoom = world.game_view.zoom;
         let scale = zoom.as_scale();
         let zoom = zoom.as_view();
         let tile_size = self.tile_size();
@@ -175,14 +176,11 @@ impl SceneImpl for GameScene {
             width / 2.0 - tile_size / 2.0,
             height / 2.0 - tile_size / 2.0,
         );
-        let center_tile = self.world.borrow().player().pos + self.shift_of_view;
+        let center_tile = world.player().pos + self.shift_of_view;
         let left_top = center_tile + (-window_size_in_tiles.0 / 2, -window_size_in_tiles.1 / 2);
         let right_bottom = center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
-        self.world
-            .borrow_mut()
-            .load_tiles_between(left_top, right_bottom);
-        let world = self.world.borrow();
-        for (pos, tile) in world.tiles_between(left_top, right_bottom) {
+        world.map().load_tiles_between(left_top, right_bottom);
+        for (pos, tile) in world.map().tiles_between(left_top, right_bottom) {
             if !world.fov.visible().contains(&pos.into()) {
                 continue; // TODO: TileView struct for remembering tiles and optimizing drawing
             }
@@ -219,7 +217,7 @@ impl SceneImpl for GameScene {
                 unit.draw(ctx, &self.assets.tileset, position, zoom, true);
             }
         }
-        // if self.world.borrow().player().action.is_some() {
+        // if world.player().action.is_some() {
         //     self.draw_action_loader(ctx, center);
         // } else {
         //     self.action_text = None;

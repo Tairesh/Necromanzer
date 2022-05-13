@@ -1,3 +1,4 @@
+use game::map::Map;
 use std::collections::HashSet;
 
 use crate::geometry::point::Point;
@@ -8,7 +9,7 @@ pub trait FovMap {
     fn is_transparent(&self, point: Point) -> bool;
 }
 
-pub fn field_of_view_set(center: Point, range: i32, fov_check: &dyn FovMap) -> HashSet<Point> {
+pub fn field_of_view_set(center: Point, range: i32, fov_check: &Map) -> HashSet<Point> {
     /* N, NE, E, SE, S, SW, W, NW */
     const SECTORS: [(i32, i32); 8] = [
         (0, -1),

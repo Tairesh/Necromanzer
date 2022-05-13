@@ -4,7 +4,6 @@ use tetra::Context;
 
 use colors::Colors;
 use game::actions::implements::Read;
-use game::map::tile::Tile;
 use game::World;
 use geometry::direction::{Direction, DIR9};
 use geometry::point::Point;
@@ -38,7 +37,7 @@ impl GameModeImpl for Reading {
                 .copied()
                 .filter(|d| {
                     let pos = world.player().pos + d;
-                    world.get_tile(pos).map_or(false, Tile::is_readable)
+                    world.map().get_tile(pos).is_readable()
                 })
                 .map(|d| (d.into(), Colors::LIGHT_YELLOW))
                 .collect()

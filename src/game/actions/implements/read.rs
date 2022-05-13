@@ -12,17 +12,17 @@ pub struct Read {
 impl ActionImpl for Read {
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
+        let mut map = world.map();
         // TODO: check skill of reading, and probably even another languages
-        if let Some(tile) = world.get_tile(pos) {
-            if tile.is_readable() {
-                return Yes(tile.read().len() as u32);
-            }
+        let tile = map.get_tile(pos);
+        if tile.is_readable() {
+            Yes(tile.read().len() as u32)
+        } else {
+            No("There is nothing to read".to_string())
         }
-
-        No("There is nothing to read".to_string())
     }
     fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
         let pos = action.owner(world).pos + self.dir;
-        Some(ActionResult::LogMessage(world.load_tile(pos).read()))
+        Some(ActionResult::LogMessage(world.map().get_tile(pos).read()))
     }
 }

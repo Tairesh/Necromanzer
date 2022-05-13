@@ -38,9 +38,12 @@ impl GameModeImpl for Animate {
                 .copied()
                 .filter(|d| {
                     let pos = world.player().pos + d;
-                    world.get_tile(pos).map_or(false, |t| {
-                        t.items.iter().any(|i| matches!(i, Item::Corpse(..)))
-                    })
+                    world
+                        .map()
+                        .get_tile(pos)
+                        .items
+                        .iter()
+                        .any(|i| matches!(i, Item::Corpse(..)))
                 })
                 .map(|d| (d.into(), Colors::LIGHT_YELLOW))
                 .collect()

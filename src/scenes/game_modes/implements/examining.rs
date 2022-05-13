@@ -44,13 +44,12 @@ impl GameModeImpl for Examining {
             self.selected = Some(dir);
             game.try_rotate_player(dir);
         } else if let Some(dir) = self.selected {
-            let mut world = game.world.borrow_mut();
+            let world = game.world.borrow();
             let pos = world.player().pos + dir;
-            let tile = world.load_tile(pos);
-            let unit_id = tile.units.iter().next();
+            let unit_id = world.map().get_tile(pos).units.iter().copied().next();
             if let Some(unit_id) = unit_id {
                 game.modes.pop();
-                return Some(vec![Transition::Push(BodyView(*unit_id))]);
+                return Some(vec![Transition::Push(BodyView(unit_id))]);
             }
             drop(world);
             game.examine(dir);

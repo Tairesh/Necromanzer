@@ -79,8 +79,9 @@ fn make_data_form_world(world: &World) -> Result<String, Error> {
         data.push_str(serde_json::to_string(unit).map_err(Error::from)?.as_str());
     }
     data.push_str("\n/units");
-    for coords in world.changed.clone() {
-        let chunk = world.get_chunk(coords).unwrap();
+    let mut map = world.map();
+    for coords in map.changed.clone() {
+        let chunk = map.get_chunk(coords);
         data.push('\n');
         data.push_str(serde_json::to_string(chunk).map_err(Error::from)?.as_str());
     }

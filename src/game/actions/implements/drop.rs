@@ -19,10 +19,10 @@ impl ActionImpl for Drop {
             return No("You have nothing to drop".to_string());
         }
         let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if !tile.terrain.is_passable() {
-                return No(format!("You can't put items on {}", tile.terrain.name()));
-            }
+        let mut map = world.map();
+        let tile = map.get_tile(pos);
+        if !tile.terrain.is_passable() {
+            return No(format!("You can't put items on {}", tile.terrain.name()));
         }
 
         if let Some(item) = actor.wield.get(self.item_id) {
@@ -40,7 +40,8 @@ impl ActionImpl for Drop {
         let item = action.owner_mut(world).wield.remove(self.item_id);
         let name = item.name();
         world
-            .load_tile_mut(action.owner(world).pos + self.dir)
+            .map()
+            .get_tile_mut(action.owner(world).pos + self.dir)
             .items
             .push(item);
         Some(ActionResult::LogMessage(format!(

@@ -5,6 +5,7 @@ use game::actions::{Action, ActionResult};
 use game::avatar::Soul;
 use game::map::passage::Passage::Passable;
 use game::map::terrain::{TerrainInteract, TerrainView};
+use game::map::tile::Tile;
 use game::{Avatar, World};
 use geometry::direction::Direction;
 
@@ -14,7 +15,7 @@ pub struct Walk {
 }
 
 impl Walk {
-    fn length(self, actor: &Avatar, world: &World) -> u32 {
+    fn length(actor: &Avatar, tile: &Tile) -> u32 {
         // TODO: check avatar perks for calculating speed
         // TODO: add sqrt(2) for diagonal movement
         let koeff = match actor.soul {
@@ -26,34 +27,30 @@ impl Walk {
             4..=10 => 3.0,
             11.. => 1.0,
         };
-        let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if let Passable(length) = tile.terrain.passage() {
-                return (length * koeff).round() as u32;
-            }
+        if let Passable(length) = tile.terrain.passage() {
+            (length * koeff).round() as u32
+        } else {
+            0
         }
-        0
     }
 }
 
 impl ActionImpl for Walk {
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if !tile.terrain.is_passable() {
-                return No(format!("You can't walk to the {}", tile.terrain.name()));
-            }
-            let unit_on_tile = tile.units.iter().next();
-            if let Some(unit_id) = unit_on_tile {
-                if let Some(unit) = world.units.get(*unit_id) {
-                    return No(format!("{} is on the way", unit.character.mind.name));
-                }
-            }
-
-            Yes(self.length(actor, world))
-        } else {
-            No("Tile isn't loaded yet".to_string())
+        let mut map = world.map();
+        let tile = map.get_tile(pos);
+        if !tile.terrain.is_passable() {
+            return No(format!("You can't walk to the {}", tile.terrain.name()));
         }
+        let unit_on_tile = tile.units.iter().next();
+        if let Some(unit_id) = unit_on_tile {
+            if let Some(unit) = world.units.get(*unit_id) {
+                return No(format!("{} is on the way", unit.character.mind.name));
+            }
+        }
+
+        Yes(Self::length(actor, tile))
     }
 
     fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
@@ -63,7 +60,8 @@ impl ActionImpl for Walk {
                 format!(
                     "It takes a long time to walk through the {}",
                     world
-                        .load_tile(world.get_unit(action.owner).pos)
+                        .map()
+                        .get_tile(world.get_unit(action.owner).pos)
                         .terrain
                         .name()
                 ),

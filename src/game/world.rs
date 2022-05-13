@@ -1,9 +1,10 @@
+use std::cell::{RefCell, RefMut};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 
 use rand::Rng;
 
-use fov::{field_of_view_set, FovMap};
+use fov::field_of_view_set;
 use game::actions::{Action, ActionResult};
 use game::ai::brain::Brain;
 use game::avatar::Soul;
@@ -12,22 +13,21 @@ use game::map::chunk::Chunk;
 use game::map::item::ItemView;
 use game::map::pos::{ChunkPos, TilePos};
 use game::map::terrain::TerrainView;
-use game::map::tile::Tile;
+use game::map::Map;
 use game::Avatar;
 use geometry::direction::Direction;
-use geometry::point::Point;
 use geometry::two_dim_direction::TwoDimDirection;
 use savefile::{GameView, Meta};
 use {geometry, savefile};
 
-#[derive(Debug)]
+const VISION_RANGE: i32 = 64;
+
 pub struct World {
     pub meta: Meta,
     pub game_view: GameView,
     pub units: Vec<Avatar>, // TODO: move units to separate struct probably
     pub loaded_units: HashSet<usize>,
-    pub chunks: HashMap<ChunkPos, Chunk>, // TODO: move to Map struct
-    pub changed: HashSet<ChunkPos>,
+    map: RefCell<Map>,
     pub fov: Fov,
     // TODO: add Rng created with seed
     // TODO: add WorldLog
@@ -43,12 +43,15 @@ impl World {
         let changed = chunks.keys().copied().collect();
         let loaded_units = HashSet::from([0]);
         let mut world = Self {
+            map: RefCell::new(Map {
+                seed: meta.seed.clone(),
+                chunks,
+                changed,
+            }),
             meta,
             game_view,
             units,
             loaded_units,
-            chunks,
-            changed,
             fov: Fov::default(),
         };
         world.load_units();
@@ -62,8 +65,11 @@ impl World {
     }
 
     pub fn calc_fov(&mut self) {
-        self.fov
-            .set_visible(field_of_view_set(self.player().pos.into(), 64, self));
+        self.fov.set_visible(field_of_view_set(
+            self.player().pos.into(),
+            VISION_RANGE,
+            &self.map.borrow(),
+        ));
     }
 
     pub fn save(&mut self) {
@@ -72,71 +78,8 @@ impl World {
             .ok();
     }
 
-    pub fn get_chunk(&self, pos: ChunkPos) -> Option<&Chunk> {
-        self.chunks.get(&pos)
-    }
-
-    pub fn load_chunk(&mut self, pos: ChunkPos) -> &Chunk {
-        let seed = self.meta.seed.clone();
-        self.chunks
-            .entry(pos)
-            .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
-    }
-
-    pub fn load_chunk_mut(&mut self, pos: ChunkPos) -> &mut Chunk {
-        let seed = self.meta.seed.clone();
-        self.changed.insert(pos);
-        self.chunks
-            .entry(pos)
-            .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
-    }
-
-    pub fn get_tile(&self, pos: TilePos) -> Option<&Tile> {
-        let (chunk, pos) = pos.chunk_and_pos();
-        let chunk = self.get_chunk(chunk)?;
-        Some(&chunk.tiles[pos])
-    }
-
-    pub fn load_tile(&mut self, pos: TilePos) -> &Tile {
-        let (chunk, pos) = pos.chunk_and_pos();
-        let chunk = self.load_chunk(chunk);
-        &chunk.tiles[pos]
-    }
-
-    pub fn load_tile_mut(&mut self, pos: TilePos) -> &mut Tile {
-        let (chunk, pos) = pos.chunk_and_pos();
-        let chunk = self.load_chunk_mut(chunk);
-        &mut chunk.tiles[pos]
-    }
-
-    pub fn load_tiles_between(&mut self, left_top: TilePos, right_bottom: TilePos) {
-        let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.chunk_and_pos();
-        let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.chunk_and_pos();
-
-        for x in lt_x..=rb_x {
-            for y in lt_y..=rb_y {
-                let pos = ChunkPos::new(x, y);
-                self.load_chunk(pos);
-            }
-        }
-    }
-
-    pub fn tiles_between(&self, left_top: TilePos, right_bottom: TilePos) -> Vec<(TilePos, &Tile)> {
-        let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.chunk_and_pos();
-        let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.chunk_and_pos();
-
-        let mut tiles =
-            Vec::with_capacity(((rb_x - lt_x + 1) * (rb_y - lt_y + 1)) as usize * Chunk::USIZE);
-        for x in lt_x..=rb_x {
-            for y in lt_y..=rb_y {
-                let pos = ChunkPos::new(x, y);
-                let chunk = self.chunks.get(&pos).unwrap();
-                for (i, tile) in chunk.tiles.iter().enumerate() {
-                    tiles.push((TilePos::from(pos, i), tile));
-                }
-            }
-        }
-        tiles
+    pub fn map(&self) -> RefMut<'_, Map> {
+        self.map.borrow_mut()
     }
 
     pub fn get_unit(&self, unit_id: usize) -> &Avatar {
@@ -157,7 +100,7 @@ impl World {
     pub fn move_avatar(&mut self, unit_id: usize, dir: Direction) {
         let mut pos = self.units.get(unit_id).unwrap().pos;
         let (old_chunk, _) = pos.chunk_and_pos();
-        self.load_tile_mut(pos).off_step(unit_id);
+        self.map().get_tile_mut(pos).off_step(unit_id);
         pos += dir;
         if let Some(unit) = self.units.get_mut(unit_id) {
             unit.pos = pos;
@@ -165,7 +108,7 @@ impl World {
                 unit.vision = dir;
             }
         }
-        self.load_tile_mut(pos).on_step(unit_id);
+        self.map().get_tile_mut(pos).on_step(unit_id);
         if unit_id == 0 && old_chunk != pos.chunk_and_pos().0 {
             self.load_units();
         }
@@ -176,52 +119,50 @@ impl World {
 
     // TODO: move this somewhere else
     pub fn this_is(&self, pos: TilePos, multiline: bool) -> String {
-        if let Some(tile) = self.get_tile(pos) {
-            let mut this_is = format!("This is the {}", tile.terrain.name());
-            if multiline {
-                this_is = this_is.replace(". ", ".\n");
-            }
-
-            if !tile.items.is_empty() || !tile.units.is_empty() {
-                this_is.push(if multiline { '\n' } else { ' ' });
-                this_is.push_str("Here you see: ");
-                if multiline {
-                    this_is.push('\n');
-                }
-            }
-
-            let mut items: Vec<String> = Vec::with_capacity(tile.items.len() + tile.units.len());
-            if !tile.items.is_empty() {
-                items.append(
-                    &mut tile
-                        .items
-                        .iter()
-                        .map(|item| {
-                            (if multiline { " - " } else { "" }).to_string() + item.name().as_str()
-                        })
-                        .collect(),
-                );
-            }
-            if !tile.units.is_empty() {
-                items.append(
-                    &mut tile
-                        .units
-                        .iter()
-                        .copied()
-                        .map(|i| {
-                            let unit = self.units.get(i).unwrap();
-                            (if multiline { " - " } else { "" }).to_string()
-                                + unit.character.mind.name.as_str()
-                        })
-                        .collect(),
-                );
-            }
-            this_is += items.join(if multiline { "\n" } else { ", " }).as_str();
-
-            this_is
-        } else {
-            String::new()
+        let mut map = self.map();
+        let tile = map.get_tile(pos);
+        let mut this_is = format!("This is the {}", tile.terrain.name());
+        if multiline {
+            this_is = this_is.replace(". ", ".\n");
         }
+
+        if !tile.items.is_empty() || !tile.units.is_empty() {
+            this_is.push(if multiline { '\n' } else { ' ' });
+            this_is.push_str("Here you see: ");
+            if multiline {
+                this_is.push('\n');
+            }
+        }
+
+        let mut items: Vec<String> = Vec::with_capacity(tile.items.len() + tile.units.len());
+        if !tile.items.is_empty() {
+            items.append(
+                &mut tile
+                    .items
+                    .iter()
+                    .map(|item| {
+                        (if multiline { " - " } else { "" }).to_string() + item.name().as_str()
+                    })
+                    .collect(),
+            );
+        }
+        if !tile.units.is_empty() {
+            items.append(
+                &mut tile
+                    .units
+                    .iter()
+                    .copied()
+                    .map(|i| {
+                        let unit = self.units.get(i).unwrap();
+                        (if multiline { " - " } else { "" }).to_string()
+                            + unit.character.mind.name.as_str()
+                    })
+                    .collect(),
+            );
+        }
+        this_is += items.join(if multiline { "\n" } else { ", " }).as_str();
+
+        this_is
     }
 
     pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
@@ -237,7 +178,7 @@ impl World {
                 .max(0.0);
             if rand::thread_rng().gen_bool(probability * k) {
                 let pos = around + (dx, dy);
-                self.load_tile_mut(pos).kill_grass();
+                self.map().get_tile_mut(pos).kill_grass();
             }
         }
     }
@@ -273,7 +214,7 @@ impl World {
         self.units.push(unit);
         self.load_units();
         let new_id = self.units.len() - 1;
-        self.load_tile_mut(pos).units.insert(new_id);
+        self.map().get_tile_mut(pos).units.insert(new_id);
 
         new_id
     }
@@ -334,13 +275,6 @@ impl World {
     }
 }
 
-impl FovMap for World {
-    fn is_transparent(&self, point: Point) -> bool {
-        self.get_tile(point.into())
-            .map_or(true, |t| t.terrain.is_transparent())
-    }
-}
-
 #[cfg(test)]
 pub mod tests {
     use std::collections::HashMap;
@@ -361,22 +295,18 @@ pub mod tests {
     use super::World;
 
     pub fn prepare_world() -> World {
-        let mut world = World::new(
+        World::new(
             Meta::new("test", "test"),
             GameView::default(),
             vec![Avatar::player(tester_girl(), TilePos::new(0, 0))],
             HashMap::new(),
-        );
-        world.load_tile(TilePos::new(0, 0));
-
-        world
+        )
     }
 
     pub fn add_zombie(world: &mut World, pos: TilePos) -> usize {
         let character = dead_boy();
         let body = human_body(&character, Freshness::Rotten);
         let zombie = Avatar::zombie(character, body, pos);
-        world.load_tile(pos);
         world.add_unit(zombie)
     }
 
@@ -384,10 +314,9 @@ pub mod tests {
     pub fn test_moving_other_unit() {
         let mut world = prepare_world();
         add_zombie(&mut world, TilePos::new(1, 0));
-        world.load_tile(TilePos::new(1, -1)); // TODO: autoload tiles when trying to move via AI system
 
         assert_eq!(2, world.units.len());
-        world.load_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();
         let action = Action::new(
             1,
             Walk {
@@ -418,10 +347,15 @@ pub mod tests {
         let mut world = prepare_world();
         assert!(world.fov.visible().contains(&world.player().pos.into()));
 
-        world.load_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
-        world.load_tile_mut(TilePos::new(2, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
-        assert!(!world.load_tile(TilePos::new(2, 0)).terrain.is_transparent());
-        world.load_tile_mut(TilePos::new(3, 0));
+        world.map().get_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(TilePos::new(2, 0)).terrain =
+            Boulder::new(BoulderSize::Huge).into();
+        assert!(!world
+            .map()
+            .get_tile(TilePos::new(2, 0))
+            .terrain
+            .is_transparent());
+        world.map().get_tile_mut(TilePos::new(3, 0));
 
         world.move_avatar(0, Direction::East);
         let fov = world.fov.visible();

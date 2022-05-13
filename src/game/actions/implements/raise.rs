@@ -14,10 +14,14 @@ pub struct Raise {
 impl ActionImpl for Raise {
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if let Some(item) = tile.items.iter().find(|i| matches!(i, Item::Corpse(..))) {
-                return Yes(item.mass() / 10);
-            }
+        if let Some(item) = world
+            .map()
+            .get_tile(pos)
+            .items
+            .iter()
+            .find(|i| matches!(i, Item::Corpse(..)))
+        {
+            return Yes(item.mass() / 10);
         }
 
         No("There is nothing to rise".to_string())
@@ -25,13 +29,14 @@ impl ActionImpl for Raise {
 
     fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
         let pos = action.owner(world).pos + self.dir;
-        if let Some(i) = world
-            .load_tile(pos)
+        let corpse_index = world
+            .map()
+            .get_tile(pos)
             .items
             .iter()
-            .position(|i| matches!(i, Item::Corpse(..)))
-        {
-            let body = world.load_tile_mut(pos).items.remove(i);
+            .position(|i| matches!(i, Item::Corpse(..)));
+        if let Some(i) = corpse_index {
+            let body = world.map().get_tile_mut(pos).items.remove(i);
             if let Item::Corpse(corpse) = body {
                 let name = corpse.character.age_name().to_owned();
                 let zombie = Avatar::zombie(corpse.character, corpse.body, pos);

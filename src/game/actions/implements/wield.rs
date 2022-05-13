@@ -17,23 +17,20 @@ impl ActionImpl for Wield {
             return No("You already have something in your hands".to_string());
         }
         let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if let Some(item) = tile.items.last() {
-                Yes(item.wield_time(actor).round() as u32)
-            } else {
-                No("There is nothing to pick up".to_string())
-            }
+        if let Some(item) = world.map().get_tile(pos).items.last() {
+            Yes(item.wield_time(actor).round() as u32)
         } else {
-            No("Tile isn't loaded".to_string())
+            No("There is nothing to pick up".to_string())
         }
     }
 
     fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
-        if let Some(item) = world
-            .load_tile_mut(action.owner(world).pos + self.dir)
+        let item = world
+            .map()
+            .get_tile_mut(action.owner(world).pos + self.dir)
             .items
-            .pop()
-        {
+            .pop();
+        if let Some(item) = item {
             let name = item.name();
             action.owner_mut(world).wield.push(item);
             Some(ActionResult::LogMessage(format!(

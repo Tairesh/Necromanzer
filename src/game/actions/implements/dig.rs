@@ -16,23 +16,19 @@ pub struct Dig {
 impl ActionImpl for Dig {
     fn is_possible(&self, actor: &Avatar, world: &World) -> ActionPossibility {
         let pos = actor.pos + self.dir;
-        if let Some(tile) = world.get_tile(pos) {
-            if !tile.terrain.is_diggable() {
-                return No(format!("You can't dig the {}", tile.terrain.name()));
-            }
+        let mut map = world.map();
+        let tile = map.get_tile(pos);
+        if !tile.terrain.is_diggable() {
+            return No(format!("You can't dig the {}", tile.terrain.name()));
         }
         if !actor.wield.iter().any(|i| i.tags().contains(&ItemTag::Dig)) {
             return No("You need a shovel to dig!".to_string());
         }
 
-        if let Some(tile) = world.get_tile(pos) {
-            Yes(match tile.terrain {
-                Terrain::Grave(..) => 2000,
-                _ => 1000,
-            })
-        } else {
-            No("TIle isn't loaded yet".to_string())
-        }
+        Yes(match tile.terrain {
+            Terrain::Grave(..) => 2000,
+            _ => 1000,
+        })
     }
 
     fn on_start(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
@@ -44,20 +40,20 @@ impl ActionImpl for Dig {
 
     fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
         let pos = action.owner(world).pos + self.dir;
-        let items = world.load_tile_mut(pos).dig();
+        let items = world.map().get_tile_mut(pos).dig();
         if !items.is_empty() {
             let mut rng = rand::thread_rng();
             let places: Vec<Direction> = DIR8
                 .iter()
                 .filter(|d| {
                     (pos + *d != action.owner(world).pos)
-                        && world.load_tile(pos + *d).terrain.is_passable()
+                        && world.map().get_tile(pos + *d).terrain.is_passable()
                 })
                 .copied()
                 .collect();
             for item in items {
                 let delta = places.choose(&mut rng).unwrap();
-                world.load_tile_mut(pos + delta).items.push(item);
+                world.map().get_tile_mut(pos + delta).items.push(item);
             }
         }
         world.calc_fov();
