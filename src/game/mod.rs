@@ -13,4 +13,4 @@ mod game_data;
 pub mod human;
 mod log;
 pub mod map;
-mod world;
+pub mod world;

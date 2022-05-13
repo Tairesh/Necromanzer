@@ -24,4 +24,33 @@ pub fn delete(path: &Path) {
     }
 }
 
-// TODO: add savefile create/loading tests
+#[cfg(test)]
+mod tests {
+    use game::world::tests::prepare_world;
+    use savefile::{delete, load, load_world};
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_save_and_load() {
+        let path = PathBuf::from("save/test.save");
+        let mut world = prepare_world();
+        world.meta.path = path.clone();
+        world.save();
+
+        let meta = load(&path).unwrap();
+        assert_eq!(meta.name, world.meta.name);
+        assert_eq!(meta.current_tick, world.meta.current_tick);
+        assert_eq!(meta.version, world.meta.version);
+        assert_eq!(meta.seed, world.meta.seed);
+
+        let world2 = load_world(&path).unwrap();
+        assert_eq!(world.game_view.zoom, world2.game_view.zoom);
+        assert_eq!(world.player().pos, world2.player().pos);
+        assert_eq!(
+            world.player().character.mind.name,
+            world2.player().character.mind.name
+        );
+
+        delete(&path);
+    }
+}
