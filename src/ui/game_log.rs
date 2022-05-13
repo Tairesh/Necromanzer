@@ -6,8 +6,6 @@ use tetra::Context;
 
 use geometry::Vec2;
 
-// TODO: this log is for drawing lines in game screen so it should be in UI, I suppose
-
 #[derive(Debug)]
 pub struct LogMessageText {
     pub text: Text,
@@ -29,12 +27,12 @@ impl LogMessageText {
 }
 
 #[derive(Debug)]
-pub struct Log {
+pub struct GameLog {
     pub texts: VecDeque<LogMessageText>,
     font: Font,
 }
 
-impl Log {
+impl GameLog {
     const TEXTS_LIMIT: usize = 5;
 
     pub fn new(font: Font) -> Self {

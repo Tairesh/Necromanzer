@@ -13,7 +13,7 @@ use colors::Colors;
 use game::actions::{Action, ActionResult, ActionType};
 use game::map::item::ItemView;
 use game::map::terrain::TerrainView;
-use game::{Log, World};
+use game::World;
 use geometry::direction::Direction;
 use geometry::point::Point;
 use geometry::two_dim_direction::TwoDimDirection;
@@ -25,6 +25,7 @@ use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
+use ui::GameLog;
 use ui::{BunchOfSprites, SomeSprites};
 
 pub struct GameScene {
@@ -33,7 +34,7 @@ pub struct GameScene {
     pub modes: Vec<Rc<RefCell<GameMode>>>,
     pub cursor: Mesh,
     pub current_time_label: Rc<RefCell<Label>>,
-    pub log: Log,
+    pub log: GameLog,
     pub shift_of_view: Point,
     pub assets: Rc<Assets>,
     pub window_size: (i32, i32),
@@ -68,7 +69,7 @@ impl GameScene {
                 ),
             )
             .unwrap(),
-            log: Log::new(app.assets.fonts.default.font.clone()),
+            log: GameLog::new(app.assets.fonts.default.font.clone()),
             shift_of_view: Point::zero(),
             assets: app.assets.clone(),
             window_size: app.window_size,
