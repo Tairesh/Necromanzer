@@ -1,8 +1,8 @@
-use colors::Colors;
 use game::actions::ActionPossibility;
+use game::log::{LogCategory, LogEvent};
 use game::{Avatar, World};
 
-use super::{ActionImpl, ActionResult, ActionType};
+use super::{ActionImpl, ActionType};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Action {
@@ -36,29 +36,31 @@ impl Action {
         world.get_unit_mut(self.owner)
     }
 
-    fn cancel_action(&self, world: &mut World, reason: String) -> Option<ActionResult> {
+    fn cancel_action(&self, world: &mut World, reason: String) {
         self.owner_mut(world).action = None;
         if self.owner == 0 {
-            Some(ActionResult::ColoredLogMessage(reason, Colors::LIGHT_CORAL))
-        } else {
-            None
+            world.log().push(LogEvent::new(
+                reason,
+                self.owner(world).pos,
+                LogCategory::Warning,
+            ));
         }
     }
 
     /// called every tick
-    pub fn act(&self, world: &mut World) -> Option<ActionResult> {
+    pub fn act(&self, world: &mut World) {
         if let ActionPossibility::No(reason) = self.typ.is_possible(self.owner(world), world) {
-            return self.cancel_action(world, reason);
+            self.cancel_action(world, reason);
         }
         // TODO: draw stamina
 
         let steps = (self.finish - world.meta.current_tick) as u32;
         if steps == self.length {
-            self.typ.on_start(self, world)
+            self.typ.on_start(self, world);
         } else if steps == 0 {
-            self.typ.on_finish(self, world)
+            self.typ.on_finish(self, world);
         } else {
-            self.typ.on_step(self, world)
+            self.typ.on_step(self, world);
         }
     }
 }

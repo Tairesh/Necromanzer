@@ -17,7 +17,7 @@ use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;
 use game::human::skin_tone::SkinTone;
 use game::map::pos::TilePos;
-use game::{Avatar, World};
+use game::{Avatar, Log, World};
 use savefile;
 use savefile::{GameView, Meta};
 use scenes::scene::Scene;
@@ -398,6 +398,7 @@ impl SceneImpl for CreateCharacter {
                     let mut world = World::new(
                         self.meta.clone(),
                         GameView::default(),
+                        Log::new(),
                         vec![avatar],
                         HashMap::new(),
                     )

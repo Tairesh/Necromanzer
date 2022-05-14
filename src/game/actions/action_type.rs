@@ -3,7 +3,7 @@ use enum_dispatch::enum_dispatch;
 use game::{Avatar, World};
 
 use super::implements::{Dig, Drop, Raise, Read, Skip, Walk, Wield};
-use super::{Action, ActionImpl, ActionPossibility, ActionResult};
+use super::{Action, ActionImpl, ActionPossibility};
 
 #[enum_dispatch(ActionImpl)]
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -36,7 +36,7 @@ mod tests {
     use super::super::super::world::tests::add_zombie;
     use super::super::super::world::tests::prepare_world;
     use super::super::implements::*;
-    use super::super::{Action, ActionResult};
+    use super::super::Action;
 
     #[test]
     fn test_walking() {
@@ -329,14 +329,9 @@ mod tests {
             .unwrap(),
         );
         while world.player().action.is_some() {
-            let results = world.tick();
-            for result in results {
-                match result {
-                    ActionResult::LogMessage(s) => {
-                        assert_eq!("You read on gravestone: Dead Boy. 246 — 255", s);
-                    }
-                    _ => {}
-                }
+            world.tick();
+            for event in world.log().new_events() {
+                assert_eq!("You read on gravestone: Dead Boy. 246 — 255", event.msg);
             }
         }
 
@@ -355,14 +350,9 @@ mod tests {
 
         world.player_mut().action = Some(Action::new(0, typ.into(), &world).unwrap());
         while world.player().action.is_some() {
-            let results = world.tick();
-            for result in results {
-                match result {
-                    ActionResult::LogMessage(s) => {
-                        assert_eq!("You read on gravestone: Dead Boy. 246 — 255", s);
-                    }
-                    _ => {}
-                }
+            world.tick();
+            for event in world.log().new_events() {
+                assert_eq!("You read on gravestone: Dead Boy. 246 — 255", event.msg);
             }
         }
     }

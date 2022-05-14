@@ -10,7 +10,7 @@ use app::App;
 use assets::tileset::Tileset;
 use assets::Assets;
 use colors::Colors;
-use game::actions::{Action, ActionResult, ActionType};
+use game::actions::{Action, ActionType};
 use game::map::item::ItemView;
 use game::map::terrain::TerrainView;
 use game::World;
@@ -128,19 +128,12 @@ impl GameScene {
     }
 
     fn make_world_tick(&mut self, ctx: &mut Context) {
-        let actions = self.world.borrow_mut().tick();
-        for action in actions {
-            match action {
-                ActionResult::LogMessage(message) => {
-                    self.log.log(message, Colors::WHITE_SMOKE);
-                }
-                ActionResult::ColoredLogMessage(message, color) => {
-                    self.log.log(message, color);
-                }
-            }
-        }
+        self.world.borrow_mut().tick();
 
         let world = self.world.borrow();
+        for event in world.log().new_events() {
+            self.log.log(event.msg.as_str(), event.category.into());
+        }
         self.current_time_label.borrow_mut().update(
             format!("{}", world.meta.current_tick),
             ctx,
@@ -214,7 +207,7 @@ impl SceneImpl for GameScene {
                 center.y + dy as f32 * tile_size,
             );
             for i in tile.units.iter().copied() {
-                let unit = world.units.get(i).unwrap();
+                let unit = world.get_unit(i);
                 unit.draw(ctx, &self.assets.tileset, position, zoom, true);
             }
         }

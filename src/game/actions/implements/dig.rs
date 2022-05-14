@@ -1,8 +1,9 @@
 use rand::seq::SliceRandom;
 
 use game::actions::action_impl::ActionImpl;
+use game::actions::Action;
 use game::actions::ActionPossibility::{self, No, Yes};
-use game::actions::{Action, ActionResult};
+use game::log::{LogCategory, LogEvent};
 use game::map::item::{ItemInteract, ItemTag};
 use game::map::terrain::{Terrain, TerrainInteract, TerrainView};
 use game::{Avatar, World};
@@ -31,14 +32,16 @@ impl ActionImpl for Dig {
         })
     }
 
-    fn on_start(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
-        Some(ActionResult::LogMessage(format!(
-            "{} start digging",
-            action.owner(world).name_for_actions()
-        )))
+    fn on_start(&self, action: &Action, world: &mut World) {
+        let owner = action.owner(world);
+        world.log().push(LogEvent::new(
+            format!("{} started digging", owner.name_for_actions()),
+            owner.pos,
+            LogCategory::Info,
+        ));
     }
 
-    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
+    fn on_finish(&self, action: &Action, world: &mut World) {
         let pos = action.owner(world).pos + self.dir;
         let items = world.map().get_tile_mut(pos).dig();
         if !items.is_empty() {
@@ -57,9 +60,10 @@ impl ActionImpl for Dig {
             }
         }
         world.calc_fov();
-        Some(ActionResult::LogMessage(format!(
-            "{} dig a hole",
-            action.owner(world).name_for_actions()
-        )))
+        world.log().push(LogEvent::new(
+            format!("{} dug a hole", action.owner(world).name_for_actions()),
+            pos,
+            LogCategory::Info,
+        ));
     }
 }

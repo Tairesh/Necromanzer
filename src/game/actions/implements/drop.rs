@@ -1,3 +1,4 @@
+use game::log::{LogCategory, LogEvent};
 use geometry::direction::Direction;
 
 use super::super::super::map::item::{ItemInteract, ItemView};
@@ -5,7 +6,7 @@ use super::super::super::map::terrain::{TerrainInteract, TerrainView};
 use super::super::super::{Avatar, World};
 use super::super::action_impl::ActionImpl;
 use super::super::ActionPossibility::{No, Yes};
-use super::super::{Action, ActionPossibility, ActionResult};
+use super::super::{Action, ActionPossibility};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Drop {
@@ -36,18 +37,18 @@ impl ActionImpl for Drop {
             No("Item doesn't exists".to_string())
         }
     }
-    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
-        let item = action.owner_mut(world).wield.remove(self.item_id);
+
+    fn on_finish(&self, action: &Action, world: &mut World) {
+        let owner = action.owner_mut(world);
+        let item = owner.wield.remove(self.item_id);
+        let owner = action.owner(world);
+        let pos = owner.pos + self.dir;
         let name = item.name();
-        world
-            .map()
-            .get_tile_mut(action.owner(world).pos + self.dir)
-            .items
-            .push(item);
-        Some(ActionResult::LogMessage(format!(
-            "{} drop the {}",
-            action.owner(world).name_for_actions(),
-            name
-        )))
+        world.map().get_tile_mut(pos).items.push(item);
+        world.log().push(LogEvent::new(
+            format!("{} dropped the {}", owner.name_for_actions(), name),
+            pos,
+            LogCategory::Info,
+        ));
     }
 }

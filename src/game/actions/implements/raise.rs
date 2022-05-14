@@ -1,7 +1,7 @@
-use colors::Colors;
 use game::actions::action_impl::ActionImpl;
+use game::actions::Action;
 use game::actions::ActionPossibility::{self, No, Yes};
-use game::actions::{Action, ActionResult};
+use game::log::{LogCategory, LogEvent};
 use game::map::item::{Item, ItemInteract};
 use game::{Avatar, World};
 use geometry::direction::Direction;
@@ -27,7 +27,7 @@ impl ActionImpl for Raise {
         No("There is nothing to rise".to_string())
     }
 
-    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
+    fn on_finish(&self, action: &Action, world: &mut World) {
         let pos = action.owner(world).pos + self.dir;
         let corpse_index = world
             .map()
@@ -41,12 +41,12 @@ impl ActionImpl for Raise {
                 let name = corpse.character.age_name().to_owned();
                 let zombie = Avatar::zombie(corpse.character, corpse.body, pos);
                 world.add_unit(zombie);
-                return Some(ActionResult::ColoredLogMessage(
+                world.log().push(LogEvent::new(
                     format!("Zombie {} stands up!", name),
-                    Colors::LIGHT_PINK,
+                    pos,
+                    LogCategory::Success,
                 ));
             }
         }
-        None
     }
 }

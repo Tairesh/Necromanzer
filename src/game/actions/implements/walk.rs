@@ -1,8 +1,8 @@
-use colors::Colors;
 use game::actions::action_impl::ActionImpl;
+use game::actions::Action;
 use game::actions::ActionPossibility::{self, No, Yes};
-use game::actions::{Action, ActionResult};
 use game::avatar::Soul;
+use game::log::{LogCategory, LogEvent};
 use game::map::passage::Passage::Passable;
 use game::map::terrain::{TerrainInteract, TerrainView};
 use game::map::tile::Tile;
@@ -43,32 +43,27 @@ impl ActionImpl for Walk {
         if !tile.terrain.is_passable() {
             return No(format!("You can't walk to the {}", tile.terrain.name()));
         }
-        let unit_on_tile = tile.units.iter().next();
+        let unit_on_tile = tile.units.iter().copied().next();
         if let Some(unit_id) = unit_on_tile {
-            if let Some(unit) = world.units.get(*unit_id) {
-                return No(format!("{} is on the way", unit.character.mind.name));
-            }
+            let unit = world.get_unit(unit_id);
+            return No(format!("{} is on the way", unit.character.mind.name));
         }
 
         Yes(Self::length(actor, tile))
     }
 
-    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
+    fn on_finish(&self, action: &Action, world: &mut World) {
         world.move_avatar(action.owner, self.dir);
-        if action.length > 15 {
-            Some(ActionResult::ColoredLogMessage(
+        let pos = world.get_unit(action.owner).pos;
+        if action.length > 20 {
+            world.log().push(LogEvent::new(
                 format!(
                     "It takes a long time to walk through the {}",
-                    world
-                        .map()
-                        .get_tile(world.get_unit(action.owner).pos)
-                        .terrain
-                        .name()
+                    world.map().get_tile(pos).terrain.name()
                 ),
-                Colors::GRAY,
-            ))
-        } else {
-            None
+                pos,
+                LogCategory::Info,
+            ));
         }
     }
 }

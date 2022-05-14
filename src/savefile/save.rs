@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use game::World;
 use savefile::meta::Meta;
 use savefile::SAVEFILES_FOLDER;
 
@@ -38,12 +37,10 @@ pub fn create(name: &str, seed: &str) -> Result<PathBuf, Error> {
         .map(|_| path)
 }
 
-pub fn save(world: &mut World) -> Result<(), Error> {
+pub fn save(path: &Path, data: &str) -> Result<(), Error> {
     make_dir()?;
-    world.meta.update_before_save();
-    let mut file = File::create(&world.meta.path).map_err(Error::from)?;
-    file.write_all(make_data_form_world(world)?.as_bytes())
-        .map_err(Into::into)
+    let mut file = File::create(path).map_err(Error::from)?;
+    file.write_all(data.as_bytes()).map_err(Into::into)
 }
 
 fn make_dir() -> Result<(), Error> {
@@ -64,28 +61,4 @@ fn name_to_path(name: &str) -> PathBuf {
 fn make_data(name: &str, seed: &str) -> Result<String, Error> {
     let metadata = Meta::new(name, seed);
     serde_json::to_string(&metadata).map_err(Error::from)
-}
-
-fn make_data_form_world(world: &World) -> Result<String, Error> {
-    let mut data = serde_json::to_string(&world.meta).map_err(Error::from)?;
-    data.push('\n');
-    data.push_str(
-        serde_json::to_string(&world.game_view)
-            .map_err(Error::from)?
-            .as_str(),
-    );
-    for unit in &world.units {
-        data.push('\n');
-        data.push_str(serde_json::to_string(unit).map_err(Error::from)?.as_str());
-    }
-    data.push_str("\n/units");
-    let mut map = world.map();
-    for coords in map.changed.clone() {
-        let chunk = map.get_chunk(coords);
-        data.push('\n');
-        data.push_str(serde_json::to_string(chunk).map_err(Error::from)?.as_str());
-    }
-    data.push_str("\n/chunks");
-
-    Ok(data)
 }

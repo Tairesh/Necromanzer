@@ -5,10 +5,11 @@ use std::convert::TryFrom;
 use rand::Rng;
 
 use fov::field_of_view_set;
-use game::actions::{Action, ActionResult};
+use game::actions::Action;
 use game::ai::brain::Brain;
 use game::avatar::Soul;
 use game::fov::Fov;
+use game::log::Log;
 use game::map::chunk::Chunk;
 use game::map::item::ItemView;
 use game::map::pos::{ChunkPos, TilePos};
@@ -18,7 +19,7 @@ use game::Avatar;
 use geometry::direction::Direction;
 use geometry::point::Point;
 use geometry::two_dim_direction::TwoDimDirection;
-use savefile::{GameView, Meta};
+use savefile::{Error, GameView, Meta};
 use {geometry, savefile};
 
 const VISION_RANGE: i32 = 64;
@@ -26,10 +27,11 @@ const VISION_RANGE: i32 = 64;
 pub struct World {
     pub meta: Meta,
     pub game_view: GameView,
-    pub units: Vec<Avatar>, // TODO: move units to separate struct probably
-    pub loaded_units: HashSet<usize>,
+    units: Vec<Avatar>, // TODO: move units to separate struct probably
+    loaded_units: HashSet<usize>,
     map: RefCell<Map>,
     fov: Fov,
+    log: RefCell<Log>,
     // TODO: add Rng created with seed
     // TODO: add WorldLog
 }
@@ -38,6 +40,7 @@ impl World {
     pub fn new(
         meta: Meta,
         game_view: GameView,
+        log: Log,
         units: Vec<Avatar>,
         chunks: HashMap<ChunkPos, Chunk>,
     ) -> Self {
@@ -54,6 +57,7 @@ impl World {
             units,
             loaded_units,
             fov: Fov::default(),
+            log: RefCell::new(log),
         };
         world.load_units();
         world.calc_fov();
@@ -73,13 +77,49 @@ impl World {
         ));
     }
 
-    pub fn save(&mut self) {
-        savefile::save(self)
-            .map_err(|e| panic!("Error on saving world to {:?}: {:?}", self.meta.path, e))
-            .ok();
+    fn make_data(&self) -> Result<String, Error> {
+        let mut data = serde_json::to_string(&self.meta).map_err(Error::from)?;
+        data.push('\n');
+        data.push_str(
+            serde_json::to_string(&self.game_view)
+                .map_err(Error::from)?
+                .as_str(),
+        );
+        data.push('\n');
+        data.push_str(
+            serde_json::to_string(&self.log)
+                .map_err(Error::from)?
+                .as_str(),
+        );
+        for unit in &self.units {
+            data.push('\n');
+            data.push_str(serde_json::to_string(unit).map_err(Error::from)?.as_str());
+        }
+        data.push_str("\n/units");
+        let mut map = self.map();
+        for coords in map.changed.clone() {
+            let chunk = map.get_chunk(coords);
+            data.push('\n');
+            data.push_str(serde_json::to_string(chunk).map_err(Error::from)?.as_str());
+        }
+        data.push_str("\n/chunks");
+
+        Ok(data)
     }
 
-    pub fn map(&self) -> RefMut<'_, Map> {
+    pub fn save(&mut self) {
+        self.meta.update_before_save();
+        savefile::save(
+            &self.meta.path,
+            self.make_data()
+                .expect("Error on preparing world data!")
+                .as_str(),
+        )
+        .map_err(|e| panic!("Error on saving world to {:?}: {:?}", self.meta.path, e))
+        .ok();
+    }
+
+    pub fn map(&self) -> RefMut<Map> {
         self.map.borrow_mut()
     }
 
@@ -121,6 +161,10 @@ impl World {
         if unit_id == 0 {
             self.calc_fov();
         }
+    }
+
+    pub fn log(&self) -> RefMut<Log> {
+        self.log.borrow_mut()
     }
 
     // TODO: move this somewhere else
@@ -190,9 +234,7 @@ impl World {
     }
 
     /// Doing actions that should be done
-    fn act(&mut self) -> Option<ActionResult> {
-        let mut result = None;
-
+    fn act(&mut self) {
         let actions: Vec<Action> = self
             .units
             .iter()
@@ -202,17 +244,12 @@ impl World {
             .collect();
         for action in actions {
             if action.finish >= self.meta.current_tick {
-                let res = action.act(self);
-                if action.owner == 0 {
-                    result = res;
-                }
+                action.act(self);
             }
             if self.meta.current_tick == action.finish {
                 self.get_unit_mut(action.owner).action = None;
             }
         }
-
-        result
     }
 
     pub fn add_unit(&mut self, unit: Avatar) -> usize {
@@ -242,22 +279,14 @@ impl World {
     pub const BUBBLE_SQUARE_RADIUS: u32 = 128 * 128;
     pub const SPEND_LIMIT: u32 = 100; // TODO: probably it should be about 10-50
 
-    pub fn tick(&mut self) -> Vec<ActionResult> {
-        // TODO: this should be outside of World, for passing it to actions and units
-        let mut actions = vec![];
-
-        // make zero ticks actions
-        if let Some(action) = self.act() {
-            actions.push(action);
-        }
+    pub fn tick(&mut self) {
+        self.act();
 
         let mut spend = 0;
         while self.player().action.is_some() && spend < Self::SPEND_LIMIT {
             self.meta.current_tick += 1;
             spend += 1;
-            if let Some(action) = self.act() {
-                actions.push(action);
-            }
+            self.act();
 
             let mut unit_wants_actions = HashMap::new();
             for (unit_id, unit) in self.units.iter_mut().skip(1).enumerate() {
@@ -276,8 +305,6 @@ impl World {
             }
             // self.kill_grass(self.player().pos, 13, 0.01);
         }
-
-        actions
     }
 }
 
@@ -289,6 +316,7 @@ pub mod tests {
     use game::bodies::Freshness;
     use game::human::character::tests::{dead_boy, tester_girl};
     use game::human::helpers::human_body;
+    use game::log::Log;
     use geometry::direction::Direction;
     use savefile::{GameView, Meta};
 
@@ -303,6 +331,7 @@ pub mod tests {
         World::new(
             Meta::new("test", "test"),
             GameView::default(),
+            Log::new(),
             vec![Avatar::player(tester_girl(), TilePos::new(0, 0))],
             HashMap::new(),
         )

@@ -82,6 +82,7 @@ pub fn load_world(path: &Path) -> Result<World, Error> {
     let mut lines = BufReader::new(&file).lines();
     let meta = lines.next().unwrap()?;
     let game_view = lines.next().unwrap()?;
+    let log = lines.next().unwrap()?;
     let mut units_data = Vec::new();
     loop {
         let unit = lines.next().unwrap()?;
@@ -110,9 +111,11 @@ pub fn load_world(path: &Path) -> Result<World, Error> {
         let chunk: Chunk = serde_json::from_str(chunk).unwrap();
         chunks.insert(chunk.pos, chunk);
     }
+
     Ok(World::new(
         serde_json::from_str(meta.as_str()).map(|s: Meta| s.with_path(path))?,
         serde_json::from_str(game_view.as_str())?,
+        serde_json::from_str(log.as_str())?,
         units,
         chunks,
     ))

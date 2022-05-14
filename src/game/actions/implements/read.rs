@@ -1,6 +1,7 @@
 use game::actions::action_impl::ActionImpl;
+use game::actions::Action;
 use game::actions::ActionPossibility::{self, No, Yes};
-use game::actions::{Action, ActionResult};
+use game::log::{LogCategory, LogEvent};
 use game::{Avatar, World};
 use geometry::direction::Direction;
 
@@ -21,8 +22,12 @@ impl ActionImpl for Read {
             No("There is nothing to read".to_string())
         }
     }
-    fn on_finish(&self, action: &Action, world: &mut World) -> Option<ActionResult> {
+    fn on_finish(&self, action: &Action, world: &mut World) {
         let pos = action.owner(world).pos + self.dir;
-        Some(ActionResult::LogMessage(world.map().get_tile(pos).read()))
+        world.log().push(LogEvent::new(
+            world.map().get_tile(pos).read(),
+            pos,
+            LogCategory::Success,
+        ));
     }
 }
