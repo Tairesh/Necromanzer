@@ -36,7 +36,7 @@ impl GameModeImpl for Reading {
             DIR9.iter()
                 .copied()
                 .filter(|d| {
-                    let pos = world.player().pos + d;
+                    let pos = world.player().pos + *d;
                     world.map().get_tile(pos).is_readable()
                 })
                 .map(|d| (d.into(), Colors::LIGHT_YELLOW))

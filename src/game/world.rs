@@ -67,7 +67,7 @@ impl World {
 
     pub fn calc_fov(&mut self) {
         self.fov.set_visible(field_of_view_set(
-            self.player().pos.into(),
+            self.player().pos,
             VISION_RANGE,
             &self.map.borrow(),
         ));
@@ -105,7 +105,7 @@ impl World {
 
     pub fn move_avatar(&mut self, unit_id: usize, dir: Direction) {
         let mut pos = self.units.get(unit_id).unwrap().pos;
-        let (old_chunk, _) = pos.chunk_and_pos();
+        let (old_chunk, _) = pos.to_chunk();
         self.map().get_tile_mut(pos).off_step(unit_id);
         pos += dir;
         if let Some(unit) = self.units.get_mut(unit_id) {
@@ -115,7 +115,7 @@ impl World {
             }
         }
         self.map().get_tile_mut(pos).on_step(unit_id);
-        if unit_id == 0 && old_chunk != pos.chunk_and_pos().0 {
+        if unit_id == 0 && old_chunk != pos.to_chunk().0 {
             self.load_units();
         }
         if unit_id == 0 {
@@ -230,7 +230,7 @@ impl World {
         let center = self.player().pos;
         for (i, unit) in self.units.iter().enumerate() {
             let pos = unit.pos;
-            let dist = pos.square_dist_to(center);
+            let dist = pos.square_distance(center);
             if dist <= Self::BUBBLE_SQUARE_RADIUS {
                 self.loaded_units.insert(i);
             } else {

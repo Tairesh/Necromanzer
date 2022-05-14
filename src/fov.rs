@@ -94,7 +94,7 @@ impl ScanFovData<'_> {
     }
 
     fn distance_to_center(&self, point: Point) -> i32 {
-        point.square_distance(self.center)
+        point.square_distance(self.center) as i32
     }
 
     fn insert_visible_for_vertical(&mut self, point: Point) -> bool {

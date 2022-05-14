@@ -51,9 +51,10 @@ impl Point {
     }
 
     /// Square distance to other point
-    pub fn square_distance(self, other: Self) -> i32 {
-        let p = self - other;
-        p.x * p.x + p.y * p.y
+    pub fn square_distance(self, other: Self) -> u32 {
+        let dx = self.x.abs_diff(other.x);
+        let dy = self.y.abs_diff(other.y);
+        dx * dx + dy * dy
     }
 
     /// Distance (pythagorean) to other point
@@ -242,8 +243,6 @@ impl Mul<Vec2> for Point {
 
 #[cfg(test)]
 mod tests {
-    use geometry::Vec2;
-
     use crate::geometry::direction::Direction;
 
     use super::Point;
@@ -260,13 +259,6 @@ mod tests {
         assert!(pt.to_index(10).is_none());
         let pt = Point::new(10, 2);
         assert!(pt.to_index(10).is_none());
-    }
-
-    #[test]
-    fn point_from_vec2() {
-        let pt = Point::from(Vec2::new(1.4, 1.5));
-        assert_eq!(pt.x, 1);
-        assert_eq!(pt.y, 2);
     }
 
     #[test]

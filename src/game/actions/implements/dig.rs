@@ -45,14 +45,14 @@ impl ActionImpl for Dig {
             let mut rng = rand::thread_rng();
             let places: Vec<Direction> = DIR8
                 .iter()
+                .copied()
                 .filter(|d| {
                     (pos + *d != action.owner(world).pos)
                         && world.map().get_tile(pos + *d).terrain.is_passable()
                 })
-                .copied()
                 .collect();
             for item in items {
-                let delta = places.choose(&mut rng).unwrap();
+                let delta = places.choose(&mut rng).copied().unwrap();
                 world.map().get_tile_mut(pos + delta).items.push(item);
             }
         }

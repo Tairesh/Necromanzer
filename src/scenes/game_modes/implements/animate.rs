@@ -37,7 +37,7 @@ impl GameModeImpl for Animate {
             DIR9.iter()
                 .copied()
                 .filter(|d| {
-                    let pos = world.player().pos + d;
+                    let pos = world.player().pos + *d;
                     world
                         .map()
                         .get_tile(pos)
