@@ -182,7 +182,7 @@ impl SceneImpl for GameScene {
         let right_bottom = center_tile + (window_size_in_tiles.0 / 2, window_size_in_tiles.1 / 2);
         world.map().load_tiles_between(left_top, right_bottom);
         for (pos, tile) in world.map().tiles_between(left_top, right_bottom) {
-            if !world.fov.visible().contains(&pos.into()) {
+            if !world.is_visible(pos) {
                 continue; // TODO: TileView struct for remembering tiles and optimizing drawing
             }
             let dx = pos.x - center_tile.x;

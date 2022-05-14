@@ -16,6 +16,7 @@ use game::map::terrain::TerrainView;
 use game::map::Map;
 use game::Avatar;
 use geometry::direction::Direction;
+use geometry::point::Point;
 use geometry::two_dim_direction::TwoDimDirection;
 use savefile::{GameView, Meta};
 use {geometry, savefile};
@@ -28,7 +29,7 @@ pub struct World {
     pub units: Vec<Avatar>, // TODO: move units to separate struct probably
     pub loaded_units: HashSet<usize>,
     map: RefCell<Map>,
-    pub fov: Fov,
+    fov: Fov,
     // TODO: add Rng created with seed
     // TODO: add WorldLog
 }
@@ -82,9 +83,14 @@ impl World {
         self.map.borrow_mut()
     }
 
+    pub fn is_visible<P: Into<Point>>(&self, pos: P) -> bool {
+        self.fov.visible().contains(&pos.into())
+    }
+
     pub fn get_unit(&self, unit_id: usize) -> &Avatar {
         self.units.get(unit_id).unwrap()
     }
+
     pub fn get_unit_mut(&mut self, unit_id: usize) -> &mut Avatar {
         self.units.get_mut(unit_id).unwrap()
     }
@@ -284,7 +290,6 @@ pub mod tests {
     use game::human::character::tests::{dead_boy, tester_girl};
     use game::human::helpers::human_body;
     use geometry::direction::Direction;
-    use geometry::point::Point;
     use savefile::{GameView, Meta};
 
     use super::super::actions::Action;
@@ -358,9 +363,8 @@ pub mod tests {
         world.map().get_tile_mut(TilePos::new(3, 0));
 
         world.move_avatar(0, Direction::East);
-        let fov = world.fov.visible();
-        assert!(fov.contains(&Point::new(1, 0)));
-        assert!(fov.contains(&Point::new(2, 0)));
-        assert!(!fov.contains(&Point::new(3, 0)));
+        assert!(world.is_visible(TilePos::new(1, 0)));
+        assert!(world.is_visible(TilePos::new(2, 0)));
+        assert!(!world.is_visible(TilePos::new(3, 0)));
     }
 }
