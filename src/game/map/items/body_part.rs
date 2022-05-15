@@ -1,8 +1,8 @@
 use game::animals::FurColor;
 use game::bodies::{Freshness, OrganData, Sex};
-use game::human::character::{age_name, Character};
 use game::human::gender::Gender;
 use game::human::hair_color::HairColor;
+use game::human::personality::{age_name, Personality};
 use game::human::skin_tone::SkinTone;
 
 use super::super::item::{ItemInteract, ItemView};
@@ -247,7 +247,7 @@ pub enum BodyPartType {
     HumanNose(OrganData, SkinTone),
     HumanMouth(OrganData, SkinTone, Sex), // TODO: jaws, teeth, beard
     HumanEar(OrganData, SkinTone),
-    HumanBrain(OrganData, Character),
+    HumanBrain(OrganData, Personality),
     HumanTorso(OrganData, HairColor, SkinTone, Sex),
     HumanHeart(OrganData),
     HumanStomach(OrganData),

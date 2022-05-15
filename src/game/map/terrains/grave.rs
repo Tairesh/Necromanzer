@@ -2,8 +2,8 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 use super::super::super::bodies::Freshness;
-use super::super::super::human::character::Character;
 use super::super::super::human::helpers::human_body;
+use super::super::super::human::personality::Personality;
 use super::super::item::Item;
 use super::super::items::{Corpse, Gravestone, Rags};
 use super::super::passage::Passage;
@@ -99,7 +99,7 @@ impl Distribution<GraveVariant> for Standard {
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct GraveData {
     #[serde(rename = "c")]
-    pub character: Character,
+    pub character: Personality,
     #[serde(rename = "d")]
     pub death_year: u8,
 }

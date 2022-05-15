@@ -18,10 +18,13 @@ impl Walk {
     fn length(actor: &Avatar, tile: &Tile) -> u32 {
         // TODO: check avatar perks for calculating speed
         // TODO: add sqrt(2) for diagonal movement
-        let koeff = match actor.soul {
+        let person = match &actor.soul {
+            Soul::Zombie(person, ..) | Soul::Player(person) => person,
+        };
+        let koeff = match &actor.soul {
             Soul::Zombie(..) => 1.5,
-            Soul::Player => 1.0,
-        } * match actor.character.appearance.age {
+            Soul::Player(..) => 1.0,
+        } * match person.appearance.age {
             0 => 100.0,
             1..=3 => 10.0,
             4..=10 => 3.0,
@@ -46,7 +49,7 @@ impl ActionImpl for Walk {
         let unit_on_tile = tile.units.iter().copied().next();
         if let Some(unit_id) = unit_on_tile {
             let unit = world.get_unit(unit_id);
-            return No(format!("{} is on the way", unit.character.mind.name));
+            return No(format!("{} is on the way", unit.name_for_actions()));
         }
 
         Yes(Self::length(actor, tile))

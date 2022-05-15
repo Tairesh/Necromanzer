@@ -36,19 +36,19 @@ pub struct Mind {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Character {
+pub struct Personality {
     #[serde(rename = "a")]
     pub appearance: Appearance,
     #[serde(rename = "m")]
     pub mind: Mind,
 }
 
-impl Character {
+impl Personality {
     pub fn new(appearance: Appearance, mind: Mind) -> Self {
         Self { appearance, mind }
     }
 
-    pub fn random<R: Rng + ?Sized>(rng: &mut R, alive: bool) -> Character {
+    pub fn random<R: Rng + ?Sized>(rng: &mut R, alive: bool) -> Personality {
         let gender = rng.sample(Standard);
         let game_data = GameData::instance();
         let name = format!(
@@ -60,7 +60,7 @@ impl Character {
             },
             game_data.names.random_name(rng)
         );
-        Character::new(
+        Personality::new(
             Appearance {
                 age: rng.gen_range(0..=99),
                 skin_tone: rng.sample(Standard),
@@ -112,16 +112,16 @@ pub fn age_name(age: u8, gender: Option<&Gender>) -> &'static str {
 #[cfg(test)]
 pub mod tests {
     use game::bodies::BodySize;
-    use game::human::character::{Appearance, Mind};
     use game::human::gender::Gender;
     use game::human::hair_color::HairColor;
     use game::human::main_hand::MainHand;
+    use game::human::personality::{Appearance, Mind};
     use game::human::skin_tone::SkinTone;
 
-    use super::Character;
+    use super::Personality;
 
-    pub fn dead_boy() -> Character {
-        Character::new(
+    pub fn dead_boy() -> Personality {
+        Personality::new(
             Appearance {
                 age: 9,
                 skin_tone: SkinTone::Almond,
@@ -137,8 +137,8 @@ pub mod tests {
         )
     }
 
-    pub fn tester_girl() -> Character {
-        Character::new(
+    pub fn tester_girl() -> Personality {
+        Personality::new(
             Appearance {
                 age: 15,
                 skin_tone: SkinTone::WarmIvory,
@@ -154,8 +154,8 @@ pub mod tests {
         )
     }
 
-    pub fn old_queer() -> Character {
-        Character::new(
+    pub fn old_queer() -> Personality {
+        Personality::new(
             Appearance {
                 age: 75,
                 skin_tone: SkinTone::Almond,

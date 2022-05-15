@@ -43,7 +43,7 @@ impl GameScene {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let world = app.clone_world();
         let name_label = Box::new(Label::new(
-            world.borrow().player().character.mind.name.as_str(),
+            world.borrow().player().person().mind.name.as_str(),
             app.assets.fonts.header2.clone(),
             Colors::WHITE_SMOKE,
             Position::by_left_top(50.0, 1.0),

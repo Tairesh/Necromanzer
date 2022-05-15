@@ -205,7 +205,7 @@ impl World {
                     .map(|i| {
                         let unit = self.units.get(i).unwrap();
                         (if multiline { " - " } else { "" }).to_string()
-                            + unit.character.mind.name.as_str()
+                            + unit.name_for_actions().as_str()
                     })
                     .collect(),
             );
@@ -291,7 +291,7 @@ impl World {
             let mut unit_wants_actions = HashMap::new();
             for (unit_id, unit) in self.units.iter_mut().skip(1).enumerate() {
                 if unit.action.is_none() {
-                    if let Soul::Zombie(brain) = &mut unit.soul {
+                    if let Soul::Zombie(_, brain) = &mut unit.soul {
                         brain.plan();
                         if let Some(action_type) = brain.action() {
                             // +1 is because we skipped first one in enumeration
@@ -314,8 +314,8 @@ pub mod tests {
 
     use game::actions::implements::{Skip, Walk};
     use game::bodies::Freshness;
-    use game::human::character::tests::{dead_boy, tester_girl};
     use game::human::helpers::human_body;
+    use game::human::personality::tests::{dead_boy, tester_girl};
     use game::log::Log;
     use geometry::direction::Direction;
     use savefile::{GameView, Meta};

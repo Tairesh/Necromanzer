@@ -1,7 +1,7 @@
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use game::human::character::Character;
+use game::human::personality::Personality;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum Freshness {
@@ -66,7 +66,7 @@ pub struct OrganData {
 // TODO: SkinData with SkinTone and scars/tattoo/etc.
 
 impl OrganData {
-    pub fn new(character: &Character, freshness: Freshness) -> Self {
+    pub fn new(character: &Personality, freshness: Freshness) -> Self {
         Self {
             freshness,
             age: character.appearance.age,

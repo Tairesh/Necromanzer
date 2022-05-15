@@ -22,9 +22,9 @@ mod tests {
     use geometry::direction::{Direction, DIR8};
 
     use super::super::super::bodies::{Freshness, OrganData};
-    use super::super::super::human::character::tests::dead_boy;
     use super::super::super::human::gender::Gender;
     use super::super::super::human::main_hand::MainHand;
+    use super::super::super::human::personality::tests::dead_boy;
     use super::super::super::human::skin_tone::SkinTone;
     use super::super::super::map::item::Item;
     use super::super::super::map::items::BodyPartType;

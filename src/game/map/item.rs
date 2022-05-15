@@ -62,8 +62,8 @@ pub enum ItemTag {
 mod tests {
     use std::convert::TryInto;
 
-    use game::human::character::tests::dead_boy;
     use game::human::helpers::human_body;
+    use game::human::personality::tests::dead_boy;
 
     use super::super::super::bodies::{Freshness, OrganData};
     use super::super::super::map::items::{

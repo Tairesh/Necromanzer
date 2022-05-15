@@ -10,7 +10,7 @@ use rand::rngs::StdRng;
 use rand::Rng;
 use rand::SeedableRng;
 
-use super::super::human::character::Character;
+use super::super::human::personality::Personality;
 use super::items::Shovel;
 use super::pos::ChunkPos;
 use super::terrains::{Boulder, Dirt, Grass, Grave, GraveData, GraveVariant, Tree};
@@ -81,7 +81,7 @@ impl Chunk {
                         GraveVariant::New
                     },
                     GraveData {
-                        character: Character::random(&mut rng, false),
+                        character: Personality::random(&mut rng, false),
                         death_year,
                     },
                 )

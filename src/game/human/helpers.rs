@@ -2,13 +2,13 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 use game::bodies::{Body, Freshness, OrganData, Sex};
-use game::human::character::Character;
 use game::human::hair_color::HairColor;
+use game::human::personality::Personality;
 use game::human::skin_tone::SkinTone;
 use game::map::items::{BodyPart, BodyPartType};
 use game::map::pos::TilePos;
 
-pub fn human_brain(organ_data: OrganData, character: Character) -> BodyPart {
+pub fn human_brain(organ_data: OrganData, character: Personality) -> BodyPart {
     BodyPart::new("brain", BodyPartType::HumanBrain(organ_data, character))
 }
 
@@ -37,22 +37,22 @@ pub fn human_ear(organ_data: OrganData, skin_tone: SkinTone, left: bool) -> Body
     )
 }
 
-pub fn human_head(character: &Character, freshness: Freshness) -> BodyPart {
-    let organ_data = OrganData::new(character, freshness);
-    let sex = (&character.mind.gender).try_into().unwrap_or_default();
-    let hair_color = if character.appearance.age < 50 {
-        character.appearance.hair_color
+pub fn human_head(personality: &Personality, freshness: Freshness) -> BodyPart {
+    let organ_data = OrganData::new(personality, freshness);
+    let sex = (&personality.mind.gender).try_into().unwrap_or_default();
+    let hair_color = if personality.appearance.age < 50 {
+        personality.appearance.hair_color
     } else {
         HairColor::Gray
     };
-    let skin_tone = character.appearance.skin_tone;
+    let skin_tone = personality.appearance.skin_tone;
     BodyPart::new(
         "head",
         BodyPartType::HumanHead(organ_data.clone(), hair_color, skin_tone, sex),
     )
     .with_inside(match freshness {
         Freshness::Fresh | Freshness::Rotten => {
-            vec![human_brain(organ_data.clone(), character.clone())]
+            vec![human_brain(organ_data.clone(), personality.clone())]
         }
         Freshness::Skeletal => vec![],
     })
@@ -157,11 +157,11 @@ pub fn human_foot(organ_data: OrganData, skin_tone: SkinTone, sex: Sex, left: bo
     )
 }
 
-pub fn human_torso(character: &Character, freshness: Freshness) -> BodyPart {
-    let organ_data = OrganData::new(character, freshness);
-    let skin_tone = character.appearance.skin_tone;
-    let hair_color = character.appearance.hair_color;
-    let sex = (&character.mind.gender).try_into().unwrap_or_default();
+pub fn human_torso(personality: &Personality, freshness: Freshness) -> BodyPart {
+    let organ_data = OrganData::new(personality, freshness);
+    let skin_tone = personality.appearance.skin_tone;
+    let hair_color = personality.appearance.hair_color;
+    let sex = (&personality.mind.gender).try_into().unwrap_or_default();
     BodyPart::new(
         "torso",
         BodyPartType::HumanTorso(organ_data.clone(), hair_color, skin_tone, sex),
@@ -180,7 +180,7 @@ pub fn human_torso(character: &Character, freshness: Freshness) -> BodyPart {
         Freshness::Skeletal => vec![],
     })
     .with_outside(vec![
-        human_head(character, freshness),
+        human_head(personality, freshness),
         human_arm(organ_data.clone(), skin_tone, sex, true),
         human_arm(organ_data.clone(), skin_tone, sex, false),
         human_leg(organ_data.clone(), skin_tone, sex, true),
@@ -188,17 +188,17 @@ pub fn human_torso(character: &Character, freshness: Freshness) -> BodyPart {
     ])
 }
 
-pub fn human_body(character: &Character, freshness: Freshness) -> Body {
-    let parts = HashMap::from([(TilePos::new(0, 0), human_torso(character, freshness))]);
+pub fn human_body(personality: &Personality, freshness: Freshness) -> Body {
+    let parts = HashMap::from([(TilePos::new(0, 0), human_torso(personality, freshness))]);
     Body::new(parts)
 }
 
 #[allow(dead_code)]
-pub fn human_centipede(characters: Vec<Character>) -> Body {
-    let parts = characters
+pub fn human_centipede(personalities: Vec<Personality>) -> Body {
+    let parts = personalities
         .into_iter()
         .enumerate()
-        .map(|(i, c)| (TilePos::new(0, i as i32), human_torso(&c, Freshness::Fresh)))
+        .map(|(i, p)| (TilePos::new(0, i as i32), human_torso(&p, Freshness::Fresh)))
         .collect();
     Body::new(parts)
 }
@@ -206,11 +206,11 @@ pub fn human_centipede(characters: Vec<Character>) -> Body {
 #[cfg(test)]
 mod tests {
     use game::bodies::{BodySize, Freshness, OrganData, Sex};
-    use game::human::character::tests::{dead_boy, old_queer, tester_girl};
-    use game::human::character::{Appearance, Character, Mind};
     use game::human::gender::Gender;
     use game::human::hair_color::HairColor;
     use game::human::main_hand::MainHand;
+    use game::human::personality::tests::{dead_boy, old_queer, tester_girl};
+    use game::human::personality::{Appearance, Mind, Personality};
     use game::human::skin_tone::SkinTone;
     use game::map::item::ItemView;
     use game::map::items::{BodyPart, BodyPartType};
@@ -250,7 +250,7 @@ mod tests {
                         size: BodySize::Small,
                         alive: true,
                     },
-                    Character {
+                    Personality {
                         appearance: Appearance {
                             age: 15,
                             hair_color: HairColor::Ginger,
@@ -340,7 +340,7 @@ mod tests {
                         age: 9,
                         ..
                     },
-                    Character {
+                    Personality {
                         mind: Mind {
                             gender: Gender::Male,
                             ..

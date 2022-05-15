@@ -1,17 +1,17 @@
 use game::bodies::Body;
 use game::map::pos::TilePos;
 
-use super::super::super::human::character::Character;
+use super::super::super::human::personality::Personality;
 use super::super::item::{ItemInteract, ItemView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Corpse {
-    pub character: Character,
+    pub character: Personality,
     pub body: Body,
 }
 
 impl Corpse {
-    pub fn new(character: Character, body: Body) -> Self {
+    pub fn new(character: Personality, body: Body) -> Self {
         Self { character, body }
     }
 }

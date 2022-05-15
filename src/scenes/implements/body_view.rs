@@ -49,7 +49,7 @@ impl BodyView {
             &app.assets,
         );
         let mut name = Label::new(
-            avatar.character.mind.name.clone(),
+            avatar.person().mind.name.clone(),
             app.assets.fonts.header2.clone(),
             Colors::LIGHT_GOLDEN_ROD_YELLOW,
             Position::by_left_top(20.0, 20.0),
@@ -58,8 +58,8 @@ impl BodyView {
         let gender = Label::new(
             format!(
                 "({}, {})",
-                avatar.character.age_name(),
-                avatar.character.appearance.age
+                avatar.person().age_name(),
+                avatar.person().appearance.age
             ),
             app.assets.fonts.header2.clone(),
             Colors::WHITE_SMOKE,

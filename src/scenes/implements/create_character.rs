@@ -10,9 +10,9 @@ use variant_count::VariantCount;
 use app::App;
 use colors::Colors;
 use game::bodies::BodySize;
-use game::human::character::{Appearance, Character, Mind};
 use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;
+use game::human::personality::{Appearance, Mind, Personality};
 use game::human::skin_tone::SkinTone;
 use game::map::pos::TilePos;
 use game::{Avatar, Log, World};
@@ -365,7 +365,7 @@ impl SceneImpl for CreateCharacter {
             }
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
-                let character = Character::random(&mut rng, true);
+                let character = Personality::random(&mut rng, true);
                 self.gender_input().set_value(character.mind.gender);
                 self.name_input().set_value(character.mind.name);
                 self.age_input()
@@ -385,7 +385,7 @@ impl SceneImpl for CreateCharacter {
                 } else {
                     let gender = self.gender_input().value().into();
                     let age = self.age_input().value().parse::<u8>().unwrap();
-                    let character = Character::new(
+                    let character = Personality::new(
                         Appearance {
                             age,
                             skin_tone: SkinTone::PaleIvory,

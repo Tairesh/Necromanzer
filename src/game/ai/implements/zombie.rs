@@ -6,11 +6,11 @@ use game::ai::brain::Brain;
 use geometry::direction::Direction;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct ZombieBrain {
+pub struct ZombieAI {
     action: ActionType,
 }
 
-impl ZombieBrain {
+impl ZombieAI {
     pub fn new() -> Self {
         Self {
             action: Skip {}.into(),
@@ -18,13 +18,13 @@ impl ZombieBrain {
     }
 }
 
-impl Default for ZombieBrain {
+impl Default for ZombieAI {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Brain for ZombieBrain {
+impl Brain for ZombieAI {
     fn plan(&mut self) {
         // TODO: use world.rng
         let mut rng = thread_rng();
