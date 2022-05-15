@@ -394,4 +394,8 @@ impl Press for Button {
     }
 }
 
-impl UiSprite for Button {}
+impl UiSprite for Button {
+    fn as_button(&mut self) -> Option<&mut Button> {
+        Some(self)
+    }
+}

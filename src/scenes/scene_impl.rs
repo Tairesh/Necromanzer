@@ -1,7 +1,7 @@
 use tetra::{Context, Event};
 
 use scenes::transition::{SomeTransitions, Transition};
-use ui::SomeSprites;
+use ui::{SomeUISprites, SomeUISpritesMut};
 
 pub trait SceneImpl {
     fn on_update(&mut self, _ctx: &mut Context) -> SomeTransitions {
@@ -14,7 +14,10 @@ pub trait SceneImpl {
     fn after_draw(&mut self, _ctx: &mut Context) {}
     fn on_open(&mut self, _ctx: &mut Context) {}
     fn on_resize(&mut self, _ctx: &mut Context, _window_size: (i32, i32)) {}
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
+        None
+    }
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
         None
     }
     fn custom_event(&mut self, _ctx: &mut Context, _event: u8) -> SomeTransitions {
@@ -22,15 +25,14 @@ pub trait SceneImpl {
     }
 
     fn is_there_focused_sprite(&self) -> bool {
-        self.sprites().map_or(false, |sprites| {
-            sprites.iter().any(|s| s.borrow().focused())
-        })
+        self.sprites()
+            .map_or(false, |sprites| sprites.iter().any(|s| s.focused()))
     }
 
     fn reposition_all_sprites(&mut self, ctx: &mut Context, window_size: (i32, i32)) {
-        if let Some(sprites) = self.sprites() {
-            for sprite in sprites.iter() {
-                sprite.borrow_mut().positionate(ctx, window_size);
+        if let Some(sprites) = self.sprites_mut() {
+            for sprite in sprites.iter_mut() {
+                sprite.positionate(ctx, window_size);
             }
         }
     }
@@ -39,11 +41,10 @@ pub trait SceneImpl {
         // TODO: find a way to optimize this shit
         let mut transitions = self.on_update(ctx).unwrap_or_default();
         let focused = self.is_there_focused_sprite();
-        if let Some(sprites) = self.sprites() {
+        if let Some(sprites) = self.sprites_mut() {
             // creating same big useless vec of Rects EVERY frame
             let mut blocked = Vec::with_capacity(sprites.len());
-            for sprite in sprites.iter().rev() {
-                let mut sprite = sprite.borrow_mut();
+            for sprite in sprites.iter_mut().rev() {
                 if let Some(transition) = sprite.update(ctx, focused, &blocked) {
                     transitions.push(transition);
                 }

@@ -19,8 +19,8 @@ pub enum MainHand {
 }
 
 impl MainHand {
-    pub fn name(&self) -> &str {
-        (*self).into()
+    pub fn name(self) -> &'static str {
+        self.into()
     }
 
     pub fn next(self) -> Self {

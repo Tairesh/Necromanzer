@@ -144,9 +144,8 @@ impl State for App {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         if let Some(scene) = self.current_scene() {
             scene.before_draw(ctx);
-            if let Some(sprites) = scene.sprites() {
-                for sprite in sprites.iter() {
-                    let mut sprite = sprite.borrow_mut();
+            if let Some(sprites) = scene.sprites_mut() {
+                for sprite in sprites.iter_mut() {
                     if sprite.visible() {
                         sprite.draw(ctx);
                     }

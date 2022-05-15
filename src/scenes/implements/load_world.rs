@@ -1,6 +1,4 @@
-use std::cell::RefCell;
 use std::path::PathBuf;
-use std::rc::Rc;
 
 use tetra::graphics::mesh::{Mesh, ShapeStyle};
 use tetra::graphics::Rectangle;
@@ -23,8 +21,8 @@ use ui::button::Button;
 use ui::label::Label;
 use ui::meshy::HoverableMesh;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::Positionate;
-use ui::{BunchOfSprites, SomeSprites};
+use ui::traits::{Positionate, UiSprite};
+use ui::{SomeUISprites, SomeUISpritesMut};
 use {savefile, VERSION};
 
 const KEYS: [Key; 10] = [
@@ -44,7 +42,7 @@ const DATETIME_FORMAT: &[FormatItem] =
     time::macros::format_description!("[year].[month].[day] [hour]:[minute]:[second]");
 
 pub struct LoadWorld {
-    sprites: BunchOfSprites,
+    sprites: Vec<Box<dyn UiSprite>>,
     paths: Vec<PathBuf>,
 }
 
@@ -53,12 +51,12 @@ impl LoadWorld {
     #[allow(clippy::too_many_lines)]
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let savefiles = savefiles();
-        let mut sprites: BunchOfSprites = Vec::with_capacity(savefiles.len() * 6 + 1);
+        let mut sprites: Vec<Box<dyn UiSprite>> = Vec::with_capacity(savefiles.len() * 6 + 1);
         let height = savefiles.len() as f32 * 50.0 + 33.0;
         // TODO: Add scroll if there are too many savefiles
         let mut y = -height / 2.0;
 
-        sprites.push(Rc::new(RefCell::new(Alert::new(
+        sprites.push(Box::new(Alert::new(
             600.0,
             height,
             app.assets.alert.clone(),
@@ -66,9 +64,9 @@ impl LoadWorld {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
                 y: Vertical::AtWindowCenterByTop { offset: y - 18.0 },
             },
-        ))));
+        )));
         for (i, savefile) in savefiles.iter().enumerate() {
-            sprites.push(Rc::new(RefCell::new(HoverableMesh::new(
+            sprites.push(Box::new(HoverableMesh::new(
                 Mesh::rectangle(ctx, ShapeStyle::Fill, Rectangle::new(0.0, 0.0, 564.0, 50.0))
                     .unwrap(),
                 if i % 2 == 1 {
@@ -82,8 +80,8 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -282.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y },
                 },
-            ))));
-            sprites.push(Rc::new(RefCell::new(Label::new(
+            )));
+            sprites.push(Box::new(Label::new(
                 savefile.name.as_str(),
                 app.assets.fonts.header2.clone(),
                 Colors::LIGHT_YELLOW,
@@ -91,8 +89,8 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -280.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y - 2.0 },
                 },
-            ))));
-            let version_label = Rc::new(RefCell::new(Label::new(
+            )));
+            let mut version_label = Box::new(Label::new(
                 savefile.version.as_str(),
                 app.assets.fonts.default.clone(),
                 if savefile.version.as_str() == VERSION {
@@ -104,12 +102,12 @@ impl LoadWorld {
                     x: Horizontal::AtWindowCenterByLeft { offset: -275.0 },
                     y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
-            )));
-            let version_label_size = version_label.borrow_mut().calc_size(ctx);
+            ));
+            let version_label_size = version_label.calc_size(ctx);
             sprites.push(version_label);
             let time =
                 OffsetDateTime::from(savefile.time).to_offset(Settings::instance().time.offset);
-            sprites.push(Rc::new(RefCell::new(Label::new(
+            sprites.push(Box::new(Label::new(
                 time.format(&DATETIME_FORMAT).unwrap(),
                 app.assets.fonts.default.clone(),
                 Colors::LIGHT_YELLOW,
@@ -119,8 +117,8 @@ impl LoadWorld {
                     },
                     y: Vertical::AtWindowCenterByTop { offset: y + 30.0 },
                 },
-            ))));
-            sprites.push(Rc::new(RefCell::new(Button::text(
+            )));
+            sprites.push(Box::new(Button::text(
                 if i < 10 { vec![KEYS[i].into()] } else { vec![] },
                 if i < 10 {
                     format!("[{}] Load", if i < 9 { i + 1 } else { 0 })
@@ -134,8 +132,8 @@ impl LoadWorld {
                     y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
                 },
                 Transition::CustomEvent((i * 2) as u8),
-            ))));
-            sprites.push(Rc::new(RefCell::new(Button::text(
+            )));
+            sprites.push(Box::new(Button::text(
                 if i < 10 {
                     vec![(KEYS[i], KeyModifier::Alt).into()]
                 } else {
@@ -153,7 +151,7 @@ impl LoadWorld {
                     y: Vertical::AtWindowCenterByCenter { offset: y + 24.5 },
                 },
                 Transition::CustomEvent((i * 2 + 1) as u8),
-            ))));
+            )));
             y += 50.0;
         }
 
@@ -169,8 +167,12 @@ impl SceneImpl for LoadWorld {
         easy_back(&event, false)
     }
 
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
         Some(&self.sprites)
+    }
+
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
+        Some(&mut self.sprites)
     }
 
     fn custom_event(&mut self, _ctx: &mut Context, event: u8) -> SomeTransitions {

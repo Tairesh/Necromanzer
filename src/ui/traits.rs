@@ -2,6 +2,10 @@ use tetra::graphics::Color;
 use tetra::Context;
 
 use geometry::{Rect, Vec2};
+use ui::alert::Alert;
+use ui::button::Button;
+use ui::inputs::TextInput;
+use ui::label::Label;
 
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
@@ -75,8 +79,22 @@ pub trait Press {
 }
 
 pub trait UiSprite: Draw + Positionate + Update {
+    // TODO: move this to Focus trait
     fn focused(&self) -> bool {
         false
     }
     fn set_focused(&mut self, _focused: bool) {}
+
+    fn as_button(&mut self) -> Option<&mut Button> {
+        None
+    }
+    fn as_text_input(&mut self) -> Option<&mut TextInput> {
+        None
+    }
+    fn as_label(&mut self) -> Option<&mut Label> {
+        None
+    }
+    fn as_alert(&mut self) -> Option<&mut Alert> {
+        None
+    }
 }

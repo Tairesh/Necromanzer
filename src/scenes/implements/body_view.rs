@@ -19,13 +19,12 @@ use ui::alert::Alert;
 use ui::label::{ItemDisplay, Label};
 use ui::meshy::HoverableMesh;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::Positionate;
-use ui::{BunchOfSprites, SomeSprites};
+use ui::traits::{Positionate, UiSprite};
+use ui::{SomeUISprites, SomeUISpritesMut};
 
 pub struct BodyView {
-    sprites: BunchOfSprites,
+    sprites: Vec<Box<dyn UiSprite>>,
     world: Rc<RefCell<World>>,
-    alert: Rc<RefCell<Alert>>,
     window_size: (i32, i32),
 }
 
@@ -36,12 +35,12 @@ impl BodyView {
         let world = app.world.as_ref().unwrap().borrow();
         let avatar = world.get_unit(unit_id);
         let window_size = app.window_size;
-        let alert = Rc::new(RefCell::new(Alert::new(
+        let alert = Box::new(Alert::new(
             window_size.0 as f32,
             window_size.1 as f32,
             app.assets.alert.clone(),
             Position::by_left_top(0.0, 0.0),
-        )));
+        ));
         let back_btn = back_btn(
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
@@ -78,12 +77,12 @@ impl BodyView {
             Colors::LIGHT_YELLOW,
             Position::by_left_top(20.0, 50.0),
         );
-        let mut sprites: BunchOfSprites = Vec::with_capacity(avatar.body.wear.len() + 4);
-        sprites.push(alert.clone());
-        sprites.push(Rc::new(RefCell::new(name)));
-        sprites.push(Rc::new(RefCell::new(gender)));
-        sprites.push(Rc::new(RefCell::new(wear)));
-        sprites.push(Rc::new(RefCell::new(body)));
+        let mut sprites: Vec<Box<dyn UiSprite>> = Vec::with_capacity(avatar.body.wear.len() + 4);
+        sprites.push(alert);
+        sprites.push(Box::new(name));
+        sprites.push(Box::new(gender));
+        sprites.push(Box::new(wear));
+        sprites.push(Box::new(body));
         sprites.push(back_btn);
         let mut y = 0;
         avatar.body.wear.iter().for_each(|i| {
@@ -97,7 +96,7 @@ impl BodyView {
                 Position::by_right_top(-20.0, 60.0 + y as f32),
             );
             let size = disp.calc_size(ctx) + Vec2::new(10.0, 8.0);
-            sprites.push(Rc::new(RefCell::new(HoverableMesh::new(
+            sprites.push(Box::new(HoverableMesh::new(
                 Mesh::rectangle(
                     ctx,
                     ShapeStyle::Fill,
@@ -108,20 +107,20 @@ impl BodyView {
                 Colors::WHITE_SMOKE.with_alpha(0.2),
                 size,
                 Position::by_right_top(-15.0, 57.0 + y as f32),
-            ))));
-            sprites.push(Rc::new(RefCell::new(disp)));
+            )));
+            sprites.push(Box::new(disp));
         });
         let mut y = 0;
         if let Some(item) = avatar.body.parts.get(&TilePos::new(0, 0)) {
             y += 35;
             let mut name = item.name.clone();
             name.push(':');
-            sprites.push(Rc::new(RefCell::new(Label::new(
+            sprites.push(Box::new(Label::new(
                 name,
                 app.assets.fonts.default2.clone(),
                 Colors::LIGHT_GRAY,
                 Position::by_left_top(20.0, 60.0 + y as f32),
-            ))));
+            )));
             let color = match item.freshness() {
                 Freshness::Fresh => Colors::LIGHT_PINK,
                 Freshness::Rotten => Colors::LIME_GREEN,
@@ -134,7 +133,7 @@ impl BodyView {
                 Position::by_left_top(170.0, 60.0 + y as f32),
             );
             let size = bp.calc_size(ctx) + Vec2::new(10.0, 6.0);
-            sprites.push(Rc::new(RefCell::new(HoverableMesh::new(
+            sprites.push(Box::new(HoverableMesh::new(
                 Mesh::rectangle(
                     ctx,
                     ShapeStyle::Fill,
@@ -145,15 +144,19 @@ impl BodyView {
                 Colors::WHITE_SMOKE.with_alpha(0.2),
                 size,
                 Position::by_left_top(165.0, 57.0 + y as f32),
-            ))));
-            sprites.push(Rc::new(RefCell::new(bp)));
+            )));
+            sprites.push(Box::new(bp));
         }
+        let world = app.clone_world();
         Self {
-            world: app.clone_world(),
             sprites,
-            alert,
+            world,
             window_size,
         }
+    }
+
+    fn alert(&mut self) -> &mut Alert {
+        self.sprites[0].as_alert().unwrap()
     }
 }
 
@@ -163,10 +166,14 @@ impl SceneImpl for BodyView {
     }
 
     fn on_resize(&mut self, ctx: &mut Context, window_size: (i32, i32)) {
-        self.alert.borrow_mut().set_size(ctx, window_size);
+        self.alert().set_size(ctx, window_size);
     }
 
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
         Some(&self.sprites)
+    }
+
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
+        Some(&mut self.sprites)
     }
 }

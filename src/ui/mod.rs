@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use ui::traits::UiSprite;
 
 pub use self::game_log::GameLog;
@@ -17,5 +14,5 @@ mod implements;
 pub mod position;
 pub mod traits;
 
-pub type BunchOfSprites = Vec<Rc<RefCell<dyn UiSprite>>>;
-pub type SomeSprites<'a> = Option<&'a BunchOfSprites>;
+pub type SomeUISpritesMut<'a> = Option<&'a mut [Box<dyn UiSprite>]>;
+pub type SomeUISprites<'a> = Option<&'a [Box<dyn UiSprite>]>;

@@ -1,8 +1,6 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::path::Path;
-use std::rc::Rc;
 
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use tetra::input::{Key, KeyModifier};
@@ -28,8 +26,8 @@ use ui::button::Button;
 use ui::inputs::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Draw, Positionate, Stringify};
-use ui::{BunchOfSprites, SomeSprites};
+use ui::traits::{Draw, Positionate, Stringify, UiSprite};
+use ui::{SomeUISprites, SomeUISpritesMut};
 
 #[derive(IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone)]
 #[repr(u8)]
@@ -46,12 +44,7 @@ enum Events {
 
 pub struct CreateCharacter {
     meta: Meta,
-    sprites: BunchOfSprites,
-    name_input: Rc<RefCell<TextInput>>,
-    name_empty: Rc<RefCell<Label>>,
-    gender_input: Rc<RefCell<TextInput>>,
-    age_input: Rc<RefCell<TextInput>>,
-    hand_name: Rc<RefCell<Label>>,
+    sprites: [Box<dyn UiSprite>; 21],
     main_hand: MainHand,
     window_size: (i32, i32),
 }
@@ -63,14 +56,14 @@ impl CreateCharacter {
         let meta = savefile::load(path).unwrap();
         let bg = bg(&app.assets);
         let title = title("Create new character:", &app.assets);
-        let subtitle = Rc::new(RefCell::new(Label::new(
+        let subtitle = Box::new(Label::new(
             format!("New adventurer in the «{}» world", meta.name),
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 100.0 }),
-        )));
+        ));
 
-        let name_label = Rc::new(RefCell::new(Label::new(
+        let name_label = Box::new(Label::new(
             "Name:",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -78,8 +71,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 195.0 },
             },
-        )));
-        let name_input = Rc::new(RefCell::new(TextInput::new(
+        ));
+        let name_input = Box::new(TextInput::new(
             "",
             300.0,
             app.assets.fonts.header2.clone(),
@@ -87,8 +80,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: Vertical::ByCenter { y: 200.0 },
             },
-        )));
-        let name_empty = Rc::new(RefCell::new(Label::hidden(
+        ));
+        let name_empty = Box::new(Label::hidden(
             "Character name shall not be empty!",
             app.assets.fonts.default.clone(),
             Colors::RED,
@@ -96,8 +89,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
                 y: Vertical::ByBottom { y: 170.0 },
             },
-        )));
-        let gender_label = Rc::new(RefCell::new(Label::new(
+        ));
+        let gender_label = Box::new(Label::new(
             "Gender:",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -105,8 +98,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 245.0 },
             },
-        )));
-        let gender_left = Rc::new(RefCell::new(Button::icon(
+        ));
+        let gender_left = Box::new(Button::icon(
             vec![],
             "lt",
             app.assets.tileset.clone(),
@@ -116,8 +109,8 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 250.0 },
             },
             Transition::CustomEvent(Events::GenderLeft as u8),
-        )));
-        let gender_input = Rc::new(RefCell::new(TextInput::new(
+        ));
+        let gender_input = Box::new(TextInput::new(
             if meta.time.elapsed().unwrap().as_secs() % 2 == 0 {
                 "Female"
             } else {
@@ -129,8 +122,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: Vertical::ByCenter { y: 250.0 },
             },
-        )));
-        let gender_right = Rc::new(RefCell::new(Button::icon(
+        ));
+        let gender_right = Box::new(Button::icon(
             vec![],
             "mt",
             app.assets.tileset.clone(),
@@ -140,8 +133,8 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 250.0 },
             },
             Transition::CustomEvent(Events::GenderRight as u8),
-        )));
-        let age_label = Rc::new(RefCell::new(Label::new(
+        ));
+        let age_label = Box::new(Label::new(
             "Age:",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -149,8 +142,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 298.0 },
             },
-        )));
-        let age_minus = Rc::new(RefCell::new(Button::icon(
+        ));
+        let age_minus = Box::new(Button::icon(
             vec![],
             "minus",
             app.assets.tileset.clone(),
@@ -160,8 +153,8 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 300.0 },
             },
             Transition::CustomEvent(Events::AgeMinus as u8),
-        )));
-        let age_input = Rc::new(RefCell::new(TextInput::int(
+        ));
+        let age_input = Box::new(TextInput::int(
             18,
             (16, 99),
             210.0,
@@ -170,8 +163,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: Vertical::ByCenter { y: 300.0 },
             },
-        )));
-        let age_plus = Rc::new(RefCell::new(Button::icon(
+        ));
+        let age_plus = Box::new(Button::icon(
             vec![],
             "plus",
             app.assets.tileset.clone(),
@@ -181,8 +174,8 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 300.0 },
             },
             Transition::CustomEvent(Events::AgePlus as u8),
-        )));
-        let hand_label = Rc::new(RefCell::new(Label::new(
+        ));
+        let hand_label = Box::new(Label::new(
             "Main hand:",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -190,8 +183,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 345.0 },
             },
-        )));
-        let hand_left = Rc::new(RefCell::new(Button::icon(
+        ));
+        let hand_left = Box::new(Button::icon(
             vec![],
             "lt",
             app.assets.tileset.clone(),
@@ -201,8 +194,8 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 350.0 },
             },
             Transition::CustomEvent(Events::HandLeft as u8),
-        )));
-        let hand_name = Rc::new(RefCell::new(Label::new(
+        ));
+        let hand_name = Box::new(Label::new(
             "Right",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -210,8 +203,8 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
                 y: Vertical::ByCenter { y: 348.0 },
             },
-        )));
-        let hand_right = Rc::new(RefCell::new(Button::icon(
+        ));
+        let hand_right = Box::new(Button::icon(
             vec![],
             "mt",
             app.assets.tileset.clone(),
@@ -221,9 +214,9 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 350.0 },
             },
             Transition::CustomEvent(Events::HandRight as u8),
-        )));
+        ));
 
-        let randomize_btn = Rc::new(RefCell::new(Button::text(
+        let mut randomize_btn = Box::new(Button::text(
             vec![
                 Key::NumPadMultiply.into(),
                 (Key::Num8, KeyModifier::Shift).into(),
@@ -236,8 +229,8 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 500.0 },
             },
             Transition::CustomEvent(Events::Randomize as u8),
-        )));
-        let randomize_btn_size = randomize_btn.borrow_mut().calc_size(ctx);
+        ));
+        let randomize_btn_size = randomize_btn.calc_size(ctx);
         let back_btn = back_btn(
             Position {
                 x: Horizontal::AtWindowCenterByRight {
@@ -247,7 +240,7 @@ impl CreateCharacter {
             },
             &app.assets,
         );
-        let create_btn = Rc::new(RefCell::new(Button::text(
+        let create_btn = Box::new(Button::text(
             vec![(Key::Enter, KeyModifier::Alt).into()],
             "[Alt+Enter] Create",
             app.assets.fonts.default.clone(),
@@ -259,49 +252,60 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 500.0 },
             },
             Transition::CustomEvent(Events::Create as u8),
-        )));
+        ));
 
         Self {
             meta,
-            sprites: vec![
+            // Order is matter, change hardcoded indices in functions below if modified
+            sprites: [
                 bg,
                 title,
                 subtitle,
                 name_label,
-                name_input.clone(),
-                name_empty.clone(),
+                name_input,
+                name_empty,
                 gender_label,
                 gender_left,
-                gender_input.clone(),
+                gender_input,
                 gender_right,
                 age_label,
                 age_minus,
-                age_input.clone(),
+                age_input,
                 age_plus,
                 hand_label,
                 hand_left,
-                hand_name.clone(),
+                hand_name,
                 hand_right,
                 back_btn,
                 randomize_btn,
                 create_btn,
             ],
-            name_input,
-            name_empty,
-            gender_input,
-            age_input,
-            hand_name,
             main_hand: MainHand::Right,
             window_size: app.window_size,
         }
+    }
+
+    fn name_input(&mut self) -> &mut TextInput {
+        self.sprites[4].as_text_input().unwrap()
+    }
+    fn name_empty(&mut self) -> &mut Label {
+        self.sprites[5].as_label().unwrap()
+    }
+    fn gender_input(&mut self) -> &mut TextInput {
+        self.sprites[8].as_text_input().unwrap()
+    }
+    fn age_input(&mut self) -> &mut TextInput {
+        self.sprites[12].as_text_input().unwrap()
+    }
+    fn hand_name(&mut self) -> &mut Label {
+        self.sprites[16].as_label().unwrap()
     }
 }
 
 impl SceneImpl for CreateCharacter {
     fn on_update(&mut self, _ctx: &mut Context) -> SomeTransitions {
-        let mut name_error = self.name_empty.borrow_mut();
-        if !self.name_input.borrow().danger() && name_error.visible() {
-            name_error.set_visible(false);
+        if !self.name_input().danger() && self.name_empty().visible() {
+            self.name_empty().set_visible(false);
         }
         None
     }
@@ -314,21 +318,26 @@ impl SceneImpl for CreateCharacter {
         self.window_size = window_size;
     }
 
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
         Some(&self.sprites)
     }
 
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
+        Some(&mut self.sprites)
+    }
+
     fn custom_event(&mut self, ctx: &mut Context, event: u8) -> SomeTransitions {
+        // TODO: remove unwrap
         let event = Events::try_from(event).unwrap();
         match event {
             Events::GenderLeft | Events::GenderRight => {
-                let mut input = self.gender_input.borrow_mut();
+                let input = self.gender_input();
                 let value = input.value();
                 input.set_value(if value == "Male" { "Female" } else { "Male" });
                 None
             }
             Events::AgeMinus | Events::AgePlus => {
-                let mut input = self.age_input.borrow_mut();
+                let input = self.age_input();
                 if let Ok(mut value) = input.value().parse::<u8>() {
                     match event {
                         Events::AgeMinus => {
@@ -344,41 +353,38 @@ impl SceneImpl for CreateCharacter {
                 None
             }
             Events::HandLeft | Events::HandRight => {
-                let mut label = self.hand_name.borrow_mut();
                 self.main_hand = match event {
                     Events::HandRight => self.main_hand.next(),
                     Events::HandLeft => self.main_hand.prev(),
                     _ => unreachable!(),
                 };
-                label.set_value(self.main_hand.name());
-                label.positionate(ctx, self.window_size);
+                let name = self.main_hand.name();
+                let window_size = self.window_size;
+                self.hand_name().update(name, ctx, window_size);
                 None
             }
             Events::Randomize => {
                 let mut rng = rand::thread_rng();
                 let character = Character::random(&mut rng, true);
-                self.gender_input
-                    .borrow_mut()
-                    .set_value(character.mind.gender);
-                self.name_input.borrow_mut().set_value(character.mind.name);
-                self.age_input
-                    .borrow_mut()
+                self.gender_input().set_value(character.mind.gender);
+                self.name_input().set_value(character.mind.name);
+                self.age_input()
                     .set_value(character.appearance.age.to_string());
                 self.main_hand = character.mind.main_hand;
-                let mut hand = self.hand_name.borrow_mut();
-                hand.set_value(self.main_hand.name());
-                hand.positionate(ctx, self.window_size);
+                let name = self.main_hand.name();
+                let window_size = self.window_size;
+                self.hand_name().update(name, ctx, window_size);
                 None
             }
             Events::Create => {
-                let name = self.name_input.borrow().value();
+                let name = self.name_input().value();
                 if name.is_empty() {
-                    self.name_input.borrow_mut().set_danger(true);
-                    self.name_empty.borrow_mut().set_visible(true);
+                    self.name_input().set_danger(true);
+                    self.name_empty().set_visible(true);
                     None
                 } else {
-                    let gender = self.gender_input.borrow().value().into();
-                    let age = self.age_input.borrow().value().parse::<u8>().unwrap();
+                    let gender = self.gender_input().value().into();
+                    let age = self.age_input().value().parse::<u8>().unwrap();
                     let character = Character::new(
                         Appearance {
                             age,

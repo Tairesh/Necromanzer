@@ -1,8 +1,5 @@
 #![allow(dead_code)]
 
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use tetra::input::{Key, MouseButton};
 use tetra::Event;
 use time::{Month, OffsetDateTime};
@@ -37,33 +34,33 @@ pub(crate) fn easy_back(event: &Event, focused: bool) -> SomeTransitions {
     }
 }
 
-pub(crate) fn bg(assets: &Assets) -> Rc<RefCell<Image>> {
+pub(crate) fn bg(assets: &Assets) -> Box<Image> {
     let date = OffsetDateTime::now_utc().to_offset(Settings::instance().time.offset);
-    Rc::new(RefCell::new(Image::repeat(
+    Box::new(Image::repeat(
         if date.month() == Month::October && date.day() >= 19 && date.day() <= 31 {
             assets.images.halloween.clone()
         } else {
             assets.images.bg.clone()
         },
-    )))
+    ))
 }
 
-pub(crate) fn title(title: &str, assets: &Assets) -> Rc<RefCell<Label>> {
-    Rc::new(RefCell::new(Label::new(
+pub(crate) fn title(title: &str, assets: &Assets) -> Box<Label> {
+    Box::new(Label::new(
         title,
         assets.fonts.header1.clone(),
         Colors::DARK_GREEN,
         Position::horizontal_center(0.0, Vertical::ByTop { y: 20.0 }),
-    )))
+    ))
 }
 
-pub(crate) fn back_btn(position: Position, assets: &Assets) -> Rc<RefCell<Button>> {
-    Rc::new(RefCell::new(Button::text(
+pub(crate) fn back_btn(position: Position, assets: &Assets) -> Box<Button> {
+    Box::new(Button::text(
         vec![Key::Escape.into()],
         "[Esc] Back",
         assets.fonts.default.clone(),
         assets.button.clone(),
         position,
         Transition::Pop,
-    )))
+    ))
 }

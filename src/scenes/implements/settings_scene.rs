@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use tetra::input::{Key, KeyModifier};
 use tetra::window::WindowPosition;
 use tetra::{Context, Event};
@@ -15,8 +12,8 @@ use ui::button::Button;
 use ui::inputs::TextInput;
 use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Positionate, Press, Stringify};
-use ui::{BunchOfSprites, SomeSprites};
+use ui::traits::{Positionate, Press, Stringify, UiSprite};
+use ui::{SomeUISprites, SomeUISpritesMut};
 
 const WINDOW_MODE_EVENT: u8 = 1;
 const FULLSCREEN_MODE_EVENT: u8 = 2;
@@ -24,10 +21,7 @@ const REPEAT_INTERVAL_MINUS: u8 = 3;
 const REPEAT_INTERVAL_PLUS: u8 = 4;
 
 pub struct SettingsScene {
-    sprites: BunchOfSprites,
-    window_btn: Rc<RefCell<Button>>,
-    fullscreen_btn: Rc<RefCell<Button>>,
-    repeat_interval_input: Rc<RefCell<TextInput>>,
+    sprites: [Box<dyn UiSprite>; 10],
 }
 
 impl SettingsScene {
@@ -38,7 +32,7 @@ impl SettingsScene {
         let title = title("Settings", &app.assets);
 
         let settings = Settings::instance();
-        let fullscreen_btn = Rc::new(RefCell::new(Button::fixed(
+        let fullscreen_btn = Box::new(Button::fixed(
             vec![(Key::F, KeyModifier::Alt).into()],
             "[Alt+F] Fullscreen",
             app.assets.fonts.default.clone(),
@@ -49,8 +43,8 @@ impl SettingsScene {
                 y: Vertical::ByCenter { y: 150.0 },
             },
             Transition::CustomEvent(FULLSCREEN_MODE_EVENT),
-        )));
-        let window_btn = Rc::new(RefCell::new(Button::fixed(
+        ));
+        let mut window_btn = Box::new(Button::fixed(
             vec![(Key::W, KeyModifier::Alt).into()],
             "[Alt+W] Window",
             app.assets.fonts.default.clone(),
@@ -61,10 +55,10 @@ impl SettingsScene {
                 y: Vertical::ByCenter { y: 150.0 },
             },
             Transition::CustomEvent(WINDOW_MODE_EVENT),
-        )));
-        let window_btn_size = window_btn.borrow_mut().calc_size(ctx);
+        ));
+        let window_btn_size = window_btn.calc_size(ctx);
 
-        let window_mode_label = Rc::new(RefCell::new(Label::new(
+        let window_mode_label = Box::new(Label::new(
             "Window mode:",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -74,9 +68,9 @@ impl SettingsScene {
                 },
                 y: Vertical::ByCenter { y: 145.0 },
             },
-        )));
+        ));
 
-        let repeat_interval_label = Rc::new(RefCell::new(Label::new(
+        let repeat_interval_label = Box::new(Label::new(
             "Repeat delay:",
             app.assets.fonts.header2.clone(),
             Colors::DARK_BROWN,
@@ -86,8 +80,8 @@ impl SettingsScene {
                 },
                 y: Vertical::ByCenter { y: 195.0 },
             },
-        )));
-        let repeat_interval_minus = Rc::new(RefCell::new(Button::icon(
+        ));
+        let repeat_interval_minus = Box::new(Button::icon(
             vec![],
             "minus",
             app.assets.tileset.clone(),
@@ -97,8 +91,8 @@ impl SettingsScene {
                 y: Vertical::ByCenter { y: 200.0 },
             },
             Transition::CustomEvent(REPEAT_INTERVAL_MINUS),
-        )));
-        let repeat_interval_input = Rc::new(RefCell::new(TextInput::int(
+        ));
+        let repeat_interval_input = Box::new(TextInput::int(
             settings.repeat_interval as u32,
             (1, 10000),
             190.0,
@@ -107,8 +101,8 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
                 y: Vertical::ByCenter { y: 200.0 },
             },
-        )));
-        let repeat_interval_plus = Rc::new(RefCell::new(Button::icon(
+        ));
+        let repeat_interval_plus = Box::new(Button::icon(
             vec![],
             "plus",
             app.assets.tileset.clone(),
@@ -118,7 +112,7 @@ impl SettingsScene {
                 y: Vertical::ByCenter { y: 200.0 },
             },
             Transition::CustomEvent(REPEAT_INTERVAL_PLUS),
-        )));
+        ));
 
         let back_btn = back_btn(
             Position::horizontal_center(0.0, Vertical::AtWindowBottomByBottom { offset: -200.0 }),
@@ -126,22 +120,32 @@ impl SettingsScene {
         );
 
         Self {
-            sprites: vec![
+            // Order is matter, change hardcoded indices in functions below if modified
+            sprites: [
                 bg,
                 title,
-                fullscreen_btn.clone(),
-                window_btn.clone(),
+                fullscreen_btn,
+                window_btn,
                 window_mode_label,
                 repeat_interval_label,
                 repeat_interval_minus,
-                repeat_interval_input.clone(),
+                repeat_interval_input,
                 repeat_interval_plus,
                 back_btn,
             ],
-            fullscreen_btn,
-            window_btn,
-            repeat_interval_input,
         }
+    }
+
+    fn fullscreen_btn(&mut self) -> &mut Button {
+        self.sprites[2].as_button().unwrap()
+    }
+
+    fn window_btn(&mut self) -> &mut Button {
+        self.sprites[3].as_button().unwrap()
+    }
+
+    fn repeat_interval_input(&mut self) -> &mut TextInput {
+        self.sprites[7].as_text_input().unwrap()
     }
 }
 
@@ -150,14 +154,18 @@ impl SceneImpl for SettingsScene {
         easy_back(&event, self.is_there_focused_sprite())
     }
 
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
         Some(&self.sprites)
+    }
+
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
+        Some(&mut self.sprites)
     }
 
     fn custom_event(&mut self, ctx: &mut Context, event: u8) -> SomeTransitions {
         match event {
             FULLSCREEN_MODE_EVENT => {
-                self.window_btn.borrow_mut().unpress();
+                self.window_btn().unpress();
                 if !tetra::window::is_fullscreen(ctx) {
                     Settings::instance().window.fullscreen = true;
                     tetra::window::set_fullscreen(ctx, true).ok();
@@ -165,7 +173,7 @@ impl SceneImpl for SettingsScene {
                 None
             }
             WINDOW_MODE_EVENT => {
-                self.fullscreen_btn.borrow_mut().unpress();
+                self.fullscreen_btn().unpress();
                 if tetra::window::is_fullscreen(ctx) {
                     Settings::instance().window.fullscreen = false;
                     tetra::window::set_fullscreen(ctx, false).ok();
@@ -187,7 +195,7 @@ impl SceneImpl for SettingsScene {
                 None
             }
             REPEAT_INTERVAL_MINUS | REPEAT_INTERVAL_PLUS => {
-                let mut input = self.repeat_interval_input.borrow_mut();
+                let input = self.repeat_interval_input();
                 if let Ok(mut value) = input.value().parse::<u32>() {
                     match event {
                         REPEAT_INTERVAL_MINUS => {

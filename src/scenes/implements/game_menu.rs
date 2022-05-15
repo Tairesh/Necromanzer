@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use tetra::input::Key;
 
 use app::App;
@@ -10,21 +7,22 @@ use scenes::transition::Transition;
 use ui::alert::Alert;
 use ui::button::Button;
 use ui::position::{Horizontal, Position, Vertical};
-use ui::{BunchOfSprites, SomeSprites};
+use ui::traits::UiSprite;
+use ui::{SomeUISprites, SomeUISpritesMut};
 
 pub struct GameMenu {
-    sprites: BunchOfSprites,
+    sprites: [Box<dyn UiSprite>; 4],
 }
 
 impl GameMenu {
     pub fn new(app: &App) -> Self {
-        let alert = Rc::new(RefCell::new(Alert::new(
+        let alert = Box::new(Alert::new(
             200.0,
             190.0,
             app.assets.alert.clone(),
             Position::center(),
-        )));
-        let back_btn = Rc::new(RefCell::new(Button::text(
+        ));
+        let back_btn = Box::new(Button::text(
             vec![Key::Escape.into()],
             "[Esc] Back",
             app.assets.fonts.default.clone(),
@@ -34,8 +32,8 @@ impl GameMenu {
                 y: Vertical::AtWindowCenterByBottom { offset: -30.0 },
             },
             Transition::Pop,
-        )));
-        let settings_btn = Rc::new(RefCell::new(Button::text(
+        ));
+        let settings_btn = Box::new(Button::text(
             vec![Key::S.into()],
             "[S] Settings",
             app.assets.fonts.default.clone(),
@@ -45,8 +43,8 @@ impl GameMenu {
                 y: Vertical::AtWindowCenterByBottom { offset: 20.0 },
             },
             Transition::Replace(Scene::Settings),
-        )));
-        let quit_btn = Rc::new(RefCell::new(Button::text(
+        ));
+        let quit_btn = Box::new(Button::text(
             vec![Key::Q.into()],
             "[q] Quit",
             app.assets.fonts.default.clone(),
@@ -56,16 +54,20 @@ impl GameMenu {
                 y: Vertical::AtWindowCenterByBottom { offset: 70.0 },
             },
             Transition::GoMainMenu,
-        )));
+        ));
 
         Self {
-            sprites: vec![alert, back_btn, settings_btn, quit_btn],
+            sprites: [alert, back_btn, settings_btn, quit_btn],
         }
     }
 }
 
 impl SceneImpl for GameMenu {
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
         Some(&self.sprites)
+    }
+
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
+        Some(&mut self.sprites)
     }
 }

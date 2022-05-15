@@ -113,4 +113,8 @@ impl Update for Alert {
         None
     }
 }
-impl UiSprite for Alert {}
+impl UiSprite for Alert {
+    fn as_alert(&mut self) -> Option<&mut Alert> {
+        Some(self)
+    }
+}

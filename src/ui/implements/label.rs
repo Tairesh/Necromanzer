@@ -125,7 +125,11 @@ impl Update for Label {
         false
     }
 }
-impl UiSprite for Label {}
+impl UiSprite for Label {
+    fn as_label(&mut self) -> Option<&mut Label> {
+        Some(self)
+    }
+}
 
 pub struct ItemDisplay {
     text: Text,

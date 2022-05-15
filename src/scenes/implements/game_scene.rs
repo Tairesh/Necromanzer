@@ -25,15 +25,14 @@ use scenes::scene_impl::SceneImpl;
 use scenes::transition::SomeTransitions;
 use ui::label::Label;
 use ui::position::{Position, Vertical};
-use ui::GameLog;
-use ui::{BunchOfSprites, SomeSprites};
+use ui::traits::UiSprite;
+use ui::{GameLog, SomeUISprites, SomeUISpritesMut};
 
 pub struct GameScene {
-    pub sprites: BunchOfSprites,
+    sprites: [Box<dyn UiSprite>; 2],
     pub world: Rc<RefCell<World>>,
     pub modes: Vec<Rc<RefCell<GameMode>>>,
     pub cursor: Mesh,
-    pub current_time_label: Rc<RefCell<Label>>,
     pub log: GameLog,
     pub shift_of_view: Point,
     pub assets: Rc<Assets>,
@@ -43,20 +42,20 @@ pub struct GameScene {
 impl GameScene {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let world = app.clone_world();
-        let name_label = Rc::new(RefCell::new(Label::new(
+        let name_label = Box::new(Label::new(
             world.borrow().player().character.mind.name.as_str(),
             app.assets.fonts.header2.clone(),
             Colors::WHITE_SMOKE,
             Position::by_left_top(50.0, 1.0),
-        )));
-        let current_time_label = Rc::new(RefCell::new(Label::new(
+        ));
+        let current_time_label = Box::new(Label::new(
             format!("{}", world.borrow().meta.current_tick),
             app.assets.fonts.default2.clone(),
             Colors::WHITE_SMOKE,
             Position::horizontal_center(0.0, Vertical::ByTop { y: 5.0 }),
-        )));
+        ));
         Self {
-            sprites: vec![name_label, current_time_label.clone()],
+            sprites: [name_label, current_time_label],
             modes: vec![Rc::new(RefCell::new(Walking::new().into()))],
             cursor: Mesh::rectangle(
                 ctx,
@@ -73,7 +72,6 @@ impl GameScene {
             shift_of_view: Point::zero(),
             assets: app.assets.clone(),
             window_size: app.window_size,
-            current_time_label,
             world,
         }
     }
@@ -130,15 +128,17 @@ impl GameScene {
     fn make_world_tick(&mut self, ctx: &mut Context) {
         self.world.borrow_mut().tick();
 
-        let world = self.world.borrow();
-        for event in world.log().new_events() {
+        for event in self.world.borrow().log().new_events() {
             self.log.log(event.msg.as_str(), event.category.into());
         }
-        self.current_time_label.borrow_mut().update(
-            format!("{}", world.meta.current_tick),
-            ctx,
-            self.window_size,
-        );
+        let current_time = format!("{}", self.world.borrow().meta.current_tick);
+        let window_size = self.window_size;
+        self.current_time_label()
+            .update(current_time, ctx, window_size);
+    }
+
+    fn current_time_label(&mut self) -> &mut Label {
+        self.sprites[1].as_label().unwrap()
     }
 }
 
@@ -248,8 +248,12 @@ impl SceneImpl for GameScene {
         self.window_size = window_size;
     }
 
-    fn sprites(&self) -> SomeSprites {
+    fn sprites(&self) -> SomeUISprites {
         Some(&self.sprites)
+    }
+
+    fn sprites_mut(&mut self) -> SomeUISpritesMut {
+        Some(&mut self.sprites)
     }
 }
 

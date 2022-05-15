@@ -392,4 +392,8 @@ impl UiSprite for TextInput {
             self.off_pressed();
         }
     }
+
+    fn as_text_input(&mut self) -> Option<&mut TextInput> {
+        Some(self)
+    }
 }
