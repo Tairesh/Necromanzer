@@ -55,7 +55,7 @@ impl Observing {
             last_mouse_position: Vec2::zero(),
             mouse_moved: false,
             last_zoom: 0,
-            mouse_moved_pos: Point::zero(),
+            mouse_moved_pos: Point::default(),
             sprite: None,
         }
     }
@@ -142,7 +142,7 @@ impl GameModeImpl for Observing {
         self.update_mouse(ctx, game);
         let mut shifted = false;
         if input::is_key_pressed(ctx, Key::Escape) {
-            game.shift_of_view = Point::zero();
+            game.shift_of_view = Point::default();
             game.modes.pop();
             return None;
         } else if input::is_mouse_scrolled_down(ctx) {

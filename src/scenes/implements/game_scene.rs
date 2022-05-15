@@ -69,7 +69,7 @@ impl GameScene {
             )
             .unwrap(),
             log: GameLog::new(app.assets.fonts.default.font.clone()),
-            shift_of_view: Point::zero(),
+            shift_of_view: Point::default(),
             assets: app.assets.clone(),
             window_size: app.window_size,
             world,

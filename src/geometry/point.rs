@@ -18,11 +18,6 @@ impl Point {
         Point { x, y }
     }
 
-    // TODO: impl Zero
-    pub fn zero() -> Self {
-        Point { x: 0, y: 0 }
-    }
-
     pub fn random<R: Rng + ?Sized>(
         rng: &mut R,
         horizontal: Range<i32>,
@@ -60,6 +55,12 @@ impl Point {
     /// Distance (pythagorean) to other point
     pub fn distance(self, other: Self) -> f32 {
         f32::sqrt(self.square_distance(other) as f32)
+    }
+}
+
+impl Default for Point {
+    fn default() -> Self {
+        Self::new(0, 0)
     }
 }
 
