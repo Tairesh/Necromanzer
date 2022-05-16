@@ -21,7 +21,7 @@ use savefile::{GameView, Meta};
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use scenes::{back_btn, bg, easy_back, title};
+use scenes::{back_btn, bg, easy_back, error_label, label, title};
 use ui::button::Button;
 use ui::inputs::TextInput;
 use ui::label::Label;
@@ -63,15 +63,14 @@ impl CreateCharacter {
             Position::horizontal_center(0.0, Vertical::ByTop { y: 100.0 }),
         ));
 
-        let name_label = Box::new(Label::new(
+        let name_label = label(
             "Name:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 195.0 },
             },
-        ));
+        );
         let name_input = Box::new(TextInput::new(
             "",
             300.0,
@@ -81,24 +80,22 @@ impl CreateCharacter {
                 y: Vertical::ByCenter { y: 200.0 },
             },
         ));
-        let name_empty = Box::new(Label::hidden(
+        let name_empty = error_label(
             "Character name shall not be empty!",
-            app.assets.fonts.default.clone(),
-            Colors::RED,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
                 y: Vertical::ByBottom { y: 170.0 },
             },
-        ));
-        let gender_label = Box::new(Label::new(
+        );
+        let gender_label = label(
             "Gender:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 245.0 },
             },
-        ));
+        );
         let gender_left = Box::new(Button::icon(
             vec![],
             "lt",
@@ -134,15 +131,14 @@ impl CreateCharacter {
             },
             Transition::CustomEvent(Events::GenderRight as u8),
         ));
-        let age_label = Box::new(Label::new(
+        let age_label = label(
             "Age:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 298.0 },
             },
-        ));
+        );
         let age_minus = Box::new(Button::icon(
             vec![],
             "minus",
@@ -175,15 +171,14 @@ impl CreateCharacter {
             },
             Transition::CustomEvent(Events::AgePlus as u8),
         ));
-        let hand_label = Box::new(Label::new(
+        let hand_label = label(
             "Main hand:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
                 y: Vertical::ByCenter { y: 345.0 },
             },
-        ));
+        );
         let hand_left = Box::new(Button::icon(
             vec![],
             "lt",

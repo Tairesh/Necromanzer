@@ -54,6 +54,24 @@ pub(crate) fn title(title: &str, assets: &Assets) -> Box<Label> {
     ))
 }
 
+pub(crate) fn label(text: &str, assets: &Assets, position: Position) -> Box<Label> {
+    Box::new(Label::new(
+        text,
+        assets.fonts.header2.clone(),
+        Colors::DARK_BROWN,
+        position,
+    ))
+}
+
+pub(crate) fn error_label(text: &str, assets: &Assets, position: Position) -> Box<Label> {
+    Box::new(Label::hidden(
+        text,
+        assets.fonts.default.clone(),
+        Colors::RED,
+        position,
+    ))
+}
+
 pub(crate) fn back_btn(position: Position, assets: &Assets) -> Box<Button> {
     Box::new(Button::text(
         vec![Key::Escape.into()],

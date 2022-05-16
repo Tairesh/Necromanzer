@@ -3,13 +3,12 @@ use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
 use app::App;
-use colors::Colors;
 use game::GameData;
 use savefile;
 use scenes::scene::Scene;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use scenes::{back_btn, bg, easy_back, title};
+use scenes::{back_btn, bg, easy_back, error_label, label, title};
 use ui::button::Button;
 use ui::inputs::TextInput;
 use ui::label::Label;
@@ -37,15 +36,14 @@ impl CreateWorld {
         let bg = bg(&app.assets);
         let title = title("Create new world:", &app.assets);
 
-        let name_label = Box::new(Label::new(
+        let name_label = label(
             "World name:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
                 y: Vertical::ByCenter { y: 195.0 },
             },
-        ));
+        );
         let name_input = Box::new(TextInput::new(
             GameData::instance().names.random_name(&mut rng),
             250.0,
@@ -55,33 +53,30 @@ impl CreateWorld {
                 y: Vertical::ByCenter { y: 200.0 },
             },
         ));
-        let name_error = Box::new(Label::hidden(
+        let name_error = error_label(
             "Savefile with this name already exists",
-            app.assets.fonts.default.clone(),
-            Colors::DARK_RED,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
                 y: Vertical::ByBottom { y: 180.0 },
             },
-        ));
-        let name_empty = Box::new(Label::hidden(
+        );
+        let name_empty = error_label(
             "World name shall not be empty!",
-            app.assets.fonts.default.clone(),
-            Colors::DARK_RED,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
                 y: Vertical::ByBottom { y: 180.0 },
             },
-        ));
-        let seed_label = Box::new(Label::new(
+        );
+        let seed_label = label(
             "World seed:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
                 y: Vertical::ByCenter { y: 265.0 },
             },
-        ));
+        );
         let seed_input = Box::new(TextInput::new(
             random_seed(&mut rng).as_str(),
             250.0,
@@ -91,15 +86,14 @@ impl CreateWorld {
                 y: Vertical::ByCenter { y: 270.0 },
             },
         ));
-        let seed_error = Box::new(Label::hidden(
+        let seed_error = error_label(
             "Seed shall not be empty!",
-            app.assets.fonts.default.clone(),
-            Colors::DARK_RED,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
                 y: Vertical::ByBottom { y: 250.0 },
             },
-        ));
+        );
         let mut randomize_btn = Box::new(Button::text(
             vec![
                 Key::NumPadMultiply.into(),
@@ -167,7 +161,7 @@ impl CreateWorld {
         self.sprites[11].as_label().unwrap()
     }
     fn seed_input(&mut self) -> &mut TextInput {
-        self.sprites[6].as_text_input().unwrap()
+        self.sprites[5].as_text_input().unwrap()
     }
     fn seed_error(&mut self) -> &mut Label {
         self.sprites[10].as_label().unwrap()

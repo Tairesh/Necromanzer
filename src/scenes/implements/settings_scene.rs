@@ -3,14 +3,12 @@ use tetra::window::WindowPosition;
 use tetra::{Context, Event};
 
 use app::App;
-use colors::Colors;
 use scenes::scene_impl::SceneImpl;
 use scenes::transition::{SomeTransitions, Transition};
-use scenes::{back_btn, bg, easy_back, title};
+use scenes::{back_btn, bg, easy_back, label, title};
 use settings::Settings;
 use ui::button::Button;
 use ui::inputs::TextInput;
-use ui::label::Label;
 use ui::position::{Horizontal, Position, Vertical};
 use ui::traits::{Positionate, Press, Stringify, UiSprite};
 use ui::{SomeUISprites, SomeUISpritesMut};
@@ -58,29 +56,27 @@ impl SettingsScene {
         ));
         let window_btn_size = window_btn.calc_size(ctx);
 
-        let window_mode_label = Box::new(Label::new(
+        let window_mode_label = label(
             "Window mode:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight {
                     offset: 90.0 - window_btn_size.x,
                 },
                 y: Vertical::ByCenter { y: 145.0 },
             },
-        ));
+        );
 
-        let repeat_interval_label = Box::new(Label::new(
+        let repeat_interval_label = label(
             "Repeat delay:",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
+            &app.assets,
             Position {
                 x: Horizontal::AtWindowCenterByRight {
                     offset: 90.0 - window_btn_size.x,
                 },
                 y: Vertical::ByCenter { y: 195.0 },
             },
-        ));
+        );
         let repeat_interval_minus = Box::new(Button::icon(
             vec![],
             "minus",
