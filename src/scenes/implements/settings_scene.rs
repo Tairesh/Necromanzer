@@ -164,6 +164,9 @@ impl SceneImpl for SettingsScene {
                 self.window_btn().unpress();
                 if !tetra::window::is_fullscreen(ctx) {
                     Settings::instance().window.fullscreen = true;
+                    if let Ok((width, height)) = tetra::window::get_current_monitor_size(ctx) {
+                        tetra::window::set_size(ctx, width, height).ok();
+                    }
                     tetra::window::set_fullscreen(ctx, true).ok();
                 }
                 None
