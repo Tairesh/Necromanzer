@@ -8,6 +8,7 @@ use tetra::{input, Context};
 
 use assets::alert::Alert as AlertAsset;
 use geometry::{Rect, Vec2};
+use ui::traits::Focus;
 
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
@@ -113,6 +114,9 @@ impl Update for Alert {
         None
     }
 }
+
+impl Focus for Alert {}
+
 impl UiSprite for Alert {
     fn as_alert(&mut self) -> Option<&mut Alert> {
         Some(self)

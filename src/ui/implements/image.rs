@@ -4,6 +4,7 @@ use tetra::graphics::{Color, DrawParams, NineSlice, Rectangle, Texture};
 use tetra::{window, Context};
 
 use geometry::{Rect, Vec2};
+use ui::traits::Focus;
 
 use crate::ui::position::Position;
 use crate::ui::traits::{Colorize, Draw, Positionate, UiSprite, Update};
@@ -134,4 +135,7 @@ impl Colorize for Image {
 }
 
 impl Update for Image {}
+
+impl Focus for Image {}
+
 impl UiSprite for Image {}

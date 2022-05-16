@@ -12,6 +12,7 @@ use assets::prepared_font::PreparedFont;
 use assets::tileset::Tileset;
 use geometry::{Rect, Vec2};
 use input::KeyWithMod;
+use ui::traits::Focus;
 
 use crate::colors::Colors;
 use crate::input;
@@ -376,6 +377,13 @@ impl Hover for Button {
     fn off_hovered(&mut self) {
         self.state.off_hover();
     }
+
+    fn hovered(&self) -> bool {
+        matches!(
+            self.state,
+            ButtonState::Hovered | ButtonState::PressedAndHovered
+        )
+    }
 }
 
 impl Press for Button {
@@ -392,7 +400,16 @@ impl Press for Button {
     fn unpress(&mut self) {
         self.state.off_press();
     }
+
+    fn pressed(&self) -> bool {
+        matches!(
+            self.state,
+            ButtonState::Pressed | ButtonState::PressedAndHovered
+        )
+    }
 }
+
+impl Focus for Button {}
 
 impl UiSprite for Button {
     fn as_button(&mut self) -> Option<&mut Button> {

@@ -2,7 +2,6 @@ use ui::traits::UiSprite;
 
 pub use self::game_log::GameLog;
 pub use self::implements::alert;
-pub use self::implements::bg;
 pub use self::implements::button;
 pub use self::implements::image;
 pub use self::implements::inputs;

@@ -5,6 +5,7 @@ use tetra::graphics::{Color, DrawParams};
 use tetra::{input, Context};
 
 use geometry::{Rect, Vec2};
+use ui::traits::Focus;
 
 use crate::scenes::transition::Transition;
 use crate::ui::position::Position;
@@ -88,6 +89,9 @@ impl Colorize for JustMesh {
 }
 
 impl Update for JustMesh {}
+
+impl Focus for JustMesh {}
+
 impl UiSprite for JustMesh {}
 
 pub struct HoverableMesh {
@@ -196,6 +200,12 @@ impl Hover for HoverableMesh {
     fn off_hovered(&mut self) {
         self.is_hovered = false;
     }
+
+    fn hovered(&self) -> bool {
+        self.is_hovered
+    }
 }
+
+impl Focus for HoverableMesh {}
 
 impl UiSprite for HoverableMesh {}

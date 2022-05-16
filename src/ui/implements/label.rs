@@ -11,7 +11,7 @@ use assets::tileset::Tileset;
 use game::map::item::{Item, ItemView};
 use geometry::{Rect, Vec2};
 use ui::position::Position;
-use ui::traits::{Colorize, Draw, Positionate, Stringify, UiSprite, Update};
+use ui::traits::{Colorize, Draw, Focus, Positionate, Stringify, UiSprite, Update};
 
 pub struct Label {
     text: Text,
@@ -125,6 +125,9 @@ impl Update for Label {
         false
     }
 }
+
+impl Focus for Label {}
+
 impl UiSprite for Label {
     fn as_label(&mut self) -> Option<&mut Label> {
         Some(self)
@@ -261,4 +264,7 @@ impl Colorize for ItemDisplay {
 }
 
 impl Update for ItemDisplay {}
+
+impl Focus for ItemDisplay {}
+
 impl UiSprite for ItemDisplay {}

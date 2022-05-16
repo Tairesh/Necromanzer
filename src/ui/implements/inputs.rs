@@ -7,6 +7,7 @@ use tetra::input::{Key, KeyModifier, MouseButton};
 use tetra::{input, Context};
 
 use geometry::{Rect, Vec2};
+use ui::traits::Focus;
 
 use crate::assets::prepared_font::PreparedFont;
 use crate::colors::Colors;
@@ -360,6 +361,10 @@ impl Hover for TextInput {
     fn off_hovered(&mut self) {
         self.is_hovered = false;
     }
+
+    fn hovered(&self) -> bool {
+        self.is_hovered
+    }
 }
 
 impl Press for TextInput {
@@ -378,9 +383,13 @@ impl Press for TextInput {
         self.blink = false;
         self.validate_value();
     }
+
+    fn pressed(&self) -> bool {
+        self.is_focused
+    }
 }
 
-impl UiSprite for TextInput {
+impl Focus for TextInput {
     fn focused(&self) -> bool {
         self.is_focused
     }
@@ -392,7 +401,9 @@ impl UiSprite for TextInput {
             self.off_pressed();
         }
     }
+}
 
+impl UiSprite for TextInput {
     fn as_text_input(&mut self) -> Option<&mut TextInput> {
         Some(self)
     }

@@ -35,7 +35,7 @@ pub trait Positionate {
 
 pub trait Update {
     // focused means there is some focused sprite on the scene
-    // blocked is rects of ui above current one
+    // blocked is rects of ui elements above current one
     // TODO: implement a way to tell there is an yes-or-no-style alert, blocking even hovering
     fn update(
         &mut self,
@@ -65,26 +65,27 @@ pub trait Stringify {
     fn set_value<C: Into<String>>(&mut self, value: C);
 }
 
-// TODO: fn hovered() -> bool
 pub trait Hover {
     fn on_hovered(&mut self);
     fn off_hovered(&mut self);
+    fn hovered(&self) -> bool;
 }
 
-// TODO: fn pressed() -> bool
 pub trait Press {
     fn on_pressed(&mut self);
     fn off_pressed(&mut self);
     fn unpress(&mut self);
+    fn pressed(&self) -> bool;
 }
 
-pub trait UiSprite: Draw + Positionate + Update {
-    // TODO: move this to Focus trait
+pub trait Focus {
     fn focused(&self) -> bool {
         false
     }
     fn set_focused(&mut self, _focused: bool) {}
+}
 
+pub trait UiSprite: Draw + Positionate + Update + Focus {
     fn as_button(&mut self) -> Option<&mut Button> {
         None
     }
