@@ -6,10 +6,9 @@ use scenes::scene::Scene;
 pub enum Transition {
     Push(Scene),
     Pop,
-    GoMainMenu,     // unload world and pop until one
+    GoMainMenu,     // unload world and pop to first scene
     Replace(Scene), // pop and push
     LoadWorld(PathBuf),
-    UnloadWorld,
     CustomEvent(u8),
     Quit,
 }

@@ -124,7 +124,6 @@ impl App {
                 self.on_open(ctx);
             }
             Transition::LoadWorld(path) => self.load_world(&path),
-            Transition::UnloadWorld => self.unload_world(),
         }
     }
 }
