@@ -2,11 +2,21 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use variant_count::VariantCount;
 
-use crate::enums_iter;
+use cycle_enum::{CycleEnum, VariantCount};
 
 #[derive(
-    Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, Eq, PartialEq,
+    Serialize,
+    Deserialize,
+    IntoPrimitive,
+    TryFromPrimitive,
+    VariantCount,
+    Debug,
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
 )]
 #[repr(u8)]
 pub enum MainHand {
@@ -22,15 +32,15 @@ impl MainHand {
     pub fn name(self) -> &'static str {
         self.into()
     }
+}
 
-    pub fn next(self) -> Self {
-        enums_iter::next(self)
-    }
-
-    pub fn prev(self) -> Self {
-        enums_iter::prev(self, 2)
+impl VariantCount for MainHand {
+    fn variant_count() -> usize {
+        Self::VARIANT_COUNT
     }
 }
+
+impl CycleEnum for MainHand {}
 
 impl From<MainHand> for &str {
     fn from(s: MainHand) -> Self {

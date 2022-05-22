@@ -9,6 +9,7 @@ use variant_count::VariantCount;
 
 use app::App;
 use colors::Colors;
+use cycle_enum::CycleEnum;
 use game::bodies::BodySize;
 use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;

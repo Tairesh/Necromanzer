@@ -17,7 +17,7 @@ extern crate variant_count;
 mod app;
 mod assets;
 mod colors;
-mod enums_iter;
+mod cycle_enum;
 mod fov;
 mod game;
 mod geometry;
