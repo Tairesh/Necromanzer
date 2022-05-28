@@ -4,7 +4,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use variant_count::VariantCount;
 
-use cycle_enum::{CycleEnum, VariantCount};
+use cycle_enum::CycleEnum;
 
 #[derive(
     Serialize,
@@ -18,7 +18,7 @@ use cycle_enum::{CycleEnum, VariantCount};
     Eq,
     PartialEq,
 )]
-#[repr(u8)]
+#[repr(usize)]
 pub enum MainHand {
     #[serde(rename = "l")]
     Left,
@@ -34,13 +34,17 @@ impl MainHand {
     }
 }
 
-impl VariantCount for MainHand {
-    fn variant_count() -> usize {
-        Self::VARIANT_COUNT
+impl Default for MainHand {
+    fn default() -> Self {
+        Self::Right
     }
 }
 
-impl CycleEnum for MainHand {}
+impl CycleEnum for MainHand {
+    fn variants_count() -> usize {
+        Self::VARIANT_COUNT
+    }
+}
 
 impl From<MainHand> for &str {
     fn from(s: MainHand) -> Self {
