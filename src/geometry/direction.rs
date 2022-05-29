@@ -2,15 +2,13 @@
 
 use std::cmp::Ordering;
 
-use num_enum::{IntoPrimitive, TryFromPrimitive};
 use serde::{Deserialize, Serialize};
 
 use geometry::Vec2;
 
 use crate::geometry::point::Point;
 
-#[derive(Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
-#[repr(u8)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub enum Direction {
     Here,
     North,

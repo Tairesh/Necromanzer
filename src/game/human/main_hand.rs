@@ -1,24 +1,11 @@
-use num_enum::{IntoPrimitive, TryFromPrimitive};
+#![allow(clippy::needless_question_mark)] // Sequence causes it idk why
+
+use enum_iterator::{next, previous, Sequence};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use variant_count::VariantCount;
 
-use cycle_enum::CycleEnum;
-
-#[derive(
-    Serialize,
-    Deserialize,
-    IntoPrimitive,
-    TryFromPrimitive,
-    VariantCount,
-    Debug,
-    Copy,
-    Clone,
-    Eq,
-    PartialEq,
-)]
-#[repr(usize)]
+#[derive(Serialize, Deserialize, Sequence, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum MainHand {
     #[serde(rename = "l")]
     Left,
@@ -32,17 +19,13 @@ impl MainHand {
     pub fn name(self) -> &'static str {
         self.into()
     }
-}
 
-impl Default for MainHand {
-    fn default() -> Self {
-        Self::Right
+    pub fn next(self) -> Self {
+        next(&self).unwrap_or_else(|| Self::first().unwrap())
     }
-}
 
-impl CycleEnum for MainHand {
-    fn variants_count() -> usize {
-        Self::VARIANT_COUNT
+    pub fn prev(self) -> Self {
+        previous(&self).unwrap_or_else(|| Self::last().unwrap())
     }
 }
 

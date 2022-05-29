@@ -1,12 +1,8 @@
-use num_enum::{IntoPrimitive, TryFromPrimitive};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Serialize, Deserialize, IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, Eq, PartialEq,
-)]
-#[repr(u8)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum HairColor {
     #[serde(rename = "1")]
     White, // Only for unnatural beings

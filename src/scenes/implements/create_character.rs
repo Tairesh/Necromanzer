@@ -1,15 +1,11 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
 use std::path::Path;
 
-use num_enum::{IntoPrimitive, TryFromPrimitive};
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
-use variant_count::VariantCount;
 
 use app::App;
 use colors::Colors;
-use cycle_enum::CycleEnum;
 use game::bodies::BodySize;
 use game::human::hair_color::HairColor;
 use game::human::main_hand::MainHand;
@@ -30,8 +26,7 @@ use ui::position::{Horizontal, Position, Vertical};
 use ui::traits::{Draw, Positionate, Stringify, UiSprite};
 use ui::{SomeUISprites, SomeUISpritesMut};
 
-#[derive(IntoPrimitive, TryFromPrimitive, VariantCount, Debug, Copy, Clone)]
-#[repr(u8)]
+#[derive(Debug, Copy, Clone)]
 enum Events {
     GenderLeft,
     GenderRight,
@@ -41,6 +36,22 @@ enum Events {
     HandRight,
     Randomize,
     Create,
+}
+
+impl From<u8> for Events {
+    fn from(n: u8) -> Self {
+        match n {
+            0 => Self::GenderLeft,
+            1 => Self::GenderRight,
+            2 => Self::AgeMinus,
+            3 => Self::AgePlus,
+            4 => Self::HandLeft,
+            5 => Self::HandRight,
+            6 => Self::Randomize,
+            7 => Self::Create,
+            _ => unreachable!(),
+        }
+    }
 }
 
 pub struct CreateCharacter {
@@ -323,8 +334,7 @@ impl SceneImpl for CreateCharacter {
     }
 
     fn custom_event(&mut self, ctx: &mut Context, event: u8) -> SomeTransitions {
-        // TODO: remove unwrap
-        let event = Events::try_from(event).unwrap();
+        let event = Events::from(event);
         match event {
             Events::GenderLeft | Events::GenderRight => {
                 let input = self.gender_input();

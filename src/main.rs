@@ -3,7 +3,7 @@
 extern crate arrayvec;
 extern crate core;
 extern crate enum_dispatch;
-extern crate num_enum;
+extern crate enum_iterator;
 extern crate once_cell;
 extern crate phf;
 extern crate rand;
@@ -12,12 +12,10 @@ extern crate serde_json;
 extern crate serde_with;
 extern crate tetra;
 extern crate time;
-extern crate variant_count;
 
 mod app;
 mod assets;
 mod colors;
-mod cycle_enum;
 mod fov;
 mod game;
 mod geometry;
