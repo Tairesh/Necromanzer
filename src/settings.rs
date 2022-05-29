@@ -4,33 +4,68 @@ use std::path::Path;
 use std::sync::{Mutex, MutexGuard};
 
 use once_cell::sync::OnceCell;
-
-use settings::time::Time;
-use settings::window::Window;
+use time::UtcOffset;
 
 const DEFAULT_PATH: &str = "./settings.json";
+static INSTANCE: OnceCell<Mutex<Settings>> = OnceCell::new();
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct Settings {
-    pub window: Window,
-    #[serde(skip)]
-    pub time: Time,
-    pub show_fps: bool,
-    pub repeat_interval: u32,
+#[derive(Debug)]
+pub struct Time {
+    pub offset: UtcOffset,
 }
 
-impl Default for Settings {
+impl Default for Time {
     fn default() -> Self {
         Self {
-            window: Window::default(),
-            time: Time::default(),
-            show_fps: false,
-            repeat_interval: 75,
+            offset: UtcOffset::current_local_offset().unwrap_or(UtcOffset::UTC),
         }
     }
 }
 
-static INSTANCE: OnceCell<Mutex<Settings>> = OnceCell::new();
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct Window {
+    pub width: i32,
+    pub height: i32,
+    pub fullscreen: bool,
+}
+
+impl Default for Window {
+    fn default() -> Self {
+        Self {
+            width: 800,
+            height: 600,
+            fullscreen: false,
+        }
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
+pub struct Debug {
+    pub show_fps: bool,
+    // TODO: debug log, backtrace, god-mode, etc.
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct Game {
+    pub repeat_interval: u32,
+}
+
+impl Default for Game {
+    fn default() -> Self {
+        Self {
+            repeat_interval: 125,
+        }
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
+pub struct Settings {
+    pub window: Window,
+    pub debug: Debug,
+    pub game: Game,
+    #[serde(skip)]
+    pub time: Time,
+}
 
 impl Settings {
     pub fn instance() -> MutexGuard<'static, Settings> {
@@ -70,9 +105,7 @@ fn save(settings: &Settings, path: &'static str) {
 
 #[cfg(test)]
 mod tests {
-    use settings::game::save;
-
-    use super::load;
+    use super::{load, save};
 
     const TEST_PATH: &str = "./settings-test.json";
 

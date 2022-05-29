@@ -89,7 +89,7 @@ impl SettingsScene {
             Transition::CustomEvent(REPEAT_INTERVAL_MINUS),
         ));
         let repeat_interval_input = Box::new(TextInput::int(
-            settings.repeat_interval as u32,
+            settings.game.repeat_interval as u32,
             (1, 10000),
             190.0,
             app.assets.fonts.header2.clone(),
@@ -206,7 +206,7 @@ impl SceneImpl for SettingsScene {
                         _ => unreachable!(),
                     }
                     input.set_value(format!("{}", value).as_str());
-                    Settings::instance().repeat_interval = value;
+                    Settings::instance().game.repeat_interval = value;
                 }
                 None
             }

@@ -152,7 +152,7 @@ impl State for App {
             }
             scene.after_draw(ctx);
         }
-        if Settings::instance().show_fps {
+        if Settings::instance().debug.show_fps {
             let fps = (tetra::time::get_fps(ctx).round() as u8).to_string();
             if !self.fps_counter.value().eq(&fps) {
                 self.fps_counter.set_value(fps);
@@ -165,7 +165,7 @@ impl State for App {
     fn event(&mut self, ctx: &mut Context, event: Event) -> tetra::Result {
         match event {
             Event::KeyPressed { key: Key::F2 } => {
-                Settings::instance().show_fps ^= true; // ^_^
+                Settings::instance().debug.show_fps ^= true; // ^_^
             }
             Event::Resized { width, height } => {
                 if !window::is_fullscreen(ctx) {
