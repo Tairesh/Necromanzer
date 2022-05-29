@@ -1,9 +1,9 @@
+use geometry::{Direction, Point, DIR9};
 use tetra::{graphics::Color, input::Key, Context};
 
 use crate::{
     colors::Colors,
     game::{actions::implements::Read, World},
-    geometry::{Direction, Point, DIR9},
     input,
 };
 

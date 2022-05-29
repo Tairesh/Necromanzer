@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
 
+use geometry::Point;
+
 use super::{
     super::{
         bodies::{Body, Freshness, OrganData, Sex},
         map::items::{BodyPart, BodyPartType},
-        TilePos,
     },
     HairColor, Personality, SkinTone,
 };
@@ -191,7 +192,7 @@ pub fn human_torso(personality: &Personality, freshness: Freshness) -> BodyPart 
 }
 
 pub fn human_body(personality: &Personality, freshness: Freshness) -> Body {
-    let parts = HashMap::from([(TilePos::new(0, 0), human_torso(personality, freshness))]);
+    let parts = HashMap::from([(Point::new(0, 0), human_torso(personality, freshness))]);
     Body::new(parts)
 }
 
@@ -200,19 +201,21 @@ pub fn human_centipede(personalities: Vec<Personality>) -> Body {
     let parts = personalities
         .into_iter()
         .enumerate()
-        .map(|(i, p)| (TilePos::new(0, i as i32), human_torso(&p, Freshness::Fresh)))
+        .map(|(i, p)| (Point::new(0, i as i32), human_torso(&p, Freshness::Fresh)))
         .collect();
     Body::new(parts)
 }
 
 #[cfg(test)]
 mod tests {
+    use geometry::Point;
+
     use super::{
         super::{
             super::{
                 bodies::{BodySize, Freshness, OrganData, Sex},
                 map::items::{BodyPart, BodyPartType},
-                ItemView, TilePos,
+                ItemView,
             },
             tests::personality::{dead_boy, old_queer, tester_girl},
             Appearance, Gender, HairColor, MainHand, Mind, Personality, SkinTone,
@@ -498,7 +501,7 @@ mod tests {
     fn test_old_man_body() {
         let character = old_queer();
         let body = human_body(&character, Freshness::Fresh);
-        let torso = body.parts.get(&TilePos::new(0, 0)).unwrap();
+        let torso = body.parts.get(&Point::new(0, 0)).unwrap();
         let head = torso.outside.first().unwrap();
         assert!(matches!(
             head.typ,
@@ -520,7 +523,7 @@ mod tests {
     fn test_human_centipede() {
         let body = human_centipede(vec![dead_boy(), dead_boy(), dead_boy()]);
 
-        let torso1 = body.parts.get(&TilePos::new(0, 0)).unwrap();
+        let torso1 = body.parts.get(&Point::new(0, 0)).unwrap();
         let head1 = torso1.outside.first().unwrap();
         assert_eq!("head", head1.name);
         assert!(matches!(
@@ -540,7 +543,7 @@ mod tests {
                 ..
             }
         ));
-        let torso2 = body.parts.get(&TilePos::new(0, 1)).unwrap();
+        let torso2 = body.parts.get(&Point::new(0, 1)).unwrap();
         let head2 = torso2.outside.first().unwrap();
         assert_eq!("head", head2.name);
         assert!(matches!(
@@ -560,7 +563,7 @@ mod tests {
                 ..
             }
         ));
-        let torso3 = body.parts.get(&TilePos::new(0, 2)).unwrap();
+        let torso3 = body.parts.get(&Point::new(0, 2)).unwrap();
         let head3 = torso3.outside.first().unwrap();
         assert_eq!("head", head3.name);
         assert!(matches!(

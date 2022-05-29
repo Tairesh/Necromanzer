@@ -1,14 +1,12 @@
 #![allow(dead_code)]
 
+use geometry::{Rect, Vec2};
 use tetra::{
     graphics::{mesh::Mesh, Color, DrawParams},
     input, Context,
 };
 
-use crate::{
-    geometry::{Rect, Vec2},
-    scenes::Transition,
-};
+use crate::scenes::Transition;
 
 use super::super::{Colorize, Draw, Focus, Hover, Position, Positionate, UiSprite, Update};
 

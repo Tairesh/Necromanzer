@@ -5,7 +5,6 @@ mod assets;
 mod colors;
 mod fov;
 mod game;
-mod geometry;
 mod input;
 mod savefile;
 mod scenes;

@@ -2,11 +2,11 @@ use std::cell::{RefCell, RefMut};
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 
+use geometry::{circles, Direction, Point, TwoDimDirection};
 use rand::Rng;
 
 use crate::{
     fov::field_of_view_set,
-    geometry::{circles, Direction, Point, TwoDimDirection},
     savefile::{self, GameView, Meta, SaveError},
 };
 
@@ -172,7 +172,7 @@ impl World {
     }
 
     // TODO: move this somewhere else
-    pub fn this_is(&self, pos: TilePos, multiline: bool) -> String {
+    pub fn this_is(&self, pos: Point, multiline: bool) -> String {
         let mut map = self.map();
         let tile = map.get_tile(pos);
         let mut this_is = format!("This is the {}", tile.terrain.name());
@@ -219,7 +219,7 @@ impl World {
         this_is
     }
 
-    pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
+    pub fn kill_grass(&mut self, around: Point, diameter: u8, probability: f64) {
         for (dx, dy) in match diameter {
             7 => circles::CIRCLE7.iter().copied(),
             9 => circles::CIRCLE9.iter().copied(),
@@ -316,6 +316,8 @@ impl World {
 pub mod tests {
     use std::collections::HashMap;
 
+    use geometry::Point;
+
     use super::{
         super::{
             actions::implements::{Skip, Walk},
@@ -327,7 +329,7 @@ pub mod tests {
             map::terrains::{Boulder, BoulderSize, Dirt},
         },
         savefile::{GameView, Meta},
-        Action, Avatar, Direction, Log, TerrainView, TilePos, World,
+        Action, Avatar, Direction, Log, TerrainView, World,
     };
 
     pub fn prepare_world() -> World {
@@ -335,12 +337,12 @@ pub mod tests {
             Meta::new("test", "test"),
             GameView::default(),
             Log::new(),
-            vec![Avatar::player(tester_girl(), TilePos::new(0, 0))],
+            vec![Avatar::player(tester_girl(), Point::new(0, 0))],
             HashMap::new(),
         )
     }
 
-    pub fn add_zombie(world: &mut World, pos: TilePos) -> usize {
+    pub fn add_zombie(world: &mut World, pos: Point) -> usize {
         let character = dead_boy();
         let body = human_body(&character, Freshness::Rotten);
         let zombie = Avatar::zombie(character, body, pos);
@@ -350,10 +352,10 @@ pub mod tests {
     #[test]
     pub fn test_moving_other_unit() {
         let mut world = prepare_world();
-        add_zombie(&mut world, TilePos::new(1, 0));
+        add_zombie(&mut world, Point::new(1, 0));
 
         assert_eq!(2, world.units.len());
-        world.map().get_tile_mut(TilePos::new(2, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(Point::new(2, 0)).terrain = Dirt::default().into();
         let action = Action::new(
             1,
             Walk {
@@ -369,14 +371,14 @@ pub mod tests {
         } else {
             unreachable!();
         }
-        assert_eq!(TilePos::new(0, 0), world.player().pos);
-        assert_eq!(TilePos::new(1, 0), world.units.get(1).unwrap().pos);
+        assert_eq!(Point::new(0, 0), world.player().pos);
+        assert_eq!(Point::new(1, 0), world.units.get(1).unwrap().pos);
         for _ in 0..length {
             world.player_mut().action = Some(Action::new(0, Skip {}.into(), &world).unwrap());
             world.tick();
         }
-        assert_eq!(TilePos::new(0, 0), world.player().pos);
-        assert_eq!(TilePos::new(2, 0), world.units.get(1).unwrap().pos)
+        assert_eq!(Point::new(0, 0), world.player().pos);
+        assert_eq!(Point::new(2, 0), world.units.get(1).unwrap().pos)
     }
 
     #[test]
@@ -384,19 +386,18 @@ pub mod tests {
         let mut world = prepare_world();
         assert!(world.fov.visible().contains(&world.player().pos.into()));
 
-        world.map().get_tile_mut(TilePos::new(1, 0)).terrain = Dirt::default().into();
-        world.map().get_tile_mut(TilePos::new(2, 0)).terrain =
-            Boulder::new(BoulderSize::Huge).into();
+        world.map().get_tile_mut(Point::new(1, 0)).terrain = Dirt::default().into();
+        world.map().get_tile_mut(Point::new(2, 0)).terrain = Boulder::new(BoulderSize::Huge).into();
         assert!(!world
             .map()
-            .get_tile(TilePos::new(2, 0))
+            .get_tile(Point::new(2, 0))
             .terrain
             .is_transparent());
-        world.map().get_tile_mut(TilePos::new(3, 0));
+        world.map().get_tile_mut(Point::new(3, 0));
 
         world.move_avatar(0, Direction::East);
-        assert!(world.is_visible(TilePos::new(1, 0)));
-        assert!(world.is_visible(TilePos::new(2, 0)));
-        assert!(!world.is_visible(TilePos::new(3, 0)));
+        assert!(world.is_visible(Point::new(1, 0)));
+        assert!(world.is_visible(Point::new(2, 0)));
+        assert!(!world.is_visible(Point::new(3, 0)));
     }
 }

@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::geometry::Point;
+use geometry::Point;
 
 #[derive(Debug)]
 pub struct Fov {

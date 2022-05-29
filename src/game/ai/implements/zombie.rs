@@ -1,6 +1,5 @@
+use geometry::Direction;
 use rand::{thread_rng, Rng};
-
-use crate::geometry::Direction;
 
 use super::super::super::actions::{
     implements::{Skip, Walk},

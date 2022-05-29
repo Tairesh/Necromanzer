@@ -2,6 +2,7 @@
 
 use std::rc::Rc;
 
+use geometry::{Rect, Vec2};
 use tetra::{
     graphics::{text::Text, DrawParams},
     Context,
@@ -10,7 +11,6 @@ use tetra::{
 use crate::{
     assets::{Button as ButtonAsset, PreparedFont, Tileset},
     colors::Colors,
-    geometry::{Rect, Vec2},
     input::{self, KeyWithMod, MouseButton},
     scenes::Transition,
 };

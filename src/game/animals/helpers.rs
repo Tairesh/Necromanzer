@@ -2,11 +2,12 @@
 
 use std::collections::HashMap;
 
+use geometry::Point;
+
 use super::{
     super::{
         bodies::{Body, BodySize, Freshness, OrganData, Sex},
         map::items::{BodyPart, BodyPartType},
-        TilePos,
     },
     FurColor,
 };
@@ -137,17 +138,19 @@ pub fn dog_body(
         size,
         alive: true,
     };
-    let parts = HashMap::from([(TilePos::new(0, 0), dog_torso(organ_data, fur_color, sex))]);
+    let parts = HashMap::from([(Point::new(0, 0), dog_torso(organ_data, fur_color, sex))]);
     Body::new(parts)
 }
 
 #[cfg(test)]
 mod tests {
+    use geometry::Point;
+
     use super::{
         super::super::{
             bodies::{BodySize, Freshness, OrganData, Sex},
             map::items::BodyPartType,
-            ItemView, TilePos,
+            ItemView,
         },
         dog_body, FurColor,
     };
@@ -161,7 +164,7 @@ mod tests {
             FurColor::Black,
             Sex::Male,
         );
-        let torso = body.parts.get(&TilePos::new(0, 0)).unwrap();
+        let torso = body.parts.get(&Point::new(0, 0)).unwrap();
         assert_eq!("fresh dog torso", torso.name());
         assert!(matches!(
             torso.typ,

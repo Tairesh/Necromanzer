@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::rc::Rc;
 
+use geometry::{Direction, Point, TwoDimDirection, Vec2};
 use tetra::{
     graphics::{
         mesh::{Mesh, ShapeStyle},
@@ -18,7 +19,6 @@ use crate::{
         map::{item::ItemView, terrain::TerrainView},
         Action, ActionType, World,
     },
-    geometry::{Direction, Point, TwoDimDirection, Vec2},
     ui::{GameLog, Label, Position, SomeUISprites, SomeUISpritesMut, UiSprite, Vertical},
 };
 

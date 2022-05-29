@@ -1,10 +1,9 @@
 use std::collections::VecDeque;
 
+use geometry::Vec2;
 use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
-
-use crate::geometry::Vec2;
 
 #[derive(Debug)]
 pub struct LogMessageText {

@@ -1,5 +1,7 @@
+use geometry::Point;
+
 use super::super::{
-    super::{bodies::Body, human::Personality, TilePos},
+    super::{bodies::Body, human::Personality},
     item::{ItemInteract, ItemView},
 };
 
@@ -21,7 +23,7 @@ impl ItemView for Corpse {
         if self.body.wear.is_empty() {
             adjectives.push("naked");
         }
-        let age_name = if let Some(bp) = self.body.parts.get(&TilePos::new(0, 0)) {
+        let age_name = if let Some(bp) = self.body.parts.get(&Point::new(0, 0)) {
             adjectives.push(bp.freshness().adjective());
             bp.age_name()
         } else {

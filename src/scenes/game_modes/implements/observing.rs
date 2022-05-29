@@ -1,14 +1,18 @@
 use std::time::Instant;
 
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::{Color, Rectangle};
-use tetra::input::{Key, KeyModifier};
-use tetra::Context;
+use geometry::{Direction, Point, Rect, Vec2};
+use tetra::{
+    graphics::{
+        mesh::{Mesh, ShapeStyle},
+        Color, Rectangle,
+    },
+    input::{Key, KeyModifier},
+    Context,
+};
 
 use crate::{
     colors::Colors,
     game::World,
-    geometry::{Direction, Point, Rect, Vec2},
     input,
     settings::Settings,
     ui::{Draw, JustMesh, Label, Position, Positionate, Stringify},

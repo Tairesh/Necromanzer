@@ -1,7 +1,7 @@
+use geometry::{Rect, Vec2};
 use tetra::graphics::Color;
 use tetra::Context;
 
-use crate::geometry::{Rect, Vec2};
 use crate::scenes::Transition;
 
 use super::{Alert, Button, Label, Position, TextInput};

@@ -1,7 +1,10 @@
 use std::time::Instant;
 
-use tetra::input::{Key, KeyModifier};
-use tetra::Context;
+use geometry::Direction;
+use tetra::{
+    input::{Key, KeyModifier},
+    Context,
+};
 
 use crate::{
     colors::Colors,
@@ -9,7 +12,6 @@ use crate::{
         actions::implements::{Drop, Skip, Walk},
         map::item::ItemView,
     },
-    geometry::Direction,
     input,
     settings::Settings,
 };

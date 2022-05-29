@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
+use geometry::Point;
+
 pub use chunk::Chunk;
 pub use item::{Item, ItemInteract, ItemTag, ItemView};
 pub use passage::Passage;
@@ -40,19 +42,19 @@ impl Map {
             .or_insert_with_key(|pos| Chunk::generate(seed, *pos))
     }
 
-    pub fn get_tile(&mut self, pos: TilePos) -> &Tile {
+    pub fn get_tile(&mut self, pos: Point) -> &Tile {
         let (chunk, pos) = pos.to_chunk();
         let chunk = self.get_chunk(chunk);
         &chunk.tiles[pos]
     }
 
-    pub fn get_tile_mut(&mut self, pos: TilePos) -> &mut Tile {
+    pub fn get_tile_mut(&mut self, pos: Point) -> &mut Tile {
         let (chunk, pos) = pos.to_chunk();
         let chunk = self.get_chunk_mut(chunk);
         &mut chunk.tiles[pos]
     }
 
-    pub fn load_tiles_between(&mut self, left_top: TilePos, right_bottom: TilePos) {
+    pub fn load_tiles_between(&mut self, left_top: Point, right_bottom: Point) {
         let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.to_chunk();
         let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.to_chunk();
 
@@ -64,7 +66,7 @@ impl Map {
         }
     }
 
-    pub fn tiles_between(&self, left_top: TilePos, right_bottom: TilePos) -> Vec<(TilePos, &Tile)> {
+    pub fn tiles_between(&self, left_top: Point, right_bottom: Point) -> Vec<(Point, &Tile)> {
         let (ChunkPos { x: lt_x, y: lt_y }, _) = left_top.to_chunk();
         let (ChunkPos { x: rb_x, y: rb_y }, _) = right_bottom.to_chunk();
 
@@ -84,7 +86,7 @@ impl Map {
 }
 
 impl FovMap for Map {
-    fn is_transparent(&self, pos: TilePos) -> bool {
+    fn is_transparent(&self, pos: Point) -> bool {
         let (chunk, pos) = pos.to_chunk();
         self.chunks
             .get(&chunk)

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+use geometry::Point;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
@@ -10,7 +11,7 @@ use crate::{
     game::{
         bodies::BodySize,
         human::{Appearance, HairColor, MainHand, Mind, Personality, SkinTone},
-        Avatar, Log, TilePos, World,
+        Avatar, Log, World,
     },
     savefile::{self, GameView, Meta},
     ui::{
@@ -404,7 +405,7 @@ impl SceneImpl for CreateCharacter {
                         },
                     );
                     // TODO: find available starting pos in the world
-                    let avatar = Avatar::player(character, TilePos::new(0, 0));
+                    let avatar = Avatar::player(character, Point::new(0, 0));
                     let mut world = World::new(
                         self.meta.clone(),
                         GameView::default(),

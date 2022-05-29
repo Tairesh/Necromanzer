@@ -1,8 +1,9 @@
 use enum_dispatch::enum_dispatch;
+use geometry::Point;
 use tetra::graphics::Color;
 use tetra::Context;
 
-use crate::{game::World, geometry::Point};
+use crate::game::World;
 
 use super::{
     super::{implements::GameScene, SomeTransitions},

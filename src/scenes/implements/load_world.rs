@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use geometry::Vec2;
 use tetra::{
     graphics::{
         mesh::{Mesh, ShapeStyle},
@@ -13,7 +14,6 @@ use time::{format_description::FormatItem, OffsetDateTime};
 use crate::{
     app::App,
     colors::Colors,
-    geometry::Vec2,
     savefile::{self, savefiles, savefiles_exists},
     settings::Settings,
     ui::{

@@ -2,18 +2,14 @@
 
 use std::rc::Rc;
 
+use geometry::{Rect, Vec2};
 use tetra::{
     graphics::DrawParams,
     input::{Key, MouseButton},
     Context,
 };
 
-use crate::{
-    assets::Alert as AlertAsset,
-    geometry::{Rect, Vec2},
-    input,
-    scenes::Transition,
-};
+use crate::{assets::Alert as AlertAsset, input, scenes::Transition};
 
 use super::super::{Draw, Focus, Position, Positionate, UiSprite, Update};
 

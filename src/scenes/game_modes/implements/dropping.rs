@@ -1,11 +1,9 @@
-use tetra::graphics::Color;
-use tetra::input::Key;
-use tetra::Context;
+use geometry::{Direction, Point, DIR9};
+use tetra::{graphics::Color, input::Key, Context};
 
 use crate::{
     colors::Colors,
     game::{actions::implements::Drop, map::terrain::TerrainInteract, World},
-    geometry::{Direction, Point, DIR9},
     input,
 };
 

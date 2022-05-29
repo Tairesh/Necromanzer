@@ -1,6 +1,6 @@
 use std::f32::consts::SQRT_2;
 
-use crate::geometry::Direction;
+use geometry::Direction;
 
 use super::super::{
     super::{

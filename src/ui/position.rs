@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::geometry::Vec2;
+use geometry::Vec2;
 
 #[derive(Copy, Clone)]
 pub enum Horizontal {
@@ -182,7 +182,7 @@ impl Position {
 
 #[cfg(test)]
 mod tests {
-    use crate::geometry::Vec2;
+    use geometry::Vec2;
 
     use super::{AnchorX, AnchorY, Horizontal, Position, Vertical};
 

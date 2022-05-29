@@ -1,5 +1,6 @@
 use std::time::{Duration, Instant};
 
+use geometry::{Rect, Vec2};
 use tetra::{
     graphics::{
         mesh::{BorderRadii, Mesh, ShapeStyle},
@@ -10,12 +11,7 @@ use tetra::{
     Context,
 };
 
-use crate::{
-    assets::PreparedFont,
-    colors::Colors,
-    geometry::{Rect, Vec2},
-    scenes::Transition,
-};
+use crate::{assets::PreparedFont, colors::Colors, scenes::Transition};
 
 use super::super::{
     Disable, Draw, Focus, Hover, Position, Positionate, Press, Stringify, UiSprite, Update,

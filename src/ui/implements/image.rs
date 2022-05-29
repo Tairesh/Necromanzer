@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
+use geometry::{Rect, Vec2};
 use tetra::{
     graphics::{Color, DrawParams, NineSlice, Rectangle, Texture},
     window, Context,
 };
-
-use crate::geometry::{Rect, Vec2};
 
 use super::super::{Colorize, Draw, Focus, Position, Positionate, UiSprite, Update};
 

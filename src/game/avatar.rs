@@ -1,20 +1,17 @@
 #![allow(dead_code)]
 
+use geometry::{Point, TwoDimDirection, Vec2};
 // TODO: remove this
 use tetra::{graphics::DrawParams, Context};
 
-use crate::{
-    assets::Tileset,
-    colors::Colors,
-    geometry::{TwoDimDirection, Vec2},
-};
+use crate::{assets::Tileset, colors::Colors};
 
 use super::{
     ai::ZombieAI,
     bodies::{Body, Freshness, OrganData},
     human::{helpers::human_body, Gender, Personality},
     map::items::{BodyPartType, Cloak, Hat},
-    Action, Item, ItemView, TilePos,
+    Action, Item, ItemView,
 };
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -26,7 +23,7 @@ pub enum Soul {
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Avatar {
     pub body: Body,
-    pub pos: TilePos,
+    pub pos: Point,
     pub action: Option<Action>,
     pub vision: TwoDimDirection, // TODO: rotation of multitile body
     pub wield: Vec<Item>,        // TODO: custom struct with hands counter
@@ -37,18 +34,18 @@ pub struct Avatar {
 }
 
 impl Avatar {
-    pub fn player(personality: Personality, pos: TilePos) -> Self {
+    pub fn player(personality: Personality, pos: Point) -> Self {
         let mut body = human_body(&personality, Freshness::Fresh);
         body.wear.push(Cloak::new().into());
         body.wear.push(Hat::new().into());
         Self::new(body, Soul::Player(personality), pos)
     }
 
-    pub fn zombie(personality: Personality, body: Body, pos: TilePos) -> Self {
+    pub fn zombie(personality: Personality, body: Body, pos: Point) -> Self {
         Self::new(body, Soul::Zombie(personality, ZombieAI::default()), pos)
     }
 
-    pub fn new(body: Body, soul: Soul, pos: TilePos) -> Self {
+    pub fn new(body: Body, soul: Soul, pos: Point) -> Self {
         Avatar {
             body,
             soul,
@@ -94,7 +91,7 @@ impl Avatar {
                 let freshness =
                     self.body
                         .parts
-                        .get(&TilePos::new(0, 0))
+                        .get(&Point::new(0, 0))
                         .map_or(Freshness::Rotten, |i| {
                             if let BodyPartType::HumanTorso(OrganData { freshness, .. }, ..) = i.typ
                             {

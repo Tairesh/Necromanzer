@@ -1,13 +1,7 @@
-use tetra::graphics::Color;
-use tetra::input::Key;
-use tetra::Context;
+use geometry::{Direction, Point};
+use tetra::{graphics::Color, input::Key, Context};
 
-use crate::{
-    colors::Colors,
-    game::World,
-    geometry::{Direction, Point},
-    input,
-};
+use crate::{colors::Colors, game::World, input};
 
 use super::super::{
     super::{implements::GameScene, Scene, SomeTransitions, Transition},

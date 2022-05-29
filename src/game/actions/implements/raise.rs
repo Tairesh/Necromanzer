@@ -1,4 +1,4 @@
-use crate::geometry::Direction;
+use geometry::Direction;
 
 use super::super::{
     super::{

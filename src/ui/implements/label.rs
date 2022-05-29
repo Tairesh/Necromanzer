@@ -2,6 +2,7 @@
 
 use std::rc::Rc;
 
+use geometry::{Rect, Vec2};
 use tetra::{
     graphics::{text::Text, Color, DrawParams},
     Context,
@@ -10,7 +11,6 @@ use tetra::{
 use crate::{
     assets::{PreparedFont, Tileset},
     game::map::item::{Item, ItemView},
-    geometry::{Rect, Vec2},
 };
 
 use super::super::{Colorize, Draw, Focus, Position, Positionate, Stringify, UiSprite, Update};

@@ -1,3 +1,4 @@
+use geometry::{Point, Vec2};
 use tetra::{
     graphics::{
         mesh::{Mesh, ShapeStyle},
@@ -9,11 +10,7 @@ use tetra::{
 use crate::{
     app::App,
     colors::Colors,
-    game::{
-        bodies::Freshness,
-        map::{item::ItemView, pos::TilePos},
-    },
-    geometry::Vec2,
+    game::{bodies::Freshness, map::item::ItemView},
     ui::{
         Alert, Horizontal, HoverableMesh, ItemDisplay, Label, Position, Positionate, SomeUISprites,
         SomeUISpritesMut, UiSprite, Vertical,
@@ -112,7 +109,7 @@ impl BodyView {
             sprites.push(Box::new(disp));
         });
         let mut y = 0;
-        if let Some(item) = avatar.body.parts.get(&TilePos::new(0, 0)) {
+        if let Some(item) = avatar.body.parts.get(&Point::new(0, 0)) {
             y += 35;
             let mut name = item.name.clone();
             name.push(':');

@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
+use geometry::Point;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-use super::super::{map::items::BodyPart, Item, TilePos};
+use super::super::{map::items::BodyPart, Item};
 
-pub type BodyPartsCollections = HashMap<TilePos, BodyPart>;
+pub type BodyPartsCollections = HashMap<Point, BodyPart>;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone)]

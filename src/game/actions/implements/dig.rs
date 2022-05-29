@@ -1,6 +1,5 @@
+use geometry::{Direction, DIR8};
 use rand::seq::SliceRandom;
-
-use crate::geometry::{Direction, DIR8};
 
 use super::super::{
     super::{

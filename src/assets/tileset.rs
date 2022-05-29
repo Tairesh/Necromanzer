@@ -1,9 +1,8 @@
+use geometry::Vec2;
 use tetra::{
     graphics::{DrawParams, Rectangle, Texture},
     Context,
 };
-
-use crate::geometry::Vec2;
 
 static REGIONS: phf::Map<&'static str, Rectangle> = phf::phf_map! {
     "female" => Rectangle::new(0.0, 0.0, 10.0, 10.0),
