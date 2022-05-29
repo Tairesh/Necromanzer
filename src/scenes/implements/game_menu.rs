@@ -1,14 +1,13 @@
 use tetra::input::Key;
 
-use app::App;
-use scenes::scene::Scene;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::Transition;
-use ui::alert::Alert;
-use ui::button::Button;
-use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::UiSprite;
-use ui::{SomeUISprites, SomeUISpritesMut};
+use crate::{
+    app::App,
+    ui::{
+        Alert, Button, Horizontal, Position, SomeUISprites, SomeUISpritesMut, UiSprite, Vertical,
+    },
+};
+
+use super::super::{Scene, SceneImpl, Transition};
 
 pub struct GameMenu {
     sprites: [Box<dyn UiSprite>; 4],

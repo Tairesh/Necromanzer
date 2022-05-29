@@ -2,17 +2,20 @@
 
 use std::rc::Rc;
 
-use tetra::graphics::DrawParams;
-use tetra::input::{Key, MouseButton};
-use tetra::{input, Context};
+use tetra::{
+    graphics::DrawParams,
+    input::{Key, MouseButton},
+    Context,
+};
 
-use assets::alert::Alert as AlertAsset;
-use geometry::{Rect, Vec2};
-use ui::traits::Focus;
+use crate::{
+    assets::Alert as AlertAsset,
+    geometry::{Rect, Vec2},
+    input,
+    scenes::Transition,
+};
 
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use crate::ui::traits::{Draw, Positionate, UiSprite, Update};
+use super::super::{Draw, Focus, Position, Positionate, UiSprite, Update};
 
 pub struct Alert {
     asset: Rc<AlertAsset>,

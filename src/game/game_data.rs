@@ -1,5 +1,6 @@
-use assets::names::Names;
 use once_cell::sync::OnceCell;
+
+use crate::assets::Names;
 
 static INSTANCE: OnceCell<GameData> = OnceCell::new();
 

@@ -2,20 +2,17 @@ use std::cell::RefCell;
 use std::path::Path;
 use std::rc::Rc;
 
-use tetra::input::Key;
-use tetra::{window, Context, Event, State};
+use tetra::{input::Key, window, Context, Event, State};
 
-use assets::Assets;
-use colors::Colors;
-use game::World;
-use savefile;
-use scenes::scene::Scene;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SomeTransitions, Transition};
-use settings::Settings;
-use ui::label::Label;
-use ui::position::Position;
-use ui::traits::{Draw, Positionate, Stringify};
+use crate::{
+    assets::Assets,
+    colors::Colors,
+    game::World,
+    savefile,
+    scenes::{Scene, SceneImpl, SomeTransitions, Transition},
+    settings::Settings,
+    ui::{Draw, Label, Position, Positionate, Stringify},
+};
 
 pub struct App {
     pub assets: Rc<Assets>,

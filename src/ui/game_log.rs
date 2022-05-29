@@ -4,7 +4,7 @@ use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{Color, DrawParams};
 use tetra::Context;
 
-use geometry::Vec2;
+use crate::geometry::Vec2;
 
 #[derive(Debug)]
 pub struct LogMessageText {

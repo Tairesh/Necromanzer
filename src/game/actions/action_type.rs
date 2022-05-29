@@ -1,9 +1,10 @@
 use enum_dispatch::enum_dispatch;
 
-use game::{Avatar, World};
-
-use super::implements::{Dig, Drop, Raise, Read, Skip, Walk, Wield};
-use super::{Action, ActionImpl, ActionPossibility};
+use super::{
+    super::{Avatar, World},
+    implements::{Dig, Drop, Raise, Read, Skip, Walk, Wield},
+    Action, ActionImpl, ActionPossibility,
+};
 
 #[enum_dispatch(ActionImpl)]
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
@@ -19,24 +20,22 @@ pub enum ActionType {
 
 #[cfg(test)]
 mod tests {
-    use geometry::direction::{Direction, DIR8};
+    use crate::geometry::{Direction, DIR8};
 
-    use super::super::super::bodies::{Freshness, OrganData};
-    use super::super::super::human::gender::Gender;
-    use super::super::super::human::main_hand::MainHand;
-    use super::super::super::human::personality::tests::dead_boy;
-    use super::super::super::human::skin_tone::SkinTone;
-    use super::super::super::map::item::Item;
-    use super::super::super::map::items::BodyPartType;
-    use super::super::super::map::items::{Axe, BodyPart, Gravestone, Shovel};
-    use super::super::super::map::pos::TilePos;
-    use super::super::super::map::terrain::Terrain;
-    use super::super::super::map::terrains::{Boulder, BoulderSize};
-    use super::super::super::map::terrains::{Dirt, Grave, GraveData, GraveVariant};
-    use super::super::super::world::tests::add_zombie;
-    use super::super::super::world::tests::prepare_world;
-    use super::super::implements::*;
-    use super::super::Action;
+    use super::{
+        super::super::{
+            bodies::{Freshness, OrganData},
+            human::{tests::personality::dead_boy, Gender, MainHand, SkinTone},
+            map::{
+                items::{Axe, BodyPart, BodyPartType, Gravestone, Shovel},
+                terrains::{Boulder, BoulderSize, Dirt, Grave, GraveData, GraveVariant},
+                Item, Terrain,
+            },
+            world::tests::{add_zombie, prepare_world},
+            TilePos,
+        },
+        Action, Dig, Drop, Read, Skip, Walk, Wield,
+    };
 
     #[test]
     fn test_walking() {

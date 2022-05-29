@@ -1,13 +1,19 @@
 use rand::seq::SliceRandom;
 
-use game::actions::action_impl::ActionImpl;
-use game::actions::Action;
-use game::actions::ActionPossibility::{self, No, Yes};
-use game::log::{LogCategory, LogEvent};
-use game::map::item::{ItemInteract, ItemTag};
-use game::map::terrain::{Terrain, TerrainInteract, TerrainView};
-use game::{Avatar, World};
-use geometry::direction::{Direction, DIR8};
+use crate::geometry::{Direction, DIR8};
+
+use super::super::{
+    super::{
+        log::{LogCategory, LogEvent},
+        map::{
+            item::{ItemInteract, ItemTag},
+            terrain::{Terrain, TerrainInteract, TerrainView},
+        },
+        Avatar, World,
+    },
+    Action, ActionImpl,
+    ActionPossibility::{self, No, Yes},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Dig {

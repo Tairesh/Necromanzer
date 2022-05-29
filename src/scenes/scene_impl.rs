@@ -1,7 +1,8 @@
 use tetra::{Context, Event};
 
-use scenes::transition::{SomeTransitions, Transition};
-use ui::{SomeUISprites, SomeUISpritesMut};
+use crate::ui::{SomeUISprites, SomeUISpritesMut};
+
+use super::{SomeTransitions, Transition};
 
 pub trait SceneImpl {
     fn on_update(&mut self, _ctx: &mut Context) -> SomeTransitions {

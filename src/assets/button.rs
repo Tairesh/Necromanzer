@@ -1,5 +1,7 @@
-use tetra::graphics::{NineSlice, Rectangle, Texture};
-use tetra::Context;
+use tetra::{
+    graphics::{NineSlice, Rectangle, Texture},
+    Context,
+};
 
 #[derive(Debug)]
 pub struct Button {

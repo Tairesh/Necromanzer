@@ -1,10 +1,9 @@
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
-use super::super::item::Item;
-use super::super::passage::Passage;
-use super::super::terrain::{Terrain, TerrainInteract, TerrainView};
-use super::super::terrains::pit::Pit;
+use super::super::{terrains::Pit, Item, Passage, Terrain, TerrainInteract, TerrainView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Grass {

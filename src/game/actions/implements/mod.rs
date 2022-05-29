@@ -1,10 +1,10 @@
-pub use self::dig::Dig;
-pub use self::drop::Drop;
-pub use self::raise::Raise;
-pub use self::read::Read;
-pub use self::skip::Skip;
-pub use self::walk::Walk;
-pub use self::wield::Wield;
+pub use dig::Dig;
+pub use drop::Drop;
+pub use raise::Raise;
+pub use read::Read;
+pub use skip::Skip;
+pub use walk::Walk;
+pub use wield::Wield;
 
 mod dig;
 mod drop;

@@ -1,6 +1,8 @@
-use game::actions::action_impl::ActionImpl;
-use game::actions::ActionPossibility::{self, Yes};
-use game::{Avatar, World};
+use super::super::{
+    super::{Avatar, World},
+    ActionImpl,
+    ActionPossibility::{self, Yes},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Skip {}

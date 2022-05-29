@@ -1,14 +1,17 @@
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
-use super::super::super::bodies::Freshness;
-use super::super::super::human::helpers::human_body;
-use super::super::super::human::personality::Personality;
-use super::super::item::Item;
-use super::super::items::{Corpse, Gravestone, Rags};
-use super::super::passage::Passage;
-use super::super::terrain::{Terrain, TerrainInteract, TerrainView};
-use super::super::terrains::pit::Pit;
+use super::super::{
+    super::{
+        bodies::Freshness,
+        human::{helpers::human_body, Personality},
+    },
+    items::{Corpse, Gravestone, Rags},
+    terrains::Pit,
+    Item, Passage, Terrain, TerrainInteract, TerrainView,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Grave {

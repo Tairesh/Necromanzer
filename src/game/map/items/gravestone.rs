@@ -1,5 +1,7 @@
-use super::super::item::{ItemInteract, ItemView};
-use super::super::terrains::GraveData;
+use super::super::{
+    item::{ItemInteract, ItemView},
+    terrains::GraveData,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Gravestone {

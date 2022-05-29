@@ -4,24 +4,20 @@ use std::convert::TryFrom;
 
 use rand::Rng;
 
-use fov::field_of_view_set;
-use game::actions::Action;
-use game::ai::brain::Brain;
-use game::avatar::Soul;
-use game::fov::Fov;
-use game::log::Log;
-use game::map::chunk::Chunk;
-use game::map::item::ItemView;
-use game::map::pos::{ChunkPos, TilePos};
-use game::map::terrain::TerrainView;
-use game::map::Map;
-use game::Avatar;
-use geometry::direction::Direction;
-use geometry::point::Point;
-use geometry::two_dim_direction::TwoDimDirection;
-use savefile::{Error, GameView, Meta};
-use {geometry, savefile};
+use crate::{
+    fov::field_of_view_set,
+    geometry::{circles, Direction, Point, TwoDimDirection},
+    savefile::{self, GameView, Meta, SaveError},
+};
 
+use super::{
+    ai::Brain,
+    avatar::Soul,
+    map::{item::ItemView, terrain::TerrainView},
+    Action, Avatar, Chunk, ChunkPos, Fov, Log, Map, TilePos,
+};
+
+// TODO: weather and outside lighting system
 const VISION_RANGE: i32 = 64;
 
 pub struct World {
@@ -77,30 +73,38 @@ impl World {
         ));
     }
 
-    fn make_data(&self) -> Result<String, Error> {
-        let mut data = serde_json::to_string(&self.meta).map_err(Error::from)?;
+    fn make_data(&self) -> Result<String, SaveError> {
+        let mut data = serde_json::to_string(&self.meta).map_err(SaveError::from)?;
         data.push('\n');
         data.push_str(
             serde_json::to_string(&self.game_view)
-                .map_err(Error::from)?
+                .map_err(SaveError::from)?
                 .as_str(),
         );
         data.push('\n');
         data.push_str(
             serde_json::to_string(&self.log)
-                .map_err(Error::from)?
+                .map_err(SaveError::from)?
                 .as_str(),
         );
         for unit in &self.units {
             data.push('\n');
-            data.push_str(serde_json::to_string(unit).map_err(Error::from)?.as_str());
+            data.push_str(
+                serde_json::to_string(unit)
+                    .map_err(SaveError::from)?
+                    .as_str(),
+            );
         }
         data.push_str("\n/units");
         let mut map = self.map();
         for coords in map.changed.clone() {
             let chunk = map.get_chunk(coords);
             data.push('\n');
-            data.push_str(serde_json::to_string(chunk).map_err(Error::from)?.as_str());
+            data.push_str(
+                serde_json::to_string(chunk)
+                    .map_err(SaveError::from)?
+                    .as_str(),
+            );
         }
         data.push_str("\n/chunks");
 
@@ -217,10 +221,10 @@ impl World {
 
     pub fn kill_grass(&mut self, around: TilePos, diameter: u8, probability: f64) {
         for (dx, dy) in match diameter {
-            7 => geometry::CIRCLE7.iter().copied(),
-            9 => geometry::CIRCLE9.iter().copied(),
-            11 => geometry::CIRCLE11.iter().copied(),
-            13 => geometry::CIRCLE13.iter().copied(),
+            7 => circles::CIRCLE7.iter().copied(),
+            9 => circles::CIRCLE9.iter().copied(),
+            11 => circles::CIRCLE11.iter().copied(),
+            13 => circles::CIRCLE13.iter().copied(),
             _ => unimplemented!(),
         } {
             let k = (1.0 - (dx as f64).hypot(dy as f64) / ((diameter - 1) as f64 / 2.0))
@@ -312,20 +316,19 @@ impl World {
 pub mod tests {
     use std::collections::HashMap;
 
-    use game::actions::implements::{Skip, Walk};
-    use game::bodies::Freshness;
-    use game::human::helpers::human_body;
-    use game::human::personality::tests::{dead_boy, tester_girl};
-    use game::log::Log;
-    use geometry::direction::Direction;
-    use savefile::{GameView, Meta};
-
-    use super::super::actions::Action;
-    use super::super::map::pos::TilePos;
-    use super::super::map::terrain::TerrainView;
-    use super::super::map::terrains::{Boulder, BoulderSize, Dirt};
-    use super::super::Avatar;
-    use super::World;
+    use super::{
+        super::{
+            actions::implements::{Skip, Walk},
+            bodies::Freshness,
+            human::{
+                helpers::human_body,
+                tests::personality::{dead_boy, tester_girl},
+            },
+            map::terrains::{Boulder, BoulderSize, Dirt},
+        },
+        savefile::{GameView, Meta},
+        Action, Avatar, Direction, Log, TerrainView, TilePos, World,
+    };
 
     pub fn prepare_world() -> World {
         World::new(

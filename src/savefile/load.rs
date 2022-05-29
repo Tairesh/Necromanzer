@@ -3,11 +3,9 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-use game::map::chunk::Chunk;
-use game::{Avatar, World};
+use crate::game::{map::chunk::Chunk, Avatar, World};
 
-use super::Meta;
-use super::SAVEFILES_FOLDER;
+use super::{Meta, SAVEFILES_FOLDER};
 
 pub fn savefiles_exists() -> bool {
     let path = Path::new(SAVEFILES_FOLDER);
@@ -69,7 +67,7 @@ pub fn load(path: &Path) -> Option<Meta> {
         .map(|s: Meta| s.with_path(path))
 }
 
-pub fn have_avatar(path: &Path) -> bool {
+pub fn has_avatar(path: &Path) -> bool {
     if let Ok(file) = File::open(path) {
         BufReader::new(&file).lines().nth(2).is_some()
     } else {

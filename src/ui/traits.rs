@@ -1,14 +1,10 @@
 use tetra::graphics::Color;
 use tetra::Context;
 
-use geometry::{Rect, Vec2};
-use ui::alert::Alert;
-use ui::button::Button;
-use ui::inputs::TextInput;
-use ui::label::Label;
+use crate::geometry::{Rect, Vec2};
+use crate::scenes::Transition;
 
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
+use super::{Alert, Button, Label, Position, TextInput};
 
 pub trait Draw {
     fn draw(&mut self, ctx: &mut Context);

@@ -1,31 +1,32 @@
-use std::cell::RefCell;
-use std::rc::Rc;
+use tetra::{
+    graphics::{
+        mesh::{Mesh, ShapeStyle},
+        Rectangle,
+    },
+    Context, Event,
+};
 
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::Rectangle;
-use tetra::{Context, Event};
+use crate::{
+    app::App,
+    colors::Colors,
+    game::{
+        bodies::Freshness,
+        map::{item::ItemView, pos::TilePos},
+    },
+    geometry::Vec2,
+    ui::{
+        Alert, Horizontal, HoverableMesh, ItemDisplay, Label, Position, Positionate, SomeUISprites,
+        SomeUISpritesMut, UiSprite, Vertical,
+    },
+};
 
-use app::App;
-use colors::Colors;
-use game::bodies::Freshness;
-use game::map::item::ItemView;
-use game::map::pos::TilePos;
-use game::World;
-use geometry::Vec2;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::SomeTransitions;
-use scenes::{back_btn, easy_back};
-use ui::alert::Alert;
-use ui::label::{ItemDisplay, Label};
-use ui::meshy::HoverableMesh;
-use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Positionate, UiSprite};
-use ui::{SomeUISprites, SomeUISpritesMut};
+use super::super::{
+    helpers::{back_btn, easy_back},
+    SceneImpl, SomeTransitions,
+};
 
 pub struct BodyView {
     sprites: Vec<Box<dyn UiSprite>>,
-    world: Rc<RefCell<World>>,
-    window_size: (i32, i32),
 }
 
 impl BodyView {
@@ -147,12 +148,7 @@ impl BodyView {
             )));
             sprites.push(Box::new(bp));
         }
-        let world = app.clone_world();
-        Self {
-            sprites,
-            world,
-            window_size,
-        }
+        Self { sprites }
     }
 
     fn alert(&mut self) -> &mut Alert {

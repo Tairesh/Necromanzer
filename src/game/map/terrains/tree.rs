@@ -1,8 +1,9 @@
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
-use super::super::passage::Passage;
-use super::super::terrain::{TerrainInteract, TerrainView};
+use super::super::{Passage, TerrainInteract, TerrainView};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Tree {

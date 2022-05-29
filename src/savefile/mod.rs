@@ -1,15 +1,9 @@
 use std::path::Path;
 
-pub use savefile::game_view::GameView;
-pub use savefile::load::have_avatar;
-pub use savefile::load::load;
-pub use savefile::load::load_world;
-pub use savefile::load::savefiles;
-pub use savefile::load::savefiles_exists;
-pub use savefile::meta::Meta;
-pub use savefile::save::create;
-pub use savefile::save::save;
-pub use savefile::save::Error;
+pub use game_view::GameView;
+pub use load::{has_avatar, load, load_world, savefiles, savefiles_exists};
+pub use meta::Meta;
+pub use save::{create, save, Error as SaveError};
 
 mod game_view;
 mod load;
@@ -26,9 +20,11 @@ pub fn delete(path: &Path) {
 
 #[cfg(test)]
 mod tests {
-    use game::world::tests::prepare_world;
-    use savefile::{delete, load, load_world};
     use std::path::PathBuf;
+
+    use crate::game::world::tests::prepare_world;
+
+    use super::{delete, load, load_world};
 
     #[test]
     fn test_save_and_load() {

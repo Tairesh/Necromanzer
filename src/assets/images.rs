@@ -1,5 +1,4 @@
-use tetra::graphics::Texture;
-use tetra::Context;
+use tetra::{graphics::Texture, Context};
 
 #[derive(Debug)]
 pub struct Images {

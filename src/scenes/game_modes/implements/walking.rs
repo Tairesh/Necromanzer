@@ -3,19 +3,22 @@ use std::time::Instant;
 use tetra::input::{Key, KeyModifier};
 use tetra::Context;
 
-use colors::Colors;
-use game::actions::implements::{Drop, Skip, Walk};
-use game::map::item::ItemView;
-use geometry::direction::Direction;
-use input;
-use scenes::game_modes::implements::{
-    Animate, Digging, Dropping, Examining, Observing, Reading, Wielding,
+use crate::{
+    colors::Colors,
+    game::{
+        actions::implements::{Drop, Skip, Walk},
+        map::item::ItemView,
+    },
+    geometry::Direction,
+    input,
+    settings::Settings,
 };
-use scenes::game_modes::GameModeImpl;
-use scenes::implements::GameScene;
-use scenes::scene::Scene;
-use scenes::transition::{SomeTransitions, Transition};
-use settings::Settings;
+
+use super::super::{
+    super::{implements::GameScene, Scene, SomeTransitions, Transition},
+    implements::{Animate, Digging, Dropping, Examining, Observing, Reading, Wielding},
+    GameModeImpl,
+};
 
 pub struct Walking {
     last_walk: Instant,

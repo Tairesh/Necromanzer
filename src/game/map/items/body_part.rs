@@ -1,11 +1,11 @@
-use game::animals::FurColor;
-use game::bodies::{Freshness, OrganData, Sex};
-use game::human::gender::Gender;
-use game::human::hair_color::HairColor;
-use game::human::personality::{age_name, Personality};
-use game::human::skin_tone::SkinTone;
-
-use super::super::item::{ItemInteract, ItemView};
+use super::super::{
+    super::{
+        animals::FurColor,
+        bodies::{Freshness, OrganData, Sex},
+        human::{age_name, Gender, HairColor, Personality, SkinTone},
+    },
+    item::{ItemInteract, ItemView},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct BodyPart {

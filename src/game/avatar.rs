@@ -1,21 +1,21 @@
 #![allow(dead_code)]
 
-use tetra::graphics::DrawParams;
-use tetra::Context;
+// TODO: remove this
+use tetra::{graphics::DrawParams, Context};
 
-use assets::tileset::Tileset;
-use colors::Colors;
-use game::actions::Action;
-use game::ai::ZombieAI;
-use game::bodies::{Body, Freshness, OrganData};
-use game::human::gender::Gender;
-use game::human::helpers::human_body;
-use game::human::personality::Personality;
-use game::map::item::{Item, ItemView};
-use game::map::items::{BodyPartType, Cloak, Hat};
-use game::map::pos::TilePos;
-use geometry::two_dim_direction::TwoDimDirection;
-use geometry::Vec2;
+use crate::{
+    assets::Tileset,
+    colors::Colors,
+    geometry::{TwoDimDirection, Vec2},
+};
+
+use super::{
+    ai::ZombieAI,
+    bodies::{Body, Freshness, OrganData},
+    human::{helpers::human_body, Gender, Personality},
+    map::items::{BodyPartType, Cloak, Hat},
+    Action, Item, ItemView, TilePos,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub enum Soul {

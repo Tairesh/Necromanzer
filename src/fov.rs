@@ -1,7 +1,7 @@
-use game::map::Map;
 use std::collections::HashSet;
 
-use crate::geometry::point::Point;
+use crate::game::map::Map;
+use crate::geometry::Point;
 
 // it is basically just copy-pasted from https://github.com/amethyst/bracket-lib/blob/master/bracket-pathfinding/src/field_of_view/recursive_shadowcasting.rs
 

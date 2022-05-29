@@ -1,5 +1,5 @@
-pub use self::category::LogCategory;
-pub use self::event::LogEvent;
+pub use category::LogCategory;
+pub use event::LogEvent;
 
 mod category;
 mod event;
@@ -33,10 +33,7 @@ impl Log {
 
 #[cfg(test)]
 mod tests {
-    use game::log::LogCategory;
-    use game::map::pos::TilePos;
-
-    use super::{Log, LogEvent};
+    use super::{super::TilePos, Log, LogCategory, LogEvent};
 
     #[test]
     fn test_log() {

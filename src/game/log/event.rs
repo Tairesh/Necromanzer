@@ -1,5 +1,4 @@
-use game::log::category::LogCategory;
-use game::map::pos::TilePos;
+use super::{super::TilePos, LogCategory};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct LogEvent {

@@ -1,11 +1,14 @@
-use game::log::{LogCategory, LogEvent};
-use geometry::direction::Direction;
+use crate::geometry::Direction;
 
-use super::super::super::map::item::{ItemInteract, ItemView};
-use super::super::super::{Avatar, World};
-use super::super::action_impl::ActionImpl;
-use super::super::Action;
-use super::super::ActionPossibility::{self, No, Yes};
+use super::super::{
+    super::{
+        log::{LogCategory, LogEvent},
+        map::item::{ItemInteract, ItemView},
+        Avatar, World,
+    },
+    Action, ActionImpl,
+    ActionPossibility::{self, No, Yes},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Wield {

@@ -1,11 +1,11 @@
-pub use self::animate::Animate;
-pub use self::digging::Digging;
-pub use self::dropping::Dropping;
-pub use self::examining::Examining;
-pub use self::observing::Observing;
-pub use self::reading::Reading;
-pub use self::walking::Walking;
-pub use self::wielding::Wielding;
+pub use animate::Animate;
+pub use digging::Digging;
+pub use dropping::Dropping;
+pub use examining::Examining;
+pub use observing::Observing;
+pub use reading::Reading;
+pub use walking::Walking;
+pub use wielding::Wielding;
 
 mod animate;
 mod digging;

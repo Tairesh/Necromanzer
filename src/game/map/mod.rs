@@ -1,9 +1,13 @@
-use fov::FovMap;
-use game::map::chunk::Chunk;
-use game::map::pos::{ChunkPos, TilePos};
-use game::map::terrain::TerrainView;
-use game::map::tile::Tile;
 use std::collections::{HashMap, HashSet};
+
+pub use chunk::Chunk;
+pub use item::{Item, ItemInteract, ItemTag, ItemView};
+pub use passage::Passage;
+pub use pos::{ChunkPos, TilePos};
+pub use terrain::{Terrain, TerrainInteract, TerrainView};
+pub use tile::Tile;
+
+use crate::fov::FovMap;
 
 pub mod chunk;
 pub mod item;

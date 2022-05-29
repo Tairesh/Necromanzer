@@ -1,6 +1,6 @@
 use tetra::graphics::Color;
 
-use colors::Colors;
+use crate::colors::Colors;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum LogCategory {

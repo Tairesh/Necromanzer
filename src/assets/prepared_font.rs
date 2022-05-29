@@ -1,5 +1,7 @@
-use tetra::graphics::text::{Font, Text};
-use tetra::Context;
+use tetra::{
+    graphics::text::{Font, Text},
+    Context,
+};
 
 #[derive(Debug, Clone)]
 pub struct PreparedFont {

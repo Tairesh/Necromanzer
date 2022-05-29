@@ -2,15 +2,17 @@ use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
 
-use colors::Colors;
-use game::World;
-use geometry::direction::Direction;
-use geometry::point::Point;
-use input;
-use scenes::game_modes::GameModeImpl;
-use scenes::implements::GameScene;
-use scenes::scene::Scene::BodyView;
-use scenes::transition::{SomeTransitions, Transition};
+use crate::{
+    colors::Colors,
+    game::World,
+    geometry::{Direction, Point},
+    input,
+};
+
+use super::super::{
+    super::{implements::GameScene, Scene, SomeTransitions, Transition},
+    GameModeImpl,
+};
 
 pub struct Examining {
     selected: Option<Direction>,
@@ -49,7 +51,7 @@ impl GameModeImpl for Examining {
             let unit_id = world.map().get_tile(pos).units.iter().copied().next();
             if let Some(unit_id) = unit_id {
                 game.modes.pop();
-                return Some(vec![Transition::Push(BodyView(unit_id))]);
+                return Some(vec![Transition::Push(Scene::BodyView(unit_id))]);
             }
             drop(world);
             game.examine(dir);

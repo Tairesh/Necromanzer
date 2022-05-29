@@ -4,30 +4,28 @@ use std::path::Path;
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
-use app::App;
-use colors::Colors;
-use game::bodies::BodySize;
-use game::human::hair_color::HairColor;
-use game::human::main_hand::MainHand;
-use game::human::personality::{Appearance, Mind, Personality};
-use game::human::skin_tone::SkinTone;
-use game::map::pos::TilePos;
-use game::{Avatar, Log, World};
-use savefile;
-use savefile::{GameView, Meta};
-use scenes::scene::Scene;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SomeTransitions, Transition};
-use scenes::{back_btn, bg, easy_back, error_label, label, title};
-use ui::button::Button;
-use ui::inputs::TextInput;
-use ui::label::Label;
-use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Draw, Positionate, Stringify, UiSprite};
-use ui::{SomeUISprites, SomeUISpritesMut};
+use crate::{
+    app::App,
+    colors::Colors,
+    game::{
+        bodies::BodySize,
+        human::{Appearance, HairColor, MainHand, Mind, Personality, SkinTone},
+        Avatar, Log, TilePos, World,
+    },
+    savefile::{self, GameView, Meta},
+    ui::{
+        Button, Draw, Horizontal, Label, Position, Positionate, SomeUISprites, SomeUISpritesMut,
+        Stringify, TextInput, UiSprite, Vertical,
+    },
+};
+
+use super::super::{
+    helpers::{back_btn, bg, easy_back, error_label, label, title},
+    Scene, SceneImpl, SomeTransitions, Transition,
+};
 
 #[derive(Debug, Copy, Clone)]
-enum Events {
+enum ButtonEvent {
     GenderLeft,
     GenderRight,
     AgeMinus,
@@ -38,7 +36,7 @@ enum Events {
     Create,
 }
 
-impl From<u8> for Events {
+impl From<u8> for ButtonEvent {
     fn from(n: u8) -> Self {
         match n {
             0 => Self::GenderLeft,
@@ -117,7 +115,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: Vertical::ByCenter { y: 250.0 },
             },
-            Transition::CustomEvent(Events::GenderLeft as u8),
+            Transition::CustomEvent(ButtonEvent::GenderLeft as u8),
         ));
         let gender_input = Box::new(TextInput::new(
             if meta.time.elapsed().unwrap().as_secs() % 2 == 0 {
@@ -141,7 +139,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: Vertical::ByCenter { y: 250.0 },
             },
-            Transition::CustomEvent(Events::GenderRight as u8),
+            Transition::CustomEvent(ButtonEvent::GenderRight as u8),
         ));
         let age_label = label(
             "Age:",
@@ -160,7 +158,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: Vertical::ByCenter { y: 300.0 },
             },
-            Transition::CustomEvent(Events::AgeMinus as u8),
+            Transition::CustomEvent(ButtonEvent::AgeMinus as u8),
         ));
         let age_input = Box::new(TextInput::int(
             18,
@@ -181,7 +179,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: Vertical::ByCenter { y: 300.0 },
             },
-            Transition::CustomEvent(Events::AgePlus as u8),
+            Transition::CustomEvent(ButtonEvent::AgePlus as u8),
         ));
         let hand_label = label(
             "Main hand:",
@@ -200,7 +198,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
                 y: Vertical::ByCenter { y: 350.0 },
             },
-            Transition::CustomEvent(Events::HandLeft as u8),
+            Transition::CustomEvent(ButtonEvent::HandLeft as u8),
         ));
         let hand_name = Box::new(Label::new(
             "Right",
@@ -220,7 +218,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
                 y: Vertical::ByCenter { y: 350.0 },
             },
-            Transition::CustomEvent(Events::HandRight as u8),
+            Transition::CustomEvent(ButtonEvent::HandRight as u8),
         ));
 
         let mut randomize_btn = Box::new(Button::text(
@@ -235,7 +233,7 @@ impl CreateCharacter {
                 x: Horizontal::AtWindowCenterByCenter { offset: 0.0 },
                 y: Vertical::ByCenter { y: 500.0 },
             },
-            Transition::CustomEvent(Events::Randomize as u8),
+            Transition::CustomEvent(ButtonEvent::Randomize as u8),
         ));
         let randomize_btn_size = randomize_btn.calc_size(ctx);
         let back_btn = back_btn(
@@ -258,7 +256,7 @@ impl CreateCharacter {
                 },
                 y: Vertical::ByCenter { y: 500.0 },
             },
-            Transition::CustomEvent(Events::Create as u8),
+            Transition::CustomEvent(ButtonEvent::Create as u8),
         ));
 
         Self {
@@ -334,22 +332,22 @@ impl SceneImpl for CreateCharacter {
     }
 
     fn custom_event(&mut self, ctx: &mut Context, event: u8) -> SomeTransitions {
-        let event = Events::from(event);
+        let event = ButtonEvent::from(event);
         match event {
-            Events::GenderLeft | Events::GenderRight => {
+            ButtonEvent::GenderLeft | ButtonEvent::GenderRight => {
                 let input = self.gender_input();
                 let value = input.value();
                 input.set_value(if value == "Male" { "Female" } else { "Male" });
                 None
             }
-            Events::AgeMinus | Events::AgePlus => {
+            ButtonEvent::AgeMinus | ButtonEvent::AgePlus => {
                 let input = self.age_input();
                 if let Ok(mut value) = input.value().parse::<u8>() {
                     match event {
-                        Events::AgeMinus => {
+                        ButtonEvent::AgeMinus => {
                             value -= 1;
                         }
-                        Events::AgePlus => {
+                        ButtonEvent::AgePlus => {
                             value += 1;
                         }
                         _ => unreachable!(),
@@ -358,10 +356,10 @@ impl SceneImpl for CreateCharacter {
                 }
                 None
             }
-            Events::HandLeft | Events::HandRight => {
+            ButtonEvent::HandLeft | ButtonEvent::HandRight => {
                 self.main_hand = match event {
-                    Events::HandRight => self.main_hand.next(),
-                    Events::HandLeft => self.main_hand.prev(),
+                    ButtonEvent::HandRight => self.main_hand.next(),
+                    ButtonEvent::HandLeft => self.main_hand.prev(),
                     _ => unreachable!(),
                 };
                 let name = self.main_hand.name();
@@ -369,7 +367,7 @@ impl SceneImpl for CreateCharacter {
                 self.hand_name().update(name, ctx, window_size);
                 None
             }
-            Events::Randomize => {
+            ButtonEvent::Randomize => {
                 let mut rng = rand::thread_rng();
                 let character = Personality::random(&mut rng, true);
                 self.gender_input().set_value(character.mind.gender);
@@ -382,7 +380,7 @@ impl SceneImpl for CreateCharacter {
                 self.hand_name().update(name, ctx, window_size);
                 None
             }
-            Events::Create => {
+            ButtonEvent::Create => {
                 let name = self.name_input().value();
                 if name.is_empty() {
                     self.name_input().set_danger(true);

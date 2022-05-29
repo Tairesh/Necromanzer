@@ -2,16 +2,18 @@
 
 use std::rc::Rc;
 
-use tetra::graphics::text::Text;
-use tetra::graphics::{Color, DrawParams};
-use tetra::Context;
+use tetra::{
+    graphics::{text::Text, Color, DrawParams},
+    Context,
+};
 
-use assets::prepared_font::PreparedFont;
-use assets::tileset::Tileset;
-use game::map::item::{Item, ItemView};
-use geometry::{Rect, Vec2};
-use ui::position::Position;
-use ui::traits::{Colorize, Draw, Focus, Positionate, Stringify, UiSprite, Update};
+use crate::{
+    assets::{PreparedFont, Tileset},
+    game::map::item::{Item, ItemView},
+    geometry::{Rect, Vec2},
+};
+
+use super::super::{Colorize, Draw, Focus, Position, Positionate, Stringify, UiSprite, Update};
 
 pub struct Label {
     text: Text,

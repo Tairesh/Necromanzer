@@ -5,20 +5,19 @@ use tetra::graphics::{Color, Rectangle};
 use tetra::input::{Key, KeyModifier};
 use tetra::Context;
 
-use colors::Colors;
-use game::World;
-use geometry::direction::Direction;
-use geometry::point::Point;
-use geometry::{Rect, Vec2};
-use input;
-use scenes::game_modes::GameModeImpl;
-use scenes::implements::GameScene;
-use scenes::transition::SomeTransitions;
-use settings::Settings;
-use ui::label::Label;
-use ui::meshy::JustMesh;
-use ui::position::Position;
-use ui::traits::{Draw, Positionate, Stringify};
+use crate::{
+    colors::Colors,
+    game::World,
+    geometry::{Direction, Point, Rect, Vec2},
+    input,
+    settings::Settings,
+    ui::{Draw, JustMesh, Label, Position, Positionate, Stringify},
+};
+
+use super::super::{
+    super::{implements::GameScene, SomeTransitions},
+    GameModeImpl,
+};
 
 struct ObservingSprite {
     pub label: Label,

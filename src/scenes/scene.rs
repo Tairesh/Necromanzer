@@ -2,12 +2,15 @@ use std::path::PathBuf;
 
 use tetra::Context;
 
-use app::App;
-use scenes::implements::{
-    BodyView, CreateCharacter, CreateWorld, Empty, GameMenu, GameScene, LoadWorld, MainMenu,
-    SettingsScene,
+use crate::app::App;
+
+use super::{
+    implements::{
+        BodyView, CreateCharacter, CreateWorld, Empty, GameMenu, GameScene, LoadWorld, MainMenu,
+        SettingsScene,
+    },
+    SceneImpl,
 };
-use scenes::scene_impl::SceneImpl;
 
 #[derive(Debug, Clone)]
 pub enum Scene {

@@ -1,9 +1,9 @@
-pub use self::boulder::*;
-pub use self::dirt::*;
-pub use self::grass::*;
-pub use self::grave::*;
-pub use self::pit::*;
-pub use self::tree::*;
+pub use boulder::{Boulder, BoulderSize};
+pub use dirt::{Dirt, DirtVariant};
+pub use grass::{Grass, GrassVariant};
+pub use grave::{Grave, GraveData, GraveVariant};
+pub use pit::Pit;
+pub use tree::{Tree, TreeVariant};
 
 mod boulder;
 mod dirt;

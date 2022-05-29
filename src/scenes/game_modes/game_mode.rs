@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 
-use scenes::game_modes::implements::{
+use super::implements::{
     Animate, Digging, Dropping, Examining, Observing, Reading, Walking, Wielding,
 };
 

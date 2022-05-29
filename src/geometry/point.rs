@@ -1,13 +1,10 @@
 use std::ops::{Add, AddAssign, Mul, Range, Sub, SubAssign};
 
 use rand::Rng;
-use serde::{Deserialize, Serialize};
 
-use geometry::Vec2;
+use super::{Direction, Vec2};
 
-use crate::geometry::direction::Direction;
-
-#[derive(Serialize, Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

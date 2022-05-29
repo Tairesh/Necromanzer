@@ -1,12 +1,12 @@
-pub use self::axe::*;
-pub use self::body_part::*;
-pub use self::cloak::*;
-pub use self::corpse::*;
-pub use self::gravestone::*;
-pub use self::hat::*;
-pub use self::knife::*;
-pub use self::rags::*;
-pub use self::shovel::*;
+pub use axe::Axe;
+pub use body_part::{BodyPart, BodyPartType};
+pub use cloak::Cloak;
+pub use corpse::Corpse;
+pub use gravestone::Gravestone;
+pub use hat::Hat;
+pub use knife::Knife;
+pub use rags::Rags;
+pub use shovel::Shovel;
 
 mod axe;
 mod body_part;

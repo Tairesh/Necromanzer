@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-use VERSION;
+use crate::VERSION;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Meta {

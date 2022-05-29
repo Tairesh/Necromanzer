@@ -1,10 +1,15 @@
 #![allow(dead_code)]
 
-use game::animals::FurColor;
-use game::bodies::{Body, BodySize, Freshness, OrganData, Sex};
-use game::map::items::{BodyPart, BodyPartType};
-use game::map::pos::TilePos;
 use std::collections::HashMap;
+
+use super::{
+    super::{
+        bodies::{Body, BodySize, Freshness, OrganData, Sex},
+        map::items::{BodyPart, BodyPartType},
+        TilePos,
+    },
+    FurColor,
+};
 
 pub fn dog_brain(organ_data: OrganData) -> BodyPart {
     BodyPart::new("brain", BodyPartType::DogBrain(organ_data))
@@ -138,12 +143,14 @@ pub fn dog_body(
 
 #[cfg(test)]
 mod tests {
-    use super::dog_body;
-    use game::animals::FurColor;
-    use game::bodies::{BodySize, Freshness, OrganData, Sex};
-    use game::map::item::ItemView;
-    use game::map::items::BodyPartType;
-    use game::map::pos::TilePos;
+    use super::{
+        super::super::{
+            bodies::{BodySize, Freshness, OrganData, Sex},
+            map::items::BodyPartType,
+            ItemView, TilePos,
+        },
+        dog_body, FurColor,
+    };
 
     #[test]
     fn test_dog_body() {

@@ -2,21 +2,39 @@ use tetra::input::{Key, KeyModifier};
 use tetra::window::WindowPosition;
 use tetra::{Context, Event};
 
-use app::App;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SomeTransitions, Transition};
-use scenes::{back_btn, bg, easy_back, label, title};
-use settings::Settings;
-use ui::button::Button;
-use ui::inputs::TextInput;
-use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Positionate, Press, Stringify, UiSprite};
-use ui::{SomeUISprites, SomeUISpritesMut};
+use crate::{
+    app::App,
+    settings::Settings,
+    ui::{
+        Button, Horizontal, Position, Positionate, Press, SomeUISprites, SomeUISpritesMut,
+        Stringify, TextInput, UiSprite, Vertical,
+    },
+};
 
-const WINDOW_MODE_EVENT: u8 = 1;
-const FULLSCREEN_MODE_EVENT: u8 = 2;
-const REPEAT_INTERVAL_MINUS: u8 = 3;
-const REPEAT_INTERVAL_PLUS: u8 = 4;
+use super::super::{
+    helpers::{back_btn, bg, easy_back, label, title},
+    SceneImpl, SomeTransitions, Transition,
+};
+
+#[derive(Debug, Copy, Clone)]
+enum ButtonEvent {
+    WindowMode,
+    FullscreenMode,
+    RepeatIntervalMinus,
+    RepeatIntervalPlus,
+}
+
+impl From<u8> for ButtonEvent {
+    fn from(n: u8) -> Self {
+        match n {
+            0 => Self::WindowMode,
+            1 => Self::FullscreenMode,
+            2 => Self::RepeatIntervalMinus,
+            3 => Self::RepeatIntervalPlus,
+            _ => unreachable!(),
+        }
+    }
+}
 
 pub struct SettingsScene {
     sprites: [Box<dyn UiSprite>; 10],
@@ -40,7 +58,7 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByLeft { offset: 100.0 },
                 y: Vertical::ByCenter { y: 150.0 },
             },
-            Transition::CustomEvent(FULLSCREEN_MODE_EVENT),
+            Transition::CustomEvent(ButtonEvent::FullscreenMode as u8),
         ));
         let mut window_btn = Box::new(Button::fixed(
             vec![(Key::W, KeyModifier::Alt).into()],
@@ -52,7 +70,7 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByRight { offset: 98.0 },
                 y: Vertical::ByCenter { y: 150.0 },
             },
-            Transition::CustomEvent(WINDOW_MODE_EVENT),
+            Transition::CustomEvent(ButtonEvent::WindowMode as u8),
         ));
         let window_btn_size = window_btn.calc_size(ctx);
 
@@ -86,7 +104,7 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByRight { offset: 0.0 },
                 y: Vertical::ByCenter { y: 200.0 },
             },
-            Transition::CustomEvent(REPEAT_INTERVAL_MINUS),
+            Transition::CustomEvent(ButtonEvent::RepeatIntervalMinus as u8),
         ));
         let repeat_interval_input = Box::new(TextInput::int(
             settings.game.repeat_interval as u32,
@@ -107,7 +125,7 @@ impl SettingsScene {
                 x: Horizontal::AtWindowCenterByLeft { offset: 200.0 },
                 y: Vertical::ByCenter { y: 200.0 },
             },
-            Transition::CustomEvent(REPEAT_INTERVAL_PLUS),
+            Transition::CustomEvent(ButtonEvent::RepeatIntervalPlus as u8),
         ));
 
         let back_btn = back_btn(
@@ -159,8 +177,9 @@ impl SceneImpl for SettingsScene {
     }
 
     fn custom_event(&mut self, ctx: &mut Context, event: u8) -> SomeTransitions {
+        let event = ButtonEvent::from(event);
         match event {
-            FULLSCREEN_MODE_EVENT => {
+            ButtonEvent::FullscreenMode => {
                 self.window_btn().unpress();
                 if !tetra::window::is_fullscreen(ctx) {
                     Settings::instance().window.fullscreen = true;
@@ -171,7 +190,7 @@ impl SceneImpl for SettingsScene {
                 }
                 None
             }
-            WINDOW_MODE_EVENT => {
+            ButtonEvent::WindowMode => {
                 self.fullscreen_btn().unpress();
                 if tetra::window::is_fullscreen(ctx) {
                     Settings::instance().window.fullscreen = false;
@@ -193,14 +212,14 @@ impl SceneImpl for SettingsScene {
                 }
                 None
             }
-            REPEAT_INTERVAL_MINUS | REPEAT_INTERVAL_PLUS => {
+            ButtonEvent::RepeatIntervalMinus | ButtonEvent::RepeatIntervalPlus => {
                 let input = self.repeat_interval_input();
                 if let Ok(mut value) = input.value().parse::<u32>() {
                     match event {
-                        REPEAT_INTERVAL_MINUS => {
+                        ButtonEvent::RepeatIntervalMinus => {
                             value -= 1;
                         }
-                        REPEAT_INTERVAL_PLUS => {
+                        ButtonEvent::RepeatIntervalPlus => {
                             value += 1;
                         }
                         _ => unreachable!(),
@@ -210,7 +229,6 @@ impl SceneImpl for SettingsScene {
                 }
                 None
             }
-            _ => None,
         }
     }
 }

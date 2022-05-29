@@ -1,10 +1,14 @@
-use game::actions::action_impl::ActionImpl;
-use game::actions::Action;
-use game::actions::ActionPossibility::{self, No, Yes};
-use game::log::{LogCategory, LogEvent};
-use game::map::item::{Item, ItemInteract};
-use game::{Avatar, World};
-use geometry::direction::Direction;
+use crate::geometry::Direction;
+
+use super::super::{
+    super::{
+        log::{LogCategory, LogEvent},
+        map::item::{Item, ItemInteract},
+        Avatar, World,
+    },
+    Action, ActionImpl,
+    ActionPossibility::{self, No, Yes},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Raise {

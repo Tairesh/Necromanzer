@@ -2,8 +2,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use savefile::meta::Meta;
-use savefile::SAVEFILES_FOLDER;
+use super::{Meta, SAVEFILES_FOLDER};
 
 #[derive(Debug)]
 pub enum Error {

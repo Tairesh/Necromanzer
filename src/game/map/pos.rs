@@ -2,9 +2,9 @@
 
 use std::fmt::{Display, Formatter};
 
-use geometry::point::Point;
+use crate::geometry::Point;
 
-use super::chunk::Chunk;
+use super::Chunk;
 
 pub type TilePos = Point;
 

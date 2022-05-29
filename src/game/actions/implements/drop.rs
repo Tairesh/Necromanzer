@@ -1,12 +1,17 @@
-use game::log::{LogCategory, LogEvent};
-use geometry::direction::Direction;
+use crate::geometry::Direction;
 
-use super::super::super::map::item::{ItemInteract, ItemView};
-use super::super::super::map::terrain::{TerrainInteract, TerrainView};
-use super::super::super::{Avatar, World};
-use super::super::action_impl::ActionImpl;
-use super::super::ActionPossibility::{No, Yes};
-use super::super::{Action, ActionPossibility};
+use super::super::{
+    super::{
+        log::{LogCategory, LogEvent},
+        map::{
+            item::{ItemInteract, ItemView},
+            terrain::{TerrainInteract, TerrainView},
+        },
+        Avatar, World,
+    },
+    Action, ActionImpl,
+    ActionPossibility::{self, No, Yes},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Drop {

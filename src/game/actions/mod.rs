@@ -1,6 +1,6 @@
-pub use self::action::Action;
-pub use self::action_impl::ActionImpl;
-pub use self::action_type::ActionType;
+pub use action::Action;
+pub use action_impl::ActionImpl;
+pub use action_type::ActionType;
 
 mod action;
 mod action_impl;

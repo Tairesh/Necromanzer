@@ -1,12 +1,12 @@
-pub use self::body_view::BodyView;
-pub use self::create_character::CreateCharacter;
-pub use self::create_world::CreateWorld;
-pub use self::empty::Empty;
-pub use self::game_menu::GameMenu;
-pub use self::game_scene::GameScene;
-pub use self::load_world::LoadWorld;
-pub use self::main_menu::MainMenu;
-pub use self::settings_scene::SettingsScene;
+pub use body_view::BodyView;
+pub use create_character::CreateCharacter;
+pub use create_world::CreateWorld;
+pub use empty::Empty;
+pub use game_menu::GameMenu;
+pub use game_scene::GameScene;
+pub use load_world::LoadWorld;
+pub use main_menu::MainMenu;
+pub use settings_scene::SettingsScene;
 
 mod body_view;
 mod create_character;

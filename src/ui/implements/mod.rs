@@ -1,6 +1,6 @@
-pub mod alert;
-pub mod button;
-pub mod image;
-pub mod inputs;
-pub mod label;
-pub mod meshy;
+pub(crate) mod alert;
+pub(crate) mod button;
+pub(crate) mod image;
+pub(crate) mod inputs;
+pub(crate) mod label;
+pub(crate) mod meshy;

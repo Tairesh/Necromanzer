@@ -2,15 +2,13 @@ use enum_dispatch::enum_dispatch;
 use tetra::graphics::Color;
 use tetra::Context;
 
-use game::World;
-use geometry::point::Point;
-use scenes::game_modes::implements::{
-    Animate, Digging, Dropping, Examining, Observing, Reading, Walking, Wielding,
-};
-use scenes::implements::GameScene;
-use scenes::transition::SomeTransitions;
+use crate::{game::World, geometry::Point};
 
-use super::GameMode;
+use super::{
+    super::{implements::GameScene, SomeTransitions},
+    implements::{Animate, Digging, Dropping, Examining, Observing, Reading, Walking, Wielding},
+    GameMode,
+};
 
 #[enum_dispatch]
 pub trait GameModeImpl {

@@ -3,8 +3,10 @@ use std::collections::HashSet;
 use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 
-use super::super::Avatar;
-use super::items::{Axe, BodyPart, Cloak, Corpse, Gravestone, Hat, Knife, Rags, Shovel};
+use super::{
+    super::Avatar,
+    items::{Axe, BodyPart, Cloak, Corpse, Gravestone, Hat, Knife, Rags, Shovel},
+};
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -62,15 +64,17 @@ pub enum ItemTag {
 mod tests {
     use std::convert::TryInto;
 
-    use game::human::helpers::human_body;
-    use game::human::personality::tests::dead_boy;
-
-    use super::super::super::bodies::{Freshness, OrganData};
-    use super::super::super::map::items::{
-        Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel,
-    };
     use super::super::super::map::terrains::GraveData;
-    use super::{Item, ItemInteract, ItemTag, ItemView};
+    use super::{
+        super::{
+            super::{
+                bodies::{Freshness, OrganData},
+                human::{helpers::human_body, tests::personality::dead_boy},
+            },
+            items::{Axe, BodyPart, BodyPartType, Cloak, Corpse, Gravestone, Hat, Knife, Shovel},
+        },
+        Item, ItemInteract, ItemTag, ItemView,
+    };
 
     #[test]
     fn test_shovel() {

@@ -1,16 +1,16 @@
-use tetra::graphics::Color;
-use tetra::input::Key;
-use tetra::Context;
+use tetra::{graphics::Color, input::Key, Context};
 
-use colors::Colors;
-use game::actions::implements::Read;
-use game::World;
-use geometry::direction::{Direction, DIR9};
-use geometry::point::Point;
-use input;
-use scenes::game_modes::GameModeImpl;
-use scenes::implements::GameScene;
-use scenes::transition::SomeTransitions;
+use crate::{
+    colors::Colors,
+    game::{actions::implements::Read, World},
+    geometry::{Direction, Point, DIR9},
+    input,
+};
+
+use super::super::{
+    super::{implements::GameScene, SomeTransitions},
+    GameModeImpl,
+};
 
 pub struct Reading {
     selected: Option<Direction>,

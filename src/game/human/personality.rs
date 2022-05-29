@@ -2,13 +2,10 @@ use rand::distributions::Standard;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-use game::bodies::BodySize;
-use game::human::hair_color::HairColor;
-use game::GameData;
-
-use super::gender::Gender;
-use super::main_hand::MainHand;
-use super::skin_tone::SkinTone;
+use super::{
+    super::{bodies::BodySize, GameData},
+    Gender, HairColor, MainHand, SkinTone,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Appearance {
@@ -111,14 +108,7 @@ pub fn age_name(age: u8, gender: Option<&Gender>) -> &'static str {
 
 #[cfg(test)]
 pub mod tests {
-    use game::bodies::BodySize;
-    use game::human::gender::Gender;
-    use game::human::hair_color::HairColor;
-    use game::human::main_hand::MainHand;
-    use game::human::personality::{Appearance, Mind};
-    use game::human::skin_tone::SkinTone;
-
-    use super::Personality;
+    use super::{Appearance, BodySize, Gender, HairColor, MainHand, Mind, Personality, SkinTone};
 
     pub fn dead_boy() -> Personality {
         Personality::new(

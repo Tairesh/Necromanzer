@@ -1,20 +1,17 @@
-use tetra::input::Key;
-use tetra::Context;
+use tetra::{input::Key, Context};
 
-use app::App;
-use colors::Colors;
-use savefile::savefiles_exists;
-use scenes::bg;
-use scenes::scene::Scene;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::Transition;
-use ui::button::Button;
-use ui::image::Image;
-use ui::label::Label;
-use ui::position::{Position, Vertical};
-use ui::traits::{Disable, UiSprite};
-use ui::{SomeUISprites, SomeUISpritesMut};
-use VERSION;
+use crate::{
+    app::App,
+    colors::Colors,
+    savefile::savefiles_exists,
+    ui::{
+        Button, Disable, Image, Label, Position, SomeUISprites, SomeUISpritesMut, UiSprite,
+        Vertical,
+    },
+    VERSION,
+};
+
+use super::super::{helpers::bg, Scene, SceneImpl, Transition};
 
 pub struct MainMenu {
     sprites: [Box<dyn UiSprite>; 7],

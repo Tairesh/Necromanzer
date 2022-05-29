@@ -1,19 +1,25 @@
 use std::time::{Duration, Instant};
 
-use tetra::graphics::mesh::{BorderRadii, Mesh, ShapeStyle};
-use tetra::graphics::text::Text;
-use tetra::graphics::{Color, DrawParams, Rectangle};
-use tetra::input::{Key, KeyModifier, MouseButton};
-use tetra::{input, Context};
+use tetra::{
+    graphics::{
+        mesh::{BorderRadii, Mesh, ShapeStyle},
+        text::Text,
+        Color, DrawParams, Rectangle,
+    },
+    input::{self, Key, KeyModifier, MouseButton},
+    Context,
+};
 
-use geometry::{Rect, Vec2};
-use ui::traits::Focus;
+use crate::{
+    assets::PreparedFont,
+    colors::Colors,
+    geometry::{Rect, Vec2},
+    scenes::Transition,
+};
 
-use crate::assets::prepared_font::PreparedFont;
-use crate::colors::Colors;
-use crate::scenes::transition::Transition;
-use crate::ui::position::Position;
-use crate::ui::traits::{Disable, Draw, Hover, Positionate, Press, Stringify, UiSprite, Update};
+use super::super::{
+    Disable, Draw, Focus, Hover, Position, Positionate, Press, Stringify, UiSprite, Update,
+};
 
 enum ValueType {
     String { max_length: usize },

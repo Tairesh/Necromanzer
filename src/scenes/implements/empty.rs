@@ -1,9 +1,8 @@
 use tetra::{graphics, Context, Event};
 
-use colors::Colors;
-use scenes::easy_back;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::SomeTransitions;
+use crate::colors::Colors;
+
+use super::super::{helpers::easy_back, SceneImpl, SomeTransitions};
 
 pub struct Empty {}
 

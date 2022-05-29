@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use scenes::scene::Scene;
+use super::Scene;
 
 #[derive(Debug, Clone)]
 pub enum Transition {

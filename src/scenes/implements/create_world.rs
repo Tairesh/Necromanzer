@@ -2,19 +2,20 @@ use rand::{thread_rng, Rng};
 use tetra::input::{Key, KeyModifier};
 use tetra::{Context, Event};
 
-use app::App;
-use game::GameData;
-use savefile;
-use scenes::scene::Scene;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SomeTransitions, Transition};
-use scenes::{back_btn, bg, easy_back, error_label, label, title};
-use ui::button::Button;
-use ui::inputs::TextInput;
-use ui::label::Label;
-use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Draw, Positionate, Stringify, UiSprite};
-use ui::{SomeUISprites, SomeUISpritesMut};
+use crate::{
+    app::App,
+    game::GameData,
+    savefile,
+    ui::{
+        Button, Draw, Horizontal, Label, Position, Positionate, SomeUISprites, SomeUISpritesMut,
+        Stringify, TextInput, UiSprite, Vertical,
+    },
+};
+
+use super::super::{
+    helpers::{back_btn, bg, easy_back, error_label, label, title},
+    Scene, SceneImpl, SomeTransitions, Transition,
+};
 
 const RANDOMIZE_EVENT: u8 = 1;
 const CREATE_EVENT: u8 = 2;
@@ -198,7 +199,7 @@ impl SceneImpl for CreateWorld {
     fn custom_event(&mut self, _ctx: &mut Context, event: u8) -> SomeTransitions {
         match event {
             RANDOMIZE_EVENT => {
-                let mut rng = rand::thread_rng();
+                let mut rng = thread_rng();
                 self.name_input()
                     .set_value(GameData::instance().names.random_name(&mut rng));
                 self.seed_input().set_value(random_seed(&mut rng).as_str());
@@ -219,13 +220,13 @@ impl SceneImpl for CreateWorld {
                     match savefile::create(name.as_str(), seed.as_str()) {
                         Ok(path) => Some(vec![Transition::Replace(Scene::CreateCharacter(path))]),
                         Err(err) => match err {
-                            savefile::Error::System(err) => {
+                            savefile::SaveError::System(err) => {
                                 panic!("Can't write savefile: {}", err)
                             }
-                            savefile::Error::Serialize(err) => {
+                            savefile::SaveError::Serialize(err) => {
                                 panic!("Can't create savefile: {}", err)
                             }
-                            savefile::Error::FileExists => {
+                            savefile::SaveError::FileExists => {
                                 self.name_input().set_danger(true);
                                 self.name_error().set_visible(true);
                                 None

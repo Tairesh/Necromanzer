@@ -1,13 +1,13 @@
 #![allow(dead_code)]
 
-use tetra::graphics::{Color, DrawParams, NineSlice, Rectangle, Texture};
-use tetra::{window, Context};
+use tetra::{
+    graphics::{Color, DrawParams, NineSlice, Rectangle, Texture},
+    window, Context,
+};
 
-use geometry::{Rect, Vec2};
-use ui::traits::Focus;
+use crate::geometry::{Rect, Vec2};
 
-use crate::ui::position::Position;
-use crate::ui::traits::{Colorize, Draw, Positionate, UiSprite, Update};
+use super::super::{Colorize, Draw, Focus, Position, Positionate, UiSprite, Update};
 
 pub struct Image {
     texture: Texture,

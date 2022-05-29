@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
 
-use game::bodies::{Body, Freshness, OrganData, Sex};
-use game::human::hair_color::HairColor;
-use game::human::personality::Personality;
-use game::human::skin_tone::SkinTone;
-use game::map::items::{BodyPart, BodyPartType};
-use game::map::pos::TilePos;
+use super::{
+    super::{
+        bodies::{Body, Freshness, OrganData, Sex},
+        map::items::{BodyPart, BodyPartType},
+        TilePos,
+    },
+    HairColor, Personality, SkinTone,
+};
 
 pub fn human_brain(organ_data: OrganData, character: Personality) -> BodyPart {
     BodyPart::new("brain", BodyPartType::HumanBrain(organ_data, character))
@@ -205,18 +207,18 @@ pub fn human_centipede(personalities: Vec<Personality>) -> Body {
 
 #[cfg(test)]
 mod tests {
-    use game::bodies::{BodySize, Freshness, OrganData, Sex};
-    use game::human::gender::Gender;
-    use game::human::hair_color::HairColor;
-    use game::human::main_hand::MainHand;
-    use game::human::personality::tests::{dead_boy, old_queer, tester_girl};
-    use game::human::personality::{Appearance, Mind, Personality};
-    use game::human::skin_tone::SkinTone;
-    use game::map::item::ItemView;
-    use game::map::items::{BodyPart, BodyPartType};
-    use game::map::pos::TilePos;
-
-    use super::{human_body, human_centipede, human_head, human_torso};
+    use super::{
+        super::{
+            super::{
+                bodies::{BodySize, Freshness, OrganData, Sex},
+                map::items::{BodyPart, BodyPartType},
+                ItemView, TilePos,
+            },
+            tests::personality::{dead_boy, old_queer, tester_girl},
+            Appearance, Gender, HairColor, MainHand, Mind, Personality, SkinTone,
+        },
+        human_body, human_centipede, human_head, human_torso,
+    };
 
     #[test]
     fn test_fresh_head() {

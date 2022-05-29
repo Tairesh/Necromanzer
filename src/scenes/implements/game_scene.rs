@@ -2,31 +2,30 @@ use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::rc::Rc;
 
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::{DrawParams, Rectangle};
-use tetra::Context;
+use tetra::{
+    graphics::{
+        mesh::{Mesh, ShapeStyle},
+        DrawParams, Rectangle,
+    },
+    Context,
+};
 
-use app::App;
-use assets::tileset::Tileset;
-use assets::Assets;
-use colors::Colors;
-use game::actions::{Action, ActionType};
-use game::map::item::ItemView;
-use game::map::terrain::TerrainView;
-use game::World;
-use geometry::direction::Direction;
-use geometry::point::Point;
-use geometry::two_dim_direction::TwoDimDirection;
-use geometry::Vec2;
-use scenes::game_modes::implements::Walking;
-use scenes::game_modes::GameMode;
-use scenes::game_modes::GameModeImpl;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::SomeTransitions;
-use ui::label::Label;
-use ui::position::{Position, Vertical};
-use ui::traits::UiSprite;
-use ui::{GameLog, SomeUISprites, SomeUISpritesMut};
+use crate::{
+    app::App,
+    assets::{Assets, Tileset},
+    colors::Colors,
+    game::{
+        map::{item::ItemView, terrain::TerrainView},
+        Action, ActionType, World,
+    },
+    geometry::{Direction, Point, TwoDimDirection, Vec2},
+    ui::{GameLog, Label, Position, SomeUISprites, SomeUISpritesMut, UiSprite, Vertical},
+};
+
+use super::super::{
+    game_modes::{implements::Walking, GameMode, GameModeImpl},
+    SceneImpl, SomeTransitions,
+};
 
 pub struct GameScene {
     sprites: [Box<dyn UiSprite>; 2],

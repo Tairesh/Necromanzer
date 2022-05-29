@@ -1,7 +1,9 @@
 use enum_dispatch::enum_dispatch;
 
-use game::actions::{Action, ActionPossibility};
-use game::{Avatar, World};
+use super::{
+    super::{Avatar, World},
+    Action, ActionPossibility,
+};
 
 #[enum_dispatch]
 pub trait ActionImpl {

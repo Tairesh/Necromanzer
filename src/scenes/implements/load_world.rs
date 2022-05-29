@@ -1,29 +1,29 @@
 use std::path::PathBuf;
 
-use tetra::graphics::mesh::{Mesh, ShapeStyle};
-use tetra::graphics::Rectangle;
-use tetra::input::{Key, KeyModifier};
-use tetra::{Context, Event};
-use time::format_description::FormatItem;
-use time::OffsetDateTime;
+use tetra::{
+    graphics::{
+        mesh::{Mesh, ShapeStyle},
+        Rectangle,
+    },
+    input::{Key, KeyModifier},
+    Context, Event,
+};
+use time::{format_description::FormatItem, OffsetDateTime};
 
-use app::App;
-use colors::Colors;
-use geometry::Vec2;
-use savefile::{savefiles, savefiles_exists};
-use scenes::easy_back;
-use scenes::scene::Scene;
-use scenes::scene_impl::SceneImpl;
-use scenes::transition::{SomeTransitions, Transition};
-use settings::Settings;
-use ui::alert::Alert;
-use ui::button::Button;
-use ui::label::Label;
-use ui::meshy::HoverableMesh;
-use ui::position::{Horizontal, Position, Vertical};
-use ui::traits::{Positionate, UiSprite};
-use ui::{SomeUISprites, SomeUISpritesMut};
-use {savefile, VERSION};
+use crate::{
+    app::App,
+    colors::Colors,
+    geometry::Vec2,
+    savefile::{self, savefiles, savefiles_exists},
+    settings::Settings,
+    ui::{
+        Alert, Button, Horizontal, HoverableMesh, Label, Position, Positionate, SomeUISprites,
+        SomeUISpritesMut, UiSprite, Vertical,
+    },
+    VERSION,
+};
+
+use super::super::{helpers::easy_back, Scene, SceneImpl, SomeTransitions, Transition};
 
 const KEYS: [Key; 10] = [
     Key::Num1,
@@ -181,7 +181,7 @@ impl SceneImpl for LoadWorld {
         if event % 2 == 0 {
             // load
             if let Some(meta) = savefile::load(path) {
-                if savefile::have_avatar(path) {
+                if savefile::has_avatar(path) {
                     Some(vec![
                         Transition::LoadWorld(path.clone()),
                         Transition::Replace(Scene::GameScene),

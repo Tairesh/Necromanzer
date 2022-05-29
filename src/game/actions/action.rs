@@ -1,8 +1,10 @@
-use game::actions::ActionPossibility;
-use game::log::{LogCategory, LogEvent};
-use game::{Avatar, World};
-
-use super::{ActionImpl, ActionType};
+use super::{
+    super::{
+        log::{LogCategory, LogEvent},
+        Avatar, World,
+    },
+    ActionImpl, ActionPossibility, ActionType,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Action {

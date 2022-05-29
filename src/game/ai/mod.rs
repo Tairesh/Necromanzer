@@ -1,4 +1,5 @@
-pub use self::implements::zombie::ZombieAI;
+pub use brain::Brain;
+pub use implements::zombie::ZombieAI;
 
-pub mod brain;
+mod brain;
 mod implements;

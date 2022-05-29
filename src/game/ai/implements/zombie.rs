@@ -1,9 +1,12 @@
 use rand::{thread_rng, Rng};
 
-use game::actions::implements::{Skip, Walk};
-use game::actions::ActionType;
-use game::ai::brain::Brain;
-use geometry::direction::Direction;
+use crate::geometry::Direction;
+
+use super::super::super::actions::{
+    implements::{Skip, Walk},
+    ActionType,
+};
+use super::super::Brain;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct ZombieAI {

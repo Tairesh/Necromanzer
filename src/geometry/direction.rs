@@ -2,13 +2,9 @@
 
 use std::cmp::Ordering;
 
-use serde::{Deserialize, Serialize};
+use super::{Point, Vec2};
 
-use geometry::Vec2;
-
-use crate::geometry::point::Point;
-
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub enum Direction {
     Here,
     North,
@@ -113,8 +109,7 @@ pub const DIR9: [Direction; 9] = [
 
 #[cfg(test)]
 mod tests {
-    use super::super::point::Point;
-    use super::Direction;
+    use super::{Direction, Point};
 
     #[test]
     fn from_delta() {

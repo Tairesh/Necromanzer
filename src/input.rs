@@ -1,10 +1,8 @@
 #![allow(dead_code)]
 
-pub use tetra::input::*;
-use tetra::math::num_traits::Zero;
-use tetra::Context;
+pub use tetra::{input::*, math::num_traits::Zero, Context};
 
-use crate::geometry::direction::Direction;
+use crate::geometry::Direction;
 
 #[derive(Debug, Copy, Clone)]
 pub struct KeyWithMod {

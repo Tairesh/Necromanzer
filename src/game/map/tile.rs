@@ -4,9 +4,11 @@ use std::collections::HashSet;
 
 use rand::Rng;
 
-use super::item::{Item, ItemInteract};
-use super::terrain::{Terrain, TerrainInteract};
-use super::terrains::{Dirt, DirtVariant};
+use super::{
+    item::{Item, ItemInteract},
+    terrain::{Terrain, TerrainInteract},
+    terrains::{Dirt, DirtVariant},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Tile {

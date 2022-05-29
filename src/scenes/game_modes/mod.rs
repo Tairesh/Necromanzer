@@ -1,5 +1,5 @@
-pub use self::game_mode::GameMode;
-pub use self::game_mode_impl::GameModeImpl;
+pub use game_mode::GameMode;
+pub use game_mode_impl::GameModeImpl;
 
 mod game_mode;
 mod game_mode_impl;

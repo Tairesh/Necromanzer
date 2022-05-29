@@ -1,8 +1,7 @@
-use game::bodies::Body;
-use game::map::pos::TilePos;
-
-use super::super::super::human::personality::Personality;
-use super::super::item::{ItemInteract, ItemView};
+use super::super::{
+    super::{bodies::Body, human::Personality, TilePos},
+    item::{ItemInteract, ItemView},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Corpse {

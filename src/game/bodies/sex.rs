@@ -1,6 +1,8 @@
-use game::human::gender::Gender;
-use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use super::super::human::Gender;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Sex {

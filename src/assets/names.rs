@@ -1,5 +1,4 @@
-use rand::seq::SliceRandom;
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 
 #[derive(Debug)]
 pub struct Names {

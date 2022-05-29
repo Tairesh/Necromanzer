@@ -1,9 +1,10 @@
 use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 
-use super::item::Item;
-use super::passage::Passage;
-use super::terrains::{Boulder, Dirt, Grass, Grave, Pit, Tree};
+use super::{
+    terrains::{Boulder, Dirt, Grass, Grave, Pit, Tree},
+    Item, Passage,
+};
 
 #[enum_dispatch]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -49,8 +50,10 @@ pub trait TerrainInteract {
 
 #[cfg(test)]
 mod tests {
-    use super::super::terrains::{Dirt, DirtVariant, Grass, GrassVariant};
-    use super::{Terrain, TerrainInteract, TerrainView};
+    use super::{
+        super::terrains::{Dirt, DirtVariant, Grass, GrassVariant},
+        Terrain, TerrainInteract, TerrainView,
+    };
 
     #[test]
     fn test_dirt() {

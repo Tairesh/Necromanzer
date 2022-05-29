@@ -1,18 +1,5 @@
 #![windows_subsystem = "windows"]
 
-extern crate arrayvec;
-extern crate core;
-extern crate enum_dispatch;
-extern crate enum_iterator;
-extern crate once_cell;
-extern crate phf;
-extern crate rand;
-extern crate serde;
-extern crate serde_json;
-extern crate serde_with;
-extern crate tetra;
-extern crate time;
-
 mod app;
 mod assets;
 mod colors;

@@ -2,17 +2,24 @@ use tetra::graphics::Color;
 use tetra::input::Key;
 use tetra::Context;
 
-use colors::Colors;
-use game::actions::implements::Dig;
-use game::map::item::{ItemInteract, ItemTag};
-use game::map::terrain::TerrainInteract;
-use game::World;
-use geometry::direction::{Direction, DIR9};
-use geometry::point::Point;
-use input;
-use scenes::game_modes::GameModeImpl;
-use scenes::implements::GameScene;
-use scenes::transition::SomeTransitions;
+use crate::{
+    colors::Colors,
+    game::{
+        actions::implements::Dig,
+        map::{
+            item::{ItemInteract, ItemTag},
+            terrain::TerrainInteract,
+        },
+        World,
+    },
+    geometry::{Direction, Point, DIR9},
+    input,
+};
+
+use super::super::{
+    super::{implements::GameScene, SomeTransitions},
+    GameModeImpl,
+};
 
 pub struct Digging {
     selected: Option<Direction>,

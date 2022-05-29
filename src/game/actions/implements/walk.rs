@@ -1,14 +1,20 @@
 use std::f32::consts::SQRT_2;
 
-use game::actions::action_impl::ActionImpl;
-use game::actions::Action;
-use game::actions::ActionPossibility::{self, No, Yes};
-use game::avatar::Soul;
-use game::log::{LogCategory, LogEvent};
-use game::map::passage::Passage::Passable;
-use game::map::terrain::{TerrainInteract, TerrainView};
-use game::{Avatar, World};
-use geometry::direction::Direction;
+use crate::geometry::Direction;
+
+use super::super::{
+    super::{
+        avatar::Soul,
+        log::{LogCategory, LogEvent},
+        map::{
+            passage::Passage::Passable,
+            terrain::{TerrainInteract, TerrainView},
+        },
+        Avatar, World,
+    },
+    Action, ActionImpl,
+    ActionPossibility::{self, No, Yes},
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Copy, Clone)]
 pub struct Walk {
@@ -61,7 +67,7 @@ impl ActionImpl for Walk {
     fn on_finish(&self, action: &Action, world: &mut World) {
         world.move_avatar(action.owner, self.dir);
         let pos = world.get_unit(action.owner).pos;
-        if action.length > 20 {
+        if action.length > 20 && action.owner == 0 {
             world.log().push(LogEvent::new(
                 format!(
                     "It takes a long time to walk through the {}",

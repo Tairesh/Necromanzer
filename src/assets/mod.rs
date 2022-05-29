@@ -2,19 +2,18 @@ use std::rc::Rc;
 
 use tetra::Context;
 
-use assets::alert::Alert;
-use assets::button::Button;
-use assets::fonts::Fonts;
-use assets::images::Images;
-use assets::tileset::Tileset;
+pub use self::{
+    alert::Alert, button::Button, fonts::Fonts, images::Images, names::Names,
+    prepared_font::PreparedFont, tileset::Tileset,
+};
 
-pub mod alert;
-pub mod button;
-pub mod fonts;
-pub mod images;
-pub mod names;
-pub mod prepared_font;
-pub mod tileset;
+mod alert;
+mod button;
+mod fonts;
+mod images;
+mod names;
+mod prepared_font;
+mod tileset;
 
 // Can't put this to OnceCell because tetra::Font and tetra::Texture uses Rc<> inside
 pub struct Assets {
