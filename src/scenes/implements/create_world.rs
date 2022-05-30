@@ -13,7 +13,7 @@ use crate::{
 };
 
 use super::super::{
-    helpers::{back_btn, bg, easy_back, error_label, label, title},
+    helpers::{back_btn, bg, easy_back, error_label, label, text_input, title},
     Scene, SceneImpl, SomeTransitions, Transition,
 };
 
@@ -34,67 +34,6 @@ impl CreateWorld {
     pub fn new(app: &App, ctx: &mut Context) -> Self {
         let mut rng = thread_rng();
 
-        let bg = bg(&app.assets);
-        let title = title("Create new world:", &app.assets);
-
-        let name_label = label(
-            "World name:",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: Vertical::ByCenter { y: 195.0 },
-            },
-        );
-        let name_input = Box::new(TextInput::new(
-            GameData::instance().names.random_name(&mut rng),
-            250.0,
-            app.assets.fonts.header2.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
-                y: Vertical::ByCenter { y: 200.0 },
-            },
-        ));
-        let name_error = error_label(
-            "Savefile with this name already exists",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
-                y: Vertical::ByBottom { y: 180.0 },
-            },
-        );
-        let name_empty = error_label(
-            "World name shall not be empty!",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
-                y: Vertical::ByBottom { y: 180.0 },
-            },
-        );
-        let seed_label = label(
-            "World seed:",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
-                y: Vertical::ByCenter { y: 265.0 },
-            },
-        );
-        let seed_input = Box::new(TextInput::new(
-            random_seed(&mut rng).as_str(),
-            250.0,
-            app.assets.fonts.header2.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
-                y: Vertical::ByCenter { y: 270.0 },
-            },
-        ));
-        let seed_error = error_label(
-            "Seed shall not be empty!",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
-                y: Vertical::ByBottom { y: 250.0 },
-            },
-        );
         let mut randomize_btn = Box::new(Button::text(
             vec![
                 Key::NumPadMultiply.into(),
@@ -136,18 +75,69 @@ impl CreateWorld {
         Self {
             // Order is matter, change hardcoded indices in functions below if modified
             sprites: [
-                bg,
-                title,
-                name_label,
-                name_input,
-                seed_label,
-                seed_input,
+                bg(&app.assets),
+                title("Create new world:", &app.assets),
+                label(
+                    "World name:",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                        y: Vertical::ByCenter { y: 195.0 },
+                    },
+                ),
+                text_input(
+                    GameData::instance().names.random_name(&mut rng),
+                    250.0,
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                        y: Vertical::ByCenter { y: 200.0 },
+                    },
+                ),
+                label(
+                    "World seed:",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: -10.0 },
+                        y: Vertical::ByCenter { y: 265.0 },
+                    },
+                ),
+                text_input(
+                    random_seed(&mut rng).as_str(),
+                    250.0,
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: 0.0 },
+                        y: Vertical::ByCenter { y: 270.0 },
+                    },
+                ),
                 back_btn,
                 randomize_btn,
                 create_btn,
-                name_error,
-                seed_error,
-                name_empty,
+                error_label(
+                    "Savefile with this name already exists",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
+                        y: Vertical::ByBottom { y: 180.0 },
+                    },
+                ),
+                error_label(
+                    "Seed shall not be empty!",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
+                        y: Vertical::ByBottom { y: 250.0 },
+                    },
+                ),
+                error_label(
+                    "World name shall not be empty!",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByCenter { offset: 125.0 },
+                        y: Vertical::ByBottom { y: 180.0 },
+                    },
+                ),
             ],
         }
     }

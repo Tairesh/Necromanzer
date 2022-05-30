@@ -25,8 +25,8 @@ pub struct Label {
 }
 
 impl Label {
-    pub fn new<C: Into<String>>(
-        text: C,
+    pub fn new(
+        text: impl Into<String>,
         font: PreparedFont,
         color: Color,
         position: Position,
@@ -41,8 +41,8 @@ impl Label {
         }
     }
 
-    pub fn hidden<C: Into<String>>(
-        text: C,
+    pub fn hidden(
+        text: impl Into<String>,
         font: PreparedFont,
         color: Color,
         position: Position,
@@ -53,7 +53,7 @@ impl Label {
         }
     }
 
-    pub fn update<S: Into<String>>(&mut self, text: S, ctx: &mut Context, window_size: (i32, i32)) {
+    pub fn update(&mut self, text: impl Into<String>, ctx: &mut Context, window_size: (i32, i32)) {
         self.set_value(text);
         self.positionate(ctx, window_size);
     }

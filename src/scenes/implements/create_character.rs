@@ -21,7 +21,7 @@ use crate::{
 };
 
 use super::super::{
-    helpers::{back_btn, bg, easy_back, error_label, label, title},
+    helpers::{back_btn, bg, easy_back, error_label, label, subtitle, text_input, title},
     Scene, SceneImpl, SomeTransitions, Transition,
 };
 
@@ -65,162 +65,6 @@ impl CreateCharacter {
     #[allow(clippy::too_many_lines)]
     pub fn new(path: &Path, app: &App, ctx: &mut Context) -> Self {
         let meta = savefile::load(path).unwrap();
-        let bg = bg(&app.assets);
-        let title = title("Create new character:", &app.assets);
-        let subtitle = Box::new(Label::new(
-            format!("New adventurer in the «{}» world", meta.name),
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
-            Position::horizontal_center(0.0, Vertical::ByTop { y: 100.0 }),
-        ));
-
-        let name_label = label(
-            "Name:",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
-                y: Vertical::ByCenter { y: 195.0 },
-            },
-        );
-        let name_input = Box::new(TextInput::new(
-            "",
-            300.0,
-            app.assets.fonts.header2.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
-                y: Vertical::ByCenter { y: 200.0 },
-            },
-        ));
-        let name_empty = error_label(
-            "Character name shall not be empty!",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
-                y: Vertical::ByBottom { y: 170.0 },
-            },
-        );
-        let gender_label = label(
-            "Gender:",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
-                y: Vertical::ByCenter { y: 245.0 },
-            },
-        );
-        let gender_left = Box::new(Button::icon(
-            vec![],
-            "lt",
-            app.assets.tileset.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
-                y: Vertical::ByCenter { y: 250.0 },
-            },
-            Transition::CustomEvent(ButtonEvent::GenderLeft as u8),
-        ));
-        let gender_input = Box::new(TextInput::new(
-            if meta.time.elapsed().unwrap().as_secs() % 2 == 0 {
-                "Female"
-            } else {
-                "Male"
-            },
-            210.0,
-            app.assets.fonts.header2.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
-                y: Vertical::ByCenter { y: 250.0 },
-            },
-        ));
-        let gender_right = Box::new(Button::icon(
-            vec![],
-            "mt",
-            app.assets.tileset.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
-                y: Vertical::ByCenter { y: 250.0 },
-            },
-            Transition::CustomEvent(ButtonEvent::GenderRight as u8),
-        ));
-        let age_label = label(
-            "Age:",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
-                y: Vertical::ByCenter { y: 298.0 },
-            },
-        );
-        let age_minus = Box::new(Button::icon(
-            vec![],
-            "minus",
-            app.assets.tileset.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
-                y: Vertical::ByCenter { y: 300.0 },
-            },
-            Transition::CustomEvent(ButtonEvent::AgeMinus as u8),
-        ));
-        let age_input = Box::new(TextInput::int(
-            18,
-            (16, 99),
-            210.0,
-            app.assets.fonts.header2.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
-                y: Vertical::ByCenter { y: 300.0 },
-            },
-        ));
-        let age_plus = Box::new(Button::icon(
-            vec![],
-            "plus",
-            app.assets.tileset.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
-                y: Vertical::ByCenter { y: 300.0 },
-            },
-            Transition::CustomEvent(ButtonEvent::AgePlus as u8),
-        ));
-        let hand_label = label(
-            "Main hand:",
-            &app.assets,
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
-                y: Vertical::ByCenter { y: 345.0 },
-            },
-        );
-        let hand_left = Box::new(Button::icon(
-            vec![],
-            "lt",
-            app.assets.tileset.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
-                y: Vertical::ByCenter { y: 350.0 },
-            },
-            Transition::CustomEvent(ButtonEvent::HandLeft as u8),
-        ));
-        let hand_name = Box::new(Label::new(
-            "Right",
-            app.assets.fonts.header2.clone(),
-            Colors::DARK_BROWN,
-            Position {
-                x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
-                y: Vertical::ByCenter { y: 348.0 },
-            },
-        ));
-        let hand_right = Box::new(Button::icon(
-            vec![],
-            "mt",
-            app.assets.tileset.clone(),
-            app.assets.button.clone(),
-            Position {
-                x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
-                y: Vertical::ByCenter { y: 350.0 },
-            },
-            Transition::CustomEvent(ButtonEvent::HandRight as u8),
-        ));
 
         let mut randomize_btn = Box::new(Button::text(
             vec![
@@ -261,31 +105,166 @@ impl CreateCharacter {
         ));
 
         Self {
-            meta,
             // Order is matter, change hardcoded indices in functions below if modified
             sprites: [
-                bg,
-                title,
-                subtitle,
-                name_label,
-                name_input,
-                name_empty,
-                gender_label,
-                gender_left,
-                gender_input,
-                gender_right,
-                age_label,
-                age_minus,
-                age_input,
-                age_plus,
-                hand_label,
-                hand_left,
-                hand_name,
-                hand_right,
+                bg(&app.assets),
+                title("Create new character:", &app.assets),
+                subtitle(
+                    format!("New adventurer in the «{}» world", meta.name),
+                    &app.assets,
+                ),
+                label(
+                    "Name:",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
+                        y: Vertical::ByCenter { y: 195.0 },
+                    },
+                ),
+                text_input(
+                    "",
+                    300.0,
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
+                        y: Vertical::ByCenter { y: 200.0 },
+                    },
+                ),
+                error_label(
+                    "Character name shall not be empty!",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
+                        y: Vertical::ByBottom { y: 170.0 },
+                    },
+                ),
+                label(
+                    "Gender:",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
+                        y: Vertical::ByCenter { y: 245.0 },
+                    },
+                ),
+                Box::new(Button::icon(
+                    vec![],
+                    "lt",
+                    app.assets.tileset.clone(),
+                    app.assets.button.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
+                        y: Vertical::ByCenter { y: 250.0 },
+                    },
+                    Transition::CustomEvent(ButtonEvent::GenderLeft as u8),
+                )),
+                text_input(
+                    if meta.time.elapsed().unwrap().as_secs() % 2 == 0 {
+                        "Female"
+                    } else {
+                        "Male"
+                    },
+                    210.0,
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
+                        y: Vertical::ByCenter { y: 250.0 },
+                    },
+                ),
+                Box::new(Button::icon(
+                    vec![],
+                    "mt",
+                    app.assets.tileset.clone(),
+                    app.assets.button.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
+                        y: Vertical::ByCenter { y: 250.0 },
+                    },
+                    Transition::CustomEvent(ButtonEvent::GenderRight as u8),
+                )),
+                label(
+                    "Age:",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
+                        y: Vertical::ByCenter { y: 298.0 },
+                    },
+                ),
+                Box::new(Button::icon(
+                    vec![],
+                    "minus",
+                    app.assets.tileset.clone(),
+                    app.assets.button.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
+                        y: Vertical::ByCenter { y: 300.0 },
+                    },
+                    Transition::CustomEvent(ButtonEvent::AgeMinus as u8),
+                )),
+                Box::new(TextInput::int(
+                    18,
+                    (16, 99),
+                    210.0,
+                    app.assets.fonts.header2.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: 5.0 },
+                        y: Vertical::ByCenter { y: 300.0 },
+                    },
+                )),
+                Box::new(Button::icon(
+                    vec![],
+                    "plus",
+                    app.assets.tileset.clone(),
+                    app.assets.button.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
+                        y: Vertical::ByCenter { y: 300.0 },
+                    },
+                    Transition::CustomEvent(ButtonEvent::AgePlus as u8),
+                )),
+                label(
+                    "Main hand:",
+                    &app.assets,
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: -60.0 },
+                        y: Vertical::ByCenter { y: 345.0 },
+                    },
+                ),
+                Box::new(Button::icon(
+                    vec![],
+                    "lt",
+                    app.assets.tileset.clone(),
+                    app.assets.button.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByLeft { offset: -40.0 },
+                        y: Vertical::ByCenter { y: 350.0 },
+                    },
+                    Transition::CustomEvent(ButtonEvent::HandLeft as u8),
+                )),
+                Box::new(Label::new(
+                    "Right",
+                    app.assets.fonts.header2.clone(),
+                    Colors::DARK_BROWN,
+                    Position {
+                        x: Horizontal::AtWindowCenterByCenter { offset: 110.0 },
+                        y: Vertical::ByCenter { y: 348.0 },
+                    },
+                )),
+                Box::new(Button::icon(
+                    vec![],
+                    "mt",
+                    app.assets.tileset.clone(),
+                    app.assets.button.clone(),
+                    Position {
+                        x: Horizontal::AtWindowCenterByRight { offset: 260.0 },
+                        y: Vertical::ByCenter { y: 350.0 },
+                    },
+                    Transition::CustomEvent(ButtonEvent::HandRight as u8),
+                )),
                 back_btn,
                 randomize_btn,
                 create_btn,
             ],
+            meta,
             main_hand: MainHand::Right,
             window_size: app.window_size,
         }
