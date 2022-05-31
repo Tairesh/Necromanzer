@@ -1,6 +1,6 @@
 #![allow(clippy::needless_question_mark)] // Sequence causes it idk why
 
-use enum_iterator::{next, previous, Sequence};
+use enum_iterator::{next_cycle, previous_cycle, Sequence};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -21,11 +21,11 @@ impl MainHand {
     }
 
     pub fn next(self) -> Self {
-        next(&self).unwrap_or_else(|| Self::first().unwrap())
+        next_cycle(&self).unwrap()
     }
 
     pub fn prev(self) -> Self {
-        previous(&self).unwrap_or_else(|| Self::last().unwrap())
+        previous_cycle(&self).unwrap()
     }
 }
 
