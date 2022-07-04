@@ -60,8 +60,12 @@ impl World {
         world
     }
 
+    /// Calls one time after world is created
     pub fn init(mut self) -> Self {
         self.kill_grass(self.player().pos, 13, 0.8);
+        self.units.iter().enumerate().for_each(|(i, unit)| {
+            self.map.borrow_mut().get_tile_mut(unit.pos).on_step(i);
+        });
         self
     }
 
@@ -73,6 +77,7 @@ impl World {
         ));
     }
 
+    // TODO: move this to savefile::save
     fn make_data(&self) -> Result<String, SaveError> {
         let mut data = serde_json::to_string(&self.meta).map_err(SaveError::from)?;
         data.push('\n');
